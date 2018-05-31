@@ -60,5 +60,5 @@ Chatty is a unique Bukkit-plugin, that supports all modern Bukkit-servers, such 
       reload: '&aConfig successful reloaded!'
       no-permission: '&cYou don''t have permission.'
 
-### Credits
+# Credits
 Supported by McStudio.
