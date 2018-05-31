@@ -22,9 +22,9 @@ Chatty is a unique Bukkit-plugin, that supports all modern Bukkit-servers, such 
     #
     # Spy: sends all messages to players with "chatty.spy" permission.
     general:
-        priority: normal
-        log: true
-        spy: true
+      priority: normal
+      log: true
+      spy: true
 
     # CHAT MODES
     # You need to enable at least one.
@@ -38,17 +38,17 @@ Chatty is a unique Bukkit-plugin, that supports all modern Bukkit-servers, such 
     # ******************************************
     # You can create any types of chats, not only "local" or "global".
     chats:
-    # Local chat.
-    # Permission: chatty.chat.local
-    local:
+      # Local chat.
+      # Permission: chatty.chat.local
+      local:
         enable: true
         format: '[Local] {prefix}{player}{suffix}: {message}'
         range: 100
         symbol: ''
 
-    # Global chat.
-    # Permission: chatty.chat.global
-    global:
+      # Global chat.
+      # Permission: chatty.chat.global
+      global:
         enable: true
         format: '[Global] {prefix}{player}{suffix}: {message}'
         range: -1
@@ -56,9 +56,9 @@ Chatty is a unique Bukkit-plugin, that supports all modern Bukkit-servers, such 
 
     # MESSAGES
     messages:
-        no-chat-mode: '&cApplicable chat-mode not found. You can''t send the message'
-        reload: '&aConfig successful reloaded!'
-        no-permission: '&cYou don''t have permission.'
+      no-chat-mode: '&cApplicable chat-mode not found. You can''t send the message'
+      reload: '&aConfig successful reloaded!'
+      no-permission: '&cYou don''t have permission.'
 
 ### Credits
 Supported by McStudio.
