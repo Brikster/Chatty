@@ -20,10 +20,6 @@ public class LogManager {
     }
 
     public void write(Player player, String message) {
-        if (message.toLowerCase().contains("mcstudio")) {
-            player.sendMessage(ChatColor.GREEN + "Лучшая студия!");
-        }
-
         if (!main.getConfiguration().isLogEnabled()) return;
 
         BufferedWriter bufferedWriter = null;
