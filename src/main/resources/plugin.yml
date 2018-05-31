@@ -1,0 +1,9 @@
+name: Chatty
+version: ${project.version}
+main: ru.mrbrikster.chatty.Main
+authors: [MrBrikster]
+
+softdepend: [Vault]
+
+commands:
+  chatty: {}
