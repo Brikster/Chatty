@@ -16,6 +16,7 @@ public class Config {
     @Getter private final HashMap<String, String> messages;
     @Getter private final boolean spyEnabled;
     @Getter private EventPriority priority;
+    @Getter private final String spyFormat;
 
     Config(Main main) {
         main.saveDefaultConfig();
@@ -25,7 +26,8 @@ public class Config {
         ConfigurationSection general = fileConfiguration.getConfigurationSection("general");
         this.priority = EventPriority.valueOf(general.getString("priority", "normal").toUpperCase());
         this.logEnabled = general.getBoolean("log");
-        this.spyEnabled = general.getBoolean("spy", true);
+        this.spyEnabled = general.getBoolean("spy.enable", true);
+        this.spyFormat = general.getString("spy.format", "&6[Spy] &r{format}");
 
         ConfigurationSection chats = fileConfiguration.getConfigurationSection("chats");
 

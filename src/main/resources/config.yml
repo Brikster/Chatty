@@ -1,14 +1,17 @@
-# GENERAL.
+# GENERAL
 # Priority: priority of event handler:
 # lowest, low, normal, high or highest.
 #
 # Log: save logs of chat?
 #
 # Spy: sends all messages to players with "chatty.spy" permission.
+# Format: format of spy messages.
 general:
   priority: normal
   log: true
-  spy: true
+  spy:
+    enable: true
+    format: '&6[Spy] &r{format}'
 
 # CHAT MODES
 # You need to enable at least one.
@@ -43,3 +46,5 @@ messages:
   no-chat-mode: '&cApplicable chat-mode not found. You can''t send the message'
   reload: '&aConfig successful reloaded!'
   no-permission: '&cYou don''t have permission.'
+  spy-on: '&aYou have been enabled spy-mode.'
+  spy-off: '&cYou have been disabled spy-mode.'

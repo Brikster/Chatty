@@ -1,6 +1,5 @@
 package ru.mrbrikster.chatty.managers;
 
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import ru.mrbrikster.chatty.Main;
 
@@ -19,13 +18,14 @@ public class LogManager {
         this.main = main;
     }
 
-    public void write(Player player, String message) {
+    void write(Player player, String message) {
         if (!main.getConfiguration().isLogEnabled()) return;
 
         BufferedWriter bufferedWriter = null;
-        File file = new File(main.getDataFolder().getAbsolutePath() + File.separator + "logs");
-        if (!file.exists()) {
-            file.mkdir();
+        File logsDirectory = new File(main.getDataFolder().getAbsolutePath() + File.separator + "logs");
+        if (!logsDirectory.exists()) {
+            if (!logsDirectory.mkdir())
+                return;
         }
 
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -36,7 +36,7 @@ public class LogManager {
         String prefix = dateFormat.format(cal.getTime());
 
         try {
-            bufferedWriter = new BufferedWriter(new FileWriter(file + File.separator + fileName, true));
+            bufferedWriter = new BufferedWriter(new FileWriter(logsDirectory + File.separator + fileName, true));
             bufferedWriter.write(prefix + player.getName() + " (" + player.getUniqueId().toString() + "): " + message);
             bufferedWriter.newLine();
         } catch (Exception ignored) {

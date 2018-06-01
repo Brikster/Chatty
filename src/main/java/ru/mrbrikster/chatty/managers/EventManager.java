@@ -1,9 +1,12 @@
 package ru.mrbrikster.chatty.managers;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import ru.mrbrikster.chatty.Chat;
 import ru.mrbrikster.chatty.Main;
 import ru.mrbrikster.chatty.Utils;
@@ -61,12 +64,26 @@ public abstract class EventManager implements Listener {
         playerChatEvent.setFormat(Utils.colorize(format));
         playerChatEvent.setMessage(message);
 
-        if (chat.getRange() != -1) {
+        if (chat.getRange() > -1) {
             playerChatEvent.getRecipients().clear();
             playerChatEvent.getRecipients().addAll(Utils.getLocalRecipients(player, chat.getRange()));
+
+            for (Player spy : Bukkit.getOnlinePlayers()) {
+                if (spy.hasPermission("chatty.spy") &&
+                        !main.getCommandManager().getSpyDisabledPlayers().contains(spy) &&
+                        !playerChatEvent.getRecipients().contains(spy))
+                    spy.sendMessage(Utils.colorize(main.getConfiguration().getSpyFormat()
+                            .replace("{format}", String.format(format, player.getName(), playerChatEvent.getMessage()))));
+            }
         }
 
         main.getLogManager().write(player, message);
+    }
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent playerQuitEvent) {
+        main.getCommandManager().getSpyDisabledPlayers()
+                .remove(playerQuitEvent.getPlayer());
     }
 
 }

@@ -9,20 +9,14 @@ import ru.mrbrikster.chatty.managers.ViewManager;
 
 public final class Main extends JavaPlugin {
 
-    private static Main instance;
     @Getter private EventManager eventManager;
     @Getter private Config configuration;
     @Getter private ViewManager viewManager;
     @Getter private CommandManager commandManager;
     @Getter private LogManager logManager;
 
-    static Main getInstance() {
-        return instance;
-    }
-
     @Override
     public void onEnable() {
-        Main.instance = Main.this;
         this.init();
 
         this.commandManager = new CommandManager(this);
