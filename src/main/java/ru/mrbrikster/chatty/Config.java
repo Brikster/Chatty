@@ -4,10 +4,12 @@ import lombok.Getter;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.EventPriority;
+import ru.mrbrikster.chatty.managers.AnnouncementsManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Config {
 
@@ -15,6 +17,9 @@ public class Config {
     @Getter private final boolean logEnabled;
     @Getter private final HashMap<String, String> messages;
     @Getter private final boolean spyEnabled;
+    @Getter private final List<AnnouncementsManager.AdvancementMessage> advancementMessages;
+    @Getter private final boolean announcementsEnabled;
+    @Getter private final int announcementsTime;
     @Getter private EventPriority priority;
     @Getter private final String spyFormat;
 
@@ -45,6 +50,16 @@ public class Config {
         ConfigurationSection messages = fileConfiguration.getConfigurationSection("messages");
         for (String key : messages.getKeys(false)) {
             this.messages.put(key, Utils.colorize(messages.getString(key)));
+        }
+
+        ConfigurationSection announcements = fileConfiguration.getConfigurationSection("announcements");
+
+        this.announcementsEnabled = announcements.getBoolean("enable", false);
+        this.announcementsTime = announcements.getInt("time", 60);
+
+        this.advancementMessages = new ArrayList<>();
+        for (Map<?, ?> list : announcements.getMapList("list")) {
+            this.advancementMessages.add(new AnnouncementsManager.AdvancementMessage(list, main));
         }
     }
 

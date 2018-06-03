@@ -2,10 +2,7 @@ package ru.mrbrikster.chatty;
 
 import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
-import ru.mrbrikster.chatty.managers.CommandManager;
-import ru.mrbrikster.chatty.managers.EventManager;
-import ru.mrbrikster.chatty.managers.LogManager;
-import ru.mrbrikster.chatty.managers.ViewManager;
+import ru.mrbrikster.chatty.managers.*;
 
 public final class Main extends JavaPlugin {
 
@@ -14,6 +11,7 @@ public final class Main extends JavaPlugin {
     @Getter private ViewManager viewManager;
     @Getter private CommandManager commandManager;
     @Getter private LogManager logManager;
+    @Getter private AnnouncementsManager announcementsManager;
 
     @Override
     public void onEnable() {
@@ -33,6 +31,9 @@ public final class Main extends JavaPlugin {
     public void init() {
         this.configuration = new Config(this);
         this.viewManager = new ViewManager(this);
+
+        if (configuration.isAnnouncementsEnabled())
+            this.announcementsManager = new AnnouncementsManager(this);
     }
 
 }

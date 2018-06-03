@@ -62,7 +62,7 @@ public abstract class EventManager implements Listener {
         format = format.replace("{suffix}", main.getViewManager().getSuffix(player));
 
         playerChatEvent.setFormat(Utils.colorize(format));
-        playerChatEvent.setMessage(message);
+        playerChatEvent.setMessage(player.hasPermission("chatty.colors") ? Utils.colorize(message) : message);
 
         if (chat.getRange() > -1) {
             playerChatEvent.getRecipients().clear();

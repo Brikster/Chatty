@@ -45,7 +45,7 @@ public class CommandManager implements CommandExecutor {
                             if (spyDisabledPlayers.contains(commandSender)) {
                                 commandSender.sendMessage(main.getConfiguration().getMessages().getOrDefault("spy-on",
                                         ChatColor.GREEN + "You have been enabled spy-mode."));
-                                spyDisabledPlayers.remove((Player) commandSender);
+                                spyDisabledPlayers.remove(commandSender);
                             } else {
                                 commandSender.sendMessage(main.getConfiguration().getMessages().getOrDefault("spy-off",
                                         ChatColor.RED + "You have been disabled spy-mode."));
