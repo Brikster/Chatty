@@ -4,12 +4,10 @@
 #
 # Log: save logs of chat?
 #
-# Announcements: messages in ADVANCEMENT menu. Only for 1.12 and higher.
-#
 # Spy: sends all messages to players with "chatty.spy" permission.
 # Format: format of spy messages.
 general:
-  priority: normal
+  priority: low
   log: true
   spy:
     enable: true
@@ -46,7 +44,7 @@ chats:
 # ANNOUNCEMENTS
 # Messages in new "Advancements" notifications
 #
-# WARNING: 1.12.2+.
+# WARNING: 1.12 and higher.
 announcements:
   enable: false
   # Repeating time in seconds.
@@ -57,7 +55,7 @@ announcements:
     footer: '&7Message text #1'
   - icon: 'minecraft:apple'
     header: '&6Header'
-    footer: '&7Message text #1'
+    footer: '&7Message text #2'
 
 # MESSAGES
 messages:
