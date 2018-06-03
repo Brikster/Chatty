@@ -11,7 +11,6 @@
 general:
   priority: normal
   log: true
-  announcements: true
   spy:
     enable: true
     format: '&6[Spy] &r{format}'
