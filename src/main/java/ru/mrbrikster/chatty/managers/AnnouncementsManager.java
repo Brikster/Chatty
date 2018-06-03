@@ -54,8 +54,6 @@ public class AnnouncementsManager {
         private NamespacedKey id;
         private String icon;
         private String header, footer;
-        private String frame = "goal";
-        private boolean announce = false, toast = true;
         private JavaPlugin javaPlugin;
 
         public AdvancementMessage(Map<?, ?> list, Main main) {
@@ -138,10 +136,10 @@ public class AnnouncementsManager {
             display.add("icon", icon);
             display.addProperty("title", Utils.colorize(this.header + "\n" + this.footer));
             display.addProperty("description", "Chatty Announcement");
-            display.addProperty("background", "minecraft:textures/blocks/gold_block.png");
-            display.addProperty("frame", this.frame);
-            display.addProperty("announce_to_chat", announce);
-            display.addProperty("show_toast", toast);
+            display.addProperty("background", "minecraft:textures/gui/advancements/backgrounds/stone.png");
+            display.addProperty("frame", "goal");
+            display.addProperty("announce_to_chat", false);
+            display.addProperty("show_toast", true);
             display.addProperty("hidden", true);
 
             JsonObject trigger = new JsonObject();
