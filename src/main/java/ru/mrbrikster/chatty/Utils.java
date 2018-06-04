@@ -48,9 +48,9 @@ public class Utils {
         return recipients;
     }
 
-    public static String stylish(Player player, String string) {
+    public static String stylish(Player player, String string, String chat) {
         for (Map.Entry<String, Pattern> entry : PATTERNS.entrySet()) {
-            if (player.hasPermission(entry.getKey())) {
+            if (player.hasPermission(entry.getKey()) || player.hasPermission(entry.getKey() + "." + chat)) {
                 string = entry.getValue().matcher(string).replaceAll("\u00A7$1");
             }
         }

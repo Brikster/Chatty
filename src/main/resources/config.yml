@@ -22,6 +22,8 @@ general:
 # Symbol: symbol to use this chat.
 # Empty symbol to set the chat as default.
 #
+# Cooldown: cooldown for this chat in seconds.
+#
 # ******************************************
 # You can create any types of chats, not only "local" or "global".
 chats:
@@ -32,6 +34,7 @@ chats:
     format: '[Local] {prefix}{player}{suffix}: {message}'
     range: 100
     symbol: ''
+    cooldown: -1
 
   # Global chat.
   # Permission: chatty.chat.global
@@ -40,6 +43,7 @@ chats:
     format: '[Global] {prefix}{player}{suffix}: {message}'
     range: -1
     symbol: '!'
+    cooldown: -1
 
 # ANNOUNCEMENTS
 # Messages in new "Advancements" notifications
@@ -64,4 +68,5 @@ messages:
   no-permission: '&cYou don''t have permission.'
   spy-on: '&aYou have been enabled spy-mode.'
   spy-off: '&cYou have been disabled spy-mode.'
+  cooldown: '&cWait for {cooldown} seconds, before send message in this chat again.'
 

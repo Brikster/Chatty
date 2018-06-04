@@ -31,7 +31,7 @@ public class Config {
         ConfigurationSection general = fileConfiguration.getConfigurationSection("general");
         this.priority = EventPriority.valueOf(general.getString("priority", "normal").toUpperCase());
         this.logEnabled = general.getBoolean("log");
-        this.spyEnabled = general.getBoolean("spy.enable", true);
+        this.spyEnabled = general.getBoolean("spy.enable");
         this.spyFormat = general.getString("spy.format", "&6[Spy] &r{format}");
 
         ConfigurationSection chats = fileConfiguration.getConfigurationSection("chats");
@@ -42,8 +42,9 @@ public class Config {
             this.chats.add(new Chat(key,
                     chat.getBoolean("enable"),
                     chat.getString("format", "{prefix}{player}{suffix}: {message}"),
-                    chat.getInt("range", 100),
-                    chat.getString("symbol", "")));
+                    chat.getInt("range", -1),
+                    chat.getString("symbol", ""),
+                    chat.getLong("cooldown", -1)));
         }
 
         this.messages = new HashMap<>();
@@ -54,7 +55,7 @@ public class Config {
 
         ConfigurationSection announcements = fileConfiguration.getConfigurationSection("announcements");
 
-        this.announcementsEnabled = announcements.getBoolean("enable", false);
+        this.announcementsEnabled = announcements.getBoolean("enable");
 
         this.announcementsTime = announcements.getInt("time", 60);
         this.advancementMessages = new ArrayList<>();

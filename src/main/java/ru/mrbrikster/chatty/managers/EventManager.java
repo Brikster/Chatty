@@ -61,9 +61,21 @@ public abstract class EventManager implements Listener {
         format = format.replace("{prefix}", main.getViewManager().getPrefix(player));
         format = format.replace("{suffix}", main.getViewManager().getSuffix(player));
 
-        message = Utils.stylish(player, message);
+        message = Utils.stylish(player, message, chat.getName());
 
         if (ChatColor.stripColor(message).isEmpty()) {
+            playerChatEvent.setCancelled(true);
+            return;
+        }
+
+        boolean cooldownPermission = chat.getCooldown() == -1 || player.hasPermission("chatty.cooldown") ||
+                player.hasPermission("chatty.cooldown." + chat.getName());
+        long cooldown = cooldownPermission ? -1 : chat.getCooldown(player);
+
+        if (cooldown != -1) {
+            player.sendMessage(main.getConfiguration().getMessages().getOrDefault("no-chat-mode",
+                    ChatColor.RED + "Wait for {cooldown} seconds, before send message in this chat again."
+                    .replace("{cooldown}", String.valueOf(cooldown))));
             playerChatEvent.setCancelled(true);
             return;
         }
@@ -83,6 +95,8 @@ public abstract class EventManager implements Listener {
                             .replace("{format}", String.format(format, player.getName(), playerChatEvent.getMessage()))));
             }
         }
+
+        if (!cooldownPermission) chat.setCooldown(main, player);
 
         main.getLogManager().write(player, message);
     }
