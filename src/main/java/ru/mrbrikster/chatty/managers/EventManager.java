@@ -61,8 +61,15 @@ public abstract class EventManager implements Listener {
         format = format.replace("{prefix}", main.getViewManager().getPrefix(player));
         format = format.replace("{suffix}", main.getViewManager().getSuffix(player));
 
+        message = Utils.stylish(player, message);
+
+        if (ChatColor.stripColor(message).isEmpty()) {
+            playerChatEvent.setCancelled(true);
+            return;
+        }
+
         playerChatEvent.setFormat(Utils.colorize(format));
-        playerChatEvent.setMessage(player.hasPermission("chatty.colors") ? Utils.colorize(message) : message);
+        playerChatEvent.setMessage(message);
 
         if (chat.getRange() > -1) {
             playerChatEvent.getRecipients().clear();
