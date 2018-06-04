@@ -16,7 +16,9 @@ import ru.mrbrikster.chatty.Config;
 import ru.mrbrikster.chatty.Main;
 import ru.mrbrikster.chatty.Utils;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 
 @SuppressWarnings("all")
 public class AnnouncementsManager {
@@ -41,8 +43,10 @@ public class AnnouncementsManager {
                         currentMessage = 0;
                     }
 
-                    config.getAdvancementMessages().get(currentMessage)
-                            .show(Bukkit.getOnlinePlayers());
+                    for (Player player : Bukkit.getOnlinePlayers()) {
+                        config.getAdvancementMessages().get(currentMessage)
+                                .show(player);
+                    }
                 }
 
             }.runTaskTimer(main, config.getAnnouncementsTime() * 20, config.getAnnouncementsTime() * 20);
@@ -71,23 +75,16 @@ public class AnnouncementsManager {
             this.id = new NamespacedKey(javaPlugin, "chatty" + new Random().nextInt(1000000) + 1);
         }
 
-        void show(Player player)	{
-            show(Collections.singletonList(player));
-        }
-
-        void show(Collection<? extends Player> players) {
+        void show(Player player) {
             this.register();
 
-            for (Player player : players)
-                this.grant(player);
+            this.grant(player);
 
             new BukkitRunnable() {
 
                 @Override
                 public void run() {
-                    for (Player player : players)
-                        revoke(player);
-
+                    revoke(player);
                     unregister();
                 }
 

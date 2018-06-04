@@ -55,11 +55,13 @@ public class Config {
         ConfigurationSection announcements = fileConfiguration.getConfigurationSection("announcements");
 
         this.announcementsEnabled = announcements.getBoolean("enable", false);
-        this.announcementsTime = announcements.getInt("time", 60);
 
+        this.announcementsTime = announcements.getInt("time", 60);
         this.advancementMessages = new ArrayList<>();
-        for (Map<?, ?> list : announcements.getMapList("list")) {
-            this.advancementMessages.add(new AnnouncementsManager.AdvancementMessage(list, main));
+
+        if (announcementsEnabled) {
+            for (Map<?, ?> list : announcements.getMapList("list"))
+                this.advancementMessages.add(new AnnouncementsManager.AdvancementMessage(list, main));
         }
     }
 
