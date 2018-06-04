@@ -7,12 +7,15 @@ Chatty is a unique Bukkit-plugin, that supports all modern Bukkit-servers, such 
   - SPY-mode permission. Players with "chatty.spy" permission can see all messages from all chat-modes.
   - Vault API support.
   - Advancements announcements system.
+  - Cooldowns for chat-modes.
 
 # Permissions
     chatty.chat.<chat_mode> - grants access for chat-mode.
     chatty.spy - allows to see all messages from all chat-modes.
     chatty.reload - allows to use "/chatty" command for reloading configuration.
-    chatty.colors - allows to use colors in a chat.
+    chatty.style.<style> or chatty.style.<style>.<chat-mode> - allows to use styles in chat
+        (styles: colors, bold, magic, reset, italic, underline, strikethrough).
+    chatty.cooldown or chatty.cooldown.<chat-mode> - allows to bypass cooldown of chat-mode.
 
 
 # Configuration
@@ -40,6 +43,8 @@ Chatty is a unique Bukkit-plugin, that supports all modern Bukkit-servers, such 
     # Symbol: symbol to use this chat.
     # Empty symbol to set the chat as default.
     #
+    # Cooldown: cooldown for this chat in seconds.
+    #
     # ******************************************
     # You can create any types of chats, not only "local" or "global".
     chats:
@@ -50,6 +55,7 @@ Chatty is a unique Bukkit-plugin, that supports all modern Bukkit-servers, such 
         format: '[Local] {prefix}{player}{suffix}: {message}'
         range: 100
         symbol: ''
+        cooldown: -1
     
       # Global chat.
       # Permission: chatty.chat.global
@@ -58,6 +64,7 @@ Chatty is a unique Bukkit-plugin, that supports all modern Bukkit-servers, such 
         format: '[Global] {prefix}{player}{suffix}: {message}'
         range: -1
         symbol: '!'
+        cooldown: -1
     
     # ANNOUNCEMENTS
     # Messages in new "Advancements" notifications
@@ -82,6 +89,7 @@ Chatty is a unique Bukkit-plugin, that supports all modern Bukkit-servers, such 
       no-permission: '&cYou don''t have permission.'
       spy-on: '&aYou have been enabled spy-mode.'
       spy-off: '&cYou have been disabled spy-mode.'
+      cooldown: '&cWait for {cooldown} seconds, before send message in this chat again.'
 
 # Credits
-Supported by McStudio.
+Supports by McStudio.
