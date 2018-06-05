@@ -10,7 +10,6 @@ import org.bukkit.advancement.AdvancementProgress;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import ru.mrbrikster.chatty.Config;
 import ru.mrbrikster.chatty.Main;
@@ -35,10 +34,7 @@ public class AnnouncementsManager {
                 currentMessage = -1;
             }
 
-            AnnouncementsManager.bukkitTask = new BukkitRunnable() {
-
-                @Override
-                public void run() {
+            AnnouncementsManager.bukkitTask = Bukkit.getScheduler().runTaskTimer(main, () -> {
                     if (currentMessage == -1 || config.getAdvancementMessages().size() <= ++currentMessage) {
                         currentMessage = 0;
                     }
@@ -47,9 +43,7 @@ public class AnnouncementsManager {
                         config.getAdvancementMessages().get(currentMessage)
                                 .show(player);
                     }
-                }
-
-            }.runTaskTimer(main, config.getAnnouncementsTime() * 20, config.getAnnouncementsTime() * 20);
+                }, config.getAnnouncementsTime() * 20, config.getAnnouncementsTime() * 20);
         }
     }
 
@@ -80,15 +74,10 @@ public class AnnouncementsManager {
 
             this.grant(player);
 
-            new BukkitRunnable() {
-
-                @Override
-                public void run() {
+            Bukkit.getScheduler().runTaskLater(javaPlugin, () -> {
                     revoke(player);
                     unregister();
-                }
-
-            }.runTaskLater(javaPlugin, 20);
+                }, 20);
         }
 
         private void register() {
