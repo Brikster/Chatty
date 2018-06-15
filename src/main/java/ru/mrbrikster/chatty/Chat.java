@@ -14,14 +14,16 @@ public class Chat {
     @Getter private final String format;
     @Getter private final int range;
     @Getter private final String symbol;
+    @Getter private final boolean permission;
     @Getter private final long cooldown;
 
-    Chat(String name, boolean enable, String format, int range, String symbol, long cooldown) {
+    Chat(String name, boolean enable, String format, int range, String symbol, boolean permission, long cooldown) {
         this.name = name.toLowerCase();
         this.enable = enable;
         this.format = format;
         this.range = range;
         this.symbol = symbol == null ? "" : symbol;
+        this.permission = permission;
         this.cooldown = cooldown * 1000;
     }
 

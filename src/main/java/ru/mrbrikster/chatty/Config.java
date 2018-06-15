@@ -44,6 +44,7 @@ public class Config {
                     chat.getString("format", "{prefix}{player}{suffix}: {message}"),
                     chat.getInt("range", -1),
                     chat.getString("symbol", ""),
+                    chat.getBoolean("permission", true),
                     chat.getLong("cooldown", -1)));
         }
 

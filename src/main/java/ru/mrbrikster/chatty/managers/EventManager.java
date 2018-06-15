@@ -28,7 +28,9 @@ public abstract class EventManager implements Listener {
         boolean usingSymbol = true;
         for (Chat chatMode : main.getConfiguration().getChats()) {
             if (message.startsWith(chatMode.getSymbol()) &&
-                    player.hasPermission("chatty.chat." + chatMode.getName())
+                    (!chatMode.isPermission()
+                            || player.hasPermission("chatty.chat." + chatMode.getName())
+                            || player.hasPermission("chatty.chat." + chatMode.getName() + ".send"))
                     && chatMode.isEnable()) {
                 chat = chatMode;
             }
@@ -36,7 +38,9 @@ public abstract class EventManager implements Listener {
 
         if (chat == null) {
             for (Chat chatMode : main.getConfiguration().getChats()) {
-                if (player.hasPermission("chatty.chat." + chatMode.getName())
+                if ((!chatMode.isPermission()
+                        || player.hasPermission("chatty.chat." + chatMode.getName())
+                        || player.hasPermission("chatty.chat." + chatMode.getName() + ".send"))
                         && chatMode.isEnable()) {
                     chat = chatMode;
                 }
@@ -85,7 +89,14 @@ public abstract class EventManager implements Listener {
 
         if (chat.getRange() > -1) {
             playerChatEvent.getRecipients().clear();
-            playerChatEvent.getRecipients().addAll(Utils.getLocalRecipients(player, chat.getRange()));
+            playerChatEvent.getRecipients().addAll(Utils.getLocalRecipients(player, chat.getRange(), chat));
+
+            if (playerChatEvent.getRecipients().isEmpty()) {
+                String noRecipients = main.getConfiguration().getMessages().getOrDefault("no-recipients", null);
+
+                if (noRecipients != null)
+                    player.sendMessage(noRecipients);
+            }
 
             for (Player spy : Bukkit.getOnlinePlayers()) {
                 if (spy.hasPermission("chatty.spy") &&

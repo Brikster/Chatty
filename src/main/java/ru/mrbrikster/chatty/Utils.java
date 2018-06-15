@@ -5,6 +5,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -34,13 +35,18 @@ public class Utils {
         return string == null ? null : ChatColor.translateAlternateColorCodes('&', string);
     }
 
-    public static List<Player> getLocalRecipients(Player player, int distance) {
+    public static List<Player> getLocalRecipients(Player player, int distance, Chat chat) {
         Location location = player.getLocation();
 
         double squaredDistance = Math.pow(distance, 2);
 
-        return player.getWorld().getPlayers().stream()
-                .filter(recipient -> location.distanceSquared(recipient.getLocation()) < squaredDistance).collect(Collectors.toList());
+        List<Player> players = new ArrayList<>(player.getWorld().getPlayers());
+
+        return players.stream()
+                .filter(recipient -> location.distanceSquared(recipient.getLocation()) < squaredDistance
+                    && (!chat.isPermission()
+                        || recipient.hasPermission("chatty.chat." + chat.getName() + ".see")
+                        || recipient.hasPermission("chatty.chat." + chat.getName()))).collect(Collectors.toList());
     }
 
     public static String stylish(Player player, String string, String chat) {

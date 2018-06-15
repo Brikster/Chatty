@@ -28,7 +28,9 @@ general:
 # You can create any types of chats, not only "local" or "global".
 chats:
   # Local chat.
-  # Permission: chatty.chat.local
+  # Permissions:
+  # chatty.chat.local.see, chatty.chat.local.send
+  # or chatty.chat.local
   local:
     enable: true
     format: '[Local] {prefix}{player}{suffix}: {message}'
@@ -37,7 +39,8 @@ chats:
     cooldown: -1
 
   # Global chat.
-  # Permission: chatty.chat.global
+  # chatty.chat.global.see, chatty.chat.global.send
+  # or chatty.chat.global
   global:
     enable: true
     format: '[Global] {prefix}{player}{suffix}: {message}'
@@ -69,4 +72,5 @@ messages:
   spy-on: '&aYou have been enabled spy-mode.'
   spy-off: '&cYou have been disabled spy-mode.'
   cooldown: '&cWait for {cooldown} seconds, before send message in this chat again.'
+  no-recipients: "&cNobody heard you."
 
