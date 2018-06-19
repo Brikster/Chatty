@@ -4,6 +4,7 @@ import lombok.Getter;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.EventPriority;
+import ru.mrbrikster.chatty.managers.AlertsManager;
 import ru.mrbrikster.chatty.managers.AnnouncementsManager;
 
 import java.util.ArrayList;
@@ -20,6 +21,8 @@ public class Config {
     @Getter private final List<AnnouncementsManager.AdvancementMessage> advancementMessages;
     @Getter private final boolean announcementsEnabled;
     @Getter private final int announcementsTime;
+    @Getter private final boolean alertsEnabled;
+    @Getter private final ArrayList<AlertsManager.AlertList> alertsLists;
     @Getter private EventPriority priority;
     @Getter private final String spyFormat;
 
@@ -28,12 +31,14 @@ public class Config {
         main.reloadConfig();
         FileConfiguration fileConfiguration = main.getConfig();
 
+        // General
         ConfigurationSection general = fileConfiguration.getConfigurationSection("general");
         this.priority = EventPriority.valueOf(general.getString("priority", "normal").toUpperCase());
         this.logEnabled = general.getBoolean("log");
         this.spyEnabled = general.getBoolean("spy.enable");
         this.spyFormat = general.getString("spy.format", "&6[Spy] &r{format}");
 
+        // Chats
         ConfigurationSection chats = fileConfiguration.getConfigurationSection("chats");
 
         this.chats = new ArrayList<>();
@@ -48,12 +53,33 @@ public class Config {
                     chat.getLong("cooldown", -1)));
         }
 
+        // I18n
         this.messages = new HashMap<>();
         ConfigurationSection messages = fileConfiguration.getConfigurationSection("messages");
         for (String key : messages.getKeys(false)) {
             this.messages.put(key, Utils.colorize(messages.getString(key)));
         }
 
+        // Alerts
+        ConfigurationSection alerts = fileConfiguration.getConfigurationSection("alerts");
+
+        this.alertsEnabled = alerts.getBoolean("enable");
+        this.alertsLists = new ArrayList<>();
+
+        ConfigurationSection listsSection = alerts.getConfigurationSection("lists");
+        if (listsSection != null) {
+            for (String key : listsSection.getKeys(false)) {
+                ConfigurationSection section = listsSection.getConfigurationSection(key);
+                this.alertsLists.add(
+                        new AlertsManager.AlertList(
+                                key.toLowerCase(),
+                                section.getInt("time", 5),
+                                section.getString("prefix", ""),
+                                section.getStringList("messages")));
+            }
+        }
+
+        // Announcements
         ConfigurationSection announcements = fileConfiguration.getConfigurationSection("announcements");
 
         this.announcementsEnabled = announcements.getBoolean("enable");
@@ -64,6 +90,9 @@ public class Config {
         if (announcementsEnabled) {
             for (Map<?, ?> list : announcements.getMapList("list"))
                 this.advancementMessages.add(new AnnouncementsManager.AdvancementMessage(list, main));
+
+            if (main.getAnnouncementsManager() != null)
+                main.getAnnouncementsManager().reset();
         }
     }
 

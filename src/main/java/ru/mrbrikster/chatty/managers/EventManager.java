@@ -52,7 +52,7 @@ public abstract class EventManager implements Listener {
         if (chat == null) {
             playerChatEvent.setCancelled(true);
             player.sendMessage(main.getConfiguration().getMessages().getOrDefault("no-chat-mode",
-                    ChatColor.RED + "Applicable chat-mode not found. You can't send the message"));
+                    ChatColor.RED + "Applicable chat-mode not found. You can't send the message."));
             return;
         }
 
@@ -91,11 +91,11 @@ public abstract class EventManager implements Listener {
             playerChatEvent.getRecipients().clear();
             playerChatEvent.getRecipients().addAll(Utils.getLocalRecipients(player, chat.getRange(), chat));
 
-            if (playerChatEvent.getRecipients().isEmpty()) {
+            if (playerChatEvent.getRecipients().size() <= 1) {
                 String noRecipients = main.getConfiguration().getMessages().getOrDefault("no-recipients", null);
 
                 if (noRecipients != null)
-                    player.sendMessage(noRecipients);
+                    Bukkit.getScheduler().runTaskLater(main, () -> player.sendMessage(noRecipients), 5L);
             }
 
             for (Player spy : Bukkit.getOnlinePlayers()) {

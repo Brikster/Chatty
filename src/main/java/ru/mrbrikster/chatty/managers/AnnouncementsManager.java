@@ -47,6 +47,10 @@ public class AnnouncementsManager {
         }
     }
 
+    public void reset() {
+        this.currentMessage = -1;
+    }
+
     public static class AdvancementMessage implements ConfigurationSerializable {
 
         private NamespacedKey id;

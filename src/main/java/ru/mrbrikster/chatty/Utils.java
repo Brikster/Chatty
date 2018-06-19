@@ -44,7 +44,7 @@ public class Utils {
 
         return players.stream()
                 .filter(recipient -> location.distanceSquared(recipient.getLocation()) < squaredDistance
-                    && (!chat.isPermission()
+                    && (recipient.equals(player) || !chat.isPermission()
                         || recipient.hasPermission("chatty.chat." + chat.getName() + ".see")
                         || recipient.hasPermission("chatty.chat." + chat.getName()))).collect(Collectors.toList());
     }

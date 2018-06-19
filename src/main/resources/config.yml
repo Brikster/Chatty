@@ -64,13 +64,28 @@ announcements:
     header: '&6Header'
     footer: '&7Message text #2'
 
+# ALERTS
+# Messages in chat
+alerts:
+  enable: true
+  lists:
+    # Permission to see: chatty.alerts.default
+    default:
+      # Repeating time in seconds.
+      time: 60
+      # Prefix for messages
+      prefix: ''
+      messages:
+      - '&7Message text &c#1'
+      - '&7Message text &a#2'
+
 # MESSAGES
 messages:
-  no-chat-mode: '&cApplicable chat-mode not found. You can''t send the message'
+  no-chat-mode: '&cApplicable chat-mode not found. You can''t send the message.'
   reload: '&aConfig successful reloaded!'
   no-permission: '&cYou don''t have permission.'
   spy-on: '&aYou have been enabled spy-mode.'
   spy-off: '&cYou have been disabled spy-mode.'
   cooldown: '&cWait for {cooldown} seconds, before send message in this chat again.'
-  no-recipients: "&cNobody heard you."
+  no-recipients: '&cNobody heard you.'
 

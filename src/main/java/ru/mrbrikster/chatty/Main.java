@@ -12,6 +12,7 @@ public final class Main extends JavaPlugin {
     @Getter private CommandManager commandManager;
     @Getter private LogManager logManager;
     @Getter private AnnouncementsManager announcementsManager;
+    @Getter private AlertsManager alertsManager;
 
     @Override
     public void onEnable() {
@@ -29,11 +30,17 @@ public final class Main extends JavaPlugin {
     }
 
     public void init() {
+        if (this.configuration != null)
+            configuration.getAlertsLists().forEach(AlertsManager.AlertList::cancel);
+
         this.configuration = new Config(this);
         this.viewManager = new ViewManager(this);
 
         if (configuration.isAnnouncementsEnabled())
             this.announcementsManager = new AnnouncementsManager(this);
+
+        if (configuration.isAlertsEnabled())
+            this.alertsManager = new AlertsManager(this);
     }
 
 }
