@@ -54,7 +54,8 @@ public class AlertsManager {
         }
 
         public void cancel() {
-            bukkitTask.cancel();
+            if (bukkitTask != null)
+                bukkitTask.cancel();
         }
 
     }
