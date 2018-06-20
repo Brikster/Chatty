@@ -40,7 +40,7 @@ public class Utils {
         return string == null ? null : ChatColor.translateAlternateColorCodes('&', string);
     }
 
-    public static List<Player> getLocalRecipients(Player player, int distance, Chat chat) {
+    public static List<Player> getRecipients(Player player, int distance, Chat chat) {
         Location location = player.getLocation();
 
         double squaredDistance = Math.pow(distance, 2);
@@ -48,8 +48,9 @@ public class Utils {
         List<Player> players = new ArrayList<>(player.getWorld().getPlayers());
 
         return players.stream()
-                .filter(recipient -> location.distanceSquared(recipient.getLocation()) < squaredDistance
-                    && (recipient.equals(player) || !chat.isPermission()
+                .filter(recipient ->
+                        (distance <= -1 || location.distanceSquared(recipient.getLocation()) < squaredDistance)
+                        && (recipient.equals(player) || !chat.isPermission()
                         || recipient.hasPermission("chatty.chat." + chat.getName() + ".see")
                         || recipient.hasPermission("chatty.chat." + chat.getName()))).collect(Collectors.toList());
     }
