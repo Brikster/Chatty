@@ -67,6 +67,7 @@ public abstract class EventManager implements Listener {
 
         message = Utils.stylish(player, message, chat.getName());
 
+        // Cancel empty message
         if (ChatColor.stripColor(message).isEmpty()) {
             playerChatEvent.setCancelled(true);
             return;
@@ -76,6 +77,7 @@ public abstract class EventManager implements Listener {
                 player.hasPermission("chatty.cooldown." + chat.getName());
         long cooldown = cooldownPermission ? -1 : chat.getCooldown(player);
 
+        // Check cooldown
         if (cooldown != -1) {
             player.sendMessage(main.getConfiguration().getMessages().getOrDefault("no-chat-mode",
                     ChatColor.RED + "Wait for {cooldown} seconds, before send message in this chat again."
@@ -87,24 +89,16 @@ public abstract class EventManager implements Listener {
         playerChatEvent.setFormat(Utils.colorize(format));
         playerChatEvent.setMessage(message);
 
+        // Add new recipients
         playerChatEvent.getRecipients().clear();
         playerChatEvent.getRecipients().addAll(Utils.getRecipients(player, chat.getRange(), chat));
 
+        // Check for "no-recipients"
         if (playerChatEvent.getRecipients().size() <= 1) {
             String noRecipients = main.getConfiguration().getMessages().getOrDefault("no-recipients", null);
 
             if (noRecipients != null)
                 Bukkit.getScheduler().runTaskLater(main, () -> player.sendMessage(noRecipients), 5L);
-        }
-
-        if (chat.getRange() > -1) {
-            for (Player spy : Bukkit.getOnlinePlayers()) {
-                if (spy.hasPermission("chatty.spy") &&
-                        !main.getCommandManager().getSpyDisabledPlayers().contains(spy) &&
-                        !playerChatEvent.getRecipients().contains(spy))
-                    spy.sendMessage(Utils.colorize(main.getConfiguration().getSpyFormat()
-                            .replace("{format}", String.format(format, player.getName(), playerChatEvent.getMessage()))));
-            }
         }
 
         if (!cooldownPermission) chat.setCooldown(main, player);
@@ -115,7 +109,21 @@ public abstract class EventManager implements Listener {
             playerChatEvent.getRecipients().add(player);
 
             main.getLogManager().write(player, message, true);
+
+            String adsFound = main.getConfiguration().getMessages().getOrDefault("ads-found", null);
+
+            if (adsFound != null)
+                Bukkit.getScheduler().runTaskLater(main, () -> player.sendMessage(adsFound), 5L);
         } else main.getLogManager().write(player, message, false);
+
+        // Send for spy-players
+        for (Player spy : Bukkit.getOnlinePlayers()) {
+            if (spy.hasPermission("chatty.spy") &&
+                    !main.getCommandManager().getSpyDisabledPlayers().contains(spy) &&
+                    !playerChatEvent.getRecipients().contains(spy))
+                spy.sendMessage(Utils.colorize(main.getConfiguration().getSpyFormat()
+                        .replace("{format}", String.format(format, player.getName(), playerChatEvent.getMessage()))));
+        }
     }
 
     @EventHandler

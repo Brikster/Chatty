@@ -99,4 +99,5 @@ messages:
   spy-off: '&cYou have been disabled spy-mode.'
   cooldown: '&cWait for {cooldown} seconds, before send message in this chat again.'
   no-recipients: '&cNobody heard you.'
+  ads-found: '&cYou have sent message with ads!'
 

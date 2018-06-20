@@ -81,7 +81,7 @@ public class Config {
             }
         }
 
-        // Anti-ad
+        // Anti-ads
         this.antiAdsEnabled = fileConfiguration.getBoolean("anti-ads.enable");
         this.adsWhitelist = fileConfiguration.getStringList("anti-ads.whitelist");
 
