@@ -107,9 +107,16 @@ public abstract class EventManager implements Listener {
             }
         }
 
+
         if (!cooldownPermission) chat.setCooldown(main, player);
 
-        main.getLogManager().write(player, message);
+        if (main.getConfiguration().isAntiAdsEnabled() && !player.hasPermission("chatty.ads.bypass")
+                && (Utils.containsIP(main, message) || Utils.containsDomain(main, message))) {
+            playerChatEvent.getRecipients().clear();
+            playerChatEvent.getRecipients().add(player);
+
+            main.getLogManager().write(player, message, true);
+        } else main.getLogManager().write(player, message, false);
     }
 
     @EventHandler

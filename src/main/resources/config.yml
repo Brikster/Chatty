@@ -79,6 +79,17 @@ alerts:
       - '&7Message text &c#1'
       - '&7Message text &a#2'
 
+# ANTI-ADS
+# Hides messages with ads for other players
+anti-ads:
+  enable: true
+  whitelist:
+  - 'example.com'
+  - 'vk.com'
+  - 'google.com'
+  - '192.168.1.1'
+  - '127.0.0.1'
+
 # MESSAGES
 messages:
   no-chat-mode: '&cApplicable chat-mode not found. You can''t send the message.'

@@ -8,9 +8,11 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("all")
 public class Utils {
 
     private static final Pattern COLOR_PATTERN = Pattern.compile("(?i)&([0-9A-F])");
@@ -30,6 +32,9 @@ public class Utils {
             .put(PERMISSION_PREFIX + "underline", UNDERLINE_PATTENT)
             .put(PERMISSION_PREFIX + "italic", ITALIC_PATTERN)
             .put(PERMISSION_PREFIX + "reset", RESET_PATTERN).build();
+
+    private static final Pattern IP_PATTERN = Pattern.compile("((?<![0-9])(?:(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[ ]?[.,-:; ][ ]?(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[ ]?[., ][ ]?(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[ ]?[., ][ ]?(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2}))(?![0-9]))");
+    private static final Pattern DOMAIN_PATTERN = Pattern.compile("[-a-zA-Z0-9@:%_\\+.~#?&/=]{2,256}\\.[a-z]{2,4}\\b(\\/[-a-zA-Z0-9@:%_\\+~#?&/=]*)?");
 
     public static String colorize(String string) {
         return string == null ? null : ChatColor.translateAlternateColorCodes('&', string);
@@ -57,6 +62,65 @@ public class Utils {
         }
 
         return string;
+    }
+
+    public static boolean containsIP(Main main, String message) {
+        message = message.toLowerCase().replaceAll(" ", "");
+        Matcher regexMatcher = IP_PATTERN.matcher(message);
+
+        while (regexMatcher.find()) {
+            if (regexMatcher.group().length() != 0) {
+                String text = regexMatcher.group().trim()
+                        .replaceAll("http://", "")
+                        .replaceAll("https://", "")
+                        .split("/")[0];
+
+                if (text.split("\\.").length > 4) {
+                    String[] domains = text.split("\\.");
+
+                    int i = domains.length;
+                    text = domains[--i] + "."
+                            + domains[--i] + "."
+                            + domains[--i] + "."
+                            + domains[--i];
+                }
+
+                if (IP_PATTERN.matcher(text).find()) {
+                    return !main.getConfiguration().getAdsWhitelist().contains(regexMatcher.group().trim());
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public static boolean containsDomain(Main main, String message) {
+        message = message.toLowerCase().replaceAll(" ", "");
+        Matcher regexMatcher = DOMAIN_PATTERN.matcher(message);
+
+        while (regexMatcher.find()) {
+            if (regexMatcher.group().length() != 0) {
+                String text = regexMatcher.group().trim()
+                        .replaceAll("http://", "")
+                        .replaceAll("https://", "")
+                        .split("/")[0];
+
+                if (text.split("\\.").length > 2) {
+                    String[] domains = text.split("\\.");
+
+                    int i = domains.length;
+                    String zone = domains[--i];
+                    String second = domains[--i];
+                    text = second + "." + zone;
+                }
+
+                if (DOMAIN_PATTERN.matcher(text).find()) {
+                    return !main.getConfiguration().getAdsWhitelist().contains(regexMatcher.group().trim());
+                }
+            }
+        }
+
+        return false;
     }
 
 }

@@ -18,7 +18,7 @@ public class LogManager {
         this.main = main;
     }
 
-    void write(Player player, String message) {
+    void write(Player player, String message, boolean ads) {
         if (!main.getConfiguration().isLogEnabled()) return;
 
         BufferedWriter bufferedWriter = null;
@@ -37,7 +37,7 @@ public class LogManager {
 
         try {
             bufferedWriter = new BufferedWriter(new FileWriter(logsDirectory + File.separator + fileName, true));
-            bufferedWriter.write(prefix + player.getName() + " (" + player.getUniqueId().toString() + "): " + message);
+            bufferedWriter.write(prefix + (ads ? "[ADS] " : "") + player.getName() + " (" + player.getUniqueId().toString() + "): " + message);
             bufferedWriter.newLine();
         } catch (Exception ignored) {
         } finally {

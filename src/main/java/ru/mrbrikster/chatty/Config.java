@@ -23,6 +23,8 @@ public class Config {
     @Getter private final int announcementsTime;
     @Getter private final boolean alertsEnabled;
     @Getter private final ArrayList<AlertsManager.AlertList> alertsLists;
+    @Getter private final boolean antiAdsEnabled;
+    @Getter private final List<String> adsWhitelist;
     @Getter private EventPriority priority;
     @Getter private final String spyFormat;
 
@@ -78,6 +80,10 @@ public class Config {
                                 section.getStringList("messages")));
             }
         }
+
+        // Anti-ad
+        this.antiAdsEnabled = fileConfiguration.getBoolean("anti-ads.enable");
+        this.adsWhitelist = fileConfiguration.getStringList("anti-ads.whitelist");
 
         // Announcements
         ConfigurationSection announcements = fileConfiguration.getConfigurationSection("announcements");
