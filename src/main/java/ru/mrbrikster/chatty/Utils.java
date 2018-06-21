@@ -1,6 +1,7 @@
 package ru.mrbrikster.chatty;
 
 import com.google.common.collect.ImmutableMap;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -45,7 +46,7 @@ public class Utils {
 
         double squaredDistance = Math.pow(distance, 2);
 
-        List<Player> players = new ArrayList<>(player.getWorld().getPlayers());
+        List<Player> players = new ArrayList<>(distance > -1 ? player.getWorld().getPlayers() : Bukkit.getOnlinePlayers());
 
         return players.stream()
                 .filter(recipient ->
