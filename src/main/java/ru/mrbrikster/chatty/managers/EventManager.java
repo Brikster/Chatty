@@ -118,7 +118,7 @@ public abstract class EventManager implements Listener {
 
         // Send for spy-players
         for (Player spy : Bukkit.getOnlinePlayers()) {
-            if (spy.hasPermission("chatty.spy") &&
+            if ((spy.hasPermission("chatty.spy") || spy.hasPermission("chatty.spy." + chat.getName())) &&
                     !main.getCommandManager().getSpyDisabledPlayers().contains(spy) &&
                     !playerChatEvent.getRecipients().contains(spy))
                 spy.sendMessage(Utils.colorize(main.getConfiguration().getSpyFormat()

@@ -36,7 +36,7 @@ public class CommandManager implements CommandExecutor {
                     @Override
                     public boolean execute(CommandSender commandSender, String label, String[] args) {
                         if (commandSender instanceof Player) {
-                            if (!commandSender.hasPermission("chatty.spy")) {
+                            if (!commandSender.hasPermission("chatty.spy.command")) {
                                 commandSender.sendMessage(main.getConfiguration().getMessages().getOrDefault("no-permission",
                                         ChatColor.RED + "You don't have permission."));
                                 return true;
