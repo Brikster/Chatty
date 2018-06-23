@@ -36,7 +36,7 @@ public class CommandManager implements CommandExecutor {
                     @Override
                     public boolean execute(CommandSender commandSender, String label, String[] args) {
                         if (commandSender instanceof Player) {
-                            if (!commandSender.hasPermission("chatty.spy.command")) {
+                            if (!commandSender.hasPermission("chatty.command.spy")) {
                                 commandSender.sendMessage(main.getConfiguration().getMessages().getOrDefault("no-permission",
                                         ChatColor.RED + "You don't have permission."));
                                 return true;
@@ -74,7 +74,7 @@ public class CommandManager implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String label, String[] args) {
-        if (commandSender.hasPermission("chatty.reload")) {
+        if (commandSender.hasPermission("chatty.command.reload")) {
             main.init();
             commandSender.sendMessage(main.getConfiguration().getMessages().getOrDefault("reload",
                     ChatColor.GREEN + "Config successful reloaded!"));
