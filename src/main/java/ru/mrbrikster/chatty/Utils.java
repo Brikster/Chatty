@@ -46,7 +46,7 @@ public class Utils {
 
         double squaredDistance = Math.pow(distance, 2);
 
-        List<Player> players = new ArrayList<>(distance > -1 ? player.getWorld().getPlayers() : Bukkit.getOnlinePlayers());
+        List<Player> players = new ArrayList<>(distance > -2 ? player.getWorld().getPlayers() : Bukkit.getOnlinePlayers());
 
         return players.stream()
                 .filter(recipient ->

@@ -17,7 +17,8 @@ general:
 # You need to enable at least one.
 #
 # Range: range of chat in blocks.
-# -1 to disable.
+# -1 to world-wide chat.
+# -2 to server-wide chat.
 #
 # Symbol: symbol to use this chat.
 # Empty symbol to set the chat as default.

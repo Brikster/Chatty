@@ -19,19 +19,21 @@ public class AlertsManager {
 
     public static class AlertList {
 
-        @Getter private String name;
-        @Getter private int time;
-        @Getter private String prefix;
-        @Getter private List<String> messages;
+        @Getter private final String name;
+        @Getter private final int time;
+        @Getter private final String prefix;
+        @Getter private final List<String> messages;
+        @Getter private final boolean permission;
 
         private BukkitTask bukkitTask;
         private int currentMessage;
 
-        public AlertList(String name, int time, String prefix, List<String> messages) {
+        public AlertList(String name, int time, String prefix, List<String> messages, boolean permission) {
             this.name = name;
             this.time = time;
             this.prefix = prefix;
             this.messages = messages;
+            this.permission = permission;
             this.currentMessage = -1;
         }
 
@@ -47,9 +49,10 @@ public class AlertsManager {
                 }
 
                 String message = Utils.colorize(prefix + messages.get(currentMessage));
+
                 Bukkit.getOnlinePlayers().stream()
-                        .filter(player -> player.hasPermission("chatty.alerts." + name))
-                        .forEach(player -> player.sendMessage(message));
+                        .filter(player -> player.hasPermission("chatty.alerts." + name) || !permission)
+                        .forEach(player -> player.sendMessage(message.split("\n")));
             }, time * 20, time * 20);
         }
 

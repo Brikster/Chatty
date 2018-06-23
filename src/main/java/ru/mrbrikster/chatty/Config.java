@@ -77,7 +77,8 @@ public class Config {
                                 key.toLowerCase(),
                                 section.getInt("time", 5),
                                 section.getString("prefix", ""),
-                                section.getStringList("messages")));
+                                section.getStringList("messages"),
+                                section.getBoolean("permission", true)));
             }
         }
 
