@@ -10,30 +10,19 @@ public class ViewManager {
     private VaultManager vaultManager;
 
     public ViewManager(Main main) {
-        this.enable = Bukkit.getPluginManager().getPlugin("Vault") != null;
-
-        if (enable) {
+        if (this.enable = (Bukkit.getPluginManager().getPlugin("Vault") != null)) {
             this.vaultManager = new VaultManager(main);
         }
     }
 
-
     String getPrefix(Player player) {
-        if (enable) {
-            return vaultManager.getChat()
-                    .getPlayerPrefix(player);
-        } else {
-            return "";
-        }
+        return enable ? vaultManager.getChat()
+                .getPlayerPrefix(player) : "";
     }
 
     String getSuffix(Player player) {
-        if (enable) {
-            return vaultManager.getChat()
-                    .getPlayerSuffix(player);
-        } else {
-            return "";
-        }
+        return enable ? vaultManager.getChat()
+                .getPlayerSuffix(player) : "";
     }
 
 }

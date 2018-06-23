@@ -12,8 +12,9 @@ Chatty is a unique Bukkit-plugin, that supports all modern Bukkit-servers, such 
 
 # Permissions
     chatty.chat.<chat_mode> (chatty.chat.<chat_mode>.see or chatty.chat.<chat_mode>.send) - grants access for chat-mode.
-    chatty.spy - allows to see all messages from all chat-modes.
-    chatty.reload - allows to use "/chatty" command for reloading configuration.
+    chatty.spy.<chat_mode> or chatty.spy - allows to see all messages from chat-modes.
+    chatty.command.spy - allows to use "/spy" command for enabling/disabling spy-mode.
+    chatty.command.reload - allows to use "/chatty" command for reloading configuration.
     chatty.alerts.<list> - allows to see messages from alert list.
     chatty.style.<style> or chatty.style.<style>.<chat-mode> - allows to use styles in chat
         (styles: colors, bold, magic, reset, italic, underline, strikethrough).

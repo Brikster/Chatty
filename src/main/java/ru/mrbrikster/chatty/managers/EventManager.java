@@ -116,7 +116,7 @@ public abstract class EventManager implements Listener {
                 Bukkit.getScheduler().runTaskLater(main, () -> player.sendMessage(adsFound), 5L);
         } else main.getLogManager().write(player, message, false);
 
-        // Send for spy-players
+        // Send to spy-players
         for (Player spy : Bukkit.getOnlinePlayers()) {
             if ((spy.hasPermission("chatty.spy") || spy.hasPermission("chatty.spy." + chat.getName())) &&
                     !main.getCommandManager().getSpyDisabledPlayers().contains(spy) &&
