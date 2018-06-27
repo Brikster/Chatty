@@ -73,9 +73,9 @@ public abstract class EventManager implements Listener {
             return;
         }
 
-        boolean cooldownPermission = chat.getCooldown() == -1 || player.hasPermission("chatty.cooldown") ||
+        boolean hasCooldown = chat.getCooldown() == -1 || player.hasPermission("chatty.cooldown") ||
                 player.hasPermission("chatty.cooldown." + chat.getName());
-        long cooldown = cooldownPermission ? -1 : chat.getCooldown(player);
+        long cooldown = hasCooldown ? -1 : chat.getCooldown(player);
 
         // Check cooldown
         if (cooldown != -1) {
@@ -101,7 +101,7 @@ public abstract class EventManager implements Listener {
                 Bukkit.getScheduler().runTaskLater(main, () -> player.sendMessage(noRecipients), 5L);
         }
 
-        if (!cooldownPermission) chat.setCooldown(main, player);
+        if (!hasCooldown) chat.setCooldown(main, player);
 
         if (main.getConfiguration().isAntiAdsEnabled() && !player.hasPermission("chatty.ads.bypass")
                 && (Utils.containsIP(main, message) || Utils.containsDomain(main, message))) {
