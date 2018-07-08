@@ -49,6 +49,27 @@ chats:
     symbol: '!'
     cooldown: -1
 
+    # Requirement for one message
+    #
+    # Types: vault, item
+    #
+    # Examples:
+    #
+    # "type: vault
+    #  data: 100"
+    #
+    # "type: item
+    #  data:
+    #    material: GOLD_INGOT
+    #    amount: 10
+    #    name: '&eCoin'
+    #    lore: []"
+    #
+    # See materials list at "https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html"
+    requires:
+      type: vault
+      data: 100
+
 # ANNOUNCEMENTS
 # Messages in new "Advancements" notifications
 #
