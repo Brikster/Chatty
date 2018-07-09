@@ -49,26 +49,38 @@ chats:
     symbol: '!'
     cooldown: -1
 
-    # Requirement for one message
+    # Required money for one message
     #
-    # Types: vault, item
-    #
-    # Examples:
-    #
-    # "type: vault
-    #  data: 100"
-    #
-    # "type: item
-    #  data:
-    #    material: GOLD_INGOT
-    #    amount: 10
-    #    name: '&eCoin'
-    #    lore: []"
-    #
-    # See materials list at "https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html"
-    requires:
-      type: vault
-      data: 100
+    # Depends on Vault
+    money: 100
+
+# COMMANDS
+# Settings for command groups
+#
+# Triggers types:
+# CONTAINS ABCD
+# STARTS ABCD
+# COMMAND ABCD
+#
+# Bypass permission: chatty.commands.<command-group>
+commands:
+  anti-hack:
+    triggers:
+    - 'CONTAINS :'
+    block: true
+    message: 'You can''t use commands with ":" symbol.'
+  plugins-hiders:
+    triggers:
+    - 'COMMAND pl'
+    - 'COMMAND plugins'
+    block: true
+    message: '&fPlugins (1): &aWorldGuard'
+  spawn-cooldown:
+    triggers:
+    - 'COMMAND spawn'
+    - 'COMMAND home'
+    cooldown: 15
+    message: '&cPlease, wait {cooldown} seconds before using this command again.'
 
 # ANNOUNCEMENTS
 # Messages in new "Advancements" notifications
