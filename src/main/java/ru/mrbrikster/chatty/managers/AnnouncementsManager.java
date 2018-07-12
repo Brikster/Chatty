@@ -64,7 +64,7 @@ public class AnnouncementsManager {
                     (String) list.get("icon"), main);
         }
 
-        private AdvancementMessage(String header, String footer, String icon, JavaPlugin javaPlugin) {
+        AdvancementMessage(String header, String footer, String icon, JavaPlugin javaPlugin) {
             this.header = header;
             this.footer = footer;
             this.icon = icon;

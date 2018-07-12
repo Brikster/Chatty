@@ -4,6 +4,7 @@ import lombok.Getter;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.EventPriority;
+import ru.mrbrikster.chatty.commands.CommandGroup;
 import ru.mrbrikster.chatty.managers.AlertsManager;
 import ru.mrbrikster.chatty.managers.AnnouncementsManager;
 
@@ -25,6 +26,7 @@ public class Config {
     @Getter private final ArrayList<AlertsManager.AlertList> alertsLists;
     @Getter private final boolean antiAdsEnabled;
     @Getter private final List<String> adsWhitelist;
+    @Getter private final List<CommandGroup> commandGroups;
     @Getter private EventPriority priority;
     @Getter private final String spyFormat;
 
@@ -52,7 +54,8 @@ public class Config {
                     chat.getInt("range", -1),
                     chat.getString("symbol", ""),
                     chat.getBoolean("permission", true),
-                    chat.getLong("cooldown", -1)));
+                    chat.getLong("cooldown", -1),
+                    chat.getInt("money", 0)));
         }
 
         // I18n
@@ -61,6 +64,24 @@ public class Config {
         for (String key : messages.getKeys(false)) {
             this.messages.put(key, Utils.colorize(messages.getString(key)));
         }
+
+        // Command groups
+        this.commandGroups = new ArrayList<>();
+
+        ConfigurationSection commandGroupsSection = fileConfiguration.getConfigurationSection("commands");
+        if (commandGroupsSection != null) {
+            for (String key : commandGroupsSection.getKeys(false)) {
+                ConfigurationSection section = commandGroupsSection.getConfigurationSection(key);
+                this.commandGroups.add(
+                        new CommandGroup(
+                                key.toLowerCase(),
+                                section.getStringList("triggers"),
+                                section.getBoolean("block"),
+                                section.getString("message"),
+                                section.getLong("cooldown", -1)));
+            }
+        }
+
 
         // Alerts
         ConfigurationSection alerts = fileConfiguration.getConfigurationSection("alerts");

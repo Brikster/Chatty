@@ -60,6 +60,47 @@ public class CommandManager implements CommandExecutor {
 
             this.commandsRegistered = true;
         }
+
+        if (main.getConfiguration().isAnnouncementsEnabled()) {
+            try {
+                this.getCommandMap().register("announce", new Command("announce") {
+
+                    @Override
+                    public boolean execute(CommandSender commandSender, String label, String[] args) {
+                        if (commandSender.hasPermission("chatty.command.announce")) {
+                            StringBuilder argsBuilder = new StringBuilder();
+
+                            for (String arg : args) {
+                                argsBuilder.append(arg);
+                                argsBuilder.append(" ");
+                            }
+
+                            String argsString = argsBuilder.toString();
+                            argsString = argsString.substring(0, argsString.length() - 1);
+                            
+                            if (argsString.split("#").length != 3) {
+                                commandSender.sendMessage(ChatColor.RED + "Using: /announce <header>#<footer>#<icon>");
+                                return true;
+                            }
+
+                            String[] split = argsString.split("#");
+                            String header = split[0];
+                            String footer = split[1];
+                            String icon = split[2];
+
+                            AnnouncementsManager.AdvancementMessage advancementMessage = new AnnouncementsManager.AdvancementMessage(header, footer, icon, main);
+                            Bukkit.getOnlinePlayers().forEach(advancementMessage::show);
+
+                            commandSender.sendMessage(ChatColor.GREEN + "Successful!");
+                        } else
+                            commandSender.sendMessage(main.getConfiguration().getMessages().getOrDefault("no-permission",
+                                    ChatColor.RED + "You don't have permission."));
+                        return true;
+                    }
+
+                });
+            } catch (NoSuchFieldException | IllegalAccessException ignored) {}
+        }
     }
 
     private SimpleCommandMap getCommandMap() throws NoSuchFieldException, IllegalAccessException {

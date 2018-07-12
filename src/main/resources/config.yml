@@ -49,6 +49,40 @@ chats:
     symbol: '!'
     cooldown: -1
 
+    # Required money for one message
+    #
+    # Depends on Vault
+    money: 100
+
+# COMMANDS
+# Settings for command groups
+#
+# Triggers types:
+# CONTAINS ABCD
+# STARTS ABCD
+# COMMAND ABCD
+# MATCHES regexp
+#
+# Bypass permission: chatty.commands.<command-group>
+commands:
+  anti-hack:
+    triggers:
+    - 'CONTAINS :'
+    block: true
+    message: 'You can''t use commands with ":" symbol.'
+  plugins-hiders:
+    triggers:
+    - 'COMMAND pl'
+    - 'COMMAND plugins'
+    block: true
+    message: '&fPlugins (1): &aWorldGuard'
+  spawn-cooldown:
+    triggers:
+    - 'COMMAND spawn'
+    - 'COMMAND home'
+    cooldown: 15
+    message: '&cPlease, wait {cooldown} seconds before using this command again.'
+
 # ANNOUNCEMENTS
 # Messages in new "Advancements" notifications
 #

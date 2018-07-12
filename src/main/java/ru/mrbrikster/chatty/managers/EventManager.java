@@ -4,12 +4,15 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import ru.mrbrikster.chatty.Chat;
 import ru.mrbrikster.chatty.Main;
 import ru.mrbrikster.chatty.Utils;
+import ru.mrbrikster.chatty.commands.CommandGroup;
 
 public abstract class EventManager implements Listener {
 
@@ -79,9 +82,19 @@ public abstract class EventManager implements Listener {
 
         // Check cooldown
         if (cooldown != -1) {
-            player.sendMessage(main.getConfiguration().getMessages().getOrDefault("no-chat-mode",
-                    ChatColor.RED + "Wait for {cooldown} seconds, before send message in this chat again."
-                    .replace("{cooldown}", String.valueOf(cooldown))));
+            player.sendMessage(main.getConfiguration().getMessages().getOrDefault("cooldown",
+                    ChatColor.RED + "Wait for {cooldown} seconds, before send message in this chat again.")
+                    .replace("{cooldown}", String.valueOf(cooldown)));
+            playerChatEvent.setCancelled(true);
+            return;
+        }
+
+        if (chat.getMoney() > 0 &&
+                !main.getEconomyManager()
+                        .withdraw(player, chat.getMoney())) {
+            player.sendMessage(main.getConfiguration().getMessages().getOrDefault("chat-mode-requires",
+                    ChatColor.RED + "You need {money} money to send message in this chat."
+                            .replace("{money}", String.valueOf(chat.getMoney()))));
             playerChatEvent.setCancelled(true);
             return;
         }
@@ -130,6 +143,82 @@ public abstract class EventManager implements Listener {
     public void onQuit(PlayerQuitEvent playerQuitEvent) {
         main.getCommandManager().getSpyDisabledPlayers()
                 .remove(playerQuitEvent.getPlayer());
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onCommandGroupListener(PlayerCommandPreprocessEvent playerCommandPreprocessEvent) {
+        if (!playerCommandPreprocessEvent.getMessage().contains("/"))
+            return;
+
+        String message = playerCommandPreprocessEvent.getMessage().replaceAll("/", "");
+
+        boolean block = false;
+        String response = null;
+        long cooldown = -1;
+        CommandGroup cooldownGroup = null;
+
+        commandGroups: for (CommandGroup commandGroup : main.getConfiguration().getCommandGroups()) {
+            if (playerCommandPreprocessEvent.getPlayer().hasPermission("chatty.commandgroup." + commandGroup.getName()))
+                continue;
+
+            for (CommandGroup.Trigger trigger : commandGroup.getTriggers()) {
+                boolean triggered = false;
+                switch (trigger.getType()) {
+                    case STARTS:
+                        if (message.split(" ")[0].toLowerCase().startsWith(trigger.getData().toLowerCase())) {
+                            triggered = true;
+                        }
+                        break;
+                    case COMMAND:
+                        if (message.split(" ")[0].equalsIgnoreCase(trigger.getData())) {
+                            triggered = true;
+                        }
+                        break;
+                    case CONTAINS:
+                        if (message.toLowerCase().contains(trigger.getData().toLowerCase())) {
+                            triggered = true;
+                        }
+                        break;
+                    case MATCHES:
+                        if (message.matches(trigger.getData())) {
+                            triggered = true;
+                        }
+                }
+
+                if (triggered) {
+                    block = commandGroup.isBlock();
+                    response = commandGroup.getMessage();
+                    if (block) break commandGroups;
+
+                    if (cooldown < commandGroup.getCooldown()) {
+                        cooldown = commandGroup.getCooldown();
+                        cooldownGroup = commandGroup;
+                    }
+                    response = commandGroup.getMessage();
+                    continue commandGroups;
+                }
+            }
+        }
+
+        if (block) {
+            playerCommandPreprocessEvent.setCancelled(true);
+
+            if (response != null)
+                playerCommandPreprocessEvent.getPlayer().sendMessage(Utils.colorize(response));
+
+            return;
+        }
+
+        if (cooldown > 0) {
+            long playerCooldown;
+            if ((playerCooldown = cooldownGroup.getCooldown(playerCommandPreprocessEvent.getPlayer())) > 0) {
+                playerCommandPreprocessEvent.setCancelled(true);
+                if (response != null) playerCommandPreprocessEvent.getPlayer().sendMessage(
+                        Utils.colorize(response.replace("{cooldown}", String.valueOf(playerCooldown))));
+            } else {
+                cooldownGroup.setCooldown(main, playerCommandPreprocessEvent.getPlayer());
+            }
+        }
     }
 
 }
