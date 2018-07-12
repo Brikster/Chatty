@@ -1,4 +1,5 @@
 # Chatty (Bukkit)
+[![Build Status](https://ci.minemoon.ru/job/chatty/badge/icon)](https://ci.minemoon.ru/job/chatty/)
 
 Chatty is a unique Bukkit-plugin, that supports all modern Bukkit-servers, such as Thermos, Cauldron, Spigot, PaperSpigot e t.c. This plugin doesn't have any non-switchable options. It's simple, stable and lightweight.
 
@@ -10,9 +11,6 @@ Chatty is a unique Bukkit-plugin, that supports all modern Bukkit-servers, such 
   - Cooldowns for chat-modes.
   - Auto-messages system.
   
-# Travis CI
-  [![Build Status](https://travis-ci.com/MrBrikster/chatty.svg?branch=master)](https://travis-ci.com/MrBrikster/chatty)
-
 # Permissions
     chatty.chat.<chat_mode> (chatty.chat.<chat_mode>.see or chatty.chat.<chat_mode>.send) - grants access for chat-mode.
     chatty.spy.<chat_mode> or chatty.spy - allows to see all messages from chat-modes.
