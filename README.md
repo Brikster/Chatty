@@ -9,6 +9,9 @@ Chatty is a unique Bukkit-plugin, that supports all modern Bukkit-servers, such 
   - Advancements announcements system.
   - Cooldowns for chat-modes.
   - Auto-messages system.
+  
+# Travis CI
+  [![Build Status](https://travis-ci.com/MrBrikster/chatty.svg?branch=master)](https://travis-ci.com/MrBrikster/chatty)
 
 # Permissions
     chatty.chat.<chat_mode> (chatty.chat.<chat_mode>.see or chatty.chat.<chat_mode>.send) - grants access for chat-mode.
