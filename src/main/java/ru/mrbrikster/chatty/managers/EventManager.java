@@ -82,9 +82,9 @@ public abstract class EventManager implements Listener {
 
         // Check cooldown
         if (cooldown != -1) {
-            player.sendMessage(main.getConfiguration().getMessages().getOrDefault("no-chat-mode",
-                    ChatColor.RED + "Wait for {cooldown} seconds, before send message in this chat again."
-                    .replace("{cooldown}", String.valueOf(cooldown))));
+            player.sendMessage(main.getConfiguration().getMessages().getOrDefault("cooldown",
+                    ChatColor.RED + "Wait for {cooldown} seconds, before send message in this chat again.")
+                    .replace("{cooldown}", String.valueOf(cooldown)));
             playerChatEvent.setCancelled(true);
             return;
         }
@@ -158,7 +158,7 @@ public abstract class EventManager implements Listener {
         CommandGroup cooldownGroup = null;
 
         commandGroups: for (CommandGroup commandGroup : main.getConfiguration().getCommandGroups()) {
-            if (playerCommandPreprocessEvent.getPlayer().hasPermission("chatty.command." + commandGroup.getName()))
+            if (playerCommandPreprocessEvent.getPlayer().hasPermission("chatty.commandgroup." + commandGroup.getName()))
                 continue;
 
             for (CommandGroup.Trigger trigger : commandGroup.getTriggers()) {
@@ -179,6 +179,10 @@ public abstract class EventManager implements Listener {
                             triggered = true;
                         }
                         break;
+                    case MATCHES:
+                        if (message.matches(trigger.getData())) {
+                            triggered = true;
+                        }
                 }
 
                 if (triggered) {

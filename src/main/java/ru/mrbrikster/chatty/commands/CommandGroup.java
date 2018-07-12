@@ -67,7 +67,8 @@ public class CommandGroup {
         public enum Type {
             CONTAINS,
             STARTS,
-            COMMAND
+            COMMAND,
+            MATCHES
         }
 
     }

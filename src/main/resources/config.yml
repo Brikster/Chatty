@@ -61,6 +61,7 @@ chats:
 # CONTAINS ABCD
 # STARTS ABCD
 # COMMAND ABCD
+# MATCHES regexp
 #
 # Bypass permission: chatty.commands.<command-group>
 commands:
