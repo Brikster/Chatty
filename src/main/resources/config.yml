@@ -63,7 +63,7 @@ chats:
 # COMMAND ABCD
 # MATCHES regexp
 #
-# Bypass permission: chatty.commands.<command-group>
+# Bypass permission: chatty.commandgroup.<command-group>
 commands:
   anti-hack:
     triggers:
