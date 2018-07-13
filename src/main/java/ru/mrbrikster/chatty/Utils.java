@@ -6,9 +6,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -46,7 +45,7 @@ public class Utils {
 
         double squaredDistance = Math.pow(distance, 2);
 
-        List<Player> players = new ArrayList<>(distance > -2 ? player.getWorld().getPlayers() : Bukkit.getOnlinePlayers());
+        List<Player> players = new ArrayList<>(distance > -2 ? player.getWorld().getPlayers() : getOnlinePlayers());
 
         return players.stream()
                 .filter(recipient ->
@@ -123,6 +122,18 @@ public class Utils {
         }
 
         return false;
+    }
+
+
+    public static Collection<? extends Player> getOnlinePlayers() {
+        try {
+            Object onlinePlayers = Bukkit.class.getMethod("getOnlinePlayers").invoke(null);
+            if (onlinePlayers instanceof Collection) {
+                return (Collection<? extends Player>) onlinePlayers;
+            } else return Arrays.asList((Player[]) onlinePlayers);
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+            return Bukkit.getOnlinePlayers();
+        }
     }
 
 }

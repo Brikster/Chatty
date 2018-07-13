@@ -39,7 +39,7 @@ public class AnnouncementsManager {
                         currentMessage = 0;
                     }
 
-                    for (Player player : Bukkit.getOnlinePlayers()) {
+                    for (Player player : Utils.getOnlinePlayers()) {
                         config.getAdvancementMessages().get(currentMessage)
                                 .show(player);
                     }

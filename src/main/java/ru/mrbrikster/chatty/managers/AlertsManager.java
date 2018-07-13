@@ -50,7 +50,7 @@ public class AlertsManager {
 
                 String message = Utils.colorize(prefix + messages.get(currentMessage));
 
-                Bukkit.getOnlinePlayers().stream()
+                Utils.getOnlinePlayers().stream()
                         .filter(player -> !permission || player.hasPermission("chatty.alerts." + name))
                         .forEach(player -> player.sendMessage(message.split("/n")));
             }, time * 20, time * 20);
