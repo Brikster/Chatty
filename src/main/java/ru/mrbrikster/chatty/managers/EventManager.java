@@ -129,15 +129,28 @@ public abstract class EventManager implements Listener {
                 Bukkit.getScheduler().runTaskLater(main, () -> player.sendMessage(adsFound), 5L);
         } else main.getLogManager().write(player, message, false);
 
-        // Send to spy-players
+        if (main.getConfiguration().isSpyEnabled()) {
+            playerChatEvent.setFormat(chat.getName() + "|" + playerChatEvent.getFormat());
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onSpy(AsyncPlayerChatEvent playerChatEvent) {
+        if (!main.getConfiguration().isSpyEnabled())
+            return;
+
+        String[] formatSplit = playerChatEvent.getFormat().split("\\|", 2);
         for (Player spy : Utils.getOnlinePlayers()) {
-            if ((spy.hasPermission("chatty.spy") || spy.hasPermission("chatty.spy." + chat.getName())) &&
+            if ((spy.hasPermission("chatty.spy") || spy.hasPermission("chatty.spy." + formatSplit[0])) &&
                     !main.getCommandManager().getSpyDisabledPlayers().contains(spy) &&
                     !playerChatEvent.getRecipients().contains(spy))
                 spy.sendMessage(Utils.colorize(main.getConfiguration().getSpyFormat()
-                        .replace("{format}", String.format(format, player.getName(), playerChatEvent.getMessage()))));
+                        .replace("{format}", String.format(formatSplit[1], playerChatEvent.getPlayer().getName(), playerChatEvent.getMessage()))));
         }
+
+        playerChatEvent.setFormat(formatSplit[1]);
     }
+
 
     @EventHandler
     public void onQuit(PlayerQuitEvent playerQuitEvent) {
