@@ -82,7 +82,6 @@ public class Config {
             }
         }
 
-
         // Alerts
         ConfigurationSection alerts = fileConfiguration.getConfigurationSection("alerts");
 
@@ -111,7 +110,6 @@ public class Config {
         ConfigurationSection announcements = fileConfiguration.getConfigurationSection("announcements");
 
         this.announcementsEnabled = announcements.getBoolean("enable");
-
         this.announcementsTime = announcements.getInt("time", 60);
         this.advancementMessages = new ArrayList<>();
 
