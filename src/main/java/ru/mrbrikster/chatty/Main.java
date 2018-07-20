@@ -3,7 +3,10 @@ package ru.mrbrikster.chatty;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+import ru.mrbrikster.chatty.hooks.PlaceholderAPIHook;
 import ru.mrbrikster.chatty.managers.*;
+
+import java.util.logging.Level;
 
 public final class Main extends JavaPlugin {
 
@@ -16,6 +19,7 @@ public final class Main extends JavaPlugin {
     @Getter private LogManager logManager;
     @Getter private AnnouncementsManager announcementsManager;
     @Getter private AlertsManager alertsManager;
+    @Getter private PlaceholderAPIHook placeholderApiHook;
 
     @Override
     public void onEnable() {
@@ -33,6 +37,11 @@ public final class Main extends JavaPlugin {
 
         // Init log-manager
         this.logManager = new LogManager(this);
+
+        if (getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")){
+            this.placeholderApiHook = new PlaceholderAPIHook();
+            getLogger().log(Level.INFO, "PlaceholderAPI has successful hooked.");
+        }
     }
 
     public void init() {
