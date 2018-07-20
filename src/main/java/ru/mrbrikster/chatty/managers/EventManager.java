@@ -102,6 +102,10 @@ public abstract class EventManager implements Listener {
         playerChatEvent.setFormat(Utils.colorize(format));
         playerChatEvent.setMessage(message);
 
+        if (main.getPlaceholderApiHook() != null) {
+            playerChatEvent.setFormat(main.getPlaceholderApiHook().setPlaceholders(player, playerChatEvent.getFormat()));
+        }
+
         // Add new recipients
         playerChatEvent.getRecipients().clear();
         playerChatEvent.getRecipients().addAll(Utils.getRecipients(player, chat.getRange(), chat));

@@ -3,7 +3,7 @@ version: ${project.version}
 main: ru.mrbrikster.chatty.Main
 authors: [MrBrikster]
 
-softdepend: [Vault]
+softdepend: [Vault, PlaceholderAPI]
 
 commands:
   chatty: {}
