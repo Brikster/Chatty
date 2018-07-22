@@ -1,3 +1,4 @@
+
 # Chatty (Bukkit)
 [![Build Status](https://ci.minemoon.ru/job/chatty/badge/icon)](https://ci.minemoon.ru/job/chatty/)
 
@@ -14,12 +15,36 @@ Chatty is a unique Bukkit-plugin, that supports all modern Bukkit-servers, such 
 # Permissions
     chatty.chat.<chat_mode> (chatty.chat.<chat_mode>.see or chatty.chat.<chat_mode>.send) - grants access for chat-mode.
     chatty.spy.<chat_mode> or chatty.spy - allows to see all messages from chat-modes.
+    chatty.commandgroup.<command_group> - allows to bypass command group rules.
     chatty.command.spy - allows to use "/spy" command for enabling/disabling spy-mode.
     chatty.command.reload - allows to use "/chatty" command for reloading configuration.
     chatty.alerts.<list> - allows to see messages from alert list.
     chatty.style.<style> or chatty.style.<style>.<chat-mode> - allows to use styles in chat
         (styles: colors, bold, magic, reset, italic, underline, strikethrough).
+    chatty.ads.bypass - bypass ads protection.
     chatty.cooldown or chatty.cooldown.<chat-mode> - allows to bypass cooldown of chat-mode.
+    
+# Comparison with ChatEx
+Reference object | ChatEx | Chatty
+--- | --- | ---
+Vault support | + | +
+Ads protection | + | +
+Old versions support (1.5.2+) | - | +
+Replacement of AutoMessage | - | +
+PlaceholderAPI support | - | +
+Custom chat groups | - | +
+Cooldowns system | - | +
+Build-in spy-mode | - | +
+Command cooldowns and command blocking | - | +
+    
+# A little life-hack
+You can delete all excess blocks and make config as here:
+
+    chats:
+      default:
+        enable: true
+        format: '{prefix}{player}{suffix}&r: {message}'
+        permission: false
 
 # Configuration
 See in <b><u>src/main/java/resources/config.yml.</u></b>
