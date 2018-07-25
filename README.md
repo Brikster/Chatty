@@ -22,7 +22,7 @@ Chatty is a unique Bukkit-plugin, that supports all modern Bukkit-servers, such 
     chatty.cooldown or chatty.cooldown.<chat-mode> - allows to bypass cooldown of chat-mode.
 
 # Configuration
-See in <b><u>src/main/java/resources/config.yml.</u></b>
+See in <b><u>src/chatty/java/resources/config.yml.</u></b>
 
 # Credits
 Supports by McStudio.

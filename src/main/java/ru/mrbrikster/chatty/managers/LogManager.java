@@ -1,7 +1,7 @@
 package ru.mrbrikster.chatty.managers;
 
 import org.bukkit.entity.Player;
-import ru.mrbrikster.chatty.Main;
+import ru.mrbrikster.chatty.Chatty;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -12,17 +12,17 @@ import java.util.Calendar;
 
 public class LogManager {
 
-    private final Main main;
+    private final Chatty chatty;
 
-    public LogManager(Main main) {
-        this.main = main;
+    public LogManager(Chatty chatty) {
+        this.chatty = chatty;
     }
 
-    void write(Player player, String message, boolean ads) {
-        if (!main.getConfiguration().isLogEnabled()) return;
+    public void write(Player player, String message, boolean ads) {
+        //if (!chatty.getConfiguration().isLogEnabled()) return;
 
         BufferedWriter bufferedWriter = null;
-        File logsDirectory = new File(main.getDataFolder().getAbsolutePath() + File.separator + "logs");
+        File logsDirectory = new File(chatty.getDataFolder().getAbsolutePath() + File.separator + "logs");
         if (!logsDirectory.exists()) {
             if (!logsDirectory.mkdir())
                 return;

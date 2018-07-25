@@ -4,7 +4,7 @@ import lombok.Getter;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.EventPriority;
-import ru.mrbrikster.chatty.commands.CommandGroup;
+import ru.mrbrikster.chatty.chat.Chat;
 import ru.mrbrikster.chatty.managers.AlertsManager;
 import ru.mrbrikster.chatty.managers.AnnouncementsManager;
 
@@ -26,14 +26,13 @@ public class Config {
     @Getter private final ArrayList<AlertsManager.AlertList> alertsLists;
     @Getter private final boolean antiAdsEnabled;
     @Getter private final List<String> adsWhitelist;
-    @Getter private final List<CommandGroup> commandGroups;
     @Getter private EventPriority priority;
     @Getter private final String spyFormat;
 
-    Config(Main main) {
-        main.saveDefaultConfig();
-        main.reloadConfig();
-        FileConfiguration fileConfiguration = main.getConfig();
+    public Config(Chatty chatty) {
+        chatty.saveDefaultConfig();
+        chatty.reloadConfig();
+        FileConfiguration fileConfiguration = chatty.getConfig();
 
         // General
         ConfigurationSection general = fileConfiguration.getConfigurationSection("general");
@@ -63,23 +62,6 @@ public class Config {
         ConfigurationSection messages = fileConfiguration.getConfigurationSection("messages");
         for (String key : messages.getKeys(false)) {
             this.messages.put(key, Utils.colorize(messages.getString(key)));
-        }
-
-        // Command groups
-        this.commandGroups = new ArrayList<>();
-
-        ConfigurationSection commandGroupsSection = fileConfiguration.getConfigurationSection("commands");
-        if (commandGroupsSection != null) {
-            for (String key : commandGroupsSection.getKeys(false)) {
-                ConfigurationSection section = commandGroupsSection.getConfigurationSection(key);
-                this.commandGroups.add(
-                        new CommandGroup(
-                                key.toLowerCase(),
-                                section.getStringList("triggers"),
-                                section.getBoolean("block"),
-                                section.getString("message"),
-                                section.getLong("cooldown", -1)));
-            }
         }
 
         // Alerts
@@ -115,10 +97,10 @@ public class Config {
 
         if (announcementsEnabled) {
             for (Map<?, ?> list : announcements.getMapList("list"))
-                this.advancementMessages.add(new AnnouncementsManager.AdvancementMessage(list, main));
+                this.advancementMessages.add(new AnnouncementsManager.AdvancementMessage(list, chatty));
 
-            if (main.getAnnouncementsManager() != null)
-                main.getAnnouncementsManager().reset();
+            //if (chatty.getAnnouncementsManager() != null)
+            //    chatty.getAnnouncementsManager().reset();
         }
     }
 

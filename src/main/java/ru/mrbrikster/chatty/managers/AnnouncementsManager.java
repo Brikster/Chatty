@@ -11,8 +11,8 @@ import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
+import ru.mrbrikster.chatty.Chatty;
 import ru.mrbrikster.chatty.Config;
-import ru.mrbrikster.chatty.Main;
 import ru.mrbrikster.chatty.Utils;
 
 import java.util.HashMap;
@@ -25,8 +25,8 @@ public class AnnouncementsManager {
     private static BukkitTask bukkitTask;
     private int currentMessage = -1;
 
-    public AnnouncementsManager(Main main) {
-        Config config = main.getConfiguration();
+    public AnnouncementsManager(Chatty chatty) {
+        Config config = new Config(Chatty.instance());//chatty.getConfiguration();
 
         if (!config.getAdvancementMessages().isEmpty()) {
             if (AnnouncementsManager.bukkitTask != null) {
@@ -34,7 +34,7 @@ public class AnnouncementsManager {
                 currentMessage = -1;
             }
 
-            AnnouncementsManager.bukkitTask = Bukkit.getScheduler().runTaskTimer(main, () -> {
+            AnnouncementsManager.bukkitTask = Bukkit.getScheduler().runTaskTimer(chatty, () -> {
                     if (currentMessage == -1 || config.getAdvancementMessages().size() <= ++currentMessage) {
                         currentMessage = 0;
                     }
@@ -58,10 +58,10 @@ public class AnnouncementsManager {
         private String header, footer;
         private JavaPlugin javaPlugin;
 
-        public AdvancementMessage(Map<?, ?> list, Main main) {
+        public AdvancementMessage(Map<?, ?> list, Chatty chatty) {
             this((String) list.get("header"),
                     (String) list.get("footer"),
-                    (String) list.get("icon"), main);
+                    (String) list.get("icon"), chatty);
         }
 
         AdvancementMessage(String header, String footer, String icon, JavaPlugin javaPlugin) {

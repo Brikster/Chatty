@@ -3,14 +3,14 @@ package ru.mrbrikster.chatty;
 import com.google.common.collect.ImmutableMap;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @SuppressWarnings("all")
 public class Utils {
@@ -40,21 +40,6 @@ public class Utils {
         return string == null ? null : ChatColor.translateAlternateColorCodes('&', string);
     }
 
-    public static List<Player> getRecipients(Player player, int distance, Chat chat) {
-        Location location = player.getLocation();
-
-        double squaredDistance = Math.pow(distance, 2);
-
-        List<Player> players = new ArrayList<>(distance > -2 ? player.getWorld().getPlayers() : getOnlinePlayers());
-
-        return players.stream()
-                .filter(recipient ->
-                        (distance <= -1 || location.distanceSquared(recipient.getLocation()) < squaredDistance)
-                        && (recipient.equals(player) || !chat.isPermission()
-                        || recipient.hasPermission("chatty.chat." + chat.getName() + ".see")
-                        || recipient.hasPermission("chatty.chat." + chat.getName()))).collect(Collectors.toList());
-    }
-
     public static String stylish(Player player, String string, String chat) {
         for (Map.Entry<String, Pattern> entry : PATTERNS.entrySet()) {
             if (player.hasPermission(entry.getKey()) || player.hasPermission(entry.getKey() + "." + chat)) {
@@ -65,7 +50,7 @@ public class Utils {
         return string;
     }
 
-    public static boolean containsIP(Main main, String message) {
+    public static boolean containsIP(Chatty chatty, String message) {
         message = message.toLowerCase().replaceAll(" ", "");
         Matcher regexMatcher = IP_PATTERN.matcher(message);
 
@@ -87,7 +72,7 @@ public class Utils {
                 }
 
                 if (IP_PATTERN.matcher(text).find()) {
-                    return !main.getConfiguration().getAdsWhitelist().contains(regexMatcher.group().trim());
+                    return false; //return !chatty.getConfiguration().getAdsWhitelist().contains(regexMatcher.group().trim());
                 }
             }
         }
@@ -95,7 +80,7 @@ public class Utils {
         return false;
     }
 
-    public static boolean containsDomain(Main main, String message) {
+    public static boolean containsDomain(Chatty chatty, String message) {
         message = message.toLowerCase().replaceAll(" ", "");
         Matcher regexMatcher = DOMAIN_PATTERN.matcher(message);
 
@@ -116,14 +101,13 @@ public class Utils {
                 }
 
                 if (DOMAIN_PATTERN.matcher(text).find()) {
-                    return !main.getConfiguration().getAdsWhitelist().contains(regexMatcher.group().trim());
+                    return false;//return !chatty.getConfiguration().getAdsWhitelist().contains(regexMatcher.group().trim());
                 }
             }
         }
 
         return false;
     }
-
 
     public static Collection<? extends Player> getOnlinePlayers() {
         try {

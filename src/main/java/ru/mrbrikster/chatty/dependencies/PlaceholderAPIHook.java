@@ -1,4 +1,4 @@
-package ru.mrbrikster.chatty.hooks;
+package ru.mrbrikster.chatty.dependencies;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.entity.Player;
