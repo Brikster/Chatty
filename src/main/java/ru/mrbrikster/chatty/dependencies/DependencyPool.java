@@ -23,4 +23,8 @@ public class DependencyPool {
         dependencies.remove(dependency.getClass());
     }
 
+    public <T> void removeAll() {
+        dependencies.clear();
+    }
+
 }

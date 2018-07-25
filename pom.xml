@@ -54,7 +54,7 @@
         </plugins>
         <resources>
             <resource>
-                <directory>src/chatty/resources</directory>
+                <directory>src/main/resources</directory>
                 <filtering>true</filtering>
             </resource>
         </resources>

@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 public class Chat {
 
+    private static final String COOLDOWN_CHAT_FORMAT = "chatty.cooldown.chat.%s";
     @Getter private final String name;
     @Getter private final boolean enable;
     @Getter private final String format;
@@ -50,11 +51,12 @@ public class Chat {
     }
 
     public void setCooldown(Player player) {
-        player.setMetadata(String.format("chatty.cooldown.chat.%s", name), new FixedMetadataValue(Chatty.instance(), System.currentTimeMillis()));
+        player.setMetadata(String.format(COOLDOWN_CHAT_FORMAT, name),
+                new FixedMetadataValue(Chatty.instance(), System.currentTimeMillis()));
     }
 
     public long getCooldown(Player player) {
-        List<MetadataValue> metadataValues = player.getMetadata(String.format("chatty.cooldown.chat.%s", name));
+        List<MetadataValue> metadataValues = player.getMetadata(String.format(COOLDOWN_CHAT_FORMAT, name));
 
         if (metadataValues.isEmpty())
             return -1;

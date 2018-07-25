@@ -17,9 +17,12 @@ import ru.mrbrikster.chatty.dependencies.DependencyPool;
 import ru.mrbrikster.chatty.dependencies.PlaceholderAPIHook;
 import ru.mrbrikster.chatty.dependencies.VaultHook;
 
+import java.util.function.Function;
+
 public abstract class ChatListener implements Listener {
 
     private static final String MESSAGES_NODE = "messages";
+    private static final Function<String, String> COLORIZE = (string) -> string == null ? null : ChatColor.translateAlternateColorCodes('&', string);
     private final DependencyPool dependencyPool;
     private final ChatManager chatManager;
     private final Configuration configuration;
@@ -38,6 +41,8 @@ public abstract class ChatListener implements Listener {
         String message = playerChatEvent.getMessage();
 
         Chat chat = null;
+
+
         boolean usingSymbol = true;
         for (Chat chatMode : chatManager.getChats()) {
             if (message.startsWith(chatMode.getSymbol()) &&
@@ -64,8 +69,8 @@ public abstract class ChatListener implements Listener {
 
         if (chat == null) {
             playerChatEvent.setCancelled(true);
-            player.sendMessage(configuration.getNode(MESSAGES_NODE).getNode("chat-not-found").getAsString(
-                    ChatColor.RED + "Applicable chat-mode not found. You can't send the message."));
+            player.sendMessage(COLORIZE.apply(configuration.getNode(MESSAGES_NODE).getNode("chat-not-found").getAsString(
+                    ChatColor.RED + "Applicable chat not found. You can't send the message.")));
             return;
         }
 
@@ -103,9 +108,9 @@ public abstract class ChatListener implements Listener {
 
         // Check cooldown
         if (cooldown != -1) {
-            player.sendMessage(configuration.getNode(MESSAGES_NODE).getNode("cooldown").getAsString(
+            player.sendMessage(COLORIZE.apply(configuration.getNode(MESSAGES_NODE).getNode("cooldown").getAsString(
                     ChatColor.RED + "Wait for {cooldown} seconds, before send message in this chat again.")
-                    .replace("{cooldown}", String.valueOf(cooldown)));
+                    .replace("{cooldown}", String.valueOf(cooldown))));
             playerChatEvent.setCancelled(true);
             return;
         }
@@ -114,9 +119,10 @@ public abstract class ChatListener implements Listener {
             VaultHook vaultHook = dependencyPool.getDependency(VaultHook.class);
 
             if (!vaultHook.withdrawMoney(player, chat.getMoney())) {
-                player.sendMessage(configuration.getNode(MESSAGES_NODE).getNode("not-enough-money").getAsString(
+                player.sendMessage(
+                        COLORIZE.apply(configuration.getNode(MESSAGES_NODE).getNode("not-enough-money").getAsString(
                         ChatColor.RED + "You need {money} money to send message in this chat."
-                                .replace("{money}", String.valueOf(chat.getMoney()))));
+                                .replace("{money}", String.valueOf(chat.getMoney())))));
                 playerChatEvent.setCancelled(true);
                 return;
             }
@@ -136,7 +142,7 @@ public abstract class ChatListener implements Listener {
 
         // Check for "no-recipients"
         if (playerChatEvent.getRecipients().size() <= 1) {
-            String noRecipients = configuration.getNode(MESSAGES_NODE).getNode("no-recipients").getAsString(null);
+            String noRecipients = COLORIZE.apply(configuration.getNode(MESSAGES_NODE).getNode("no-recipients").getAsString(null));
 
             if (noRecipients != null)
                 Bukkit.getScheduler().runTaskLater(Chatty.instance(), () -> player.sendMessage(noRecipients), 5L);
@@ -152,7 +158,7 @@ public abstract class ChatListener implements Listener {
 
             chatty.getLogManager().write(player, message, true);
 
-            String adsFound = configuration.getNode(MESSAGES_NODE).getNode("advertisement-found").getAsString(null);
+            String adsFound = COLORIZE.apply(configuration.getNode(MESSAGES_NODE).getNode("advertisement-found").getAsString(null));
 
             if (adsFound != null)
                 Bukkit.getScheduler().runTaskLater(chatty, () -> player.sendMessage(adsFound), 5L);

@@ -52,6 +52,11 @@ public final class Chatty extends JavaPlugin {
         this.getServer().getPluginManager().registerEvents(chatListener, this);
     }
 
+    @Override
+    public void onDisable() {
+        this.dependencyPool.removeAll();
+    }
+
     public void init() {
         /*
         if (this.configuration != null)

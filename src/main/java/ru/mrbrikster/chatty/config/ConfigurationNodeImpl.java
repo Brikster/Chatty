@@ -33,7 +33,7 @@ public class ConfigurationNodeImpl implements ConfigurationNode {
 
     @Override
     public long getAsLong(long def) {
-        return def;
+        return configuration.getLong(path, def);
     }
 
     @Override
