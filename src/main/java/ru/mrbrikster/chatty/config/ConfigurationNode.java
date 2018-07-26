@@ -7,6 +7,8 @@ import java.util.Map;
 
 public interface ConfigurationNode {
 
+    public String getName();
+
     public Object get(Object def);
 
     boolean getAsBoolean(boolean def);
@@ -26,6 +28,8 @@ public interface ConfigurationNode {
     ConfigurationSection getAsConfigurationSection();
 
     ConfigurationNode getNode(String path);
+
+    List<ConfigurationNode> getChildNodes();
 
     void set(Object value);
 

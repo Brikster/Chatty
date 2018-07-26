@@ -2,18 +2,18 @@ package ru.mrbrikster.chatty.dependencies;
 
 import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.economy.Economy;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
-import ru.mrbrikster.chatty.Chatty;
 
 public class VaultHook {
 
     private final Chat chat;
     private final Economy economy;
 
-    public VaultHook(Chatty chatty) {
-        RegisteredServiceProvider<Chat> chatRegisteredServiceProvider = chatty.getServer().getServicesManager().getRegistration(Chat.class);
-        RegisteredServiceProvider<Economy> economyRegisteredServiceProvider = chatty.getServer().getServicesManager().getRegistration(Economy.class);
+    public VaultHook() {
+        RegisteredServiceProvider<Chat> chatRegisteredServiceProvider = Bukkit.getServicesManager().getRegistration(Chat.class);
+        RegisteredServiceProvider<Economy> economyRegisteredServiceProvider = Bukkit.getServicesManager().getRegistration(Economy.class);
 
         if (chatRegisteredServiceProvider != null)
             this.chat = chatRegisteredServiceProvider.getProvider();

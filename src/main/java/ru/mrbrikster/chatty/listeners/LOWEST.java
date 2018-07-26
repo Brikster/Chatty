@@ -6,15 +6,18 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import ru.mrbrikster.chatty.chat.ChatManager;
 import ru.mrbrikster.chatty.config.Configuration;
 import ru.mrbrikster.chatty.dependencies.DependencyPool;
+import ru.mrbrikster.chatty.moderation.ModerationManager;
 
 public class LOWEST extends ChatListener {
 
     public LOWEST(Configuration configuration,
-                ChatManager chatManager,
-                DependencyPool dependencyPool) {
+                  ChatManager chatManager,
+                  DependencyPool dependencyPool,
+                  ModerationManager moderationManager) {
         super(configuration,
                 chatManager,
-                dependencyPool);
+                dependencyPool,
+                moderationManager);
     }
 
     @EventHandler(

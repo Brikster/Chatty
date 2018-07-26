@@ -3,10 +3,24 @@ package ru.mrbrikster.chatty.config;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 public class EmptyConfigurationNode implements ConfigurationNode {
+
+    private final String path;
+
+    public EmptyConfigurationNode(String path) {
+        this.path = path;
+    }
+
+    @Override
+    public String getName() {
+        String[] path = this.path.split(".");
+
+        return path[path.length - 1];
+    }
 
     @Override
     public Object get(Object def) {
@@ -55,11 +69,17 @@ public class EmptyConfigurationNode implements ConfigurationNode {
 
     @Override
     public ConfigurationNode getNode(String path) {
-        return new EmptyConfigurationNode();
+        return new EmptyConfigurationNode(this.path + "." + path);
+    }
+
+    @Override
+    public List<ConfigurationNode> getChildNodes() {
+        return Collections.emptyList();
     }
 
     @Override
     public void set(Object value) {
-
+        throw new UnsupportedOperationException("Node is empty");
     }
+
 }

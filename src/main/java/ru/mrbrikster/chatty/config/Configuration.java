@@ -5,11 +5,14 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Configuration {
 
     private final File file;
-    private final YamlConfiguration configuration;
+    private YamlConfiguration configuration;
+    private List<ReloadHandler> reloadHandlers = new ArrayList<>();
 
     public Configuration(JavaPlugin javaPlugin) {
         javaPlugin.saveDefaultConfig();
@@ -23,7 +26,7 @@ public class Configuration {
                 || configuration.getConfigurationSection(path) != null)
             return new ConfigurationNodeImpl(configuration, path);
 
-        return new EmptyConfigurationNode();
+        return new EmptyConfigurationNode(path);
     }
 
     public void save() {
@@ -32,6 +35,21 @@ public class Configuration {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void reload() {
+        this.configuration = YamlConfiguration.loadConfiguration(file);
+        reloadHandlers.forEach(ReloadHandler::onConfigurationReload);
+    }
+
+    public void registerReloadHandler(ReloadHandler reloadHandler) {
+        this.reloadHandlers.add(reloadHandler);
+    }
+
+    public interface ReloadHandler {
+
+        public void onConfigurationReload();
+
     }
 
 }
