@@ -37,7 +37,8 @@ public class NotificationManager {
                                 notification.getName(),
                                 notification.getNode("time").getAsInt(60),
                                 notification.getNode("prefix").getAsString(""),
-                                notification.getNode("messages").getAsStringList()
+                                notification.getNode("messages").getAsStringList(),
+                                notification.getNode("permission").getAsBoolean(true)
                         )
                 );
             }
@@ -48,7 +49,8 @@ public class NotificationManager {
                     new ActionBarNotification(
                             actionBarNotificationsNode.getNode("time").getAsInt(60),
                             actionBarNotificationsNode.getNode("prefix").getAsString(""),
-                            actionBarNotificationsNode.getNode("messages").getAsStringList()
+                            actionBarNotificationsNode.getNode("messages").getAsStringList(),
+                            actionBarNotificationsNode.getNode("permission").getAsBoolean(true)
                     )
             );
         }
@@ -59,7 +61,8 @@ public class NotificationManager {
                         new AdvancementsNotification(
                                 notification.getName(),
                                 notification.getNode("time").getAsInt(60),
-                                notification.getNode("messages").getAsMapList()
+                                notification.getNode("messages").getAsMapList(),
+                                notification.getNode("permission").getAsBoolean(true)
                         )
                 );
             }

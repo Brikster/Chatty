@@ -14,8 +14,8 @@ public class ChatNotification extends Notification {
 
     private int currentMessage = -1;
 
-    ChatNotification(String name, int delay, String prefix, List<String> messages) {
-        super(delay);
+    ChatNotification(String name, int delay, String prefix, List<String> messages, boolean permission) {
+        super(delay, permission);
 
         this.name = name;
         this.prefix = prefix;
@@ -28,10 +28,10 @@ public class ChatNotification extends Notification {
             currentMessage = 0;
         }
 
-        String[] message = COLORIZE.apply(prefix + messages.get(currentMessage)).split("[\n]");
+        String[] message = COLORIZE.apply(prefix + messages.get(currentMessage)).split("(?<!\\\\)\\\\n");
 
         for (Player player : Bukkit.getOnlinePlayers()) {
-            if (player.hasPermission(String.format(PERMISSION_NODE, name))) {
+            if (!isPermission() || player.hasPermission(String.format(PERMISSION_NODE, name))) {
                 player.sendMessage(message);
             }
         }

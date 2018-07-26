@@ -10,7 +10,7 @@ public class CapsModerationMethod extends ModerationMethod {
     @Getter private final boolean block;
 
     CapsModerationMethod(ConfigurationNode configurationNode, String message) {
-        super(configurationNode, message);
+        super(message);
 
         this.block = configurationNode.getNode("block").getAsBoolean(true);
         this.procent = configurationNode.getNode("procent").getAsInt(80);
@@ -28,30 +28,26 @@ public class CapsModerationMethod extends ModerationMethod {
     }
 
     private double getProcent() {
-        String[] words = message.split(" ");
+        String messageWithoutChars = message
+                .replaceAll("[^a-zA-Zа-яА-Я]", "");
+
+        if (messageWithoutChars.isEmpty())
+            return 0;
+
+        String[] words = messageWithoutChars.split(" ");
         int length = 0, capsLength = 0;
 
         for (String word : words) {
             length += word.length();
 
             for (char c : word.toCharArray()) {
-                if (!isNumber(c) && c == Character.toUpperCase(c)) {
+                if (c == Character.toUpperCase(c)) {
                     capsLength++;
                 }
             }
         }
 
         return ((double) capsLength / (double) length) * 100;
-    }
-
-    private boolean isNumber(char c) {
-        try {
-            Integer.parseInt(String.valueOf(c));
-        } catch (NumberFormatException numberFormatException) {
-            return false;
-        }
-
-        return true;
     }
 
 }

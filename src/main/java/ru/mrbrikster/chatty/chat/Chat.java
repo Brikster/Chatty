@@ -15,22 +15,14 @@ import java.util.stream.Collectors;
 public class Chat {
 
     private static final String COOLDOWN_CHAT_FORMAT = "chatty.cooldown.chat.%s";
-    @Getter
-    private final String name;
-    @Getter
-    private final boolean enable;
-    @Getter
-    private final String format;
-    @Getter
-    private final int range;
-    @Getter
-    private final String symbol;
-    @Getter
-    private final boolean permission;
-    @Getter
-    private final long cooldown;
-    @Getter
-    private final int money;
+    @Getter private final String name;
+    @Getter private final boolean enable;
+    @Getter private final String format;
+    @Getter private final int range;
+    @Getter private final String symbol;
+    @Getter private final boolean permission;
+    @Getter private final long cooldown;
+    @Getter private final int money;
 
     public Chat(String name, boolean enable, String format, int range, String symbol, boolean permission, long cooldown, int money) {
         this.name = name.toLowerCase();

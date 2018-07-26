@@ -13,16 +13,15 @@ public class ActionBarNotification extends Notification {
     private static final String PERMISSION_NODE = NOTIFICATION_PERMISSION_NODE + "actionbar";
     private final List<String> messages;
     private final String prefix;
-    private final int delay;
+
 
     private BukkitTask updateTask;
     private int currentMessage;
 
-    ActionBarNotification(int delay, String prefix, List<String> messages) {
-        super(0.5);
+    ActionBarNotification(int delay, String prefix, List<String> messages, boolean permission) {
+        super(0.5, permission);
 
         this.prefix = prefix;
-        this.delay = delay;
         this.messages = messages;
 
         updateTask = Bukkit.getScheduler().runTaskTimer(Chatty.instance(), ActionBarNotification.this::update, 0, (long) delay * 20);
@@ -47,7 +46,7 @@ public class ActionBarNotification extends Notification {
         String message = COLORIZE.apply(prefix + messages.get(currentMessage));
 
         for (Player player : Bukkit.getOnlinePlayers()) {
-            if (player.hasPermission(PERMISSION_NODE)) {
+            if (!isPermission() || player.hasPermission(PERMISSION_NODE)) {
                 new ActionBar(message)
                         .send(player);
             }

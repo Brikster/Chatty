@@ -74,8 +74,8 @@ public abstract class ChatListener implements Listener {
         for (Chat chatMode : chatManager.getChats()) {
             if (message.startsWith(chatMode.getSymbol()) &&
                     (!chatMode.isPermission()
-                            || player.hasPermission(String.format("chatty.chat.%s", chatMode))
-                            || player.hasPermission(String.format("chatty.chat.%s.write", chatMode)))
+                            || player.hasPermission(String.format("chatty.chat.%s", chatMode.getName()))
+                            || player.hasPermission(String.format("chatty.chat.%s.write", chatMode.getName())))
                     && chatMode.isEnable()) {
                 chat = chatMode;
             }
@@ -85,7 +85,7 @@ public abstract class ChatListener implements Listener {
             for (Chat chatMode : chatManager.getChats()) {
                 if ((!chatMode.isPermission()
                         || player.hasPermission(String.format("chatty.chat.%s", chatMode.getName()))
-                        || player.hasPermission(String.format("chatty.chat.%s.write", chatMode)))
+                        || player.hasPermission(String.format("chatty.chat.%s.write", chatMode.getName())))
                         && chatMode.isEnable()) {
                     chat = chatMode;
                 }
@@ -184,6 +184,7 @@ public abstract class ChatListener implements Listener {
                 chatManager.getLogger().write(player, message, "[CAPS] ");
             } else {
                 playerChatEvent.setMessage(capsModerationMethod.getEditedMessage());
+                chatManager.getLogger().write(player, message, "");
             }
 
             String capsFound = COLORIZE.apply(configuration.getNode(MESSAGES_NODE).getNode("caps-found").getAsString(null));

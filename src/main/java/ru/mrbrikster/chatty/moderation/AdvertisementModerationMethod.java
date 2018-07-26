@@ -12,7 +12,7 @@ public class AdvertisementModerationMethod extends ModerationMethod {
     private Pattern ipPattern, webPattern;
 
     AdvertisementModerationMethod(ConfigurationNode configurationNode, String message) {
-        super(configurationNode, message);
+        super(message);
 
         this.whitelist = configurationNode.getNode("whitelist")
                 .getAsStringList();
@@ -36,13 +36,10 @@ public class AdvertisementModerationMethod extends ModerationMethod {
         Matcher regexMatcher = ipPattern.matcher(message);
 
         while (regexMatcher.find()) {
-            if (regexMatcher.group().length() != 0
-                    && ipPattern.matcher(message).find()) {
-                String advertisement = regexMatcher.group().trim();
+            String advertisement = regexMatcher.group().trim();
 
-                if (!whitelist.contains(advertisement)) {
-                    return true;
-                }
+            if (!whitelist.contains(advertisement)) {
+                return true;
             }
         }
 
@@ -58,12 +55,8 @@ public class AdvertisementModerationMethod extends ModerationMethod {
                     .replaceAll("http://", "")
                     .replaceAll("https://", "");
 
-            if (regexMatcher.group().length() != 0
-                    && advertisement.length() != 0
-                    && webPattern.matcher(message).find()) {
-                if (!whitelist.contains(advertisement)) {
-                    return true;
-                }
+            if (!whitelist.contains(advertisement)) {
+                return true;
             }
         }
 

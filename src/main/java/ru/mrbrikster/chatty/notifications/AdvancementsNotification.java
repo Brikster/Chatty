@@ -24,8 +24,8 @@ public class AdvancementsNotification extends Notification {
     private final String name;
     private int currentMessage = -1;
 
-    AdvancementsNotification(String name, double delay, List<Map<?, ?>> messages) {
-        super(delay);
+    AdvancementsNotification(String name, double delay, List<Map<?, ?>> messages, boolean permission) {
+        super(delay, permission);
 
         this.name = name;
         this.messages = messages;
@@ -40,7 +40,7 @@ public class AdvancementsNotification extends Notification {
         @SuppressWarnings("all")
         AdvancementMessage advancementMessage = new AdvancementMessage((Map<String, String>) messages.get(currentMessage));
         for (Player player : Bukkit.getOnlinePlayers()) {
-            if (player.hasPermission(String.format(PERMISSION_NODE, name))) {
+            if (!isPermission() || player.hasPermission(String.format(PERMISSION_NODE, name))) {
                 advancementMessage.show(player);
             }
         }
