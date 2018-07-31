@@ -6,7 +6,7 @@
 
     <groupId>ru.mrbrikster</groupId>
     <artifactId>chatty</artifactId>
-    <version>1.8.3</version>
+    <version>2.0</version>
     <packaging>jar</packaging>
 
     <name>Chatty</name>
@@ -73,6 +73,10 @@
             <id>placeholderapi</id>
             <url>http://repo.extendedclip.com/content/repositories/placeholderapi/</url>
         </repository>
+        <repository>
+            <id>textapi-repo</id>
+            <url>https://dl.bintray.com/luca98/plugins/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -99,6 +103,18 @@
             <artifactId>placeholderapi</artifactId>
             <version>2.9.1</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.github.theluca98</groupId>
+            <artifactId>TextAPI</artifactId>
+            <version>1.12.2-R2.2</version>
+            <scope>compile</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.bukkit</groupId>
+                    <artifactId>bukkit</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 

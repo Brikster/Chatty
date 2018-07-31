@@ -1,4 +1,4 @@
-package ru.mrbrikster.chatty.managers;
+package ru.mrbrikster.chatty.notifications;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -10,58 +10,50 @@ import org.bukkit.advancement.AdvancementProgress;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitTask;
-import ru.mrbrikster.chatty.Config;
-import ru.mrbrikster.chatty.Main;
-import ru.mrbrikster.chatty.Utils;
+import ru.mrbrikster.chatty.Chatty;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-@SuppressWarnings("all")
-public class AnnouncementsManager {
+public class AdvancementsNotification extends Notification {
 
-    private static BukkitTask bukkitTask;
+    private static final String PERMISSION_NODE = NOTIFICATION_PERMISSION_NODE + "advancements.%s";
+    private final List<Map<?, ?>> messages;
+    private final String name;
     private int currentMessage = -1;
 
-    public AnnouncementsManager(Main main) {
-        Config config = main.getConfiguration();
+    AdvancementsNotification(String name, double delay, List<Map<?, ?>> messages, boolean permission) {
+        super(delay, permission);
 
-        if (!config.getAdvancementMessages().isEmpty()) {
-            if (AnnouncementsManager.bukkitTask != null) {
-                AnnouncementsManager.bukkitTask.cancel();
-                currentMessage = -1;
-            }
+        this.name = name;
+        this.messages = messages;
+    }
 
-            AnnouncementsManager.bukkitTask = Bukkit.getScheduler().runTaskTimer(main, () -> {
-                    if (currentMessage == -1 || config.getAdvancementMessages().size() <= ++currentMessage) {
-                        currentMessage = 0;
-                    }
-
-                    for (Player player : Utils.getOnlinePlayers()) {
-                        config.getAdvancementMessages().get(currentMessage)
-                                .show(player);
-                    }
-                }, config.getAnnouncementsTime() * 20, config.getAnnouncementsTime() * 20);
+    @Override
+    public void run() {
+        if (currentMessage == -1 || messages.size() <= ++currentMessage) {
+            currentMessage = 0;
         }
+
+        @SuppressWarnings("all")
+        AdvancementMessage advancementMessage = new AdvancementMessage((Map<String, String>) messages.get(currentMessage));
+        Bukkit.getOnlinePlayers().stream().filter(player -> !isPermission() || player.hasPermission(String.format(PERMISSION_NODE, name)))
+                .forEach(advancementMessage::show);
     }
 
-    public void reset() {
-        this.currentMessage = -1;
-    }
-
-    public static class AdvancementMessage implements ConfigurationSerializable {
+    private static class AdvancementMessage implements ConfigurationSerializable {
 
         private NamespacedKey id;
         private String icon;
         private String header, footer;
         private JavaPlugin javaPlugin;
 
-        public AdvancementMessage(Map<?, ?> list, Main main) {
-            this((String) list.get("header"),
-                    (String) list.get("footer"),
-                    (String) list.get("icon"), main);
+        private AdvancementMessage(Map<String, String> list) {
+            this(list.getOrDefault("header", "Header"),
+                    list.getOrDefault("footer", "Message #1"),
+                    list.getOrDefault("icon", "minecraft:apple"), Chatty.instance());
         }
 
         AdvancementMessage(String header, String footer, String icon, JavaPlugin javaPlugin) {
@@ -79,39 +71,37 @@ public class AnnouncementsManager {
             this.grant(player);
 
             Bukkit.getScheduler().runTaskLater(javaPlugin, () -> {
-                    revoke(player);
-                    unregister();
-                }, 20);
+                revoke(player);
+                unregister();
+            }, 20);
         }
 
+        @SuppressWarnings("all")
         private void register() {
             try {
                 Bukkit.getUnsafe().loadAdvancement(id, this.json());
-            } catch (IllegalArgumentException ignored){ }
+            } catch (IllegalArgumentException ignored) {
+            }
         }
 
-        private void unregister()	{
+        @SuppressWarnings("all")
+        private void unregister() {
             Bukkit.getUnsafe().removeAdvancement(id);
         }
 
         private void grant(Player player) {
             Advancement advancement = Bukkit.getAdvancement(id);
             AdvancementProgress progress = player.getAdvancementProgress(advancement);
-            if (!progress.isDone())	{
-                for (String criteria : progress.getRemainingCriteria())	{
-                    progress.awardCriteria(criteria);
-                }
-            };
-
+            if (!progress.isDone()) {
+                progress.getRemainingCriteria().forEach(progress::awardCriteria);
+            }
         }
 
-        private void revoke(Player player)	{
+        private void revoke(Player player) {
             Advancement advancement = Bukkit.getAdvancement(id);
             AdvancementProgress progress = player.getAdvancementProgress(advancement);
-            if (progress.isDone())	{
-                for (String criteria : progress.getAwardedCriteria())	{
-                    progress.revokeCriteria(criteria);
-                }
+            if (progress.isDone()) {
+                progress.getAwardedCriteria().forEach(progress::revokeCriteria);
             }
         }
 
@@ -124,7 +114,7 @@ public class AnnouncementsManager {
             icon.addProperty("item", this.icon);
 
             display.add("icon", icon);
-            display.addProperty("title", Utils.colorize(this.header + "\n" + this.footer));
+            display.addProperty("title", COLORIZE.apply(this.header + "\n" + this.footer));
             display.addProperty("description", "Chatty Announcement");
             display.addProperty("background", "minecraft:textures/gui/advancements/backgrounds/stone.png");
             display.addProperty("frame", "goal");

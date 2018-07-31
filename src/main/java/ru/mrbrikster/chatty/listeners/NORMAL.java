@@ -3,13 +3,21 @@ package ru.mrbrikster.chatty.listeners;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
-import ru.mrbrikster.chatty.Main;
-import ru.mrbrikster.chatty.managers.EventManager;
+import ru.mrbrikster.chatty.chat.ChatManager;
+import ru.mrbrikster.chatty.config.Configuration;
+import ru.mrbrikster.chatty.dependencies.DependencyManager;
+import ru.mrbrikster.chatty.moderation.ModerationManager;
 
-public class NORMAL extends EventManager {
+public class NORMAL extends ChatListener {
 
-    public NORMAL(Main main) {
-        super(main);
+    public NORMAL(Configuration configuration,
+                  ChatManager chatManager,
+                  DependencyManager dependencyManager,
+                  ModerationManager moderationManager) {
+        super(configuration,
+                chatManager,
+                dependencyManager,
+                moderationManager);
     }
 
     @EventHandler(
