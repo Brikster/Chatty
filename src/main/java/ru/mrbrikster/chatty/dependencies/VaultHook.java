@@ -11,7 +11,7 @@ public class VaultHook {
     private final Chat chat;
     private final Economy economy;
 
-    public VaultHook() {
+    VaultHook() {
         RegisteredServiceProvider<Chat> chatRegisteredServiceProvider = Bukkit.getServicesManager().getRegistration(Chat.class);
         RegisteredServiceProvider<Economy> economyRegisteredServiceProvider = Bukkit.getServicesManager().getRegistration(Economy.class);
 

@@ -28,8 +28,8 @@ public class AdvertisementModerationMethod extends ModerationMethod {
     }
 
     @Override
-    public boolean isPassed() {
-        return !containsIP(message) && !containsURL(message);
+    public boolean isBlocked() {
+        return containsIP(message) || containsURL(message);
     }
 
     private boolean containsIP(String message) {

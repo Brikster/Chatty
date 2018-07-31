@@ -31,17 +31,13 @@ public class NotificationManager {
         ConfigurationNode advancementsNotificationsNode = notificationsNode.getNode("advancements");
 
         if (chatNotificationsNode.getNode("enable").getAsBoolean(false)) {
-            for (ConfigurationNode notification : chatNotificationsNode.getNode("lists").getChildNodes()) {
-                this.chatNotifications.add(
-                        new ChatNotification(
-                                notification.getName(),
-                                notification.getNode("time").getAsInt(60),
-                                notification.getNode("prefix").getAsString(""),
-                                notification.getNode("messages").getAsStringList(),
-                                notification.getNode("permission").getAsBoolean(true)
-                        )
-                );
-            }
+            chatNotificationsNode.getNode("lists").getChildNodes().stream().map(notification -> new ChatNotification(
+                    notification.getName(),
+                    notification.getNode("time").getAsInt(60),
+                    notification.getNode("prefix").getAsString(""),
+                    notification.getNode("messages").getAsStringList(),
+                    notification.getNode("permission").getAsBoolean(true)
+            )).forEach(this.chatNotifications::add);
         }
 
         if (actionBarNotificationsNode.getNode("enable").getAsBoolean(false)) {
@@ -56,31 +52,19 @@ public class NotificationManager {
         }
 
         if (advancementsNotificationsNode.getNode("enable").getAsBoolean(false)) {
-            for (ConfigurationNode notification : advancementsNotificationsNode.getNode("lists").getChildNodes()) {
-                this.advancementsNotifications.add(
-                        new AdvancementsNotification(
-                                notification.getName(),
-                                notification.getNode("time").getAsInt(60),
-                                notification.getNode("messages").getAsMapList(),
-                                notification.getNode("permission").getAsBoolean(true)
-                        )
-                );
-            }
+            advancementsNotificationsNode.getNode("lists").getChildNodes().stream().map(notification -> new AdvancementsNotification(
+                    notification.getName(),
+                    notification.getNode("time").getAsInt(60),
+                    notification.getNode("messages").getAsMapList(),
+                    notification.getNode("permission").getAsBoolean(true)
+            )).forEach(this.advancementsNotifications::add);
         }
     }
 
     private void reload() {
-        for (ChatNotification chatNotification : chatNotifications) {
-            chatNotification.cancel();
-        }
-
-        for (ActionBarNotification actionBarNotification : actionBarNotifications) {
-            actionBarNotification.cancel();
-        }
-
-        for (AdvancementsNotification advancementsNotification : advancementsNotifications) {
-            advancementsNotification.cancel();
-        }
+        chatNotifications.forEach(Notification::cancel);
+        actionBarNotifications.forEach(Notification::cancel);
+        advancementsNotifications.forEach(Notification::cancel);
 
         init();
     }

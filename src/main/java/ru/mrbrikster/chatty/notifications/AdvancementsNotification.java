@@ -39,11 +39,8 @@ public class AdvancementsNotification extends Notification {
 
         @SuppressWarnings("all")
         AdvancementMessage advancementMessage = new AdvancementMessage((Map<String, String>) messages.get(currentMessage));
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            if (!isPermission() || player.hasPermission(String.format(PERMISSION_NODE, name))) {
-                advancementMessage.show(player);
-            }
-        }
+        Bukkit.getOnlinePlayers().stream().filter(player -> !isPermission() || player.hasPermission(String.format(PERMISSION_NODE, name)))
+                .forEach(advancementMessage::show);
     }
 
     private static class AdvancementMessage implements ConfigurationSerializable {
@@ -79,6 +76,7 @@ public class AdvancementsNotification extends Notification {
             }, 20);
         }
 
+        @SuppressWarnings("all")
         private void register() {
             try {
                 Bukkit.getUnsafe().loadAdvancement(id, this.json());
@@ -86,6 +84,7 @@ public class AdvancementsNotification extends Notification {
             }
         }
 
+        @SuppressWarnings("all")
         private void unregister() {
             Bukkit.getUnsafe().removeAdvancement(id);
         }
@@ -94,21 +93,15 @@ public class AdvancementsNotification extends Notification {
             Advancement advancement = Bukkit.getAdvancement(id);
             AdvancementProgress progress = player.getAdvancementProgress(advancement);
             if (!progress.isDone()) {
-                for (String criteria : progress.getRemainingCriteria()) {
-                    progress.awardCriteria(criteria);
-                }
+                progress.getRemainingCriteria().forEach(progress::awardCriteria);
             }
-            ;
-
         }
 
         private void revoke(Player player) {
             Advancement advancement = Bukkit.getAdvancement(id);
             AdvancementProgress progress = player.getAdvancementProgress(advancement);
             if (progress.isDone()) {
-                for (String criteria : progress.getAwardedCriteria()) {
-                    progress.revokeCriteria(criteria);
-                }
+                progress.getAwardedCriteria().forEach(progress::revokeCriteria);
             }
         }
 

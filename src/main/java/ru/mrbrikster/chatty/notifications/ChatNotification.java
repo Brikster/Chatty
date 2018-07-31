@@ -1,7 +1,6 @@
 package ru.mrbrikster.chatty.notifications;
 
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 
 import java.util.List;
 
@@ -30,11 +29,8 @@ public class ChatNotification extends Notification {
 
         String[] message = COLORIZE.apply(prefix + messages.get(currentMessage)).split("(?<!\\\\)\\\\n");
 
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            if (!isPermission() || player.hasPermission(String.format(PERMISSION_NODE, name))) {
-                player.sendMessage(message);
-            }
-        }
+        Bukkit.getOnlinePlayers().stream().filter(player -> !isPermission() || player.hasPermission(String.format(PERMISSION_NODE, name)))
+                .forEach(player -> player.sendMessage(message));
     }
 
 }

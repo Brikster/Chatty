@@ -3,17 +3,17 @@ package ru.mrbrikster.chatty.config;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ConfigurationNodeImpl implements ConfigurationNode {
 
     private final FileConfiguration configuration;
     private final String path;
 
-    public ConfigurationNodeImpl(FileConfiguration configuration, String path) {
+    ConfigurationNodeImpl(FileConfiguration configuration, String path) {
         this.configuration = configuration;
         this.path = path;
     }
@@ -87,12 +87,8 @@ public class ConfigurationNodeImpl implements ConfigurationNode {
             return Collections.emptyList();
         }
 
-        List<ConfigurationNode> nodeList = new ArrayList<>();
-        for (String key : section.getKeys(false)) {
-            nodeList.add(new ConfigurationNodeImpl(configuration, path + "." + key));
-        }
-
-        return nodeList;
+        return section.getKeys(false).stream()
+                .map(key -> new ConfigurationNodeImpl(configuration, path + "." + key)).collect(Collectors.toList());
     }
 
     @Override

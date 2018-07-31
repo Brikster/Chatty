@@ -13,8 +13,7 @@ import ru.mrbrikster.chatty.Chatty;
 import ru.mrbrikster.chatty.chat.Chat;
 import ru.mrbrikster.chatty.chat.ChatManager;
 import ru.mrbrikster.chatty.config.Configuration;
-import ru.mrbrikster.chatty.dependencies.DependencyPool;
-import ru.mrbrikster.chatty.dependencies.PlaceholderAPIHook;
+import ru.mrbrikster.chatty.dependencies.DependencyManager;
 import ru.mrbrikster.chatty.dependencies.VaultHook;
 import ru.mrbrikster.chatty.moderation.CapsModerationMethod;
 import ru.mrbrikster.chatty.moderation.ModerationManager;
@@ -26,7 +25,6 @@ import java.util.regex.Pattern;
 
 public abstract class ChatListener implements Listener {
 
-    private static final String MESSAGES_NODE = "messages";
     private static final Function<String, String> COLORIZE
             = (string) -> string == null ? null : ChatColor.translateAlternateColorCodes('&', string);
 
@@ -48,7 +46,7 @@ public abstract class ChatListener implements Listener {
             .put(PERMISSION_PREFIX + "italic", ITALIC_PATTERN)
             .put(PERMISSION_PREFIX + "reset", RESET_PATTERN).build();
 
-    private final DependencyPool dependencyPool;
+    private final DependencyManager dependencyManager;
     private final ChatManager chatManager;
     private final Configuration configuration;
     private final ModerationManager moderationManager;
@@ -56,11 +54,11 @@ public abstract class ChatListener implements Listener {
     @SuppressWarnings("all")
     public ChatListener(Configuration configuration,
                         ChatManager chatManager,
-                        DependencyPool dependencyPool,
+                        DependencyManager dependencyManager,
                         ModerationManager moderationManager) {
         this.configuration = configuration;
         this.chatManager = chatManager;
-        this.dependencyPool = dependencyPool;
+        this.dependencyManager = dependencyManager;
         this.moderationManager = moderationManager;
     }
 
@@ -96,8 +94,7 @@ public abstract class ChatListener implements Listener {
 
         if (chat == null) {
             playerChatEvent.setCancelled(true);
-            player.sendMessage(COLORIZE.apply(configuration.getNode(MESSAGES_NODE).getNode("chat-not-found").getAsString(
-                    ChatColor.RED + "Applicable chat not found. You can't send the message.")));
+            player.sendMessage(configuration.getMessages().get("chat-not-found"));
             return;
         }
 
@@ -106,8 +103,8 @@ public abstract class ChatListener implements Listener {
 
         String prefix = "", suffix = "";
 
-        if (dependencyPool.getDependency(VaultHook.class) != null) {
-            VaultHook vaultHook = dependencyPool.getDependency(VaultHook.class);
+        if (dependencyManager.getVault() != null) {
+            VaultHook vaultHook = dependencyManager.getVault();
             prefix = vaultHook.getPrefix(player);
             suffix = vaultHook.getSuffix(player);
 
@@ -133,21 +130,18 @@ public abstract class ChatListener implements Listener {
         long cooldown = hasCooldown ? -1 : chat.getCooldown(player);
 
         if (cooldown != -1) {
-            player.sendMessage(COLORIZE.apply(configuration.getNode(MESSAGES_NODE).getNode("cooldown").getAsString(
-                    ChatColor.RED + "Wait for {cooldown} seconds, before send message in this chat again.")
-                    .replace("{cooldown}", String.valueOf(cooldown))));
+            player.sendMessage(configuration.getMessages().get("cooldown")
+                    .replace("{cooldown}", String.valueOf(cooldown)));
             playerChatEvent.setCancelled(true);
             return;
         }
 
-        if (chat.getMoney() > 0 && dependencyPool.getDependency(VaultHook.class) != null) {
-            VaultHook vaultHook = dependencyPool.getDependency(VaultHook.class);
+        if (chat.getMoney() > 0 && dependencyManager.getVault() != null) {
+            VaultHook vaultHook = dependencyManager.getVault();
 
             if (!vaultHook.withdrawMoney(player, chat.getMoney())) {
-                player.sendMessage(
-                        COLORIZE.apply(configuration.getNode(MESSAGES_NODE).getNode("not-enough-money").getAsString(
-                                ChatColor.RED + "You need {money} money to send message in this chat."
-                                        .replace("{money}", String.valueOf(chat.getMoney())))));
+                player.sendMessage(configuration.getMessages().get("not-enough-money")
+                                .replace("{money}", String.valueOf(chat.getMoney())));
                 playerChatEvent.setCancelled(true);
                 return;
             }
@@ -156,8 +150,8 @@ public abstract class ChatListener implements Listener {
         playerChatEvent.setFormat(COLORIZE.apply(format));
         playerChatEvent.setMessage(message);
 
-        if (dependencyPool.getDependency(PlaceholderAPIHook.class) != null) {
-            playerChatEvent.setFormat(dependencyPool.getDependency(PlaceholderAPIHook.class)
+        if (dependencyManager.getPlaceholderApi() != null) {
+            playerChatEvent.setFormat(dependencyManager.getPlaceholderApi()
                     .setPlaceholders(player, playerChatEvent.getFormat()));
         }
 
@@ -165,7 +159,8 @@ public abstract class ChatListener implements Listener {
         playerChatEvent.getRecipients().addAll(chat.getRecipients(player));
 
         if (playerChatEvent.getRecipients().size() <= 1) {
-            String noRecipients = COLORIZE.apply(configuration.getNode(MESSAGES_NODE).getNode("no-recipients").getAsString(null));
+            String noRecipients = configuration.getMessages()
+                    .get("no-recipients", null);
 
             if (noRecipients != null)
                 Bukkit.getScheduler().runTaskLater(Chatty.instance(), () -> player.sendMessage(noRecipients), 5L);
@@ -176,8 +171,8 @@ public abstract class ChatListener implements Listener {
         CapsModerationMethod capsModerationMethod;
         if (moderationManager.isCapsModerationEnabled() &&
                 !player.hasPermission("chatty.moderation.caps")
-                && !(capsModerationMethod = moderationManager.getCapsMethod(message)).isPassed()) {
-            if (capsModerationMethod.isBlock()) {
+                && (capsModerationMethod = moderationManager.getCapsMethod(message)).isBlocked()) {
+            if (capsModerationMethod.isUseBlock()) {
                 playerChatEvent.getRecipients().clear();
                 playerChatEvent.getRecipients().add(player);
 
@@ -187,20 +182,20 @@ public abstract class ChatListener implements Listener {
                 chatManager.getLogger().write(player, message, "");
             }
 
-            String capsFound = COLORIZE.apply(configuration.getNode(MESSAGES_NODE).getNode("caps-found").getAsString(null));
+            String capsFound = configuration.getMessages().get("caps-found", null);
 
             if (capsFound != null)
                 Bukkit.getScheduler().runTaskLater(Chatty.instance(),
                         () -> player.sendMessage(capsFound), 5L);
         } else if (moderationManager.isAdvertisementModerationEnabled() &&
                 !player.hasPermission("chatty.moderation.advertisement")
-                && !moderationManager.getAdvertisementMethod(message).isPassed()) {
+                && moderationManager.getAdvertisementMethod(message).isBlocked()) {
             playerChatEvent.getRecipients().clear();
             playerChatEvent.getRecipients().add(player);
 
             chatManager.getLogger().write(player, message, "[ADS] ");
 
-            String adsFound = COLORIZE.apply(configuration.getNode(MESSAGES_NODE).getNode("advertisement-found").getAsString(null));
+            String adsFound = configuration.getMessages().get("advertisement-found", null);
 
             if (adsFound != null)
                 Bukkit.getScheduler().runTaskLater(Chatty.instance(),
@@ -218,14 +213,11 @@ public abstract class ChatListener implements Listener {
             return;
 
         String[] formatSplit = playerChatEvent.getFormat().split("\\|", 2);
-        for (Player spy : Reflection.getOnlinePlayers()) {
-            if ((spy.hasPermission("chatty.spy") || spy.hasPermission("chatty.spy." + formatSplit[0])) &&
-                    !chatManager.getSpyDisabled().contains(spy) &&
-                    !playerChatEvent.getRecipients().contains(spy))
-                spy.sendMessage(COLORIZE.apply(configuration.getNode("general.spy.format")
-                        .getAsString("&6[Spy] &r{format}").replace("{format}",
-                                String.format(formatSplit[1], playerChatEvent.getPlayer().getName(), playerChatEvent.getMessage()))));
-        }
+        Reflection.getOnlinePlayers().stream().filter(spy -> (spy.hasPermission("chatty.spy") || spy.hasPermission("chatty.spy." + formatSplit[0])) &&
+                !chatManager.getSpyDisabled().contains(spy) &&
+                !playerChatEvent.getRecipients().contains(spy)).forEach(spy -> spy.sendMessage(COLORIZE.apply(configuration.getNode("general.spy.format")
+                .getAsString("&6[Spy] &r{format}").replace("{format}",
+                        String.format(formatSplit[1], playerChatEvent.getPlayer().getName(), playerChatEvent.getMessage())))));
 
         playerChatEvent.setFormat(formatSplit[1]);
     }
@@ -236,14 +228,14 @@ public abstract class ChatListener implements Listener {
                 .remove(playerQuitEvent.getPlayer());
     }
 
-    private String stylish(Player player, String string, String chat) {
+    private String stylish(Player player, String message, String chat) {
         for (Map.Entry<String, Pattern> entry : PATTERNS.entrySet()) {
             if (player.hasPermission(entry.getKey()) || player.hasPermission(entry.getKey() + "." + chat)) {
-                string = entry.getValue().matcher(string).replaceAll("\u00A7$1");
+                message = entry.getValue().matcher(message).replaceAll("\u00A7$1");
             }
         }
 
-        return string;
+        return message;
     }
 
 }

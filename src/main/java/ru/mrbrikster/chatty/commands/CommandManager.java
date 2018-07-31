@@ -33,17 +33,25 @@ public class CommandManager {
         }
     }
 
+    private final ChattyCommand chattyCommand;
+    private final SpyCommand spyCommand;
+
     public CommandManager(Configuration configuration,
                           ChatManager chatManager) {
-        new ChattyCommand(configuration)
-                .registerCommand(getCommandMap());
+        this.chattyCommand = new ChattyCommand(configuration);
+        this.spyCommand = new SpyCommand(configuration, chatManager);
 
-        new SpyCommand(configuration,
-                chatManager).register(getCommandMap());
+        this.chattyCommand.registerCommand(getCommandMap());
+        this.spyCommand.registerCommand(getCommandMap());
     }
 
     private static SimpleCommandMap getCommandMap() {
         return commandMap;
+    }
+
+    public void unregisterAll() {
+        this.chattyCommand.unregisterCommand(getCommandMap());
+        this.spyCommand.unregisterCommand(getCommandMap());
     }
 
 }

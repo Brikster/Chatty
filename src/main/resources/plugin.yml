@@ -4,6 +4,3 @@ main: ru.mrbrikster.chatty.Chatty
 authors: [MrBrikster]
 
 softdepend: [Vault, PlaceholderAPI]
-
-commands:
-  chatty: {}

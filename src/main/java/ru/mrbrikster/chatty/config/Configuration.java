@@ -1,5 +1,6 @@
 package ru.mrbrikster.chatty.config;
 
+import lombok.Getter;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -14,11 +15,14 @@ public class Configuration {
     private YamlConfiguration configuration;
     private List<ReloadHandler> reloadHandlers = new ArrayList<>();
 
+    @Getter private final Messages messages;
+
     public Configuration(JavaPlugin javaPlugin) {
         javaPlugin.saveDefaultConfig();
 
         this.file = new File(javaPlugin.getDataFolder(), "config.yml");
         this.configuration = YamlConfiguration.loadConfiguration(file);
+        this.messages = new Messages(this);
     }
 
     public ConfigurationNode getNode(String path) {
@@ -48,7 +52,7 @@ public class Configuration {
 
     public interface ReloadHandler {
 
-        public void onConfigurationReload();
+        void onConfigurationReload();
 
     }
 

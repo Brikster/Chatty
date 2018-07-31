@@ -10,6 +10,6 @@ public abstract class ModerationMethod {
 
     public abstract String getEditedMessage();
 
-    public abstract boolean isPassed();
+    public abstract boolean isBlocked();
 
 }

@@ -1,6 +1,5 @@
 package ru.mrbrikster.chatty.commands;
 
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import ru.mrbrikster.chatty.chat.ChatManager;
@@ -22,21 +21,18 @@ public class SpyCommand extends AbstractCommand {
     public void handle(CommandSender sender, String label, String[] args) {
         if (sender instanceof Player) {
             if (!sender.hasPermission("chatty.command.spy")) {
-                sender.sendMessage(configuration.getNode("messages.no-permission")
-                        .getAsString(ChatColor.RED + "You don't have permission."));
+                sender.sendMessage(configuration.getMessages().get("no-permission"));
                 return;
             }
 
             if (chatManager.getSpyDisabled().contains(sender)) {
-                sender.sendMessage(configuration.getNode("messages.spy-on")
-                        .getAsString(ChatColor.GREEN + "You have been enabled spy-mode."));
+                sender.sendMessage(configuration.getMessages().get("spy-on"));
                 chatManager.getSpyDisabled().remove(sender);
             } else {
-                sender.sendMessage(configuration.getNode("messages.spy-off")
-                        .getAsString(ChatColor.RED + "You have been disabled spy-mode."));
+                sender.sendMessage(configuration.getMessages().get("spy-off"));
                 chatManager.getSpyDisabled().add((Player) sender);
             }
-        } else sender.sendMessage("Only for players.");
+        } else sender.sendMessage(configuration.getMessages().get("only-for-players"));
     }
 
 }

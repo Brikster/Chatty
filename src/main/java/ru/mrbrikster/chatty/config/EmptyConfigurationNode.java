@@ -11,7 +11,7 @@ public class EmptyConfigurationNode implements ConfigurationNode {
 
     private final String path;
 
-    public EmptyConfigurationNode(String path) {
+    EmptyConfigurationNode(String path) {
         this.path = path;
     }
 
