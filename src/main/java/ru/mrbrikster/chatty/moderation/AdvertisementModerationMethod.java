@@ -5,6 +5,7 @@ import ru.mrbrikster.chatty.config.ConfigurationNode;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class AdvertisementModerationMethod extends ModerationMethod {
 
@@ -15,7 +16,7 @@ public class AdvertisementModerationMethod extends ModerationMethod {
         super(message);
 
         this.whitelist = configurationNode.getNode("whitelist")
-                .getAsStringList();
+                .getAsStringList().stream().map(String::toLowerCase).collect(Collectors.toList());
         this.ipPattern = Pattern.compile(configurationNode.getNode("patterns.ip")
                 .getAsString("(?:\\d{1,3}[.,\\-:;\\/()=?}+ ]{1,4}){3}\\d{1,3}"));
         this.webPattern = Pattern.compile(configurationNode.getNode("patterns.web")
@@ -36,7 +37,7 @@ public class AdvertisementModerationMethod extends ModerationMethod {
         Matcher regexMatcher = ipPattern.matcher(message);
 
         while (regexMatcher.find()) {
-            String advertisement = regexMatcher.group().trim();
+            String advertisement = regexMatcher.group().trim().toLowerCase();
 
             if (!whitelist.contains(advertisement)) {
                 return true;
@@ -50,7 +51,7 @@ public class AdvertisementModerationMethod extends ModerationMethod {
         Matcher regexMatcher = webPattern.matcher(message);
 
         while (regexMatcher.find()) {
-            String advertisement = regexMatcher.group().trim()
+            String advertisement = regexMatcher.group().trim().toLowerCase()
                     .replaceAll("www.", "")
                     .replaceAll("http://", "")
                     .replaceAll("https://", "");
