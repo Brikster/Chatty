@@ -11,6 +11,7 @@ import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import ru.mrbrikster.chatty.Chatty;
+import ru.mrbrikster.chatty.reflection.Reflection;
 
 import java.util.HashMap;
 import java.util.List;
@@ -39,7 +40,7 @@ public class AdvancementsNotification extends Notification {
 
         @SuppressWarnings("all")
         AdvancementMessage advancementMessage = new AdvancementMessage((Map<String, String>) messages.get(currentMessage));
-        Bukkit.getOnlinePlayers().stream().filter(player -> !isPermission() || player.hasPermission(String.format(PERMISSION_NODE, name)))
+        Reflection.getOnlinePlayers().stream().filter(player -> !isPermission() || player.hasPermission(String.format(PERMISSION_NODE, name)))
                 .forEach(advancementMessage::show);
     }
 
