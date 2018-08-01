@@ -4,6 +4,7 @@ import io.github.theluca98.textapi.ActionBar;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
 import ru.mrbrikster.chatty.Chatty;
+import ru.mrbrikster.chatty.reflection.Reflection;
 
 import java.util.List;
 
@@ -44,7 +45,7 @@ public class ActionBarNotification extends Notification {
     public void run() {
         String message = COLORIZE.apply(prefix + messages.get(currentMessage));
 
-        Bukkit.getOnlinePlayers().stream().filter(player -> !isPermission() || player.hasPermission(PERMISSION_NODE))
+        Reflection.getOnlinePlayers().stream().filter(player -> !isPermission() || player.hasPermission(PERMISSION_NODE))
                 .forEach(player -> new ActionBar(message).send(player));
     }
 

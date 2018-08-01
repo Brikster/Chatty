@@ -1,6 +1,6 @@
 package ru.mrbrikster.chatty.notifications;
 
-import org.bukkit.Bukkit;
+import ru.mrbrikster.chatty.reflection.Reflection;
 
 import java.util.List;
 
@@ -29,7 +29,7 @@ public class ChatNotification extends Notification {
 
         String[] message = COLORIZE.apply(prefix + messages.get(currentMessage)).split("(?<!\\\\)\\\\n");
 
-        Bukkit.getOnlinePlayers().stream().filter(player -> !isPermission() || player.hasPermission(String.format(PERMISSION_NODE, name)))
+        Reflection.getOnlinePlayers().stream().filter(player -> !isPermission() || player.hasPermission(String.format(PERMISSION_NODE, name)))
                 .forEach(player -> player.sendMessage(message));
     }
 
