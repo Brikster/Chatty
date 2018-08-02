@@ -38,6 +38,8 @@ public class Messages {
                 ChatColor.RED + "You have been disabled spy-mode.");
         put("spy-on",
                 ChatColor.GREEN + "You have been enabled spy-mode.");
+        put("only-for-players",
+                ChatColor.GREEN + "This command is only for players.");
     }
 
     public String get(String key) {
