@@ -102,8 +102,8 @@ notifications:
     prefix: ''
     # List of messages.
     messages:
-    - '&7Текст сообщения &c#1'
-    - '&7Текст сообщения &a#2'
+    - '&cThe server is using Chatty!'
+    - '&aThe server is using Chatty!'
     # Disable permission checking.
     # Delete the line, if you need this.
     permission: false
@@ -167,7 +167,7 @@ moderation:
 # Plugin localization.
 messages:
   # Non-removable lines.
-  only-for-players: 'This command is only for players.'
+  only-for-players: '&cThis command is only for players.'
   chat-not-found: '&cApplicable chat not found. You can''t send the message.'
   reload: '&aConfig successful reloaded!'
   no-permission: '&cYou don''t have permission.'
