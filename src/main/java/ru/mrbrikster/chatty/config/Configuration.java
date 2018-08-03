@@ -12,17 +12,24 @@ import java.util.List;
 public class Configuration {
 
     private final File file;
+    private final JavaPlugin javaPlugin;
     private YamlConfiguration configuration;
     private List<ReloadHandler> reloadHandlers = new ArrayList<>();
 
-    @Getter private final Messages messages;
+    @Getter private static Messages messages;
 
     public Configuration(JavaPlugin javaPlugin) {
+        this("config.yml", javaPlugin);
+
+        Configuration.messages = new Messages(javaPlugin, this);
+    }
+
+    public Configuration(String fileName, JavaPlugin javaPlugin) {
+        this.javaPlugin = javaPlugin;
         javaPlugin.saveDefaultConfig();
 
-        this.file = new File(javaPlugin.getDataFolder(), "config.yml");
+        this.file = new File(javaPlugin.getDataFolder(), fileName);
         this.configuration = YamlConfiguration.loadConfiguration(file);
-        this.messages = new Messages(this);
     }
 
     public ConfigurationNode getNode(String path) {
@@ -44,6 +51,8 @@ public class Configuration {
     public void reload() {
         this.configuration = YamlConfiguration.loadConfiguration(file);
         reloadHandlers.forEach(ReloadHandler::onConfigurationReload);
+
+        Configuration.messages = new Messages(javaPlugin, this);
     }
 
     public void registerReloadHandler(ReloadHandler reloadHandler) {

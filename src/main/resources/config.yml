@@ -9,6 +9,12 @@
 # * General settings section.
 # Common settings and small features.
 general:
+  # Plugin localization.
+  # Possible values:
+  # en - English.
+  # ru - Russian.
+  locale: en
+
   # Chat listener priority.
   # Possible values:
   # lowest, low, normal, high, highest.
@@ -162,22 +168,3 @@ moderation:
     - 'yandex.ru'
     - '192.168.1.1'
     - '127.0.0.1'
-
-# * Messages.
-# Plugin localization.
-messages:
-  # Non-removable lines.
-  only-for-players: '&cThis command is only for players.'
-  chat-not-found: '&cApplicable chat not found. You can''t send the message.'
-  reload: '&aConfig successful reloaded!'
-  no-permission: '&cYou don''t have permission.'
-  spy-on: '&aYou have been enabled spy-mode.'
-  spy-off: '&cYou have been disabled spy-mode.'
-  cooldown: '&cWait for {cooldown} seconds, before send message in this chat again.'
-  not-enough-money: '&cYou need {money} money to send message in this chat.'
-
-  # Removable lines.
-  # Delete the line to disable message.
-  advertisement-found: '&cAdvertisement is detected in your message.'
-  no-recipients: '&cNobody heard you.'
-  caps-found: '&cCaps abuse is detected in your message.'
