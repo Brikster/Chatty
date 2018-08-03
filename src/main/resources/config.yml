@@ -25,7 +25,7 @@ general:
 
   # Spy-mode.
   # Permission:
-  # chatty.spy.<чат>
+  # chatty.spy.<chat>
   # or chatty.spy.
   #
   # Permission for /spy:
