@@ -87,7 +87,6 @@ public class Messages {
                 localeConfiguration == null
                 ? def
                 : localeConfiguration.getNode("messages." + key).getAsString(def));
-
     }
 
     private void put(String key, String message) {

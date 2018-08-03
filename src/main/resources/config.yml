@@ -118,7 +118,7 @@ notifications:
   advancements:
     # Advancements notifications.
     # Only 1.12+.
-    enable: true
+    enable: false
     # Notification lists.
     lists:
       # List "default".
