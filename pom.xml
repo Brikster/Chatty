@@ -6,7 +6,7 @@
 
     <groupId>ru.mrbrikster</groupId>
     <artifactId>chatty</artifactId>
-    <version>2.0.2</version>
+    <version>2.0.3</version>
     <packaging>jar</packaging>
 
     <name>Chatty</name>
@@ -115,6 +115,12 @@
                     <artifactId>bukkit</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.6</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

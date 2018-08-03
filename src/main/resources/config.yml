@@ -1,59 +1,59 @@
 # ******************************************************
-# * Chatty (версия ${project.version})
-#   Универсальная чат-система для Bukkit-сервера.
-#   Автор: MrBrikster.
-# * Опциональные зависимости:
+# * Chatty (version ${project.version})
+#   Universal chat-system for Bukkit-server.
+#   Creator: MrBrikster.
+# * Optional dependencies:
 #   Vault, PlaceholderAPI.
-#
-# Подсказка:
-# * Если вам не нужны какие-то функции плагина,
-# то можно спокойно удалять её из конфигурации.
-# Это никак не повлияет на работоспособность,
-# а ненужные функции не будут занимать лишнее место.
 # ******************************************************
 
-# * Главный пункт настроек.
-# Общие настройки и мелкие функции.
+# * General settings section.
+# Common settings and small features.
 general:
-  # Приоритет для слушателя события чата.
-  # Возможные значения:
+  # Plugin localization.
+  # Possible values:
+  # en - English.
+  # ru - Russian.
+  locale: en
+
+  # Chat listener priority.
+  # Possible values:
   # lowest, low, normal, high, highest.
   priority: low
 
-  # Логирование чата в директорую "Chatty/logs".
+  # Chat logging in "Chatty/logs".
   log: true
 
-  # Режим слежки.
-  # Право:
+  # Spy-mode.
+  # Permission:
   # chatty.spy.<чат>
-  # или chatty.spy.
+  # or chatty.spy.
   #
-  # Право на команду /spy:
+  # Permission for /spy:
   # chatty.command.spy
   spy:
-    # Включение/отключение режима.
+    # On/off spy-mode.
     enable: true
-    # Вид сообщения, которое игрок видит
-    # благодаря режиму слежки.
+    # Spy-mode message format.
     format: '&6[Spy] &r{format}'
 
-# * Чаты.
-# На сервере могут существовать разные чаты с различными настройками,
-# будь то донат-чаты, админ-чаты, или же обычные локальный и глобальный.
+# * Chats.
+# There
+# On the server there can be different chats with different settings,
+# whether it's donate-chat, admin-chat, or the usual local and global.
 #
-# Права на чат:
-# chatty.chat.<чат> - право и на отправление, и на чтение сообщений.
-# chatty.chat.<чат>.write - право только на отправление сообщений.
-# chatty.chat.<чат>.see - право только на чтение сообщений.
+# Permissions:
+# chatty.chat.<chat> - permission for both writing and seeing messages.
+# chatty.chat.<chat>.write - permission for writing messages.
+# chatty.chat.<chat>.see - permission for seeing messages.
 #
-# Чат имеет следующие опции:
-# enable - включить/выключить чат.
-# format - шаблон для форматирования чата.
-# range - радиус действия. -1 для общемирового чата, -2 для общесерверного.
-# symbol - символ, с которого нужно начинать сообщение для этого чата.
-# cooldown - промежуток времени, через который можно отправлять следующее сообщение (секунды).
-# money - стоимость отправки сообщения в чат (требуется Vault).
-# permission - необходимость права для отправки сообщения в чат. Если нужно отключить, используйте false.
+# Chat has the following options:
+# enable - on/off chat.
+# format - chat formatting string.
+# range - chat range. -1 to world-wide chat, -2 to server-wide chat.
+# symbol - the character from which the messages begin.
+# cooldown - message cooldown in seconds (bypass permission - chatty.cooldown.<chat>).
+# money - message price (depends on Vault).
+# permission - should this chat use permissions? Default value is true.
 chats:
   local:
     enable: true
@@ -68,102 +68,99 @@ chats:
     symbol: '!'
     cooldown: -1
 
-# * Оповещения.
-# Существуют три вида оповещения:
-# через чат, ActionBar (1.8+) и Advancements (1.12+).
+# * Notifications.
+# There are three types of notifications:
+# via Chat, ActionBar (1.8+) and Advancements (1.12+).
 notifications:
-  # Оповещения через чат.
+  # Chat notifications..
   chat:
-    # Включить/отключить оповещения через чат.
+    # On/off chat notifications.
     enable: true
-    # Списки оповещений.
+    # Notification lists.
     lists:
-      # Список "default".
-      # Право: chatty.notification.chat.default
+      # List "default".
+      # Permission: chatty.notification.chat.default
       default:
-        # Промежуток между сообщениями в секундах.
+        # Messages interval.
         time: 60
-        # Префикс для всех сообщений.
+        # Messages prefix.
         prefix: ''
-        # Список сообщений.
+        # List of messages.
         messages:
-        - '&7Текст сообщения &c#1'
-        - '&7Текст сообщения &a#2'
-        # Отключает требование права.
-        # Если нужна проверка по праву - удалите строку.
+        - '&cThe server is using Chatty!'
+        - '&aThe server is using Chatty!'
+        # Disable permission checking.
+        # Delete the line, if you need this.
         permission: false
 
-  # Оповещения через ActionBar.
-  # Представляют из себя постоянные уведомления,
-  # Которые меняются с определённым промежутком времени.
+  # ActionBar notifications.
+  # It's static notifications,
+  # which changes the message with interval.
   #
-  # Право: chatty.notification.actionbar
+  # Permission: chatty.notification.actionbar
   actionbar:
-    # Включить/отключить оповещения через ActionBar.
-    # Работает только на 1.8 и выше.
+    # On/off ActionBar notifications.
+    # Only 1.8+.
     enable: false
-    # Время одного сообщения в секундах.
+    # One message time.
     time: 60
-    # Префикс для всех сообщений.
+    # Messages prefix.
     prefix: ''
-    # Список сообщений.
+    # List of messages.
     messages:
-    - '&7Текст сообщения &c#1'
-    - '&7Текст сообщения &a#2'
-    # Отключает требование права.
-    # Если нужна проверка по праву - удалите строку.
+    - '&cThe server is using Chatty!'
+    - '&aThe server is using Chatty!'
+    # Disable permission checking.
+    # Delete the line, if you need this.
     permission: false
 
-  # Оповещения через Advancements (достижения).
+  # Advancements (Achievements) notifications.
   advancements:
-    # Включить/отключить оповещения через Advancements.
-    # Работает только на 1.12 и выше.
-    enable: false
-    # Списки оповещений.
+    # Advancements notifications.
+    # Only 1.12+.
+    enable: true
+    # Notification lists.
     lists:
-      # Список "default".
-      # Право: chatty.notification.advancements.default
+      # List "default".
+      # Permission: chatty.notification.advancements.default
       default:
-        # Промежуток между сообщениями в секундах.
+        # Messages interval.
         time: 60
-        # Список сообщений.
-        #
-        # icon - иконка для сообщения.
-        # header - заголовок, footer - сообщение.
+        # List of messages.
         messages:
-        - icon: 'minecraft:cobblestone'
-          header: '&6Заголовок'
-          footer: '&7Сообщение #1'
-        - icon: 'minecraft:apple'
-          header: '&6Заголовок'
-          footer: '&7Сообщение #2'
-        # Отключает требование права.
-        # Если нужна проверка по праву - удалите строку.
+        - icon: 'minecraft:diamond'
+          header: '&bChatty v.${project.version}'
+          footer: '&fThank you for using!'
+        - icon: 'minecraft:gold_ingot'
+          header: '&eChatty v.${project.version}'
+          footer: '&fThank you for using!'
+        # Disable permission checking.
+        # Delete the line, if you need this.
         permission: false
 
-# * Модерация
-# Средства для автоматической модерации чата.
+# * Moderation.
+# Automatic chat moderation tools.
 moderation:
   caps:
-    # Включить/выключить защиту от злоупотребления caps'ом.
-    # Право на обход защиты: chatty.moderation.caps
+    # On/off caps protection.
+    # Bypass permission: chatty.moderation.caps
     enable: true
-    # Минимальная длина, при которой сообщение проверяется на caps.
+    # Minimal length of message to caps checking.
     length: 6
-    # Минимальный процент больших букв, при котором сообщение считается caps'ом.
+    # Minimal upper case procent for caps.
     procent: 80
-    # Включить/отключить блокировку сообщения с caps'ом.
-    # При значении false сообщение будет заменено на маленькие буквы.
+    # On/off caps message blocking.
+    # When false, message will be sent in lower case.
     block: true
   advertisement:
-    # Включить/отключить защиту от рекламы.
-    # Право на обход защиты: chatty.moderation.advertisement
+    # On/off advertisement protection.
+    # Bypass permission: chatty.moderation.advertisement
     enable: true
-    # Регулярные выражения для обнаружения IP-адресов и сайтов.
+    # Regular expressions for IP-addresses and sites.
     patterns:
       ip: '(?:\d{1,3}[.,-:;\/()=?}+ ]{1,4}){3}\d{1,3}'
       web: '[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+~#?&//=]*)?'
-    # Список разрешённых IP-адресов и сайтов.
+    # Whitelisted IP-addresses and sites.
     whitelist:
     - 'example.com'
     - 'vk.com'
@@ -171,32 +168,3 @@ moderation:
     - 'yandex.ru'
     - '192.168.1.1'
     - '127.0.0.1'
-
-# * Сообщения
-# Все сообщения, которые может отправлять плагин.
-messages:
-  # Ошибка при выполнении команды не от имени игрока.
-  only-for-players: 'Данная команда доступна только для игроков.'
-  # Отправляется при отсутствии чата, на который есть права.
-  chat-not-found: '&cДоступный чат не найден. Возможно, у вас отсутствуют права.'
-  # Сообщение о перезагрузке конфигурации.
-  reload: '&aКонфигурация перезагружена.'
-  # Отсутствие прав на команду.
-  no-permission: '&cУ вас недостаточно прав.'
-  # Включение режима слежки.
-  spy-on: '&aВы активировали режим слежки.'
-  # Отключение режима слежки.
-  spy-off: '&cВы отключили режим слежки.'
-  # Сообщение о cooldown для чата.
-  cooldown: '&cПодождите {cooldown} секунд, прежде чем отправлять сообщение в этот чат снова.'
-  # Сообщение о том, что игрока никто не услышал.
-  # Удалите строку для отключения сообщения.
-  no-recipients: '&cВас никто не услышал.'
-  # Ошибка о недостатке денег для отправки сообщения.
-  not-enough-money: '&cВам требуется {money} денег для отправки сообщения в этот чат.'
-  # Предупреждение о сообщении с caps'ом.
-  # Удалите строку для отключения сообщения.
-  caps-found: '&cВ вашем сообщении обнаружено злоупотребление caps''ом.'
-  # Предупреждение о сообщении с рекламой.
-  # Удалите строку для отключения сообщения.
-  advertisement-found: '&cВ вашем сообщении обнаружена реклама.'
