@@ -14,14 +14,20 @@ import ru.mrbrikster.chatty.chat.Chat;
 import ru.mrbrikster.chatty.chat.ChatManager;
 import ru.mrbrikster.chatty.config.Configuration;
 import ru.mrbrikster.chatty.dependencies.DependencyManager;
+import ru.mrbrikster.chatty.dependencies.PlaceholderAPIHook;
 import ru.mrbrikster.chatty.dependencies.VaultHook;
+import ru.mrbrikster.chatty.json.FormattedMessage;
+import ru.mrbrikster.chatty.json.JSONMessagePart;
+import ru.mrbrikster.chatty.json.LegacyMessagePart;
 import ru.mrbrikster.chatty.moderation.CapsModerationMethod;
 import ru.mrbrikster.chatty.moderation.ModerationManager;
 import ru.mrbrikster.chatty.reflection.Reflection;
 
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public abstract class ChatListener implements Listener {
 
@@ -94,7 +100,7 @@ public abstract class ChatListener implements Listener {
 
         if (chat == null) {
             playerChatEvent.setCancelled(true);
-            player.sendMessage(configuration.getMessages().get("chat-not-found"));
+            player.sendMessage(Configuration.getMessages().get("chat-not-found"));
             return;
         }
 
@@ -130,7 +136,7 @@ public abstract class ChatListener implements Listener {
         long cooldown = hasCooldown ? -1 : chat.getCooldown(player);
 
         if (cooldown != -1) {
-            player.sendMessage(configuration.getMessages().get("cooldown")
+            player.sendMessage(Configuration.getMessages().get("cooldown")
                     .replace("{cooldown}", String.valueOf(cooldown)));
             playerChatEvent.setCancelled(true);
             return;
@@ -140,7 +146,7 @@ public abstract class ChatListener implements Listener {
             VaultHook vaultHook = dependencyManager.getVault();
 
             if (!vaultHook.withdrawMoney(player, chat.getMoney())) {
-                player.sendMessage(configuration.getMessages().get("not-enough-money")
+                player.sendMessage(Configuration.getMessages().get("not-enough-money")
                                 .replace("{money}", String.valueOf(chat.getMoney())));
                 playerChatEvent.setCancelled(true);
                 return;
@@ -159,7 +165,7 @@ public abstract class ChatListener implements Listener {
         playerChatEvent.getRecipients().addAll(chat.getRecipients(player));
 
         if (playerChatEvent.getRecipients().size() <= 1) {
-            String noRecipients = configuration.getMessages()
+            String noRecipients = Configuration.getMessages()
                     .get("no-recipients", null);
 
             if (noRecipients != null)
@@ -182,7 +188,7 @@ public abstract class ChatListener implements Listener {
                 chatManager.getLogger().write(player, message, "");
             }
 
-            String capsFound = configuration.getMessages().get("caps-found", null);
+            String capsFound = Configuration.getMessages().get("caps-found", null);
 
             if (capsFound != null)
                 Bukkit.getScheduler().runTaskLater(Chatty.instance(),
@@ -195,7 +201,7 @@ public abstract class ChatListener implements Listener {
 
             chatManager.getLogger().write(player, message, "[ADS] ");
 
-            String adsFound = configuration.getMessages().get("advertisement-found", null);
+            String adsFound = Configuration.getMessages().get("advertisement-found", null);
 
             if (adsFound != null)
                 Bukkit.getScheduler().runTaskLater(Chatty.instance(),
@@ -208,18 +214,91 @@ public abstract class ChatListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onSpy(AsyncPlayerChatEvent playerChatEvent) {
-        if (!configuration.getNode("general.spy.enable").getAsBoolean(false))
+    public void onJsonMessage(AsyncPlayerChatEvent playerChatEvent) {
+        // Spy-mode
+        if (configuration.getNode("general.spy.enable").getAsBoolean(false)) {
+            String[] formatSplit = playerChatEvent.getFormat().split("\\|", 2);
+            Reflection.getOnlinePlayers().stream().filter(spy -> (spy.hasPermission("chatty.spy") || spy.hasPermission("chatty.spy." + formatSplit[0])) &&
+                    !chatManager.getSpyDisabled().contains(spy) &&
+                    !playerChatEvent.getRecipients().contains(spy)).forEach(spy -> spy.sendMessage(COLORIZE.apply(configuration.getNode("general.spy.format")
+                    .getAsString("&6[Spy] &r{format}").replace("{format}",
+                            String.format(formatSplit[1], playerChatEvent.getPlayer().getName(), playerChatEvent.getMessage())))));
+
+            playerChatEvent.setFormat(formatSplit[1]);
+        }
+
+        // JSON format
+        if (!configuration.getNode("json.enable").getAsBoolean(false))
             return;
 
-        String[] formatSplit = playerChatEvent.getFormat().split("\\|", 2);
-        Reflection.getOnlinePlayers().stream().filter(spy -> (spy.hasPermission("chatty.spy") || spy.hasPermission("chatty.spy." + formatSplit[0])) &&
-                !chatManager.getSpyDisabled().contains(spy) &&
-                !playerChatEvent.getRecipients().contains(spy)).forEach(spy -> spy.sendMessage(COLORIZE.apply(configuration.getNode("general.spy.format")
-                .getAsString("&6[Spy] &r{format}").replace("{format}",
-                        String.format(formatSplit[1], playerChatEvent.getPlayer().getName(), playerChatEvent.getMessage())))));
+        Player player = playerChatEvent.getPlayer();
+        String format = String.format(playerChatEvent.getFormat(),
+                "{player}", "{message}");
 
-        playerChatEvent.setFormat(formatSplit[1]);
+        PlaceholderAPIHook placeholderAPI = dependencyManager.getPlaceholderApi();
+        List<String> tooltip = configuration.getNode("json.tooltip").getAsStringList()
+                .stream().map(line -> ChatColor.translateAlternateColorCodes('&', line.replace("{player}", player.getName())))
+                .collect(Collectors.toList());
+
+        if (placeholderAPI != null)
+            tooltip = placeholderAPI.setPlaceholders(player, tooltip);
+
+        String command = configuration.getNode("json.command").getAsString(null);
+        String suggestCommand = configuration.getNode("json.suggest_command").getAsString(null);
+
+        if (command != null) {
+            command = command.replace("{player}", player.getName());
+
+            if (placeholderAPI != null)
+                command = placeholderAPI.setPlaceholders(player, command);
+        }
+
+        if (suggestCommand != null) suggestCommand = suggestCommand.replace("{player}", player.getName());
+
+
+        FormattedMessage formattedMessage = new FormattedMessage(format);
+        formattedMessage.replace("{player}",
+                new JSONMessagePart(player.getName())
+                    .command(command)
+                    .suggest(suggestCommand)
+                    .tooltip(tooltip))
+                .replace("{message}", new LegacyMessagePart(playerChatEvent.getMessage()))
+                .send(playerChatEvent.getRecipients());
+
+        /*
+        FancyMessage fancyMessage = new FancyMessage();
+        fancyMessage.text()
+        if (formatSplit.length == 2) {
+            fancyMessage
+                    .text(formatSplit[0]);
+
+            fancyMessage.then(
+                    ChatColor.getLastColors(formatSplit[0]) + player.getName());
+
+            if (!tooltip.isEmpty())
+                fancyMessage.tooltip(tooltip);
+            if (command != null)
+                fancyMessage.command(command);
+            if (suggestCommand != null)
+                fancyMessage.suggest(suggestCommand);
+
+            fancyMessage.then(formatSplit[1]);
+        } else if (formatSplit.length == 1) {
+            fancyMessage
+                    .text(player.getName());
+
+            if (!tooltip.isEmpty())
+                fancyMessage.tooltip(tooltip);
+            if (command != null)
+                fancyMessage.command(command);
+            if (suggestCommand != null)
+                fancyMessage.suggest(suggestCommand);
+
+            fancyMessage.then(formatSplit[0]);
+        } else return;
+        */
+        playerChatEvent.setCancelled(true);
+        //playerChatEvent.getRecipients().forEach(fancyMessage::send);
     }
 
     @EventHandler

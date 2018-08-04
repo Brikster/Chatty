@@ -68,6 +68,28 @@ chats:
     symbol: '!'
     cooldown: -1
 
+# * JSON.
+# Formatting chat messages with JSON.
+# 1.7.10+.
+json:
+  # 1.7.10+
+  enable: true
+
+  # Command that is executed (by player) when you click on the player's name.
+  # Supports PlaceholderAPI.
+  # *** You cannot use "command" and "suggest_command" at the same time.
+  command: /home
+
+  # Command that is suggested when you click on the player's name.
+  # *** You cannot use "command" and "suggest_command" at the same time.
+  suggest_command: '/msg {player} '
+
+  # Tooltip for player name in chat.
+  tooltip:
+  - '&fPlayer &e{player}'
+  - '&fThis tooltip supports'
+  - '&fPlaceholderAPI placeholders!'
+
 # * Notifications.
 # There are three types of notifications:
 # via Chat, ActionBar (1.8+) and Advancements (1.12+).
