@@ -1,6 +1,5 @@
 package ru.mrbrikster.chatty.json;
 
-import lombok.Getter;
 import org.bukkit.entity.Player;
 import ru.mrbrikster.chatty.fanciful.FancyMessage;
 
@@ -9,7 +8,7 @@ import java.util.regex.Pattern;
 
 public class FormattedMessage {
 
-    @Getter private final List<MessagePart> messageParts
+    private final List<MessagePart> messageParts
             = new ArrayList<>();
 
     public FormattedMessage(String text) {
@@ -47,7 +46,7 @@ public class FormattedMessage {
             String[] legacyTextSplit = legacyText.split(Pattern.quote(text));
 
             if (legacyTextSplit.length == 1)
-                legacyTextSplit = new String[]{legacyTextSplit[0], ""};
+                legacyTextSplit = new String[] {legacyTextSplit[0], ""};
 
             for (int i = 0; i < legacyTextSplit.length; i++) {
                 String splitPart = legacyTextSplit[i];
