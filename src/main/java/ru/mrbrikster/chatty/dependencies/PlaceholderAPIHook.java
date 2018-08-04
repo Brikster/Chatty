@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 public class PlaceholderAPIHook {
 
     public String setPlaceholders(Player player, String message) {
-        return PlaceholderAPI.setPlaceholders(player, message, Pattern.compile("[<]([^{}]+)[>]"));
+        return PlaceholderAPI.setPlaceholders(player, message, Pattern.compile("[<]([^<>]+)[>]"));
     }
 
 }
