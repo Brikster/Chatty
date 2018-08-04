@@ -18,13 +18,13 @@ import java.util.logging.Level;
  * Internal class: Represents a component of a JSON-serializable {@link FancyMessage}.
  */
 @SuppressWarnings("all")
-final class MessagePart implements JsonRepresentedObject, ConfigurationSerializable, Cloneable {
+public final class MessagePart implements JsonRepresentedObject, ConfigurationSerializable, Cloneable {
 
 	ChatColor color = ChatColor.WHITE;
 	ArrayList<ChatColor> styles = new ArrayList<ChatColor>();
 	String clickActionName = null, clickActionData = null, hoverActionName = null;
 	JsonRepresentedObject hoverActionData = null;
-	TextualComponent text = null;
+	public TextualComponent text = null;
 	String insertionData = null;
 	ArrayList<JsonRepresentedObject> translationReplacements = new ArrayList<JsonRepresentedObject>();
 

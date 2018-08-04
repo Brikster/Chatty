@@ -14,8 +14,11 @@ import ru.mrbrikster.chatty.chat.Chat;
 import ru.mrbrikster.chatty.chat.ChatManager;
 import ru.mrbrikster.chatty.config.Configuration;
 import ru.mrbrikster.chatty.dependencies.DependencyManager;
+import ru.mrbrikster.chatty.dependencies.PlaceholderAPIHook;
 import ru.mrbrikster.chatty.dependencies.VaultHook;
-import ru.mrbrikster.chatty.fanciful.FancyMessage;
+import ru.mrbrikster.chatty.json.FormattedMessage;
+import ru.mrbrikster.chatty.json.JSONMessagePart;
+import ru.mrbrikster.chatty.json.LegacyMessagePart;
 import ru.mrbrikster.chatty.moderation.CapsModerationMethod;
 import ru.mrbrikster.chatty.moderation.ModerationManager;
 import ru.mrbrikster.chatty.reflection.Reflection;
@@ -230,21 +233,41 @@ public abstract class ChatListener implements Listener {
 
         Player player = playerChatEvent.getPlayer();
         String format = String.format(playerChatEvent.getFormat(),
-                "{player_name}", playerChatEvent.getMessage());
+                "{player}", "{message}");
 
-        String[] formatSplit = format.split(Pattern.quote("{player_name}"), 2);
+        PlaceholderAPIHook placeholderAPI = dependencyManager.getPlaceholderApi();
+        List<String> tooltip = configuration.getNode("json.tooltip").getAsStringList()
+                .stream().map(line -> ChatColor.translateAlternateColorCodes('&', line.replace("{player}", player.getName())))
+                .collect(Collectors.toList());
 
-        List<String> tooltip = dependencyManager.getPlaceholderApi().setPlaceholders(player,
-                configuration.getNode("json.tooltip").getAsStringList())
-                .stream().map(line -> line.replace("{player}", player.getName())).collect(Collectors.toList());
+        if (placeholderAPI != null)
+            tooltip = placeholderAPI.setPlaceholders(player, tooltip);
 
         String command = configuration.getNode("json.command").getAsString(null);
         String suggestCommand = configuration.getNode("json.suggest_command").getAsString(null);
 
-        if (command != null) command = dependencyManager.getPlaceholderApi().setPlaceholders(player, command).replace("{player}", player.getName());
+        if (command != null) {
+            command = command.replace("{player}", player.getName());
+
+            if (placeholderAPI != null)
+                command = placeholderAPI.setPlaceholders(player, command);
+        }
+
         if (suggestCommand != null) suggestCommand = suggestCommand.replace("{player}", player.getName());
 
+
+        FormattedMessage formattedMessage = new FormattedMessage(format);
+        formattedMessage.replace("{player}",
+                new JSONMessagePart(player.getName())
+                    .command(command)
+                    .suggest(suggestCommand)
+                    .tooltip(tooltip))
+                .replace("{message}", new LegacyMessagePart(playerChatEvent.getMessage()))
+                .send(playerChatEvent.getRecipients());
+
+        /*
         FancyMessage fancyMessage = new FancyMessage();
+        fancyMessage.text()
         if (formatSplit.length == 2) {
             fancyMessage
                     .text(formatSplit[0]);
@@ -273,9 +296,9 @@ public abstract class ChatListener implements Listener {
 
             fancyMessage.then(formatSplit[0]);
         } else return;
-
+        */
         playerChatEvent.setCancelled(true);
-        playerChatEvent.getRecipients().forEach(fancyMessage::send);
+        //playerChatEvent.getRecipients().forEach(fancyMessage::send);
     }
 
     @EventHandler

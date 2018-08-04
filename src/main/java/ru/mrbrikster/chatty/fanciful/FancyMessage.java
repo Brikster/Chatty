@@ -526,7 +526,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 		return result.toString();
 	}
 
-	private MessagePart latest() {
+	public MessagePart latest() {
 		return messageParts.get(messageParts.size() - 1);
 	}
 
@@ -649,4 +649,18 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 		return returnVal;
 	}
 
+	public String getLastColors() {
+		String lastColors = null;
+
+		StringBuilder stringBuilder = new StringBuilder();
+		for (MessagePart messagePart : messageParts) {
+			if (messagePart.hasText()) {
+                stringBuilder.append(messagePart.text.toString());
+			}
+		}
+
+        lastColors = ChatColor.getLastColors(stringBuilder.toString());
+
+		return lastColors == null ? "" : lastColors;
+	}
 }
