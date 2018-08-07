@@ -469,7 +469,9 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 			return;
 		}
 		Player player = (Player) sender;
-		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "tellraw " + player.getName() + " " + jsonString);
+		Bukkit.getScheduler().runTask(Chatty.instance(), () ->
+		    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "tellraw " + player.getName() + " " + jsonString)
+        	);
 	}
 
 	/**
