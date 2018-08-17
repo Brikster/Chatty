@@ -40,7 +40,10 @@ public class Chat {
 
         double squaredDistance = Math.pow(range, 2);
 
-        List<Player> players = new ArrayList<>(range > -2 ? player.getWorld().getPlayers() : Reflection.getOnlinePlayers());
+        List<Player> players = new ArrayList<>(Reflection.getOnlinePlayers());
+
+        if (range > -2)
+            players.removeIf(onlinePlayer -> !onlinePlayer.getWorld().equals(player.getWorld()));
 
         return players.stream()
                 .filter(recipient ->
