@@ -11,7 +11,7 @@ import java.util.Map;
 
 public abstract class AbstractCommand extends Command {
 
-    AbstractCommand(String name, String... aliases) {
+    public AbstractCommand(String name, String... aliases) {
         super(name);
         setAliases(Arrays.asList(aliases));
     }
@@ -24,7 +24,7 @@ public abstract class AbstractCommand extends Command {
 
     public abstract void handle(CommandSender sender, String label, String[] args);
 
-    void registerCommand(CommandMap commandMap) {
+    public void registerCommand(CommandMap commandMap) {
         commandMap.register("chatty", this);
     }
 

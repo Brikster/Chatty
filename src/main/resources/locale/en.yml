@@ -9,6 +9,19 @@ messages:
   cooldown: '&cWait for {cooldown} seconds, before send message in this chat again.'
   not-enough-money: '&cYou need {money} money to send message in this chat.'
 
+  msg-command:
+    usage: '&cUsing: /{label} <player> <message>'
+    player-not-found: '&cPlayer not found.'
+    cannot-message-yourself: '&cYou cannot message yourself.'
+    recipient-format: '&7{sender} &6-> &7{recipient}: &f{message}'
+    sender-format: '&7{sender} &6-> &7{recipient}: &f{message}'
+
+  reply-command:
+    usage: '&cUsing: /{label} <message>'
+    target-not-found: '&cPlayer not found.'
+    recipient-format: '&7{sender} &6-> &7{recipient}: &f{message}'
+    sender-format: '&7{sender} &6-> &7{recipient}: &f{message}'
+
   # Removable lines.
   # Delete the line to disable message.
   advertisement-found: '&cAdvertisement is detected in your message.'

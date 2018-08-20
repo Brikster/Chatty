@@ -14,7 +14,6 @@ public class ActionBarNotification extends Notification {
     private final List<String> messages;
     private final String prefix;
 
-
     private BukkitTask updateTask;
     private int currentMessage;
 
@@ -24,7 +23,7 @@ public class ActionBarNotification extends Notification {
         this.prefix = prefix;
         this.messages = messages;
 
-        updateTask = Bukkit.getScheduler().runTaskTimer(Chatty.instance(), ActionBarNotification.this::update, (long) delay * 20,
+        updateTask = Bukkit.getScheduler().runTaskTimerAsynchronously(Chatty.instance(), ActionBarNotification.this::update, (long) delay * 20,
                 (long) delay * 20);
     }
 

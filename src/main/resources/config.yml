@@ -73,7 +73,7 @@ chats:
 # 1.7.10+.
 json:
   # 1.7.10+
-  enable: true
+  enable: false
 
   # Command that is executed (by player) when you click on the player's name.
   # Supports PlaceholderAPI.
