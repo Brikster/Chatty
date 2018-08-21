@@ -6,6 +6,8 @@ import org.bukkit.entity.Player;
 import ru.mrbrikster.chatty.commands.AbstractCommand;
 import ru.mrbrikster.chatty.config.Configuration;
 
+import java.util.Arrays;
+
 public class MsgCommand extends AbstractCommand {
 
     private final MessagesStorage messagesStorage;
@@ -28,14 +30,14 @@ public class MsgCommand extends AbstractCommand {
             return;
         }
 
-        if (args.length != 2) {
+        if (args.length < 2) {
             sender.sendMessage(Configuration.getMessages().get("msg-command.usage")
                 .replace("{label}", label));
             return;
         }
 
         String recipient = args[0];
-        String message = args[1];
+        String message = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
 
         Player playerRecipient = Bukkit.getPlayer(recipient);
 

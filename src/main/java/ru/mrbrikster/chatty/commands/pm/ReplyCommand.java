@@ -29,13 +29,13 @@ public class ReplyCommand extends AbstractCommand {
             return;
         }
 
-        if (args.length != 1) {
+        if (args.length < 1) {
             sender.sendMessage(Configuration.getMessages().get("reply-command.usage")
                     .replace("{label}", label));
             return;
         }
 
-        String message = args[0];
+        String message = String.join(" ", args);
 
         Optional<Player> optionalRecipient = messagesStorage.getLastMessaged((Player) sender);
         if (!optionalRecipient.isPresent()) {
