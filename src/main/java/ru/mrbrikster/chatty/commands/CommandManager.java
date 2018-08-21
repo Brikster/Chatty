@@ -4,6 +4,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.plugin.SimplePluginManager;
 import ru.mrbrikster.chatty.chat.ChatManager;
+import ru.mrbrikster.chatty.commands.pm.MessagesStorage;
+import ru.mrbrikster.chatty.commands.pm.MsgCommand;
+import ru.mrbrikster.chatty.commands.pm.ReplyCommand;
 import ru.mrbrikster.chatty.config.Configuration;
 
 import java.lang.reflect.Field;
@@ -35,14 +38,25 @@ public class CommandManager {
 
     private final ChattyCommand chattyCommand;
     private final SpyCommand spyCommand;
+    private MsgCommand msgCommand;
+    private ReplyCommand replyCommand;
 
     public CommandManager(Configuration configuration,
                           ChatManager chatManager) {
         this.chattyCommand = new ChattyCommand(configuration);
-        this.spyCommand = new SpyCommand(configuration, chatManager);
+        this.spyCommand = new SpyCommand(chatManager);
 
         this.chattyCommand.registerCommand(getCommandMap());
         this.spyCommand.registerCommand(getCommandMap());
+
+        if (configuration.getNode("general.pm").getAsBoolean(false)) {
+            MessagesStorage messagesStorage = new MessagesStorage();
+            this.msgCommand = new MsgCommand(messagesStorage);
+            this.replyCommand = new ReplyCommand(messagesStorage);
+
+            this.msgCommand.registerCommand(getCommandMap());
+            this.replyCommand.registerCommand(getCommandMap());
+        }
     }
 
     private static SimpleCommandMap getCommandMap() {
@@ -52,6 +66,12 @@ public class CommandManager {
     public void unregisterAll() {
         this.chattyCommand.unregisterCommand(getCommandMap());
         this.spyCommand.unregisterCommand(getCommandMap());
+
+        if (msgCommand != null)
+            this.msgCommand.unregisterCommand(getCommandMap());
+
+        if (replyCommand != null)
+            this.replyCommand.unregisterCommand(getCommandMap());
     }
 
 }

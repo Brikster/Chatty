@@ -419,6 +419,12 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 		return this;
 	}
 
+	public FancyMessage then(MessagePart messagePart) {
+		messageParts.add(messagePart);
+		dirty = true;
+		return this;
+	}
+
 	@Override
 	public void writeJson(JsonWriter writer) throws IOException {
 		if (messageParts.size() == 1) {
@@ -469,10 +475,11 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
 			sender.sendMessage(toOldMessageFormat());
 			return;
 		}
+
 		Player player = (Player) sender;
 		Bukkit.getScheduler().runTask(Chatty.instance(), () ->
 		    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "tellraw " + player.getName() + " " + jsonString)
-        	);
+    );
 	}
 
 	/**

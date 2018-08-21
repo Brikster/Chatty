@@ -9,6 +9,19 @@ messages:
   cooldown: '&cПодождите {cooldown} секунд, прежде чем отправлять сообщение в этот чат снова.'
   not-enough-money: '&cYou need {money} money to send message in this chat.'
 
+  msg-command:
+    usage: '&cИспользование: /{label} <игрок> <сообщение>'
+    player-not-found: '&cИгрок не найден.'
+    cannot-message-yourself: '&cВы не можете написать самому себе.'
+    recipient-format: '&7{sender} &6-> &7{recipient}: &f{message}'
+    sender-format: '&7{sender} &6-> &7{recipient}: &f{message}'
+
+  reply-command:
+    usage: '&cИспользование: /{label} <сообщение>'
+    target-not-found: '&cИгрок, которому можно отправить сообщение, не найден.'
+    recipient-format: '&7{sender} &6-> &7{recipient}: &f{message}'
+    sender-format: '&7{sender} &6-> &7{recipient}: &f{message}'
+
   # Удаляемые строки.
   # Удалите строку, чтобы убрать сообщение.
   advertisement-found: '&cВ вашем сообщении обнаружена реклама.'

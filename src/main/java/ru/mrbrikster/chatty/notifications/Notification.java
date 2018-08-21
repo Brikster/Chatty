@@ -18,7 +18,7 @@ public abstract class Notification {
     @Getter private final boolean permission;
 
     Notification(double delay, boolean permission) {
-        bukkitTask = Bukkit.getScheduler().runTaskTimer(Chatty.instance(), Notification.this::run, (long) delay * 20, (long) delay * 20);
+        bukkitTask = Bukkit.getScheduler().runTaskTimerAsynchronously(Chatty.instance(), Notification.this::run, (long) delay * 20, (long) delay * 20);
         this.permission = permission;
     }
 

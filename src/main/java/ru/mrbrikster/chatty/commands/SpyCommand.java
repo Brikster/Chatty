@@ -7,13 +7,11 @@ import ru.mrbrikster.chatty.config.Configuration;
 
 public class SpyCommand extends AbstractCommand {
 
-    private final Configuration configuration;
     private final ChatManager chatManager;
 
-    SpyCommand(Configuration configuration, ChatManager chatManager) {
+    SpyCommand(ChatManager chatManager) {
         super("spy");
 
-        this.configuration = configuration;
         this.chatManager = chatManager;
     }
 
@@ -21,18 +19,18 @@ public class SpyCommand extends AbstractCommand {
     public void handle(CommandSender sender, String label, String[] args) {
         if (sender instanceof Player) {
             if (!sender.hasPermission("chatty.command.spy")) {
-                sender.sendMessage(configuration.getMessages().get("no-permission"));
+                sender.sendMessage(Configuration.getMessages().get("no-permission"));
                 return;
             }
 
             if (chatManager.getSpyDisabled().contains(sender)) {
-                sender.sendMessage(configuration.getMessages().get("spy-on"));
+                sender.sendMessage(Configuration.getMessages().get("spy-on"));
                 chatManager.getSpyDisabled().remove(sender);
             } else {
-                sender.sendMessage(configuration.getMessages().get("spy-off"));
+                sender.sendMessage(Configuration.getMessages().get("spy-off"));
                 chatManager.getSpyDisabled().add((Player) sender);
             }
-        } else sender.sendMessage(configuration.getMessages().get("only-for-players"));
+        } else sender.sendMessage(Configuration.getMessages().get("only-for-players"));
     }
 
 }

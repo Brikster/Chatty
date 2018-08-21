@@ -15,10 +15,10 @@ public class ChattyCommand extends AbstractCommand {
 
     @Override
     public void handle(CommandSender sender, String label, String[] args) {
-        if (sender.hasPermission("chatty.command.chatty")) {
+        if (sender.hasPermission("chatty.command.reload")) {
             configuration.reload();
-            sender.sendMessage(configuration.getMessages().get("reload"));
-        } else sender.sendMessage(configuration.getMessages().get("no-permission"));
+            sender.sendMessage(Configuration.getMessages().get("reload"));
+        } else sender.sendMessage(Configuration.getMessages().get("no-permission"));
     }
 
 }

@@ -5,7 +5,8 @@ import ru.mrbrikster.chatty.fanciful.FancyMessage;
 
 public class LegacyMessagePart implements MessagePart {
 
-    @Getter private final String text;
+    @Getter
+    private final String text;
 
     public LegacyMessagePart(String text) {
         this.text = text;
@@ -13,7 +14,7 @@ public class LegacyMessagePart implements MessagePart {
 
     @Override
     public FancyMessage append(FancyMessage fancyMessage) {
-        return fancyMessage.then(fancyMessage.getLastColors() + text);
+        return fancyMessage.then(text);
     }
 
 }

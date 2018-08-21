@@ -76,6 +76,28 @@ public class Messages {
                 ChatColor.GREEN + "You have been enabled spy-mode.");
         put("only-for-players",
                 ChatColor.RED + "This command is only for players.");
+
+        // Msg command
+        put("msg-command.usage",
+                ChatColor.RED + "Using: /{label} <player> <message>");
+        put("msg-command.player-not-found",
+                ChatColor.RED + "Player not found.");
+        put("msg-command.cannot-message-yourself",
+                ChatColor.RED + "You cannot message yourself.");
+        put("msg-command.recipient-format",
+                "&7{sender} &6-> &7{recipient}: &f{message}");
+        put("msg-command.sender-format",
+                "&7{sender} &6-> &7{recipient}: &f{message}");
+
+        // Reply command
+        put("reply-command.usage",
+                ChatColor.RED + "Using: /{label} <message>");
+        put("reply-command.target-not-found",
+                ChatColor.RED + "Player not found.");
+        put("reply-command.recipient-format",
+                "&7{sender} &6-> &7{recipient}: &f{message}");
+        put("reply-command.sender-format",
+                "&7{sender} &6-> &7{recipient}: &f{message}");
     }
 
     public String get(String key) {
