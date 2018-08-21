@@ -38,22 +38,25 @@ public class CommandManager {
 
     private final ChattyCommand chattyCommand;
     private final SpyCommand spyCommand;
-    private final MsgCommand msgCommand;
-    private final ReplyCommand replyCommand;
+    private MsgCommand msgCommand;
+    private ReplyCommand replyCommand;
 
     public CommandManager(Configuration configuration,
                           ChatManager chatManager) {
         this.chattyCommand = new ChattyCommand(configuration);
         this.spyCommand = new SpyCommand(chatManager);
 
-        MessagesStorage messagesStorage = new MessagesStorage();
-        this.msgCommand = new MsgCommand(messagesStorage);
-        this.replyCommand = new ReplyCommand(messagesStorage);
-
         this.chattyCommand.registerCommand(getCommandMap());
         this.spyCommand.registerCommand(getCommandMap());
-        this.msgCommand.registerCommand(getCommandMap());
-        this.replyCommand.registerCommand(getCommandMap());
+
+        if (configuration.getNode("general.pm").getAsBoolean(false)) {
+            MessagesStorage messagesStorage = new MessagesStorage();
+            this.msgCommand = new MsgCommand(messagesStorage);
+            this.replyCommand = new ReplyCommand(messagesStorage);
+
+            this.msgCommand.registerCommand(getCommandMap());
+            this.replyCommand.registerCommand(getCommandMap());
+        }
     }
 
     private static SimpleCommandMap getCommandMap() {
@@ -63,8 +66,12 @@ public class CommandManager {
     public void unregisterAll() {
         this.chattyCommand.unregisterCommand(getCommandMap());
         this.spyCommand.unregisterCommand(getCommandMap());
-        this.msgCommand.unregisterCommand(getCommandMap());
-        this.replyCommand.unregisterCommand(getCommandMap());
+
+        if (msgCommand != null)
+            this.msgCommand.unregisterCommand(getCommandMap());
+
+        if (replyCommand != null)
+            this.replyCommand.unregisterCommand(getCommandMap());
     }
 
 }

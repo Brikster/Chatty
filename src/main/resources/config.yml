@@ -36,6 +36,12 @@ general:
     # Spy-mode message format.
     format: '&6[Spy] &r{format}'
 
+  # Private messages.
+  # Permissions:
+  # chatty.command.message
+  # chatty.command.reply
+  pm: true
+
 # * Chats.
 # There
 # On the server there can be different chats with different settings,
