@@ -19,7 +19,7 @@ Chatty is a unique Bukkit-plugin, that supports all modern Bukkit-servers, such 
     chatty.command.spy - allows to use "/spy" command for enabling/disabling spy-mode.
     chatty.command.reload - allows to use "/chatty" command for reloading configuration.
     chatty.command.msg - allows to use "/msg" command.
-    chatty.command.replu - allows to use "/reply" command.
+    chatty.command.reply - allows to use "/reply" command.
     chatty.style.<style> or chatty.style.<style>.<chat> - allows to use styles in chat
         (styles: colors, bold, magic, reset, italic, underline, strikethrough).
     chatty.notification.chat.<list> - allows to see messages from Chat notification list.
