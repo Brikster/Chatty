@@ -1,3 +1,4 @@
+![alt text](https://i.imgur.com/8D5JcGn.png "Chatty")
 
 # Chatty (Bukkit)
 [![Build Status](https://ci.minemoon.ru/job/chatty/badge/icon)](https://ci.minemoon.ru/job/Chatty/)
