@@ -27,10 +27,12 @@ public class Messages {
             if (localeDir.mkdir()) {
                 URL ruUrl = getClass().getResource("/locale/ru.yml");
                 URL enUrl = getClass().getResource("/locale/en.yml");
+                URL deUrl = getClass().getResource("/locale/de.yml");
 
                 try {
                     FileUtils.copyURLToFile(ruUrl, new File(localeDir, "ru.yml"));
                     FileUtils.copyURLToFile(enUrl, new File(localeDir, "en.yml"));
+                    FileUtils.copyURLToFile(deUrl, new File(localeDir, "de.yml"));
                 } catch (IOException e) {
                     javaPlugin.getLogger().warning("Error while copying locale files.");
                     e.printStackTrace();
@@ -42,14 +44,13 @@ public class Messages {
         switch (configuration.getNode("general.locale")
                 .getAsString("en")) {
             case "ru":
-                localeConfiguration = new Configuration("locale/ru.yml", javaPlugin);
-                break;
+                localeConfiguration = new Configuration("locale/ru.yml", javaPlugin); break;
             case "en":
-                localeConfiguration = new Configuration("locale/en.yml", javaPlugin);
-                break;
+                localeConfiguration = new Configuration("locale/en.yml", javaPlugin); break;
+            case "de":
+                localeConfiguration = new Configuration("locale/de.yml", javaPlugin); break;
             default:
-                localeConfiguration = new Configuration("locale/en.yml", javaPlugin);
-                break;
+                localeConfiguration = new Configuration("locale/en.yml", javaPlugin); break;
         }
 
         this.localeConfiguration = localeConfiguration;
