@@ -22,6 +22,13 @@ messages:
     recipient-format: '&7{sender} &6-> &7{recipient}: &f{message}'
     sender-format: '&7{sender} &6-> &7{recipient}: &f{message}'
 
+  ignore-command:
+    usage: '&сИспользование: /{label} <игрок>'
+    player-not-found: '&cИгрок не найден.'
+    add-ignore: '&cТеперь вы игнорируете игрока {player}.'
+    remove-ignore: '&aВы больше не игнорируете игрока {player}.'
+    cannot-ignore-yourself: '&cВы не можете игнорировать самого себя.'
+
   # Удаляемые строки.
   # Удалите строку, чтобы убрать сообщение.
   advertisement-found: '&cВ вашем сообщении обнаружена реклама.'

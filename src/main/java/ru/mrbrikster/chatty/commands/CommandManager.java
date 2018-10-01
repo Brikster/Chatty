@@ -3,8 +3,9 @@ package ru.mrbrikster.chatty.commands;
 import org.bukkit.Bukkit;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.plugin.SimplePluginManager;
-import ru.mrbrikster.chatty.chat.ChatManager;
-import ru.mrbrikster.chatty.commands.pm.MessagesStorage;
+import ru.mrbrikster.chatty.chat.PermanentStorage;
+import ru.mrbrikster.chatty.chat.TemporaryStorage;
+import ru.mrbrikster.chatty.commands.pm.IgnoreCommand;
 import ru.mrbrikster.chatty.commands.pm.MsgCommand;
 import ru.mrbrikster.chatty.commands.pm.ReplyCommand;
 import ru.mrbrikster.chatty.config.Configuration;
@@ -38,24 +39,27 @@ public class CommandManager {
 
     private final ChattyCommand chattyCommand;
     private final SpyCommand spyCommand;
+    private IgnoreCommand ignoreCommand;
     private MsgCommand msgCommand;
     private ReplyCommand replyCommand;
 
     public CommandManager(Configuration configuration,
-                          ChatManager chatManager) {
+                          TemporaryStorage temporaryStorage,
+                          PermanentStorage permanentStorage) {
         this.chattyCommand = new ChattyCommand(configuration);
-        this.spyCommand = new SpyCommand(chatManager);
+        this.spyCommand = new SpyCommand(temporaryStorage);
 
         this.chattyCommand.registerCommand(getCommandMap());
         this.spyCommand.registerCommand(getCommandMap());
 
         if (configuration.getNode("general.pm").getAsBoolean(false)) {
-            MessagesStorage messagesStorage = new MessagesStorage();
-            this.msgCommand = new MsgCommand(messagesStorage);
-            this.replyCommand = new ReplyCommand(messagesStorage);
+            this.msgCommand = new MsgCommand(configuration, temporaryStorage, permanentStorage);
+            this.replyCommand = new ReplyCommand(configuration, temporaryStorage, permanentStorage);
+            this.ignoreCommand = new IgnoreCommand(permanentStorage);
 
             this.msgCommand.registerCommand(getCommandMap());
             this.replyCommand.registerCommand(getCommandMap());
+            this.ignoreCommand.registerCommand(getCommandMap());
         }
     }
 
@@ -72,6 +76,9 @@ public class CommandManager {
 
         if (replyCommand != null)
             this.replyCommand.unregisterCommand(getCommandMap());
+
+        if (ignoreCommand != null)
+            this.ignoreCommand.unregisterCommand(getCommandMap());
     }
 
 }

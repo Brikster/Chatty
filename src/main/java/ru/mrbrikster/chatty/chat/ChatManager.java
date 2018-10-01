@@ -18,7 +18,6 @@ import java.util.List;
 public class ChatManager {
 
     @Getter private final List<Chat> chats = new ArrayList<>();
-    @Getter private final List<Player> spyDisabled = new ArrayList<>();
     @Getter private final Logger logger;
     private final Configuration configuration;
 

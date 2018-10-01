@@ -7,11 +7,15 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import ru.mrbrikster.chatty.Chatty;
 import ru.mrbrikster.chatty.chat.Chat;
 import ru.mrbrikster.chatty.chat.ChatManager;
+import ru.mrbrikster.chatty.chat.PermanentStorage;
+import ru.mrbrikster.chatty.chat.TemporaryStorage;
 import ru.mrbrikster.chatty.config.Configuration;
 import ru.mrbrikster.chatty.dependencies.DependencyManager;
 import ru.mrbrikster.chatty.dependencies.PlaceholderAPIHook;
@@ -55,19 +59,25 @@ public abstract class ChatListener implements Listener {
 
     private final DependencyManager dependencyManager;
     private final ChatManager chatManager;
+    private final TemporaryStorage temporaryStorage;
     private final Configuration configuration;
     private final ModerationManager moderationManager;
+    private final PermanentStorage permanentStorage;
     private IdentityHashMap<Player, Chat> pendingPlayers;
 
     @SuppressWarnings("all")
     public ChatListener(Configuration configuration,
                         ChatManager chatManager,
+                        TemporaryStorage temporaryStorage,
                         DependencyManager dependencyManager,
-                        ModerationManager moderationManager) {
+                        ModerationManager moderationManager,
+                        PermanentStorage permanentStorage) {
         this.configuration = configuration;
         this.chatManager = chatManager;
+        this.temporaryStorage = temporaryStorage;
         this.dependencyManager = dependencyManager;
         this.moderationManager = moderationManager;
+        this.permanentStorage = permanentStorage;
 
         this.pendingPlayers = new IdentityHashMap<>();
     }
@@ -111,22 +121,11 @@ public abstract class ChatListener implements Listener {
         if (usingSymbol)
             message = message.substring(chat.getSymbol().length(), message.length());
 
-        String prefix = "", suffix = "";
-
-        if (dependencyManager.getVault() != null) {
-            VaultHook vaultHook = dependencyManager.getVault();
-            prefix = vaultHook.getPrefix(player);
-            suffix = vaultHook.getSuffix(player);
-
-            if (prefix == null) prefix = "";
-            if (suffix == null) suffix = "";
-        }
-
         String format = chat.getFormat();
         format = format.replace("{player}", "%1$s");
         format = format.replace("{message}", "%2$s");
-        format = format.replace("{prefix}", prefix);
-        format = format.replace("{suffix}", suffix);
+        format = format.replace("{prefix}", getPrefix(player));
+        format = format.replace("{suffix}", getSuffix(player));
 
         message = stylish(player, message, chat.getName());
 
@@ -166,7 +165,7 @@ public abstract class ChatListener implements Listener {
         }
 
         playerChatEvent.getRecipients().clear();
-        playerChatEvent.getRecipients().addAll(chat.getRecipients(player));
+        playerChatEvent.getRecipients().addAll(chat.getRecipients(player, permanentStorage));
 
         if (playerChatEvent.getRecipients().size() <= 1) {
             String noRecipients = Configuration.getMessages()
@@ -221,13 +220,13 @@ public abstract class ChatListener implements Listener {
             Chat chat = pendingPlayers.remove(playerChatEvent.getPlayer());
 
             if (!playerChatEvent.isCancelled()) {
-                Reflection.getOnlinePlayers().stream().filter(spy -> (spy.hasPermission("chatty.spy") || spy.hasPermission("chatty.spy." +
-                        chat.getName())) &&
-                        !chatManager.getSpyDisabled().contains(spy) &&
+                Reflection.getOnlinePlayers().stream().filter(spy -> (spy.hasPermission("chatty.spy") || spy.hasPermission("chatty.spy." + chat.getName()))
+                        && !temporaryStorage.getSpyDisabled().contains(spy) &&
                         !playerChatEvent.getRecipients().contains(spy)).
-                        forEach(spy -> spy.sendMessage(COLORIZE.apply(configuration.getNode("general.spy.format")
-                                .getAsString("&6[Spy] &r{format}").replace("{format}",
-                                        String.format(playerChatEvent.getFormat(), playerChatEvent.getPlayer().getName(), playerChatEvent.getMessage())))));
+                        forEach(spy ->
+                                spy.sendMessage(
+                                        COLORIZE.apply(configuration.getNode("general.spy.format").getAsString("&6[Spy] &r{format}")
+                                                .replace("{format}", String.format(playerChatEvent.getFormat(), playerChatEvent.getPlayer().getName(), playerChatEvent.getMessage())))));
             }
         }
     }
@@ -274,10 +273,89 @@ public abstract class ChatListener implements Listener {
         playerChatEvent.setCancelled(true);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onJoin(PlayerJoinEvent playerJoinEvent) {
+        String joinMessage = configuration
+                .getNode("misc.join.message")
+                .getAsString(null);
+
+        if (joinMessage != null) {
+            if (joinMessage.isEmpty() ||
+                    (configuration.getNode("misc.join.permission")
+                            .getAsBoolean(false)
+                            && !playerJoinEvent.getPlayer().hasPermission("chatty.misc.joinmessage"))) {
+                playerJoinEvent.setJoinMessage(null);
+            } else playerJoinEvent.setJoinMessage(COLORIZE.apply(joinMessage
+                    .replace("{prefix}", getPrefix(playerJoinEvent.getPlayer()))
+                    .replace("{suffix}", getSuffix(playerJoinEvent.getPlayer()))
+                    .replace("{player}", playerJoinEvent.getPlayer().getName())));
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onQuit(PlayerQuitEvent playerQuitEvent) {
-        chatManager.getSpyDisabled()
-                .remove(playerQuitEvent.getPlayer());
+        temporaryStorage.getSpyDisabled().remove(playerQuitEvent.getPlayer());
+
+        String quitMessage = configuration
+                .getNode("misc.quit.message")
+                .getAsString(null);
+
+        if (quitMessage != null) {
+            if (quitMessage.isEmpty() ||
+                    (configuration.getNode("misc.quit.permission")
+                            .getAsBoolean(false)
+                            && !playerQuitEvent.getPlayer().hasPermission("chatty.misc.quitmessage"))) {
+                playerQuitEvent.setQuitMessage(null);
+            } else playerQuitEvent.setQuitMessage(COLORIZE.apply(quitMessage
+                    .replace("{prefix}", getPrefix(playerQuitEvent.getPlayer()))
+                    .replace("{suffix}", getSuffix(playerQuitEvent.getPlayer()))
+                    .replace("{player}", playerQuitEvent.getPlayer().getName())));
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onPlayerDeath(PlayerDeathEvent playerDeathEvent) {
+        String deathMessage = configuration
+                .getNode("misc.death.message")
+                .getAsString(null);
+
+        if (deathMessage != null) {
+            if (deathMessage.isEmpty() ||
+                    (configuration.getNode("misc.death.permission")
+                            .getAsBoolean(false)
+                            && !playerDeathEvent.getEntity().hasPermission("chatty.misc.deathmessage"))) {
+                playerDeathEvent.setDeathMessage(null);
+            } else playerDeathEvent.setDeathMessage(COLORIZE.apply(deathMessage
+                    .replace("{prefix}", getPrefix(playerDeathEvent.getEntity()))
+                    .replace("{suffix}", getSuffix(playerDeathEvent.getEntity()))
+                    .replace("{player}", playerDeathEvent.getEntity().getName())));
+        }
+    }
+
+    private String getPrefix(Player player) {
+        String prefix = "";
+
+        if (dependencyManager.getVault() != null) {
+            VaultHook vaultHook = dependencyManager.getVault();
+            prefix = vaultHook.getPrefix(player);
+
+            if (prefix == null) prefix = "";
+        }
+
+        return prefix;
+    }
+
+    private String getSuffix(Player player) {
+        String suffix = "";
+
+        if (dependencyManager.getVault() != null) {
+            VaultHook vaultHook = dependencyManager.getVault();
+            suffix = vaultHook.getSuffix(player);
+
+            if (suffix == null) suffix = "";
+        }
+
+        return suffix;
     }
 
     private String stylish(Player player, String message, String chat) {
