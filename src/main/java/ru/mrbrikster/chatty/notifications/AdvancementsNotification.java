@@ -50,6 +50,7 @@ public class AdvancementsNotification extends Notification {
         private String icon;
         private String header, footer;
         private JavaPlugin javaPlugin;
+        private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
         private AdvancementMessage(Map<String, String> list) {
             this(list.getOrDefault("header", "Header"),
@@ -132,9 +133,7 @@ public class AdvancementsNotification extends Notification {
             json.add("criteria", criteria);
             json.add("display", display);
 
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
-            return gson.toJson(json);
+            return GSON.toJson(json);
         }
 
         @Override

@@ -1,29 +1,29 @@
 messages:
-  # Nicht entfernbare zeilen
-  only-for-players: '&cDieser befehl ist nur für spieler.'
+  # Nicht entfernbare Zeilen
+  only-for-players: '&cDieser Befehl ist nur für Spieler.'
   chat-not-found: '&cChat wurde nicht gefunden. Du kannst die Nachricht nicht senden.'
   reload: '&aKonfig wurde erfolgreich neugeladen!'
-  no-permission: '&cDu hast nicht die benötigte berechtigung.'
+  no-permission: '&cDu hast nicht die benötigte Berechtigung.'
   spy-on: '&aDu hast die Spy-Modus aktiviert.'
   spy-off: '&cDu hast den Spy-Modus deaktiviert.'
-  cooldown: '&cWarte {cooldown} sekunden, bevor du wieder eine nachricht in diesen chat schreibst.'
-  not-enough-money: '&cDu benötigst {money} geld um in diesem chat zu schreiben.'
+  cooldown: '&cWarte {cooldown} Sekunden, bevor du wieder eine Nachricht in diesen Chat schreibst.'
+  not-enough-money: '&cDu benötigst {money} Geld um in diesem Chat zu schreiben.'
 
   msg-command:
-    usage: '&cSyntax: /{label} <spieler> <nachricht>'
+    usage: '&cSyntax: /{label} <Spieler> <Nachricht>'
     player-not-found: '&cSpieler wurde nicht gefunden.'
     cannot-message-yourself: '&cDu kannst dich nicht selber anschreiben.'
     recipient-format: '&7{sender} &6-> &7{recipient}: &f{message}'
     sender-format: '&7{sender} &6-> &7{recipient}: &f{message}'
 
   reply-command:
-    usage: '&cSyntax: /{label} <nachricht>'
+    usage: '&cSyntax: /{label} <Nachricht>'
     target-not-found: '&cSpieler wurde nicht gefunden'
     recipient-format: '&7{sender} &6-> &7{recipient}: &f{message}'
     sender-format: '&7{sender} &6-> &7{recipient}: &f{message}'
 
-  # Entfernbare zeilen
-  # Entferne diese zeilen, um die nachrichten zu deaktivieren
-  advertisement-found: '&cEs wurde werbung in deiner nachricht erkannt.'
+  # Entfernbare Zeilen
+  # Entferne diese Zeilen, um die Nachrichten zu deaktivieren
+  advertisement-found: '&cEs wurde Werbung in deiner Nachricht erkannt.'
   no-recipients: '&cNiemand hat dich gehört.'
-  caps-found: '&cCaps-Ausnutzung wurde in deiner nachricht erkannt.'
+  caps-found: '&cCaps-Ausnutzung wurde in deiner Nachricht erkannt.'

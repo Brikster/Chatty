@@ -23,37 +23,41 @@ public class Messages {
     Messages(JavaPlugin javaPlugin, Configuration configuration) {
         File localeDir = new File(javaPlugin.getDataFolder(), "locale");
 
-        if (!localeDir.exists()) {
-            if (localeDir.mkdir()) {
-                URL ruUrl = getClass().getResource("/locale/ru.yml");
-                URL enUrl = getClass().getResource("/locale/en.yml");
-                URL deUrl = getClass().getResource("/locale/de.yml");
+        String localeName = configuration.getNode("general.locale")
+                .getAsString("en");
 
+        if (!localeDir.exists()) {
+            localeDir.mkdir();
+        }
+
+        File localeFile = new File(localeDir, localeName + ".yml");
+        if (!localeFile.exists()) {
+            URL localeFileUrl = getClass().getResource("/locale/" + localeName + ".yml");
+
+            if (localeFileUrl == null) {
+                javaPlugin.getLogger().warning("Locale " + '"' + localeName + '"' + " not found. Using English locale.");
+
+                File enLocaleFile = new File(localeDir, "en.yml");
+
+                if (!enLocaleFile.exists()) {
+                    try {
+                        FileUtils.copyURLToFile(getClass().getResource("/locale/en.yml"), enLocaleFile);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                localeName = "en";
+            } else {
                 try {
-                    FileUtils.copyURLToFile(ruUrl, new File(localeDir, "ru.yml"));
-                    FileUtils.copyURLToFile(enUrl, new File(localeDir, "en.yml"));
-                    FileUtils.copyURLToFile(deUrl, new File(localeDir, "de.yml"));
+                    FileUtils.copyURLToFile(localeFileUrl, localeFile);
                 } catch (IOException e) {
-                    javaPlugin.getLogger().warning("Error while copying locale files.");
                     e.printStackTrace();
                 }
             }
         }
 
-        Configuration localeConfiguration;
-        switch (configuration.getNode("general.locale")
-                .getAsString("en")) {
-            case "ru":
-                localeConfiguration = new Configuration("locale/ru.yml", javaPlugin); break;
-            case "en":
-                localeConfiguration = new Configuration("locale/en.yml", javaPlugin); break;
-            case "de":
-                localeConfiguration = new Configuration("locale/de.yml", javaPlugin); break;
-            default:
-                localeConfiguration = new Configuration("locale/en.yml", javaPlugin); break;
-        }
-
-        this.localeConfiguration = localeConfiguration;
+        this.localeConfiguration = new Configuration("locale/" + localeName + ".yml", javaPlugin);
 
         put("chat-not-found",
                 ChatColor.RED + "Applicable chat not found. You can't send the message.");
@@ -99,10 +103,22 @@ public class Messages {
                 "&7{sender} &6-> &7{recipient}: &f{message}");
         put("reply-command.sender-format",
                 "&7{sender} &6-> &7{recipient}: &f{message}");
+
+        // Ignore command
+        put("ignore-command.usage",
+                ChatColor.RED + "Using: /{label} <player>");
+        put("ignore-command.player-not-found",
+                ChatColor.RED + "Player not found.");
+        put("ignore-command.add-ignore",
+                ChatColor.RED + "You are now ignoring player {player}");
+        put("ignore-command.remove-ignore",
+                ChatColor.GREEN + "You are no more ignoring player {player}.");
+        put("ignore-command.cannot-ignore-yourself",
+                ChatColor.RED + "You cannot ignore yourself.");
     }
 
     public String get(String key) {
-        return get(key, messages.get(key));
+        return get(key, messages.getOrDefault(key, "&cWrong message key."));
     }
 
     public String get(String key, String def) {

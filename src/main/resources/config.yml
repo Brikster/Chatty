@@ -13,6 +13,7 @@ general:
   # Possible values:
   # en - English.
   # ru - Russian.
+  # de - German.
   locale: en
 
   # Chat listener priority.
@@ -35,6 +36,10 @@ general:
     enable: true
     # Spy-mode message format.
     format: '&6[Spy] &r{format}'
+    # PM spy-mode message format.
+    # Permission: chatty.spy
+    # or chatty.spy.pm
+    pm-format: '&6[Spy] &7{sender} &6-> &7{recipient}: &f{message}'
 
   # Private messages.
   # Permissions:
@@ -196,3 +201,37 @@ moderation:
     - 'yandex.ru'
     - '192.168.1.1'
     - '127.0.0.1'
+  swear:
+    # On/off swear protection.
+    # Bypass permission: chatty.moderation.swear
+    enable: true
+    # Block or remove word from message?
+    block: true
+    # Replacement for swears.
+    replacement: '<swear>'
+    # Swear-list configuration: "Chatty/swears"
+
+# * Misc.
+# Change default Minecraft messages.
+misc:
+  join:
+    # Set '' to disable.
+    message: '&e{prefix}{player}{suffix} &ejoined the server.'
+    # If player doesn't have permission, message won't send.
+    #
+    # Permission: chatty.misc.joinmessage
+    permission: false
+  quit:
+    # Set '' to disable.
+    message: '&e{prefix}{player}{suffix} &eleft the server.'
+    # If player doesn't have permission, message won't send.
+    #
+    # Permission: chatty.misc.quitmessage
+    permission: false
+  death:
+    # Set '' to disable.
+    message: '&e{prefix}{player}{suffix} &edied.'
+    # If player doesn't have permission, message won't send.
+    #
+    # Permission: chatty.misc.deathmessage
+    permission: false

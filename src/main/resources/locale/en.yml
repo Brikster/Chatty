@@ -22,8 +22,16 @@ messages:
     recipient-format: '&7{sender} &6-> &7{recipient}: &f{message}'
     sender-format: '&7{sender} &6-> &7{recipient}: &f{message}'
 
+  ignore-command:
+    usage: '&cUsing: /{label} <player>'
+    player-not-found: '&cPlayer not found.'
+    add-ignore: '&cYou are now ignoring player {player}.'
+    remove-ignore: '&aYou are no more ignoring player {player}.'
+    cannot-ignore-yourself: '&cYou cannot ignore yourself.'
+
   # Removable lines.
   # Delete the line to disable message.
   advertisement-found: '&cAdvertisement is detected in your message.'
   no-recipients: '&cNobody heard you.'
   caps-found: '&cCaps abuse is detected in your message.'
+  swear-found: '&cSwear is detected in your message.'

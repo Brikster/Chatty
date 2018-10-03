@@ -1,5 +1,8 @@
 package ru.mrbrikster.chatty.chat;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
 import lombok.Getter;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -35,7 +38,7 @@ public class Chat {
         this.money = money;
     }
 
-    public List<Player> getRecipients(Player player) {
+    public List<Player> getRecipients(Player player, PermanentStorage permanentStorage) {
         Location location = player.getLocation();
 
         double squaredDistance = Math.pow(range, 2);
@@ -46,11 +49,19 @@ public class Chat {
             players.removeIf(onlinePlayer -> !onlinePlayer.getWorld().equals(player.getWorld()));
 
         return players.stream()
+                .filter(recipient -> {
+                    JsonElement jsonElement = permanentStorage.getProperty((Player) recipient, "ignore").orElseGet(JsonArray::new);
+
+                    if (!jsonElement.isJsonArray())
+                        jsonElement = new JsonArray();
+
+                    return !jsonElement.getAsJsonArray().contains(new JsonPrimitive(player.getName()));
+                })
                 .filter(recipient ->
                         (range <= -1 || location.distanceSquared(recipient.getLocation()) < squaredDistance)
                                 && (recipient.equals(player) || !permission
-                                || recipient.hasPermission(String.format("chatty.chat.%s.see", name))
-                                || recipient.hasPermission(String.format("chatty.chat.%s", name)))).collect(Collectors.toList());
+                                || recipient.hasPermission("chatty.chat." + name + ".see")
+                                || recipient.hasPermission("chatty.chat." + name))).collect(Collectors.toList());
     }
 
     public void setCooldown(Player player) {

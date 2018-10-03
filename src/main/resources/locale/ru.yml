@@ -22,8 +22,16 @@ messages:
     recipient-format: '&7{sender} &6-> &7{recipient}: &f{message}'
     sender-format: '&7{sender} &6-> &7{recipient}: &f{message}'
 
+  ignore-command:
+    usage: '&сИспользование: /{label} <игрок>'
+    player-not-found: '&cИгрок не найден.'
+    add-ignore: '&cТеперь вы игнорируете игрока {player}.'
+    remove-ignore: '&aВы больше не игнорируете игрока {player}.'
+    cannot-ignore-yourself: '&cВы не можете игнорировать самого себя.'
+
   # Удаляемые строки.
   # Удалите строку, чтобы убрать сообщение.
   advertisement-found: '&cВ вашем сообщении обнаружена реклама.'
   no-recipients: '&cВас никто не услышал.'
   caps-found: '&cВ вашем сообщении обнаружено злоупотребление caps''ом.'
+  swear-found: '&cВ вашем сообщении обнаружен мат.'
