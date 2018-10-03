@@ -35,18 +35,19 @@ public class JSONMessagePart implements MessagePart {
 
     @Override
     public FancyMessage append(FancyMessage fancyMessage) {
-        fancyMessage
-                .then(fancyMessage.getLastColors() + text);
+        LegacyConverter.getMessageParts(fancyMessage.getLastColors() + text).forEach(messagePart -> {
+            fancyMessage.then(messagePart);
 
-        if (command != null)
-            fancyMessage.command(command);
+            if (command != null)
+                fancyMessage.command(command);
 
-        if (suggest != null)
-            fancyMessage.suggest(suggest);
+            if (suggest != null)
+                fancyMessage.suggest(suggest);
 
-        if (tooltip != null
-                && !tooltip.isEmpty())
-            fancyMessage.tooltip(tooltip);
+            if (tooltip != null
+                    && !tooltip.isEmpty())
+                fancyMessage.tooltip(tooltip);
+        });
 
         return fancyMessage;
     }
