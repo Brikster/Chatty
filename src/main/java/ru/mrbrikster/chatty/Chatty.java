@@ -27,7 +27,7 @@ public final class Chatty extends JavaPlugin {
         Configuration configuration = new Configuration(this);
         DependencyManager dependencyManager = new DependencyManager(this);
         ChatManager chatManager = new ChatManager(configuration);
-        ModerationManager moderationManager = new ModerationManager(configuration);
+        ModerationManager moderationManager = new ModerationManager(this, configuration);
         TemporaryStorage temporaryStorage = new TemporaryStorage();
         PermanentStorage permanentStorage = new PermanentStorage(this);
 
@@ -43,13 +43,15 @@ public final class Chatty extends JavaPlugin {
                             ChatManager.class,
                             TemporaryStorage.class,
                             DependencyManager.class,
-                            ModerationManager.class)
+                            ModerationManager.class,
+                            PermanentStorage.class)
                     .newInstance(
                             configuration,
                             chatManager,
                             temporaryStorage,
                             dependencyManager,
-                            moderationManager);
+                            moderationManager,
+                            permanentStorage);
         } catch (Exception ex) {
             chatListener = new ru.mrbrikster.chatty.listeners.NORMAL(configuration, chatManager, temporaryStorage, dependencyManager, moderationManager, permanentStorage);
         }

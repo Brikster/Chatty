@@ -661,20 +661,6 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
     }
 
     public String getLastColors() {
-        /*
-        String lastColors = null;
-
-        StringBuilder stringBuilder = new StringBuilder();
-        for (MessagePart messagePart : messageParts) {
-            if (messagePart.hasText()) {
-                stringBuilder.append(messagePart.text.toString());
-            }
-        }
-
-        lastColors = ChatColor.getLastColors(stringBuilder.toString());
-
-        return lastColors == null ? "" : lastColors;
-        */
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(latest().color);
         latest().styles.forEach(style -> stringBuilder.append(style));

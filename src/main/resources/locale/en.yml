@@ -34,3 +34,4 @@ messages:
   advertisement-found: '&cAdvertisement is detected in your message.'
   no-recipients: '&cNobody heard you.'
   caps-found: '&cCaps abuse is detected in your message.'
+  swear-found: '&cSwear is detected in your message.'

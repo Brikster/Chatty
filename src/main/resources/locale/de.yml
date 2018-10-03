@@ -1,5 +1,5 @@
 messages:
- # Nicht entfernbare Zeilen
+  # Nicht entfernbare Zeilen
   only-for-players: '&cDieser Befehl ist nur für Spieler.'
   chat-not-found: '&cChat wurde nicht gefunden. Du kannst die Nachricht nicht senden.'
   reload: '&aKonfig wurde erfolgreich neugeladen!'

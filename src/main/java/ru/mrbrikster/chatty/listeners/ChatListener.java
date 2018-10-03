@@ -25,6 +25,7 @@ import ru.mrbrikster.chatty.json.JSONMessagePart;
 import ru.mrbrikster.chatty.json.LegacyMessagePart;
 import ru.mrbrikster.chatty.moderation.CapsModerationMethod;
 import ru.mrbrikster.chatty.moderation.ModerationManager;
+import ru.mrbrikster.chatty.moderation.SwearModerationMethod;
 import ru.mrbrikster.chatty.reflection.Reflection;
 
 import java.util.IdentityHashMap;
@@ -178,38 +179,58 @@ public abstract class ChatListener implements Listener {
         if (!hasCooldown) chat.setCooldown(player);
 
         CapsModerationMethod capsModerationMethod;
-        if (moderationManager.isCapsModerationEnabled() &&
-                !player.hasPermission("chatty.moderation.caps")
-                && (capsModerationMethod = moderationManager.getCapsMethod(message)).isBlocked()) {
-            if (capsModerationMethod.isUseBlock()) {
+        SwearModerationMethod swearModerationMethod = null;
+        boolean swearModerationEnabled = moderationManager.isSwearModerationEnabled();
+        if (swearModerationEnabled && !player.hasPermission("chatty.moderation.swear")
+                && (swearModerationMethod = moderationManager.getSwearMethod(message)).isBlocked()) {
+            playerChatEvent.getRecipients().clear();
+            playerChatEvent.getRecipients().add(player);
+            playerChatEvent.setMessage(swearModerationMethod.getEditedMessage());
+
+            chatManager.getLogger().write(player, message, "[SWEAR] ");
+
+            String swearFound = Configuration.getMessages().get("swear-found", null);
+
+            if (swearFound != null)
+                Bukkit.getScheduler().runTaskLater(Chatty.instance(),
+                        () -> player.sendMessage(swearFound), 5L);
+        } else {
+            if (swearModerationEnabled && swearModerationMethod != null && !player.hasPermission("chatty.moderation.swear"))
+                playerChatEvent.setMessage(swearModerationMethod.getEditedMessage());
+
+            if (moderationManager.isCapsModerationEnabled() &&
+                    !player.hasPermission("chatty.moderation.caps")
+                    && (capsModerationMethod = moderationManager.getCapsMethod(message)).isBlocked()) {
+                if (capsModerationMethod.isUseBlock()) {
+                    playerChatEvent.getRecipients().clear();
+                    playerChatEvent.getRecipients().add(player);
+
+                    chatManager.getLogger().write(player, message, "[CAPS] ");
+                } else {
+                    playerChatEvent.setMessage(capsModerationMethod.getEditedMessage());
+                    chatManager.getLogger().write(player, message, "");
+                }
+
+                String capsFound = Configuration.getMessages().get("caps-found", null);
+
+                if (capsFound != null)
+                    Bukkit.getScheduler().runTaskLater(Chatty.instance(),
+                            () -> player.sendMessage(capsFound), 5L);
+            } else if (moderationManager.isAdvertisementModerationEnabled() &&
+                    !player.hasPermission("chatty.moderation.advertisement")
+                    && moderationManager.getAdvertisementMethod(message).isBlocked()) {
                 playerChatEvent.getRecipients().clear();
                 playerChatEvent.getRecipients().add(player);
 
-                chatManager.getLogger().write(player, message, "[CAPS] ");
-            } else {
-                playerChatEvent.setMessage(capsModerationMethod.getEditedMessage());
-                chatManager.getLogger().write(player, message, "");
-            }
+                chatManager.getLogger().write(player, message, "[ADS] ");
 
-            String capsFound = Configuration.getMessages().get("caps-found", null);
+                String adsFound = Configuration.getMessages().get("advertisement-found", null);
 
-            if (capsFound != null)
-                Bukkit.getScheduler().runTaskLater(Chatty.instance(),
-                        () -> player.sendMessage(capsFound), 5L);
-        } else if (moderationManager.isAdvertisementModerationEnabled() &&
-                !player.hasPermission("chatty.moderation.advertisement")
-                && moderationManager.getAdvertisementMethod(message).isBlocked()) {
-            playerChatEvent.getRecipients().clear();
-            playerChatEvent.getRecipients().add(player);
-
-            chatManager.getLogger().write(player, message, "[ADS] ");
-
-            String adsFound = Configuration.getMessages().get("advertisement-found", null);
-
-            if (adsFound != null)
-                Bukkit.getScheduler().runTaskLater(Chatty.instance(),
-                        () -> player.sendMessage(adsFound), 5L);
-        } else chatManager.getLogger().write(player, message, "");
+                if (adsFound != null)
+                    Bukkit.getScheduler().runTaskLater(Chatty.instance(),
+                            () -> player.sendMessage(adsFound), 5L);
+            } else chatManager.getLogger().write(player, message, "");
+        }
 
         pendingPlayers.put(player, chat);
     }
@@ -259,7 +280,6 @@ public abstract class ChatListener implements Listener {
         }
 
         if (suggestCommand != null) suggestCommand = suggestCommand.replace("{player}", player.getName());
-
 
         FormattedMessage formattedMessage = new FormattedMessage(format);
         formattedMessage.replace("{player}",
