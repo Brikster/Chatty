@@ -75,7 +75,7 @@ public class PermanentStorage {
             if (propertyElement.isJsonObject()) {
                 JsonElement playerPropertyElement = propertyElement.getAsJsonObject().get(player);
 
-                return Optional.of(playerPropertyElement);
+                return Optional.ofNullable(playerPropertyElement);
             }
 
             return Optional.empty();

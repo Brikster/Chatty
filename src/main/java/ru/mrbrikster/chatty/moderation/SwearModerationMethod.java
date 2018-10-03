@@ -16,14 +16,19 @@ import java.util.stream.Collectors;
 public class SwearModerationMethod extends ModerationMethod {
 
     private final String replacement;
-    private Pattern swearsPattern;
-    private List<Pattern> swearsWhitelist
+    private static Pattern swearsPattern;
+    private static List<Pattern> swearsWhitelist
             = new ArrayList<>();
     private boolean block;
 
-    SwearModerationMethod(JavaPlugin javaPlugin, ConfigurationNode configurationNode, String message) {
+    SwearModerationMethod(ConfigurationNode configurationNode, String message) {
         super(message);
 
+        this.replacement = configurationNode.getNode("replacement").getAsString("<swear>");
+        this.block = configurationNode.getNode("block").getAsBoolean(true);
+    }
+
+    public static void init(JavaPlugin javaPlugin) {
         File swearsDirectory = new File(javaPlugin.getDataFolder(), "swears");
         File swearsFile = new File(swearsDirectory, "swears.txt");
         File whitelistFile = new File(swearsDirectory, "whitelist.txt");
@@ -60,15 +65,12 @@ public class SwearModerationMethod extends ModerationMethod {
                 }
             }
 
-            this.swearsPattern = Pattern.compile(pattern.toString(), Pattern.CASE_INSENSITIVE);
-            this.swearsWhitelist = Files.readLines(whitelistFile, Charset.forName("UTF-8")).stream().map(whitelistPattern
+            SwearModerationMethod.swearsPattern = Pattern.compile(pattern.toString(), Pattern.CASE_INSENSITIVE);
+            SwearModerationMethod.swearsWhitelist = Files.readLines(whitelistFile, Charset.forName("UTF-8")).stream().map(whitelistPattern
                     -> Pattern.compile(whitelistPattern, Pattern.CASE_INSENSITIVE)).collect(Collectors.toList());
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        this.replacement = configurationNode.getNode("replacement").getAsString("<swear>");
-        this.block = configurationNode.getNode("block").getAsBoolean(true);
     }
 
     @Override

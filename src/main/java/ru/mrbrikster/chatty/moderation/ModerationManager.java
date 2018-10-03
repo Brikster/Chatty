@@ -33,6 +33,10 @@ public class ModerationManager {
 
         this.swearModerationEnabled = moderationNode.getNode("swear.enable")
                 .getAsBoolean(false);
+
+        if (swearModerationEnabled) {
+            SwearModerationMethod.init(javaPlugin);
+        }
     }
 
     private void reload() {
@@ -48,7 +52,7 @@ public class ModerationManager {
     }
 
     public SwearModerationMethod getSwearMethod(String message) {
-        return new SwearModerationMethod(javaPlugin, configuration.getNode("moderation.swear"), message);
+        return new SwearModerationMethod(configuration.getNode("moderation.swear"), message);
     }
 
 }
