@@ -101,6 +101,23 @@ json:
   - '&fThis tooltip supports'
   - '&fPlaceholderAPI placeholders!'
 
+  # Replacements for chat formats
+  #
+  # You can replace plain text with JSON-pieces
+  # to make chat more interactive.
+  #
+  # Available properties:
+  # text, tooltip, command, suggest_command.
+  replacements:
+    '&cAdmin':
+      text: '&cAdmin'
+      tooltip:
+      - '&cThis is admin.'
+      - '&4&lBe afraid of him!'
+      - ''
+      - '&eClick here to see the server rules.'
+      command: 'rules'
+
 # * Notifications.
 # There are three types of notifications:
 # via Chat, ActionBar (1.8+) and Advancements (1.12+).

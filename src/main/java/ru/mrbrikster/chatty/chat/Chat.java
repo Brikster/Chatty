@@ -2,7 +2,6 @@ package ru.mrbrikster.chatty.chat;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
 import lombok.Getter;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -50,12 +49,17 @@ public class Chat {
 
         return players.stream()
                 .filter(recipient -> {
-                    JsonElement jsonElement = permanentStorage.getProperty((Player) recipient, "ignore").orElseGet(JsonArray::new);
+                    JsonElement jsonElement = permanentStorage.getProperty(recipient, "ignore").orElseGet(JsonArray::new);
 
                     if (!jsonElement.isJsonArray())
                         jsonElement = new JsonArray();
 
-                    return !jsonElement.getAsJsonArray().contains(new JsonPrimitive(player.getName()));
+                    for (JsonElement ignoreJsonElement : jsonElement.getAsJsonArray()) {
+                        if (player.getName().equals(ignoreJsonElement.getAsString()))
+                            return false;
+                    }
+
+                    return true;
                 })
                 .filter(recipient ->
                         (range <= -1 || location.distanceSquared(recipient.getLocation()) < squaredDistance)

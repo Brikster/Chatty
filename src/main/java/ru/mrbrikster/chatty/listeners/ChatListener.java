@@ -258,8 +258,8 @@ public abstract class ChatListener implements Listener {
             return;
 
         Player player = playerChatEvent.getPlayer();
-        String format = String.format(playerChatEvent.getFormat(),
-                "{player}", "{message}");
+        String format = unstylish(String.format(playerChatEvent.getFormat(),
+                "{player}", "{message}"));
 
         PlaceholderAPIHook placeholderAPI = dependencyManager.getPlaceholderApi();
         List<String> tooltip = configuration.getNode("json.tooltip").getAsStringList()
@@ -286,8 +286,36 @@ public abstract class ChatListener implements Listener {
                 new JSONMessagePart(player.getName())
                     .command(command)
                     .suggest(suggestCommand)
-                    .tooltip(tooltip))
-                .replace("{message}", new LegacyMessagePart(playerChatEvent.getMessage()))
+                    .tooltip(tooltip));
+
+        configuration.getNode("json.replacements").getChildNodes().forEach(replacement -> {
+            String replacementName = replacement.getName();
+            String text = replacement.getNode("text").getAsString(replacementName);
+            List<String> replacementTooltip = replacement.getNode("tooltip").getAsStringList();
+
+            replacementTooltip = replacementTooltip.stream().map(line -> ChatColor.translateAlternateColorCodes('&', line.replace("{player}", player.getName())))
+                    .collect(Collectors.toList());
+
+            if (placeholderAPI != null)
+                replacementTooltip = placeholderAPI.setPlaceholders(player, replacementTooltip);
+
+            String replacementCommand = replacement.getNode("command").getAsString(null);
+            String replacementSuggestCommand = replacement.getNode("suggest_command").getAsString(null);
+
+            JSONMessagePart replacementMessagePart = new JSONMessagePart(text);
+
+            replacementMessagePart.tooltip(replacementTooltip);
+
+            if (replacementCommand != null)
+                replacementMessagePart.command(replacementCommand);
+
+            if (replacementSuggestCommand != null)
+                replacementMessagePart.suggest(replacementSuggestCommand);
+
+            formattedMessage.replace(replacementName, replacementMessagePart);
+        });
+
+        formattedMessage.replace("{message}", new LegacyMessagePart(playerChatEvent.getMessage()))
                 .send(playerChatEvent.getRecipients());
 
         playerChatEvent.setCancelled(true);
@@ -386,6 +414,18 @@ public abstract class ChatListener implements Listener {
         }
 
         return message;
+    }
+
+    private String unstylish(String string) {
+        char[] b = string.toCharArray();
+        for (int i = 0; i < b.length - 1; i++) {
+            if (b[i] == '\u00A7' && "0123456789AaBbCcDdEeFfKkLlMmNnOoRr".indexOf(b[i+1]) > -1) {
+                b[i] = '&';
+                b[i+1] = Character.toLowerCase(b[i+1]);
+            }
+        }
+
+        return new String(b);
     }
 
 }
