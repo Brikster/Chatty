@@ -11,6 +11,7 @@ public class JSONMessagePart implements MessagePart {
     private String command;
     private String suggest;
     private List<String> tooltip;
+    private String link;
 
     public JSONMessagePart(String text) {
         this.text = text;
@@ -34,6 +35,12 @@ public class JSONMessagePart implements MessagePart {
         return this;
     }
 
+    public JSONMessagePart link(String link) {
+        this.link = link;
+
+        return this;
+    }
+
     @Override
     public FancyMessage append(FancyMessage fancyMessage) {
         LegacyConverter.getMessageParts(fancyMessage.getLastColors() + ChatColor.translateAlternateColorCodes('&', text)).forEach(messagePart -> {
@@ -45,6 +52,9 @@ public class JSONMessagePart implements MessagePart {
             if (suggest != null)
                 fancyMessage.suggest(suggest);
 
+            if (link != null)
+                fancyMessage.link(link);
+
             if (tooltip != null
                     && !tooltip.isEmpty())
                 fancyMessage.tooltip(tooltip);
@@ -52,5 +62,4 @@ public class JSONMessagePart implements MessagePart {
 
         return fancyMessage;
     }
-
 }

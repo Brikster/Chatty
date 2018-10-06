@@ -86,16 +86,32 @@ json:
   # 1.7.10+
   enable: false
 
-  # Command that is executed (by player) when you click on the player's name.
+  # Command that executes (by player) when you click on the player's name.
   # Supports PlaceholderAPI.
-  # *** You cannot use "command" and "suggest_command" at the same time.
+  # *** You should use "command" OR "suggest_command" OR "link" and cannot combine.
+  #
+  # You can use "{player}" variable here.
   command: /home
 
-  # Command that is suggested when you click on the player's name.
-  # *** You cannot use "command" and "suggest_command" at the same time.
+  # Command that suggests when you click on the player's name.
+  # Supports PlaceholderAPI.
+  # *** You should use "command" OR "suggest_command" OR "link" and cannot combine.
+  #
+  # You can use "{player}" variable here.
   suggest_command: '/msg {player} '
 
-  # Tooltip for player name in chat.
+  # URL that opens when when you click on the player's name.
+  # You must use "http://" or "https://" prefix, else you will crash Minecraft client :D
+  #
+  # Supports PlaceholderAPI.
+  #
+  # You can use "{player}" variable here.
+  link: 'http://google.com'
+
+  # Hover tooltip for the player's name.
+  # Supports PlaceholderAPI.
+  #
+  # You can use "{player}" variable here.
   tooltip:
   - '&fPlayer &e{player}'
   - '&fThis tooltip supports'
@@ -107,16 +123,27 @@ json:
   # to make chat more interactive.
   #
   # Available properties:
-  # text, tooltip, command, suggest_command.
+  # text, tooltip, command, suggest_command, link.
   replacements:
     '&cAdmin':
+      # Text to replace.
+      # You can remove this line, if you need old text.
       text: '&cAdmin'
+
+      # Hover tooltip for the text.
+      #
+      # You can use "{player}" variable here.
       tooltip:
       - '&cThis is admin.'
       - '&4&lBe afraid of him!'
       - ''
       - '&eClick here to see the server rules.'
-      command: 'rules'
+
+      # *** You should use "command" OR "suggest_command" OR "link" and cannot combine.
+      # Command that executes when you click on the text.
+      #
+      # You can use "{player}" variable here.
+      command: /rules
 
 # * Notifications.
 # There are three types of notifications:
