@@ -271,21 +271,25 @@ public abstract class ChatListener implements Listener {
 
         String command = configuration.getNode("json.command").getAsString(null);
         String suggestCommand = configuration.getNode("json.suggest_command").getAsString(null);
+        String link = configuration.getNode("json.link").getAsString(null);
 
-        if (command != null) {
-            command = command.replace("{player}", player.getName());
+        Function<String, String> replaceVariables = string -> {
+            if (string == null) return null;
+
+            string = string.replace("{player}", player.getName());
 
             if (placeholderAPI != null)
-                command = placeholderAPI.setPlaceholders(player, command);
-        }
+                string = placeholderAPI.setPlaceholders(player, string);
 
-        if (suggestCommand != null) suggestCommand = suggestCommand.replace("{player}", player.getName());
+            return string;
+        };
 
         FormattedMessage formattedMessage = new FormattedMessage(format);
         formattedMessage.replace("{player}",
                 new JSONMessagePart(player.getName())
-                    .command(command)
-                    .suggest(suggestCommand)
+                    .command(replaceVariables.apply(command))
+                    .suggest(replaceVariables.apply(suggestCommand))
+                    .link(replaceVariables.apply(link))
                     .tooltip(tooltip));
 
         configuration.getNode("json.replacements").getChildNodes().forEach(replacement -> {
@@ -301,18 +305,13 @@ public abstract class ChatListener implements Listener {
 
             String replacementCommand = replacement.getNode("command").getAsString(null);
             String replacementSuggestCommand = replacement.getNode("suggest_command").getAsString(null);
+            String replacementLink = replacement.getNode("link").getAsString(null);
 
-            JSONMessagePart replacementMessagePart = new JSONMessagePart(text);
-
-            replacementMessagePart.tooltip(replacementTooltip);
-
-            if (replacementCommand != null)
-                replacementMessagePart.command(replacementCommand);
-
-            if (replacementSuggestCommand != null)
-                replacementMessagePart.suggest(replacementSuggestCommand);
-
-            formattedMessage.replace(replacementName, replacementMessagePart);
+            formattedMessage.replace(replacementName, new JSONMessagePart(text)
+                    .command(replaceVariables.apply(replacementCommand))
+                    .suggest(replaceVariables.apply(replacementSuggestCommand))
+                    .link(replaceVariables.apply(replacementLink))
+                    .tooltip(replacementTooltip));
         });
 
         formattedMessage.replace("{message}", new LegacyMessagePart(playerChatEvent.getMessage()))
