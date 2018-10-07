@@ -127,10 +127,16 @@ json:
   replacements:
     '&cAdmin':
       # Text to replace.
+      #
+      # Supports PlaceholderAPI.
+      # You can use "{player}" variable here.
+      #
       # You can remove this line, if you need old text.
       text: '&cAdmin'
 
       # Hover tooltip for the text.
+      #
+      # Supports PlaceholderAPI.
       #
       # You can use "{player}" variable here.
       tooltip:
@@ -141,6 +147,8 @@ json:
 
       # *** You should use "command" OR "suggest_command" OR "link" and cannot combine.
       # Command that executes when you click on the text.
+      #
+      # Supports PlaceholderAPI.
       #
       # You can use "{player}" variable here.
       command: /rules

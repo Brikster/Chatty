@@ -307,7 +307,7 @@ public abstract class ChatListener implements Listener {
             String replacementSuggestCommand = replacement.getNode("suggest_command").getAsString(null);
             String replacementLink = replacement.getNode("link").getAsString(null);
 
-            formattedMessage.replace(replacementName, new JSONMessagePart(text)
+            formattedMessage.replace(replacementName, new JSONMessagePart(replaceVariables.apply(text))
                     .command(replaceVariables.apply(replacementCommand))
                     .suggest(replaceVariables.apply(replacementSuggestCommand))
                     .link(replaceVariables.apply(replacementLink))
