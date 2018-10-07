@@ -79,6 +79,9 @@ public class SwearModerationMethod extends ModerationMethod {
         Matcher swearPatternMatcher = swearsPattern.matcher(message.toLowerCase());
 
         while (swearPatternMatcher.find()) {
+            if (swearPatternMatcher.group().trim().isEmpty())
+                continue;
+            
             String swear = getWord(message, swearPatternMatcher.start(), swearPatternMatcher.end());
 
             boolean matches = false;
