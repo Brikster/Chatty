@@ -65,6 +65,7 @@ public abstract class ChatListener implements Listener {
     private final ModerationManager moderationManager;
     private final PermanentStorage permanentStorage;
     private IdentityHashMap<Player, Chat> pendingPlayers;
+    private IdentityHashMap<Player, List<String>> pendingSwears;
 
     @SuppressWarnings("all")
     public ChatListener(Configuration configuration,
@@ -81,6 +82,7 @@ public abstract class ChatListener implements Listener {
         this.permanentStorage = permanentStorage;
 
         this.pendingPlayers = new IdentityHashMap<>();
+        this.pendingSwears = new IdentityHashMap<>();
     }
 
     public void onChat(AsyncPlayerChatEvent playerChatEvent) {
@@ -189,14 +191,25 @@ public abstract class ChatListener implements Listener {
 
             chatManager.getLogger().write(player, message, "[SWEAR] ");
 
+            if (configuration.getNode("json.enable").getAsBoolean(false)
+                    && configuration.getNode("json.swears.enable").getAsBoolean(false)) {
+                pendingSwears.put(playerChatEvent.getPlayer(), swearModerationMethod.getWords());
+            }
+
             String swearFound = Configuration.getMessages().get("swear-found", null);
 
             if (swearFound != null)
                 Bukkit.getScheduler().runTaskLater(Chatty.instance(),
                         () -> player.sendMessage(swearFound), 5L);
         } else {
-            if (swearModerationEnabled && swearModerationMethod != null && !player.hasPermission("chatty.moderation.swear"))
+            if (swearModerationEnabled && swearModerationMethod != null && !player.hasPermission("chatty.moderation.swear")) {
+                if (configuration.getNode("json.enable").getAsBoolean(false)
+                        && configuration.getNode("json.swears.enable").getAsBoolean(false)) {
+                    pendingSwears.put(playerChatEvent.getPlayer(), swearModerationMethod.getWords());
+                }
+
                 playerChatEvent.setMessage(swearModerationMethod.getEditedMessage());
+            }
 
             if (moderationManager.isCapsModerationEnabled() &&
                     !player.hasPermission("chatty.moderation.caps")
@@ -254,8 +267,7 @@ public abstract class ChatListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onJsonMessage(AsyncPlayerChatEvent playerChatEvent) {
-        if (!configuration.getNode("json.enable").getAsBoolean(false))
-            return;
+        if (!configuration.getNode("json.enable").getAsBoolean(false)) return;
 
         Player player = playerChatEvent.getPlayer();
         String format = unstylish(String.format(playerChatEvent.getFormat(),
@@ -314,8 +326,26 @@ public abstract class ChatListener implements Listener {
                     .tooltip(replacementTooltip));
         });
 
-        formattedMessage.replace("{message}", new LegacyMessagePart(playerChatEvent.getMessage()))
-                .send(playerChatEvent.getRecipients());
+        formattedMessage.replace("{message}", new LegacyMessagePart(playerChatEvent.getMessage()));
+
+        if (configuration.getNode("json.swears.enable").getAsBoolean(false)) {
+            String replacement = configuration.getNode("moderation.swear.replacement").getAsString("<swear>");
+            List<String> swears = pendingSwears.remove(playerChatEvent.getPlayer());
+
+            if (player.hasPermission("chatty.swears.see")) {
+                List<String> swearTooltip = configuration.getNode("json.swears.tooltip").getAsStringList()
+                        .stream().map(tooltipLine -> ChatColor.translateAlternateColorCodes('&', tooltipLine)).collect(Collectors.toList());
+
+                String suggest = configuration.getNode("json.swears.suggest_command").getAsString(null);
+
+                swears.forEach(swear -> formattedMessage.replace(replacement,
+                        new JSONMessagePart(replacement)
+                                .tooltip(swearTooltip.stream().map(tooltipLine -> tooltipLine.replace("{word}", swear)).collect(Collectors.toList()))
+                                .suggest(suggest != null ? suggest.replace("{word}", swear) : null)));
+            }
+        }
+
+        formattedMessage.send(playerChatEvent.getRecipients()).sendConsole();
 
         playerChatEvent.setCancelled(true);
     }

@@ -117,6 +117,17 @@ json:
   - '&fThis tooltip supports'
   - '&fPlaceholderAPI placeholders!'
 
+  # Swears hovers.
+  #
+  # Permission: chatty.swears.see
+  swears:
+    enable: true
+    tooltip:
+    - '&o{word}'
+    - ''
+    - '&eClick here to add word to whitelist.'
+    suggest_command: /swears add {word}
+
   # Replacements for chat formats
   #
   # You can replace plain text with JSON-pieces

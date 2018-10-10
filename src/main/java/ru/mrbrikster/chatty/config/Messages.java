@@ -82,6 +82,9 @@ public class Messages {
         put("only-for-players",
                 ChatColor.RED + "This command is only for players.");
 
+        put("chat-cleared",
+                ChatColor.GREEN + "Chat cleared by {player}.");
+
         // Msg command
         put("msg-command.usage",
                 ChatColor.RED + "Using: /{label} <player> <message>");
@@ -115,6 +118,12 @@ public class Messages {
                 ChatColor.GREEN + "You are no more ignoring player {player}.");
         put("ignore-command.cannot-ignore-yourself",
                 ChatColor.RED + "You cannot ignore yourself.");
+
+
+        put("swears-command.usage",
+                ChatColor.RED + "Using: /{label} <add|remove> <word>");
+        put("swears-command.add-word",
+                ChatColor.GREEN + "You added word {word} to whitelist.");
     }
 
     public String get(String key) {

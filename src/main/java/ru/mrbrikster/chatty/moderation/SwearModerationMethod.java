@@ -15,23 +15,29 @@ import java.util.stream.Collectors;
 
 public class SwearModerationMethod extends ModerationMethod {
 
+    private static File swearsDirectory;
+    private static File swearsFile;
+    private static File whitelistFile;
     private final String replacement;
     private static Pattern swearsPattern;
     private static List<Pattern> swearsWhitelist
             = new ArrayList<>();
     private boolean block;
+    private String editedMessage;
+    private List<String> words;
 
     SwearModerationMethod(ConfigurationNode configurationNode, String message) {
         super(message);
 
         this.replacement = configurationNode.getNode("replacement").getAsString("<swear>");
         this.block = configurationNode.getNode("block").getAsBoolean(true);
+        this.words = new ArrayList<>();
     }
 
     public static void init(JavaPlugin javaPlugin) {
-        File swearsDirectory = new File(javaPlugin.getDataFolder(), "swears");
-        File swearsFile = new File(swearsDirectory, "swears.txt");
-        File whitelistFile = new File(swearsDirectory, "whitelist.txt");
+        SwearModerationMethod.swearsDirectory = new File(javaPlugin.getDataFolder(), "swears");
+        SwearModerationMethod.swearsFile = new File(swearsDirectory, "swears.txt");
+        SwearModerationMethod.whitelistFile = new File(swearsDirectory, "whitelist.txt");
 
         if (!swearsDirectory.exists())
             swearsDirectory.mkdir();
@@ -67,21 +73,36 @@ public class SwearModerationMethod extends ModerationMethod {
 
             SwearModerationMethod.swearsPattern = Pattern.compile(pattern.toString(), Pattern.CASE_INSENSITIVE);
             SwearModerationMethod.swearsWhitelist = Files.readLines(whitelistFile, Charset.forName("UTF-8")).stream().map(whitelistPattern
-                    -> Pattern.compile(whitelistPattern, Pattern.CASE_INSENSITIVE)).collect(Collectors.toList());
+                    -> Pattern.compile(whitelistPattern.toLowerCase(), Pattern.CASE_INSENSITIVE)).collect(Collectors.toList());
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    public static File getWhitelistFile() {
+        return whitelistFile;
+    }
+
+    public static void addWord(Pattern pattern) {
+        swearsWhitelist.add(pattern);
+    }
+
+    public List<String> getWords() {
+        return words;
+    }
+
     @Override
     public String getEditedMessage() {
-        String editedMessage = message;
+        if (editedMessage != null)
+            return editedMessage;
+
+        this.editedMessage = message;
         Matcher swearPatternMatcher = swearsPattern.matcher(message.toLowerCase());
 
         while (swearPatternMatcher.find()) {
             if (swearPatternMatcher.group().trim().isEmpty())
                 continue;
-            
+
             String swear = getWord(message, swearPatternMatcher.start(), swearPatternMatcher.end());
 
             boolean matches = false;
@@ -90,7 +111,10 @@ public class SwearModerationMethod extends ModerationMethod {
                     matches = true;
             }
 
-            if (!matches) editedMessage = editedMessage.replaceAll(Pattern.quote(swear), replacement);
+            if (!matches) {
+                words.add(swear);
+                editedMessage = editedMessage.replaceAll(Pattern.quote(swear), replacement);
+            }
         }
 
         return editedMessage;
@@ -123,5 +147,4 @@ public class SwearModerationMethod extends ModerationMethod {
         String word = message.substring(wordStart, wordEnd);
         return word.trim();
     }
-
 }

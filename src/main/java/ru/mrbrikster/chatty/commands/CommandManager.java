@@ -38,7 +38,9 @@ public class CommandManager {
     }
 
     private final ChattyCommand chattyCommand;
+    private final ClearChatCommand clearChatCommand;
     private final SpyCommand spyCommand;
+    private SwearsCommand swearsCommand;
     private IgnoreCommand ignoreCommand;
     private MsgCommand msgCommand;
     private ReplyCommand replyCommand;
@@ -47,9 +49,11 @@ public class CommandManager {
                           TemporaryStorage temporaryStorage,
                           PermanentStorage permanentStorage) {
         this.chattyCommand = new ChattyCommand(configuration);
+        this.clearChatCommand = new ClearChatCommand();
         this.spyCommand = new SpyCommand(temporaryStorage);
 
         this.chattyCommand.registerCommand(getCommandMap());
+        this.clearChatCommand.registerCommand(getCommandMap());
         this.spyCommand.registerCommand(getCommandMap());
 
         if (configuration.getNode("general.pm").getAsBoolean(false)) {
@@ -61,6 +65,11 @@ public class CommandManager {
             this.replyCommand.registerCommand(getCommandMap());
             this.ignoreCommand.registerCommand(getCommandMap());
         }
+
+        if (configuration.getNode("moderation.swear.enable").getAsBoolean(false)) {
+            this.swearsCommand = new SwearsCommand();
+            this.swearsCommand.registerCommand(getCommandMap());
+        }
     }
 
     private static SimpleCommandMap getCommandMap() {
@@ -69,6 +78,7 @@ public class CommandManager {
 
     public void unregisterAll() {
         this.chattyCommand.unregisterCommand(getCommandMap());
+        this.clearChatCommand.unregisterCommand(getCommandMap());
         this.spyCommand.unregisterCommand(getCommandMap());
 
         if (msgCommand != null)
@@ -79,6 +89,9 @@ public class CommandManager {
 
         if (ignoreCommand != null)
             this.ignoreCommand.unregisterCommand(getCommandMap());
+
+        if (swearsCommand != null)
+            this.swearsCommand.unregisterCommand(getCommandMap());
     }
 
 }
