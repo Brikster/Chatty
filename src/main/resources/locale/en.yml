@@ -9,6 +9,8 @@ messages:
   cooldown: '&cWait for {cooldown} seconds, before send message in this chat again.'
   not-enough-money: '&cYou need {money} money to send message in this chat.'
 
+  chat-cleared: '&aChat cleared by {player}.'
+
   msg-command:
     usage: '&cUsing: /{label} <player> <message>'
     player-not-found: '&cPlayer not found.'
@@ -28,6 +30,10 @@ messages:
     add-ignore: '&cYou are now ignoring player {player}.'
     remove-ignore: '&aYou are no more ignoring player {player}.'
     cannot-ignore-yourself: '&cYou cannot ignore yourself.'
+
+  swears-command:
+    usage: '&cUsing: /{label} <add|remove> <word>'
+    add-word: '&aYou added word {word} to whitelist.'
 
   # Removable lines.
   # Delete the line to disable message.

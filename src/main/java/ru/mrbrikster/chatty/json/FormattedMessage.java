@@ -1,5 +1,7 @@
 package ru.mrbrikster.chatty.json;
 
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import ru.mrbrikster.chatty.fanciful.FancyMessage;
 
@@ -15,12 +17,26 @@ public class FormattedMessage {
         this.messageParts.add(new LegacyMessagePart(text));
     }
 
-    public void send(Player player) {
+    public FormattedMessage send(Player player) {
         buildFancyMessage().send(player);
+
+        return this;
     }
 
-    public void send(Collection<? extends Player> players) {
+    public FormattedMessage send(Collection<? extends Player> players) {
         buildFancyMessage().send(players);
+
+        return this;
+    }
+
+    public void sendConsole() {
+        Bukkit.getConsoleSender().sendMessage(ChatColor.stripColor(buildFancyMessage().toOldMessageFormat()));
+    }
+
+    public FormattedMessage append(FormattedMessage formattedMessage) {
+        this.messageParts.addAll(formattedMessage.messageParts);
+
+        return this;
     }
 
     public FormattedMessage append(MessagePart messagePart) {
@@ -43,7 +59,7 @@ public class FormattedMessage {
             if (!legacyText.contains(text)) continue;
 
             List<MessagePart> updatedMessageParts = new ArrayList<>();
-            String[] legacyTextSplit = legacyText.split(Pattern.quote(text));
+            String[] legacyTextSplit = legacyText.split(Pattern.quote(text), 2);
 
             if (legacyTextSplit.length == 1)
                 legacyTextSplit = new String[] {legacyTextSplit[0], ""};
