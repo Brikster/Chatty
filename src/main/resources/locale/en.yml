@@ -32,7 +32,7 @@ messages:
     cannot-ignore-yourself: '&cYou cannot ignore yourself.'
 
   swears-command:
-    usage: '&cUsing: /{label} <add|remove> <word>'
+    usage: '&cUsing: /{label} <add> <word>'
     add-word: '&aYou added word {word} to whitelist.'
 
   # Removable lines.

@@ -33,7 +33,7 @@ messages:
     cannot-ignore-yourself: '&cВы не можете игнорировать самого себя.'
 
   swears-command:
-    usage: '&cИспользование: /{label} <add|remove> <слово>'
+    usage: '&cИспользование: /{label} <add> <слово>'
     add-word: '&aВы добавили слово {word} в белый список.'
 
   # Удаляемые строки.
