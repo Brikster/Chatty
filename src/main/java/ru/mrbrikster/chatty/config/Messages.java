@@ -121,7 +121,7 @@ public class Messages {
 
 
         put("swears-command.usage",
-                ChatColor.RED + "Using: /{label} <add|remove> <word>");
+                ChatColor.RED + "Using: /{label} <add> <word>");
         put("swears-command.add-word",
                 ChatColor.GREEN + "You added word {word} to whitelist.");
     }
