@@ -338,7 +338,7 @@ public abstract class ChatListener implements Listener {
 
                 String suggest = configuration.getNode("json.swears.suggest_command").getAsString(null);
 
-                swears.forEach(swear -> formattedMessage.replace(replacement,
+                if (swears != null) swears.forEach(swear -> formattedMessage.replace(replacement,
                         new JSONMessagePart(replacement)
                                 .tooltip(swearTooltip.stream().map(tooltipLine -> tooltipLine.replace("{word}", swear)).collect(Collectors.toList()))
                                 .suggest(suggest != null ? suggest.replace("{word}", swear) : null)));
