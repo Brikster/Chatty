@@ -345,9 +345,9 @@ public abstract class ChatListener implements Listener {
             }
         }
 
-        formattedMessage.send(playerChatEvent.getRecipients()).sendConsole();
+        formattedMessage.send(playerChatEvent.getRecipients());
 
-        playerChatEvent.setCancelled(true);
+        playerChatEvent.getRecipients().clear();
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
