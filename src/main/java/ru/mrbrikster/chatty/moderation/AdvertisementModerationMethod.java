@@ -30,7 +30,7 @@ public class AdvertisementModerationMethod extends ModerationMethod {
                 .getAsString("(?:\\d{1,3}[.,\\-:;\\/()=?}+ ]{1,4}){3}\\d{1,3}"));
         this.webPattern = Pattern.compile(configurationNode.getNode("patterns.web")
                 .getAsString("[-a-zA-Z0-9@:%_\\+~#?&//=]{2,256}\\.[a-z]{2,4}\\b(\\/[-a-zA-Z0-9@:%_\\+~#?&//=]*)?"));
-        this.adPlaceholder = configurationNode.getNode("ad-placeholder").getAsString("{ad}");
+        this.adPlaceholder = configurationNode.getNode("replacement").getAsString("<ads>");
         this.useBlock = configurationNode.getNode("block").getAsBoolean(true);
     }
 
