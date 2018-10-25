@@ -168,8 +168,7 @@ public abstract class ChatListener implements Listener {
             SwearModerationMethod swearMethod = moderationManager.getSwearMethod(formattedMessage);
             if (!player.hasPermission("chatty.moderation.swear"))
             {
-                if (swearMethod.isBlocked())
-                {
+                if (swearMethod.isBlocked()) {
                     formattedMessage = swearMethod.getEditedMessage();
                     chatManager.getLogger().write(player, formattedMessage, "[SWEAR] ");
 
@@ -187,9 +186,7 @@ public abstract class ChatListener implements Listener {
             }
         }
 
-        if (this.moderationManager.isCapsModerationEnabled())
-        {
-            System.out.println(formattedMessage);
+        if (this.moderationManager.isCapsModerationEnabled()) {
             CapsModerationMethod capsMethod = this.moderationManager.getCapsMethod(formattedMessage);
             if (!player.hasPermission("chatty.moderation.caps"))
             {
@@ -213,8 +210,7 @@ public abstract class ChatListener implements Listener {
             }
         }
 
-        if (this.moderationManager.isAdvertisementModerationEnabled())
-        {
+        if (this.moderationManager.isAdvertisementModerationEnabled()) {
             AdvertisementModerationMethod advertisementMethod = this.moderationManager.getAdvertisementMethod(formattedMessage);
             if (!player.hasPermission("chatty.moderation.advertisement")) {
                 if (advertisementMethod.isBlocked()) {
