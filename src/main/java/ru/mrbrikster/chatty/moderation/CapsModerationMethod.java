@@ -24,7 +24,6 @@ public class CapsModerationMethod extends ModerationMethod {
 
     @Override
     public boolean isBlocked() {
-        System.out.println(getProcent());
         return message.length() >= length && getProcent() >= procent;
     }
 
