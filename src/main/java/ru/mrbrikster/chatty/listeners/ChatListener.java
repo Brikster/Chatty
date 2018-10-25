@@ -251,7 +251,7 @@ public abstract class ChatListener implements Listener {
                     || player.hasPermission(String.format("chatty.chat.%s", chat.getName()))
                     || player.hasPermission(String.format("chatty.chat.%s.write", chat.getName()))
             ) {
-                if (message.startsWith(chat.getSymbol())) {
+                if (!chat.getSymbol().isEmpty() && message.startsWith(chat.getSymbol())) {
                     withPrefix = chat;
                     break;
                 }
