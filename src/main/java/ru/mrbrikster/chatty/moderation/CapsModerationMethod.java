@@ -12,7 +12,7 @@ public class CapsModerationMethod extends ModerationMethod {
     CapsModerationMethod(ConfigurationNode configurationNode, String message) {
         super(message);
 
-        this.useBlock = configurationNode.getNode("useBlock").getAsBoolean(true);
+        this.useBlock = configurationNode.getNode("block").getAsBoolean(true);
         this.procent = configurationNode.getNode("procent").getAsInt(80);
         this.length = configurationNode.getNode("length").getAsInt(6);
     }
