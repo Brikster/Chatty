@@ -12,7 +12,7 @@ public class CapsModerationMethod extends ModerationMethod {
     CapsModerationMethod(ConfigurationNode configurationNode, String message) {
         super(message);
 
-        this.useBlock = configurationNode.getNode("useBlock").getAsBoolean(true);
+        this.useBlock = configurationNode.getNode("block").getAsBoolean(true);
         this.procent = configurationNode.getNode("procent").getAsInt(80);
         this.length = configurationNode.getNode("length").getAsInt(6);
     }
@@ -24,25 +24,22 @@ public class CapsModerationMethod extends ModerationMethod {
 
     @Override
     public boolean isBlocked() {
+        System.out.println(getProcent());
         return message.length() >= length && getProcent() >= procent;
     }
 
     private double getProcent() {
-        String messageWithoutChars = message
-                .replaceAll("[^a-zA-Zа-яА-Я]", "");
-
-        if (messageWithoutChars.isEmpty())
-            return 0;
-
-        int length = 0, capsLength = 0;
-
-        for (String word : messageWithoutChars.split(" ")) {
-            length += word.length();
-
-            for (char c : word.toCharArray())
-                if (c == Character.toUpperCase(c)) capsLength++;
+        int codePoint, length = 0, capsLength = 0;
+        for (char c : message.toCharArray()) {
+            codePoint = (int) c;
+            if (Character.isLetter(codePoint))
+            {
+                length ++;
+                if (codePoint == Character.toUpperCase(codePoint)) {
+                    capsLength ++;
+                }
+            }
         }
-
         return (double) capsLength / (double) length * 100;
     }
 
