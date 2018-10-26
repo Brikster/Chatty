@@ -159,18 +159,21 @@ public abstract class ChatListener implements Listener {
 
         if (!hasCooldown) chat.setCooldown(player);
 
-        String logPrefix = "";
+        boolean blocked = false;
+        StringBuilder logPrefixBuilder = new StringBuilder();
         if (moderationManager.isSwearModerationEnabled()) {
             SwearModerationMethod swearMethod = moderationManager.getSwearMethod(message);
             if (!player.hasPermission("chatty.moderation.swear")) {
                 if (swearMethod.isBlocked()) {
+
+                    message = swearMethod.getEditedMessage();
                     if (swearMethod.isUseBlock()) {
                         event.getRecipients().clear();
                         event.getRecipients().add(player);
 
-                        logPrefix = "[SWEAR] ";
-                    } else {
-                        message = swearMethod.getEditedMessage();
+                        blocked = true;
+
+                        logPrefixBuilder.append("[SWEAR] ");
                     }
 
                     String swearFound = Configuration.getMessages().get("swear-found", null);
@@ -191,13 +194,15 @@ public abstract class ChatListener implements Listener {
             CapsModerationMethod capsMethod = this.moderationManager.getCapsMethod(message);
             if (!player.hasPermission("chatty.moderation.caps")) {
                 if (capsMethod.isBlocked()) {
+
+                    message = capsMethod.getEditedMessage();
                     if (capsMethod.isUseBlock()) {
                         event.getRecipients().clear();
                         event.getRecipients().add(player);
 
-                        logPrefix = "[CAPS] ";
-                    } else {
-                        message = capsMethod.getEditedMessage();
+                        blocked = true;
+
+                        logPrefixBuilder.append("[CAPS] ");
                     }
 
                     String capsFound = Configuration.getMessages().get("caps-found", null);
@@ -213,13 +218,15 @@ public abstract class ChatListener implements Listener {
             AdvertisementModerationMethod advertisementMethod = this.moderationManager.getAdvertisementMethod(message);
             if (!player.hasPermission("chatty.moderation.advertisement")) {
                 if (advertisementMethod.isBlocked()) {
+
+                    message = advertisementMethod.getEditedMessage();
                     if (advertisementMethod.isUseBlock()) {
                         event.getRecipients().clear();
                         event.getRecipients().add(player);
 
-                        logPrefix = "[ADS] ";
-                    } else {
-                        message = advertisementMethod.getEditedMessage();
+                        blocked = true;
+
+                        logPrefixBuilder.append("[ADS] ");
                     }
 
                     String adsFound = Configuration.getMessages().get("advertisement-found", null);
@@ -231,9 +238,13 @@ public abstract class ChatListener implements Listener {
             }
         }
 
+        if (blocked) {
+            event.setCancelled(true);
+        }
+
         event.setMessage(message);
         pendingPlayers.put(player, chat);
-        this.chatManager.getLogger().write(player, message, logPrefix);
+        this.chatManager.getLogger().write(player, message, logPrefixBuilder.toString());
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -321,7 +332,7 @@ public abstract class ChatListener implements Listener {
             String replacement = configuration.getNode("moderation.swear.replacement").getAsString("<swear>");
             List<String> swears = pendingSwears.remove(playerChatEvent.getPlayer());
 
-            if (player.hasPermission("chatty.swears.see")) {
+            if (swears != null && player.hasPermission("chatty.swears.see")) {
                 List<String> swearTooltip = configuration.getNode("json.swears.tooltip").getAsStringList()
                         .stream().map(tooltipLine -> ChatColor.translateAlternateColorCodes('&', tooltipLine)).collect(Collectors.toList());
 
