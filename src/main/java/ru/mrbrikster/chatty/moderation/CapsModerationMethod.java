@@ -19,7 +19,7 @@ public class CapsModerationMethod extends ModerationMethod {
 
     @Override
     public String getEditedMessage() {
-        return useBlock ? message : message.toLowerCase();
+        return message.toLowerCase();
     }
 
     @Override

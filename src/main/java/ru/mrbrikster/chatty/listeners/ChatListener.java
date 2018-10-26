@@ -235,30 +235,6 @@ public abstract class ChatListener implements Listener {
         pendingPlayers.put(player, chat);
     }
 
-    private Pair<Boolean, Chat> getChat(final Player player, final String message) {
-        Chat currentChat = null;
-
-        for (Chat chat : this.chatManager.getChats()) {
-            if (!chat.isEnable()) {
-                continue;
-            }
-
-            if (!chat.isPermission()
-                    || player.hasPermission(String.format("chatty.chat.%s", chat.getName()))
-                    || player.hasPermission(String.format("chatty.chat.%s.write", chat.getName()))) {
-                currentChat = chat;
-
-                if (!chat.getSymbol().isEmpty() && message.startsWith(chat.getSymbol())) {
-                    break;
-                }
-            }
-        }
-
-        return currentChat == null
-                ? new Pair<>(false, null)
-                : new Pair<>(!currentChat.getSymbol().isEmpty(), currentChat);
-    }
-
     @EventHandler(priority = EventPriority.MONITOR)
     public void onSpyMessage(AsyncPlayerChatEvent playerChatEvent) {
         if (configuration.getNode("general.spy.enable").getAsBoolean(false)) {
@@ -419,6 +395,31 @@ public abstract class ChatListener implements Listener {
                     .replace("{suffix}", getSuffix(playerDeathEvent.getEntity()))
                     .replace("{player}", playerDeathEvent.getEntity().getName())));
         }
+    }
+
+    private Pair<Boolean, Chat> getChat(final Player player, final String message) {
+        Chat currentChat = null;
+
+        for (Chat chat : this.chatManager.getChats()) {
+            if (!chat.isEnable()) {
+                continue;
+            }
+
+            if (!chat.isPermission()
+                    || player.hasPermission(String.format("chatty.chat.%s", chat.getName()))
+                    || player.hasPermission(String.format("chatty.chat.%s.write", chat.getName()))) {
+                if (chat.getSymbol().isEmpty()) {
+                    currentChat = chat;
+                } else if (message.startsWith(chat.getSymbol())) {
+                    currentChat = chat;
+                    break;
+                }
+            }
+        }
+
+        return currentChat == null
+                ? new Pair<>(false, null)
+                : new Pair<>(!currentChat.getSymbol().isEmpty(), currentChat);
     }
 
     private String getPrefix(Player player) {
