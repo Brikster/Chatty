@@ -159,7 +159,7 @@ public abstract class ChatListener implements Listener {
 
         if (!hasCooldown) chat.setCooldown(player);
 
-        String logPrefix = "";
+        StringBuilder logPrefixBuilder = new StringBuilder();
         if (moderationManager.isSwearModerationEnabled()) {
             SwearModerationMethod swearMethod = moderationManager.getSwearMethod(message);
             if (!player.hasPermission("chatty.moderation.swear")) {
@@ -168,7 +168,7 @@ public abstract class ChatListener implements Listener {
                         event.getRecipients().clear();
                         event.getRecipients().add(player);
 
-                        logPrefix = "[SWEAR] ";
+                        logPrefixBuilder.append("[SWEAR] ");
                     } else {
                         message = swearMethod.getEditedMessage();
                     }
@@ -195,7 +195,7 @@ public abstract class ChatListener implements Listener {
                         event.getRecipients().clear();
                         event.getRecipients().add(player);
 
-                        logPrefix = "[CAPS] ";
+                        logPrefixBuilder.append("[CAPS] ");
                     } else {
                         message = capsMethod.getEditedMessage();
                     }
@@ -217,7 +217,7 @@ public abstract class ChatListener implements Listener {
                         event.getRecipients().clear();
                         event.getRecipients().add(player);
 
-                        logPrefix = "[ADS] ";
+                        logPrefixBuilder.append("[ADS] ");
                     } else {
                         message = advertisementMethod.getEditedMessage();
                     }
@@ -233,7 +233,7 @@ public abstract class ChatListener implements Listener {
 
         event.setMessage(message);
         pendingPlayers.put(player, chat);
-        this.chatManager.getLogger().write(player, message, logPrefix);
+        this.chatManager.getLogger().write(player, message, logPrefixBuilder.toString());
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
