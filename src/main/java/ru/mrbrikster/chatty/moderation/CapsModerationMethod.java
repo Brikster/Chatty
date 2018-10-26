@@ -31,14 +31,14 @@ public class CapsModerationMethod extends ModerationMethod {
         int codePoint, length = 0, capsLength = 0;
         for (char c : message.toCharArray()) {
             codePoint = (int) c;
-            if (Character.isLetter(codePoint))
-            {
-                length ++;
+            if (Character.isLetter(codePoint)) {
+                length++;
                 if (codePoint == Character.toUpperCase(codePoint)) {
-                    capsLength ++;
+                    capsLength++;
                 }
             }
         }
+
         return (double) capsLength / (double) length * 100;
     }
 

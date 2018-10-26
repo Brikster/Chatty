@@ -1,6 +1,7 @@
 package ru.mrbrikster.chatty.moderation;
 
 import com.google.common.io.Files;
+import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
 import ru.mrbrikster.chatty.config.ConfigurationNode;
 
@@ -15,26 +16,26 @@ import java.util.stream.Collectors;
 
 public class SwearModerationMethod extends ModerationMethod {
 
+    private final String replacement;
+    private final List<String> words;
+    @Getter private final boolean useBlock;
+
+    private static Pattern swearsPattern;
+    private static List<Pattern> swearsWhitelist = new ArrayList<>();
     private static File swearsDirectory;
     private static File swearsFile;
     private static File whitelistFile;
-    private final String replacement;
-    private static Pattern swearsPattern;
-    private static List<Pattern> swearsWhitelist
-            = new ArrayList<>();
-    private boolean block;
     private String editedMessage;
-    private List<String> words;
 
     SwearModerationMethod(ConfigurationNode configurationNode, String message) {
         super(message);
 
         this.replacement = configurationNode.getNode("replacement").getAsString("<swear>");
-        this.block = configurationNode.getNode("block").getAsBoolean(true);
         this.words = new ArrayList<>();
+        this.useBlock = configurationNode.getNode("block").getAsBoolean(true);
     }
 
-    public static void init(JavaPlugin javaPlugin) {
+    static void init(JavaPlugin javaPlugin) {
         SwearModerationMethod.swearsDirectory = new File(javaPlugin.getDataFolder(), "swears");
         SwearModerationMethod.swearsFile = new File(swearsDirectory, "swears.txt");
         SwearModerationMethod.whitelistFile = new File(swearsDirectory, "whitelist.txt");
@@ -122,7 +123,7 @@ public class SwearModerationMethod extends ModerationMethod {
 
     @Override
     public boolean isBlocked() {
-        return block && !getEditedMessage().equals(message);
+        return !getEditedMessage().equals(message);
     }
 
     private String getWord(String message, int start, int end) {
@@ -147,4 +148,5 @@ public class SwearModerationMethod extends ModerationMethod {
         String word = message.substring(wordStart, wordEnd);
         return word.trim();
     }
+
 }

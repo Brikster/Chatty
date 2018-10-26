@@ -137,7 +137,7 @@ json:
   # text, tooltip, command, suggest_command, link.
   replacements:
     'Admin':
-      # From text.
+      # Original text.
       original: '&cAdmin'
       # Text to replace.
       #
@@ -258,10 +258,10 @@ moderation:
     patterns:
       ip: '(?:\d{1,3}[.,-:;\/()=?}+ ]{1,4}){3}\d{1,3}'
       web: '[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+~#?&//=]*)?'
-    # On/off advertisement blocking.
-    # When false, all ads will be replaced to 'replacement'
+    # On/off caps message blocking.
+    # When false, advertisements will be replaced.
     block: true
-    # replacement for ads
+    # Replacement for advertisement.
     replacement: '<ads>'
     # Whitelisted IP-addresses and sites.
     whitelist:
@@ -275,7 +275,8 @@ moderation:
     # On/off swear protection.
     # Bypass permission: chatty.moderation.swear
     enable: true
-    # Block or remove word from message?
+    # On/off caps message blocking.
+    # When false, swears will be replaced.
     block: true
     # Replacement for swears.
     replacement: '<swear>'

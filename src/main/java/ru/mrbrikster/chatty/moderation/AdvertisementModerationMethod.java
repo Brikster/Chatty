@@ -12,13 +12,12 @@ import java.util.stream.Collectors;
 public class AdvertisementModerationMethod extends ModerationMethod {
 
     private String editedMessage;
-    private boolean alreadyChecked = false, previousResult = false;
+    private boolean checked = false, result = false;
 
     private final List<String> whitelist;
     private Pattern ipPattern, webPattern;
-    private String adPlaceholder;
-    @Getter
-    private boolean useBlock;
+    private String replacement;
+    @Getter private boolean useBlock;
 
     AdvertisementModerationMethod(ConfigurationNode configurationNode, String message) {
         super(message);
@@ -30,7 +29,7 @@ public class AdvertisementModerationMethod extends ModerationMethod {
                 .getAsString("(?:\\d{1,3}[.,\\-:;\\/()=?}+ ]{1,4}){3}\\d{1,3}"));
         this.webPattern = Pattern.compile(configurationNode.getNode("patterns.web")
                 .getAsString("[-a-zA-Z0-9@:%_\\+~#?&//=]{2,256}\\.[a-z]{2,4}\\b(\\/[-a-zA-Z0-9@:%_\\+~#?&//=]*)?"));
-        this.adPlaceholder = configurationNode.getNode("replacement").getAsString("<ads>");
+        this.replacement = configurationNode.getNode("replacement").getAsString("<ads>");
         this.useBlock = configurationNode.getNode("block").getAsBoolean(true);
     }
 
@@ -39,53 +38,56 @@ public class AdvertisementModerationMethod extends ModerationMethod {
         if (this.editedMessage == null) {
             this.isBlocked();
         }
+
         return this.editedMessage;
     }
 
     @Override
     public boolean isBlocked() {
-        if (this.alreadyChecked) {
-            return this.previousResult;
+        if (this.checked) {
+            return this.result;
         }
-        this.previousResult = match(ipPattern, str -> str);
-        this.previousResult = this.previousResult || match(webPattern, str -> str
-                .replaceAll("www.", "")
-                .replaceAll("http://", "")
-                .replaceAll("https://", ""));
 
-        this.alreadyChecked = true;
-        return this.previousResult;
+        this.result = match(ipPattern, string -> string);
+        this.result = match(webPattern, string -> string
+                .replaceAll(Pattern.quote("www."), "")
+                .replaceAll(Pattern.quote("http://"), "")
+                .replaceAll(Pattern.quote("https://"), ""));
+
+        this.checked = true;
+
+        return this.result;
     }
 
-    private boolean match(Pattern pattern, Function<String, String> modifyString) {
+    private boolean match(Pattern pattern, Function<String, String> modifyFunction) {
         Matcher matcher = pattern.matcher(this.message);
 
         int prevIndex = 0;
         StringBuilder builder = new StringBuilder();
 
-        boolean hasAds = false;
+        boolean containsAds = false;
         while (matcher.find()) {
             String group = matcher.group();
 
             builder.append(this.message, prevIndex, matcher.start());
             prevIndex = matcher.end();
 
-            String ad = group.trim().toLowerCase();
-            ad = modifyString.apply(ad);
+            String ad = modifyFunction.apply(group.trim().toLowerCase());
 
             if (this.whitelist.contains(ad)) {
                 builder.append(this.message, matcher.start(), matcher.end());
             } else {
-                hasAds = true;
-                builder.append(this.adPlaceholder);
+                containsAds = true;
+                builder.append(this.replacement);
             }
         }
 
         if (prevIndex < this.message.length()) {
             builder.append(this.message, prevIndex, this.message.length());
         }
+
         this.editedMessage = builder.toString();
-        return hasAds;
+        return containsAds;
     }
 
 }

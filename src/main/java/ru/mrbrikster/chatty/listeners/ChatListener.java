@@ -92,10 +92,8 @@ public abstract class ChatListener implements Listener {
         final String message = event.getMessage();
         String formattedMessage = message;
 
-        Pair<Boolean, Chat> symbolWithChat = getChat(player, formattedMessage);
-
-        boolean usingSymbol = symbolWithChat.getKey();
-        Chat chat = symbolWithChat.getValue();
+        Pair<Boolean, Chat> chatPair = getChat(player, formattedMessage);
+        Chat chat = chatPair.getValue();
 
         if (chat == null) {
             event.setCancelled(true);
@@ -103,7 +101,7 @@ public abstract class ChatListener implements Listener {
             return;
         }
 
-        if (usingSymbol) {
+        if (chatPair.getKey()) {
             formattedMessage = formattedMessage.substring(chat.getSymbol().length());
         }
 
@@ -145,7 +143,6 @@ public abstract class ChatListener implements Listener {
         format = COLORIZE.apply(format);
 
         event.setFormat(format);
-//        event.setMessage(formattedMessage);
 
         if (dependencyManager.getPlaceholderApi() != null) {
             event.setFormat(dependencyManager.getPlaceholderApi().setPlaceholders(player, format));
@@ -163,14 +160,18 @@ public abstract class ChatListener implements Listener {
 
         if (!hasCooldown) chat.setCooldown(player);
 
-        if (moderationManager.isSwearModerationEnabled())
-        {
+        if (moderationManager.isSwearModerationEnabled()) {
             SwearModerationMethod swearMethod = moderationManager.getSwearMethod(formattedMessage);
-            if (!player.hasPermission("chatty.moderation.swear"))
-            {
+            if (!player.hasPermission("chatty.moderation.swear")) {
                 if (swearMethod.isBlocked()) {
-                    formattedMessage = swearMethod.getEditedMessage();
-                    chatManager.getLogger().write(player, formattedMessage, "[SWEAR] ");
+                    if (swearMethod.isUseBlock()) {
+                        event.getRecipients().clear();
+                        event.getRecipients().add(player);
+
+                        this.chatManager.getLogger().write(player, message, "[SWEAR] ");
+                    } else {
+                        formattedMessage = swearMethod.getEditedMessage();
+                    }
 
                     String swearFound = Configuration.getMessages().get("swear-found", null);
 
@@ -188,8 +189,7 @@ public abstract class ChatListener implements Listener {
 
         if (this.moderationManager.isCapsModerationEnabled()) {
             CapsModerationMethod capsMethod = this.moderationManager.getCapsMethod(formattedMessage);
-            if (!player.hasPermission("chatty.moderation.caps"))
-            {
+            if (!player.hasPermission("chatty.moderation.caps")) {
                 if (capsMethod.isBlocked()) {
                     if (capsMethod.isUseBlock()) {
                         event.getRecipients().clear();
@@ -198,7 +198,6 @@ public abstract class ChatListener implements Listener {
                         this.chatManager.getLogger().write(player, message, "[CAPS] ");
                     } else {
                         formattedMessage = capsMethod.getEditedMessage();
-                        this.chatManager.getLogger().write(player, formattedMessage, "");
                     }
 
                     String capsFound = Configuration.getMessages().get("caps-found", null);
@@ -221,7 +220,6 @@ public abstract class ChatListener implements Listener {
                         this.chatManager.getLogger().write(player, message, "[ADS] ");
                     } else {
                         formattedMessage = advertisementMethod.getEditedMessage();
-                        this.chatManager.getLogger().write(player, formattedMessage, "");
                     }
 
                     String adsFound = Configuration.getMessages().get("advertisement-found", null);
@@ -235,13 +233,11 @@ public abstract class ChatListener implements Listener {
 
         event.setMessage(formattedMessage);
         pendingPlayers.put(player, chat);
-
     }
 
-    private Pair<Boolean, Chat> getChat(final Player player, final String message)
-    {
-        Chat withPrefix = null;
-        Chat noPrefix = null;
+    private Pair<Boolean, Chat> getChat(final Player player, final String message) {
+        Chat currentChat = null;
+
         for (Chat chat : this.chatManager.getChats()) {
             if (!chat.isEnable()) {
                 continue;
@@ -249,20 +245,18 @@ public abstract class ChatListener implements Listener {
 
             if (!chat.isPermission()
                     || player.hasPermission(String.format("chatty.chat.%s", chat.getName()))
-                    || player.hasPermission(String.format("chatty.chat.%s.write", chat.getName()))
-            ) {
+                    || player.hasPermission(String.format("chatty.chat.%s.write", chat.getName()))) {
+                currentChat = chat;
+
                 if (!chat.getSymbol().isEmpty() && message.startsWith(chat.getSymbol())) {
-                    withPrefix = chat;
                     break;
-                }
-                else
-                {
-                    noPrefix = chat;
                 }
             }
         }
 
-        return withPrefix != null ? new Pair<>(true, withPrefix) : new Pair<>(false, noPrefix);
+        return currentChat == null
+                ? new Pair<>(false, null)
+                : new Pair<>(!currentChat.getSymbol().isEmpty(), currentChat);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
