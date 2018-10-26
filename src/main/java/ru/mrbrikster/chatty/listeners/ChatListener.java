@@ -159,18 +159,21 @@ public abstract class ChatListener implements Listener {
 
         if (!hasCooldown) chat.setCooldown(player);
 
+        boolean blocked = false;
         StringBuilder logPrefixBuilder = new StringBuilder();
         if (moderationManager.isSwearModerationEnabled()) {
             SwearModerationMethod swearMethod = moderationManager.getSwearMethod(message);
             if (!player.hasPermission("chatty.moderation.swear")) {
                 if (swearMethod.isBlocked()) {
+
+                    message = swearMethod.getEditedMessage();
                     if (swearMethod.isUseBlock()) {
                         event.getRecipients().clear();
                         event.getRecipients().add(player);
 
+                        blocked = true;
+
                         logPrefixBuilder.append("[SWEAR] ");
-                    } else {
-                        message = swearMethod.getEditedMessage();
                     }
 
                     String swearFound = Configuration.getMessages().get("swear-found", null);
@@ -191,13 +194,15 @@ public abstract class ChatListener implements Listener {
             CapsModerationMethod capsMethod = this.moderationManager.getCapsMethod(message);
             if (!player.hasPermission("chatty.moderation.caps")) {
                 if (capsMethod.isBlocked()) {
+
+                    message = capsMethod.getEditedMessage();
                     if (capsMethod.isUseBlock()) {
                         event.getRecipients().clear();
                         event.getRecipients().add(player);
 
+                        blocked = true;
+
                         logPrefixBuilder.append("[CAPS] ");
-                    } else {
-                        message = capsMethod.getEditedMessage();
                     }
 
                     String capsFound = Configuration.getMessages().get("caps-found", null);
@@ -213,13 +218,15 @@ public abstract class ChatListener implements Listener {
             AdvertisementModerationMethod advertisementMethod = this.moderationManager.getAdvertisementMethod(message);
             if (!player.hasPermission("chatty.moderation.advertisement")) {
                 if (advertisementMethod.isBlocked()) {
+
+                    message = advertisementMethod.getEditedMessage();
                     if (advertisementMethod.isUseBlock()) {
                         event.getRecipients().clear();
                         event.getRecipients().add(player);
 
+                        blocked = true;
+
                         logPrefixBuilder.append("[ADS] ");
-                    } else {
-                        message = advertisementMethod.getEditedMessage();
                     }
 
                     String adsFound = Configuration.getMessages().get("advertisement-found", null);
@@ -229,6 +236,10 @@ public abstract class ChatListener implements Listener {
                                 () -> player.sendMessage(adsFound), 5L);
                 }
             }
+        }
+
+        if (blocked) {
+            event.setCancelled(true);
         }
 
         event.setMessage(message);
