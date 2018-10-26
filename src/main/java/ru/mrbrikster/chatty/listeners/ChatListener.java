@@ -89,10 +89,9 @@ public abstract class ChatListener implements Listener {
 
     public void onChat(final AsyncPlayerChatEvent event) {
         final Player player = event.getPlayer();
-        final String message = event.getMessage();
-        String formattedMessage = message;
+        String message = event.getMessage();
 
-        Pair<Boolean, Chat> chatPair = getChat(player, formattedMessage);
+        Pair<Boolean, Chat> chatPair = getChat(player, message);
         Chat chat = chatPair.getValue();
 
         if (chat == null) {
@@ -102,10 +101,10 @@ public abstract class ChatListener implements Listener {
         }
 
         if (chatPair.getKey()) {
-            formattedMessage = formattedMessage.substring(chat.getSymbol().length());
+            message = message.substring(chat.getSymbol().length());
         }
 
-        formattedMessage = stylish(player, formattedMessage, chat.getName());
+        message = stylish(player, message, chat.getName());
 
         if (ChatColor.stripColor(message).isEmpty()) {
             event.setCancelled(true);
@@ -160,17 +159,18 @@ public abstract class ChatListener implements Listener {
 
         if (!hasCooldown) chat.setCooldown(player);
 
+        String logPrefix = "";
         if (moderationManager.isSwearModerationEnabled()) {
-            SwearModerationMethod swearMethod = moderationManager.getSwearMethod(formattedMessage);
+            SwearModerationMethod swearMethod = moderationManager.getSwearMethod(message);
             if (!player.hasPermission("chatty.moderation.swear")) {
                 if (swearMethod.isBlocked()) {
                     if (swearMethod.isUseBlock()) {
                         event.getRecipients().clear();
                         event.getRecipients().add(player);
 
-                        this.chatManager.getLogger().write(player, message, "[SWEAR] ");
+                        logPrefix = "[SWEAR] ";
                     } else {
-                        formattedMessage = swearMethod.getEditedMessage();
+                        message = swearMethod.getEditedMessage();
                     }
 
                     String swearFound = Configuration.getMessages().get("swear-found", null);
@@ -188,16 +188,16 @@ public abstract class ChatListener implements Listener {
         }
 
         if (this.moderationManager.isCapsModerationEnabled()) {
-            CapsModerationMethod capsMethod = this.moderationManager.getCapsMethod(formattedMessage);
+            CapsModerationMethod capsMethod = this.moderationManager.getCapsMethod(message);
             if (!player.hasPermission("chatty.moderation.caps")) {
                 if (capsMethod.isBlocked()) {
                     if (capsMethod.isUseBlock()) {
                         event.getRecipients().clear();
                         event.getRecipients().add(player);
 
-                        this.chatManager.getLogger().write(player, message, "[CAPS] ");
+                        logPrefix = "[CAPS] ";
                     } else {
-                        formattedMessage = capsMethod.getEditedMessage();
+                        message = capsMethod.getEditedMessage();
                     }
 
                     String capsFound = Configuration.getMessages().get("caps-found", null);
@@ -210,16 +210,16 @@ public abstract class ChatListener implements Listener {
         }
 
         if (this.moderationManager.isAdvertisementModerationEnabled()) {
-            AdvertisementModerationMethod advertisementMethod = this.moderationManager.getAdvertisementMethod(formattedMessage);
+            AdvertisementModerationMethod advertisementMethod = this.moderationManager.getAdvertisementMethod(message);
             if (!player.hasPermission("chatty.moderation.advertisement")) {
                 if (advertisementMethod.isBlocked()) {
                     if (advertisementMethod.isUseBlock()) {
                         event.getRecipients().clear();
                         event.getRecipients().add(player);
 
-                        this.chatManager.getLogger().write(player, message, "[ADS] ");
+                        logPrefix = "[ADS] ";
                     } else {
-                        formattedMessage = advertisementMethod.getEditedMessage();
+                        message = advertisementMethod.getEditedMessage();
                     }
 
                     String adsFound = Configuration.getMessages().get("advertisement-found", null);
@@ -231,8 +231,9 @@ public abstract class ChatListener implements Listener {
             }
         }
 
-        event.setMessage(formattedMessage);
+        event.setMessage(message);
         pendingPlayers.put(player, chat);
+        this.chatManager.getLogger().write(player, message, logPrefix);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
