@@ -48,11 +48,16 @@ public class AdvertisementModerationMethod extends ModerationMethod {
             return this.result;
         }
 
+        if (this.editedMessage == null) {
+            this.editedMessage = this.message;
+        }
+
         this.result = match(ipPattern, string -> string);
         this.result = match(webPattern, string -> string
                 .replaceAll(Pattern.quote("www."), "")
                 .replaceAll(Pattern.quote("http://"), "")
-                .replaceAll(Pattern.quote("https://"), ""));
+                .replaceAll(Pattern.quote("https://"), "")
+        ) || this.result;
 
         this.checked = true;
 
@@ -60,7 +65,7 @@ public class AdvertisementModerationMethod extends ModerationMethod {
     }
 
     private boolean match(Pattern pattern, Function<String, String> modifyFunction) {
-        Matcher matcher = pattern.matcher(this.message);
+        Matcher matcher = pattern.matcher(this.editedMessage);
 
         int prevIndex = 0;
         StringBuilder builder = new StringBuilder();
@@ -69,21 +74,21 @@ public class AdvertisementModerationMethod extends ModerationMethod {
         while (matcher.find()) {
             String group = matcher.group();
 
-            builder.append(this.message, prevIndex, matcher.start());
+            builder.append(this.editedMessage, prevIndex, matcher.start());
             prevIndex = matcher.end();
 
             String ad = modifyFunction.apply(group.trim().toLowerCase());
 
             if (this.whitelist.contains(ad)) {
-                builder.append(this.message, matcher.start(), matcher.end());
+                builder.append(this.editedMessage, matcher.start(), matcher.end());
             } else {
                 containsAds = true;
                 builder.append(this.replacement);
             }
         }
 
-        if (prevIndex < this.message.length()) {
-            builder.append(this.message, prevIndex, this.message.length());
+        if (prevIndex < this.editedMessage.length()) {
+            builder.append(this.editedMessage, prevIndex, this.editedMessage.length());
         }
 
         this.editedMessage = builder.toString();
