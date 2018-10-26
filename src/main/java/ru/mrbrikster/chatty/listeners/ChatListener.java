@@ -332,7 +332,7 @@ public abstract class ChatListener implements Listener {
             String replacement = configuration.getNode("moderation.swear.replacement").getAsString("<swear>");
             List<String> swears = pendingSwears.remove(playerChatEvent.getPlayer());
 
-            if (player.hasPermission("chatty.swears.see")) {
+            if (swears != null && player.hasPermission("chatty.swears.see")) {
                 List<String> swearTooltip = configuration.getNode("json.swears.tooltip").getAsStringList()
                         .stream().map(tooltipLine -> ChatColor.translateAlternateColorCodes('&', tooltipLine)).collect(Collectors.toList());
 
