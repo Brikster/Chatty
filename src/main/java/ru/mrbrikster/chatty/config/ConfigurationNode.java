@@ -33,4 +33,6 @@ public interface ConfigurationNode {
 
     void set(Object value);
 
+    boolean isEmpty();
+
 }

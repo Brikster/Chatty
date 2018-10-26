@@ -82,4 +82,9 @@ public class EmptyConfigurationNode implements ConfigurationNode {
         throw new UnsupportedOperationException("Node is empty");
     }
 
+    @Override
+    public boolean isEmpty() {
+        return true;
+    }
+
 }

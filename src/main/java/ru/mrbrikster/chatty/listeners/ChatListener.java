@@ -305,7 +305,8 @@ public abstract class ChatListener implements Listener {
                     .tooltip(tooltip));
 
         configuration.getNode("json.replacements").getChildNodes().forEach(replacement -> {
-            String replacementName = replacement.getName();
+            String replacementName = replacement.getNode("original").getAsString(replacement.getName());
+
             String text = replacement.getNode("text").getAsString(replacementName);
             List<String> replacementTooltip = replacement.getNode("tooltip").getAsStringList();
 

@@ -136,13 +136,15 @@ json:
   # Available properties:
   # text, tooltip, command, suggest_command, link.
   replacements:
-    '&cAdmin':
+    'Admin':
+      # From text.
+      original: '&cAdmin'
       # Text to replace.
       #
       # Supports PlaceholderAPI.
       # You can use "{player}" variable here.
       #
-      # You can remove this line, if you need old text.
+      # You can remove this line, if you need original text.
       text: '&cAdmin'
 
       # Hover tooltip for the text.
