@@ -1,6 +1,6 @@
 package ru.mrbrikster.chatty.json;
 
-import ru.mrbrikster.chatty.fanciful.FancyMessage;
+import ru.mrbrikster.chatty.json.fanciful.FancyMessage;
 
 public interface MessagePart {
 

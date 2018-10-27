@@ -40,6 +40,11 @@ public abstract class AbstractCommand extends Command {
             commands.remove(getLabel());
             commands.remove("chatty:" + getLabel());
 
+            getAliases().forEach(alias -> {
+                commands.remove(alias);
+                commands.remove("chatty:" + alias);
+            });
+
             field.set((SimpleCommandMap) commandMap, commands);
             field.setAccessible(false);
         } catch (NoSuchFieldException | IllegalAccessException e) {

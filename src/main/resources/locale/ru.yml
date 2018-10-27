@@ -33,8 +33,22 @@ messages:
     cannot-ignore-yourself: '&cВы не можете игнорировать самого себя.'
 
   swears-command:
-    usage: '&cИспользование: /{label} <add> <слово>'
+    usage: '&cИспользование: /{label} add <слово>'
     add-word: '&aВы добавили слово {word} в белый список.'
+
+  prefix-command:
+    usage: '&cИспользование: /{label} <игрок> <<префикс>|clear>'
+    no-permissions-others: '&cУ вас недостаточно прав для смены префикса другим игрокам.'
+    player-not-found: '&cИгрок не найден.'
+    prefix-clear: '&aВы удалили префикс игроку {player}.'
+    prefix-set: '&aВы установили префикс &r{prefix} &aигроку {player}.'
+
+  suffix-command:
+    usage: '&cИспользование: /{label} <игрок> <<суффикс>|clear>'
+    no-permissions-others: '&cУ вас недостаточно прав для смены суффикса другим игрокам.'
+    player-not-found: '&cИгрок не найден.'
+    suffix-clear: '&aВы удалили суффикс игроку {player}.'
+    suffix-set: '&aВы установили префикс &r{suffix} &aигроку {player}.'
 
   # Удаляемые строки.
   # Удалите строку, чтобы убрать сообщение.

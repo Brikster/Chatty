@@ -1,4 +1,4 @@
-package ru.mrbrikster.chatty.fanciful;
+package ru.mrbrikster.chatty.json.fanciful;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -20,7 +20,7 @@ import java.io.StringWriter;
 import java.util.*;
 import java.util.logging.Level;
 
-import static ru.mrbrikster.chatty.fanciful.TextualComponent.rawText;
+import static ru.mrbrikster.chatty.json.fanciful.TextualComponent.rawText;
 
 /**
  * Represents a formattable message. Such messages can use elements such as colors, formatting codes, hover and click data, and other features provided by the vanilla Minecraft <a href="http://minecraft.gamepedia.com/Tellraw#Raw_JSON_Text">JSON message formatter</a>.

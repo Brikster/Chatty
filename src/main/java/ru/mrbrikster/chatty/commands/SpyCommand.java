@@ -7,12 +7,12 @@ import ru.mrbrikster.chatty.config.Configuration;
 
 public class SpyCommand extends AbstractCommand {
 
-    private final TemporaryStorage commandsStorage;
+    private final TemporaryStorage temporaryStorage;
 
-    SpyCommand(TemporaryStorage commandsStorage) {
+    SpyCommand(TemporaryStorage temporaryStorage) {
         super("spy");
 
-        this.commandsStorage = commandsStorage;
+        this.temporaryStorage = temporaryStorage;
     }
 
     @Override
@@ -23,12 +23,12 @@ public class SpyCommand extends AbstractCommand {
                 return;
             }
 
-            if (commandsStorage.getSpyDisabled().contains(sender)) {
+            if (temporaryStorage.getSpyDisabled().contains(sender)) {
                 sender.sendMessage(Configuration.getMessages().get("spy-on"));
-                commandsStorage.getSpyDisabled().remove(sender);
+                temporaryStorage.getSpyDisabled().remove(sender);
             } else {
                 sender.sendMessage(Configuration.getMessages().get("spy-off"));
-                commandsStorage.getSpyDisabled().add((Player) sender);
+                temporaryStorage.getSpyDisabled().add((Player) sender);
             }
         } else sender.sendMessage(Configuration.getMessages().get("only-for-players"));
     }

@@ -1,6 +1,7 @@
 package ru.mrbrikster.chatty.chat;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.gson.JsonElement;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -31,6 +32,7 @@ import ru.mrbrikster.chatty.util.Pair;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -262,7 +264,7 @@ public class ChatListener implements Listener, EventExecutor {
         if (configuration.getNode("general.spy.enable").getAsBoolean(false)) {
             Chat chat = pendingPlayers.remove(playerChatEvent.getPlayer());
 
-            if (!playerChatEvent.isCancelled()) {
+            if (!playerChatEvent.isCancelled() && chat != null) {
                 Reflection.getOnlinePlayers().stream().filter(spy -> (spy.hasPermission("chatty.spy") || spy.hasPermission("chatty.spy." + chat.getName()))
                         && !temporaryStorage.getSpyDisabled().contains(spy) &&
                         !playerChatEvent.getRecipients().contains(spy)).
@@ -447,6 +449,12 @@ public class ChatListener implements Listener, EventExecutor {
     private String getPrefix(Player player) {
         String prefix = "";
 
+        Optional<JsonElement> jsonElement = permanentStorage.getProperty(player, "prefix");
+
+        if (jsonElement.isPresent()) {
+            return jsonElement.get().getAsString();
+        }
+
         if (dependencyManager.getVault() != null) {
             VaultHook vaultHook = dependencyManager.getVault();
             prefix = vaultHook.getPrefix(player);
@@ -459,6 +467,12 @@ public class ChatListener implements Listener, EventExecutor {
 
     private String getSuffix(Player player) {
         String suffix = "";
+
+        Optional<JsonElement> jsonElement = permanentStorage.getProperty(player, "suffix");
+
+        if (jsonElement.isPresent()) {
+            return jsonElement.get().getAsString();
+        }
 
         if (dependencyManager.getVault() != null) {
             VaultHook vaultHook = dependencyManager.getVault();

@@ -119,11 +119,35 @@ public class Messages {
         put("ignore-command.cannot-ignore-yourself",
                 ChatColor.RED + "You cannot ignore yourself.");
 
-
+        // Swears command
         put("swears-command.usage",
-                ChatColor.RED + "Using: /{label} <add> <word>");
+                ChatColor.RED + "Using: /{label} add <word>");
         put("swears-command.add-word",
                 ChatColor.GREEN + "You added word {word} to whitelist.");
+
+        // Prefix command
+        put("prefix-command.usage",
+            ChatColor.RED + "Using: /{label} <player> <<prefix>|clear>");
+        put("prefix-command.no-permissions-others",
+                ChatColor.RED + "You don't have permission to changing prefixes of other players.");
+        put("prefix-command.player-not-found",
+                ChatColor.RED + "Player not found.");
+        put("prefix-command.prefix-clear",
+                ChatColor.GREEN + "You cleared prefix of {player}.");
+        put("prefix-command.prefix-set",
+                ChatColor.GREEN + "You set prefix &r{prefix} &afor player {player}.");
+
+        // Suffix command
+        put("suffix-command.usage",
+                ChatColor.RED + "Using: /{label} <player> <<suffix>|clear>");
+        put("suffix-command.no-permissions-others",
+                ChatColor.RED + "You don't have permission to changing suffixes of other players.");
+        put("suffix-command.player-not-found",
+                ChatColor.RED + "Player not found.");
+        put("suffix-command.prefix-clear",
+                ChatColor.GREEN + "You cleared suffix of {player}.");
+        put("suffix-command.prefix-set",
+                ChatColor.GREEN + "You set suffix &r{suffix} &afor player {player}.");
     }
 
     public String get(String key) {

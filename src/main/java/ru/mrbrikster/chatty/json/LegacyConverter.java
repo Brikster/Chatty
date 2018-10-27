@@ -1,8 +1,8 @@
 package ru.mrbrikster.chatty.json;
 
 import org.bukkit.ChatColor;
-import ru.mrbrikster.chatty.fanciful.FancyMessage;
-import ru.mrbrikster.chatty.fanciful.MessagePart;
+import ru.mrbrikster.chatty.json.fanciful.FancyMessage;
+import ru.mrbrikster.chatty.json.fanciful.MessagePart;
 
 import java.util.List;
 
@@ -93,7 +93,7 @@ class LegacyConverter {
         return fancyMessage.getMessageParts();
     }
 
-    static List<ru.mrbrikster.chatty.fanciful.MessagePart> getMessageParts(String message) {
+    static List<ru.mrbrikster.chatty.json.fanciful.MessagePart> getMessageParts(String message) {
         return new LegacyConverter(message).toMessageParts();
     }
 }

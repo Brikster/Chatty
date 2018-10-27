@@ -46,6 +46,16 @@ general:
     # or chatty.spy.pm
     pm-format: '&6[Spy] &7{sender} &6-> &7{recipient}: &f{message}'
 
+  prefix-command:
+    enable: true
+    # Automatically adds a string after prefix.
+    after-prefix: ' '
+
+  suffix-command:
+    enable: true
+    # Automatically adds a string before suffix.
+    before-suffix: ' '
+
   # Private messages.
   # Permissions:
   # chatty.command.message

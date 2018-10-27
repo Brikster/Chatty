@@ -1,7 +1,7 @@
 package ru.mrbrikster.chatty.json;
 
 import org.bukkit.ChatColor;
-import ru.mrbrikster.chatty.fanciful.FancyMessage;
+import ru.mrbrikster.chatty.json.fanciful.FancyMessage;
 
 import java.util.List;
 
