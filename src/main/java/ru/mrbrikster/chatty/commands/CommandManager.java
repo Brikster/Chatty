@@ -37,17 +37,36 @@ public class CommandManager {
         }
     }
 
-    private final ChattyCommand chattyCommand;
-    private final ClearChatCommand clearChatCommand;
-    private final SpyCommand spyCommand;
-    private SwearsCommand swearsCommand;
+    private final Configuration configuration;
+    private final TemporaryStorage temporaryStorage;
+    private final PermanentStorage permanentStorage;
+
+    private ChattyCommand chattyCommand;
+    private ClearChatCommand clearChatCommand;
+    private SpyCommand spyCommand;
     private IgnoreCommand ignoreCommand;
     private MsgCommand msgCommand;
     private ReplyCommand replyCommand;
+    private SwearsCommand swearsCommand;
+    private PrefixCommand prefixCommand;
+    private SuffixCommand suffixCommand;
 
     public CommandManager(Configuration configuration,
                           TemporaryStorage temporaryStorage,
                           PermanentStorage permanentStorage) {
+        this.configuration = configuration;
+        this.temporaryStorage = temporaryStorage;
+        this.permanentStorage = permanentStorage;
+
+        this.init();
+
+        configuration.registerReloadHandler(() -> {
+            this.unregisterAll();
+            this.init();
+        });
+    }
+
+    private void init() {
         this.chattyCommand = new ChattyCommand(configuration);
         this.clearChatCommand = new ClearChatCommand();
         this.spyCommand = new SpyCommand(temporaryStorage);
@@ -69,6 +88,16 @@ public class CommandManager {
         if (configuration.getNode("moderation.swear.enable").getAsBoolean(false)) {
             this.swearsCommand = new SwearsCommand();
             this.swearsCommand.registerCommand(getCommandMap());
+        }
+
+        if (configuration.getNode("general.prefix-command.enable").getAsBoolean(false)) {
+            this.prefixCommand = new PrefixCommand(configuration, permanentStorage);
+            this.prefixCommand.registerCommand(getCommandMap());
+        }
+
+        if (configuration.getNode("general.suffix-command.enable").getAsBoolean(false)) {
+            this.suffixCommand = new SuffixCommand(configuration, permanentStorage);
+            this.suffixCommand.registerCommand(getCommandMap());
         }
     }
 
@@ -92,6 +121,12 @@ public class CommandManager {
 
         if (swearsCommand != null)
             this.swearsCommand.unregisterCommand(getCommandMap());
+
+        if (prefixCommand != null)
+            this.prefixCommand.unregisterCommand(getCommandMap());
+
+        if (suffixCommand != null)
+            this.suffixCommand.unregisterCommand(getCommandMap());
     }
 
 }

@@ -1,4 +1,4 @@
-package ru.mrbrikster.chatty.fanciful;
+package ru.mrbrikster.chatty.json.fanciful;
 
 import com.google.gson.stream.JsonWriter;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;

@@ -3,7 +3,7 @@ package ru.mrbrikster.chatty.json;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import ru.mrbrikster.chatty.fanciful.FancyMessage;
+import ru.mrbrikster.chatty.json.fanciful.FancyMessage;
 
 import java.util.*;
 import java.util.regex.Pattern;

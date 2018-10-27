@@ -48,7 +48,8 @@ public class PermanentStorage {
         if (((JsonObject) propertyElement).has(player))
             ((JsonObject) propertyElement).remove(player);
 
-        ((JsonObject) propertyElement).add(player, value);
+        if (value != null)
+            ((JsonObject) propertyElement).add(player, value);
 
         ((JsonObject) jsonObject).add(property, propertyElement);
 
@@ -71,6 +72,9 @@ public class PermanentStorage {
                 return Optional.empty();
 
             JsonElement propertyElement = ((JsonObject) jsonObject).get(property);
+
+            if (propertyElement == null)
+                return Optional.empty();
 
             if (propertyElement.isJsonObject()) {
                 JsonElement playerPropertyElement = propertyElement.getAsJsonObject().get(player);

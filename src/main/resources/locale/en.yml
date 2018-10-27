@@ -1,5 +1,6 @@
 messages:
   # Non-removable lines.
+  # If you delete the line, a default English localization will be applied.
   only-for-players: '&cThis command is only for players.'
   chat-not-found: '&cApplicable chat not found. You can''t send the message.'
   reload: '&aConfig successful reloaded!'
@@ -32,8 +33,22 @@ messages:
     cannot-ignore-yourself: '&cYou cannot ignore yourself.'
 
   swears-command:
-    usage: '&cUsing: /{label} <add> <word>'
+    usage: '&cUsing: /{label} add <word>'
     add-word: '&aYou added word {word} to whitelist.'
+
+  prefix-command:
+    usage: '&cUsing: /{label} <player> <<prefix>|clear>'
+    no-permissions-others: '&cYou don''t have permission to changing prefixes of other players.'
+    player-not-found: '&cPlayer not found.'
+    prefix-clear: '&aYou cleared prefix of {player}.'
+    prefix-set: '&aYou set prefix &r{prefix} &afor player {player}.'
+
+  suffix-command:
+    usage: '&cUsing: /{label} <player> <<suffix>|clear>'
+    no-permissions-others: '&cYou don''t have permission to changing suffixes of other players.'
+    player-not-found: '&cPlayer not found.'
+    prefix-clear: '&aYou cleared suffix of {player}.'
+    prefix-set: '&aYou set suffix &r{suffix} &afor player {player}.'
 
   # Removable lines.
   # Delete the line to disable message.

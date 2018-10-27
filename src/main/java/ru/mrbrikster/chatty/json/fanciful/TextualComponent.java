@@ -1,4 +1,4 @@
-package ru.mrbrikster.chatty.fanciful;
+package ru.mrbrikster.chatty.json.fanciful;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
