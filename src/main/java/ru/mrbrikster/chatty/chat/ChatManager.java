@@ -65,7 +65,7 @@ public class ChatManager {
 
             dateFormat = new SimpleDateFormat("[HH:mm:ss] ");
             String prefix = dateFormat.format(calendar.getTime());
-            String line = String.format("%1$s%2$s %3$s (%4$s): %5$s",
+            String line = String.format("%1$s%2$s%3$s (%4$s): %5$s",
                     prefix, additionalPrefix, player.getName(), player.getUniqueId().toString(), message);
 
             try {

@@ -216,7 +216,6 @@ public class ChatListener implements Listener, EventExecutor {
                             event.getRecipients().add(player);
                         }
 
-
                         logPrefixBuilder.append("[CAPS] ");
                     }
 
