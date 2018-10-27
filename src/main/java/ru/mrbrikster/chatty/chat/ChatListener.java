@@ -1,4 +1,4 @@
-package ru.mrbrikster.chatty.listeners;
+package ru.mrbrikster.chatty.chat;
 
 import com.google.common.collect.ImmutableMap;
 import org.bukkit.Bukkit;
@@ -14,10 +14,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.EventExecutor;
 import ru.mrbrikster.chatty.Chatty;
-import ru.mrbrikster.chatty.chat.Chat;
-import ru.mrbrikster.chatty.chat.ChatManager;
-import ru.mrbrikster.chatty.chat.PermanentStorage;
-import ru.mrbrikster.chatty.chat.TemporaryStorage;
 import ru.mrbrikster.chatty.config.Configuration;
 import ru.mrbrikster.chatty.dependencies.DependencyManager;
 import ru.mrbrikster.chatty.dependencies.PlaceholderAPIHook;

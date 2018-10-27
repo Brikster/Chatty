@@ -51,7 +51,7 @@ public class ChatManager {
 
     public class Logger {
 
-        public void write(Player player, String message, String additionalPrefix) {
+        void write(Player player, String message, String additionalPrefix) {
             BufferedWriter bufferedWriter = null;
             File logsDirectory = new File(Chatty.instance().getDataFolder().getAbsolutePath() + File.separator + "logs");
             if (!logsDirectory.exists()) {

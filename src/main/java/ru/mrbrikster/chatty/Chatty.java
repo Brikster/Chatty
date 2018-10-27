@@ -4,13 +4,13 @@ import org.bstats.bukkit.Metrics;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+import ru.mrbrikster.chatty.chat.ChatListener;
 import ru.mrbrikster.chatty.chat.ChatManager;
 import ru.mrbrikster.chatty.chat.PermanentStorage;
 import ru.mrbrikster.chatty.chat.TemporaryStorage;
 import ru.mrbrikster.chatty.commands.CommandManager;
 import ru.mrbrikster.chatty.config.Configuration;
 import ru.mrbrikster.chatty.dependencies.DependencyManager;
-import ru.mrbrikster.chatty.listeners.ChatListener;
 import ru.mrbrikster.chatty.moderation.ModerationManager;
 import ru.mrbrikster.chatty.notifications.NotificationManager;
 
@@ -50,8 +50,12 @@ public final class Chatty extends JavaPlugin {
         }
 
         ChatListener chatListener = new ChatListener(
-                configuration, chatManager, temporaryStorage, dependencyManager, moderationManager, permanentStorage
-        );
+                configuration,
+                chatManager,
+                temporaryStorage,
+                dependencyManager,
+                moderationManager,
+                permanentStorage);
 
         this.getServer().getPluginManager().registerEvents(chatListener, this);
         this.getServer().getPluginManager().registerEvent(
@@ -60,8 +64,7 @@ public final class Chatty extends JavaPlugin {
                 eventPriority,
                 chatListener,
                 Chatty.instance,
-                true
-        );
+                true);
 
         if (configuration.getNode("general.metrics").getAsBoolean(true)) {
             Metrics metrics = new Metrics(this);
