@@ -1,13 +1,16 @@
 package ru.mrbrikster.chatty;
 
+import org.bstats.bukkit.Metrics;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+import ru.mrbrikster.chatty.chat.ChatListener;
 import ru.mrbrikster.chatty.chat.ChatManager;
 import ru.mrbrikster.chatty.chat.PermanentStorage;
 import ru.mrbrikster.chatty.chat.TemporaryStorage;
 import ru.mrbrikster.chatty.commands.CommandManager;
 import ru.mrbrikster.chatty.config.Configuration;
 import ru.mrbrikster.chatty.dependencies.DependencyManager;
-import ru.mrbrikster.chatty.listeners.ChatListener;
 import ru.mrbrikster.chatty.moderation.ModerationManager;
 import ru.mrbrikster.chatty.notifications.NotificationManager;
 
@@ -34,29 +37,48 @@ public final class Chatty extends JavaPlugin {
         this.commandManager = new CommandManager(configuration, temporaryStorage, permanentStorage);
         new NotificationManager(configuration);
 
-        ChatListener chatListener;
+        EventPriority eventPriority;
         try {
-            chatListener = (ChatListener) Class.forName(String.format("ru.mrbrikster.chatty.listeners.%s",
-                    configuration.getNode("general.priority").getAsString("normal").toUpperCase()))
-                    .getConstructor(
-                            Configuration.class,
-                            ChatManager.class,
-                            TemporaryStorage.class,
-                            DependencyManager.class,
-                            ModerationManager.class,
-                            PermanentStorage.class)
-                    .newInstance(
-                            configuration,
-                            chatManager,
-                            temporaryStorage,
-                            dependencyManager,
-                            moderationManager,
-                            permanentStorage);
-        } catch (Exception ex) {
-            chatListener = new ru.mrbrikster.chatty.listeners.NORMAL(configuration, chatManager, temporaryStorage, dependencyManager, moderationManager, permanentStorage);
+            String priorityName = configuration.getNode("general.priority").getAsString("normal").toUpperCase();
+            eventPriority = EventPriority.valueOf(priorityName);
+
+            if (eventPriority == EventPriority.MONITOR) {
+                eventPriority = EventPriority.NORMAL;
+            }
+        } catch (IllegalArgumentException e) {
+            eventPriority = EventPriority.NORMAL;
         }
 
+        ChatListener chatListener = new ChatListener(
+                configuration,
+                chatManager,
+                temporaryStorage,
+                dependencyManager,
+                moderationManager,
+                permanentStorage);
+
         this.getServer().getPluginManager().registerEvents(chatListener, this);
+        this.getServer().getPluginManager().registerEvent(
+                AsyncPlayerChatEvent.class,
+                chatListener,
+                eventPriority,
+                chatListener,
+                Chatty.instance,
+                true);
+
+        if (configuration.getNode("general.metrics").getAsBoolean(true)) {
+            Metrics metrics = new Metrics(this);
+            metrics.addCustomChart(new Metrics.SimplePie("language",
+                    () -> configuration.getNode("general.locale").getAsString("en")));
+            metrics.addCustomChart(new Metrics.SimplePie("json",
+                    () -> String.valueOf(configuration.getNode("json.enable").getAsBoolean(false))));
+            metrics.addCustomChart(new Metrics.SimplePie("chat_notifications",
+                    () -> String.valueOf(configuration.getNode("notifications.chat.enable").getAsBoolean(false))));
+            metrics.addCustomChart(new Metrics.SimplePie("actionbar_notifications",
+                    () -> String.valueOf(configuration.getNode("notifications.actionbar.enable").getAsBoolean(false))));
+            metrics.addCustomChart(new Metrics.SimplePie("advancements_notifications",
+                    () -> String.valueOf(configuration.getNode("notifications.advancements.enable").getAsBoolean(false))));
+        }
     }
 
     @Override

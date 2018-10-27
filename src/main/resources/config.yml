@@ -24,6 +24,11 @@ general:
   # Chat logging in "Chatty/logs".
   log: true
 
+  # Completely cancels chat events,
+  # if it cancels by moderation method
+  # (instead of clearing recipients).
+  completely-cancel: false
+
   # Spy-mode.
   # Permission:
   # chatty.spy.<chat>
@@ -136,13 +141,15 @@ json:
   # Available properties:
   # text, tooltip, command, suggest_command, link.
   replacements:
-    '&cAdmin':
+    'Admin':
+      # Original text.
+      original: '&cAdmin'
       # Text to replace.
       #
       # Supports PlaceholderAPI.
       # You can use "{player}" variable here.
       #
-      # You can remove this line, if you need old text.
+      # You can remove this line, if you need original text.
       text: '&cAdmin'
 
       # Hover tooltip for the text.
@@ -256,6 +263,11 @@ moderation:
     patterns:
       ip: '(?:\d{1,3}[.,-:;\/()=?}+ ]{1,4}){3}\d{1,3}'
       web: '[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+~#?&//=]*)?'
+    # On/off caps message blocking.
+    # When false, advertisements will be replaced.
+    block: true
+    # Replacement for advertisement.
+    replacement: '<ads>'
     # Whitelisted IP-addresses and sites.
     whitelist:
     - 'example.com'
@@ -268,7 +280,8 @@ moderation:
     # On/off swear protection.
     # Bypass permission: chatty.moderation.swear
     enable: true
-    # Block or remove word from message?
+    # On/off caps message blocking.
+    # When false, swears will be replaced.
     block: true
     # Replacement for swears.
     replacement: '<swear>'

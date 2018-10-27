@@ -1,9 +1,10 @@
-package ru.mrbrikster.chatty.listeners;
+package ru.mrbrikster.chatty.chat;
 
 import com.google.common.collect.ImmutableMap;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -11,11 +12,8 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.plugin.EventExecutor;
 import ru.mrbrikster.chatty.Chatty;
-import ru.mrbrikster.chatty.chat.Chat;
-import ru.mrbrikster.chatty.chat.ChatManager;
-import ru.mrbrikster.chatty.chat.PermanentStorage;
-import ru.mrbrikster.chatty.chat.TemporaryStorage;
 import ru.mrbrikster.chatty.config.Configuration;
 import ru.mrbrikster.chatty.dependencies.DependencyManager;
 import ru.mrbrikster.chatty.dependencies.PlaceholderAPIHook;
@@ -23,10 +21,12 @@ import ru.mrbrikster.chatty.dependencies.VaultHook;
 import ru.mrbrikster.chatty.json.FormattedMessage;
 import ru.mrbrikster.chatty.json.JSONMessagePart;
 import ru.mrbrikster.chatty.json.LegacyMessagePart;
+import ru.mrbrikster.chatty.moderation.AdvertisementModerationMethod;
 import ru.mrbrikster.chatty.moderation.CapsModerationMethod;
 import ru.mrbrikster.chatty.moderation.ModerationManager;
 import ru.mrbrikster.chatty.moderation.SwearModerationMethod;
 import ru.mrbrikster.chatty.reflection.Reflection;
+import ru.mrbrikster.chatty.util.Pair;
 
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -35,7 +35,7 @@ import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public abstract class ChatListener implements Listener {
+public class ChatListener implements Listener, EventExecutor {
 
     private static final Function<String, String> COLORIZE
             = (string) -> string == null ? null : ChatColor.translateAlternateColorCodes('&', string);
@@ -85,66 +85,45 @@ public abstract class ChatListener implements Listener {
         this.pendingSwears = new IdentityHashMap<>();
     }
 
-    public void onChat(AsyncPlayerChatEvent playerChatEvent) {
-        Player player = playerChatEvent.getPlayer();
-        String message = playerChatEvent.getMessage();
-
-        Chat chat = null;
-
-        boolean usingSymbol = true;
-        for (Chat chatMode : chatManager.getChats()) {
-            if (message.startsWith(chatMode.getSymbol()) &&
-                    (!chatMode.isPermission()
-                            || player.hasPermission(String.format("chatty.chat.%s", chatMode.getName()))
-                            || player.hasPermission(String.format("chatty.chat.%s.write", chatMode.getName())))
-                    && chatMode.isEnable()) {
-                chat = chatMode;
-            }
+    @Override
+    public void execute(Listener listener, Event event) {
+        if (listener == this && event instanceof AsyncPlayerChatEvent) {
+            this.onChat((AsyncPlayerChatEvent) event);
         }
+    }
+
+    private void onChat(AsyncPlayerChatEvent event) {
+        final Player player = event.getPlayer();
+        String message = event.getMessage();
+
+        Pair<Boolean, Chat> chatPair = getChat(player, message);
+        Chat chat = chatPair.getValue();
 
         if (chat == null) {
-            for (Chat chatMode : chatManager.getChats()) {
-                if ((!chatMode.isPermission()
-                        || player.hasPermission(String.format("chatty.chat.%s", chatMode.getName()))
-                        || player.hasPermission(String.format("chatty.chat.%s.write", chatMode.getName())))
-                        && chatMode.isEnable()) {
-                    chat = chatMode;
-                }
-            }
-
-            usingSymbol = false;
-        }
-
-        if (chat == null) {
-            playerChatEvent.setCancelled(true);
+            event.setCancelled(true);
             player.sendMessage(Configuration.getMessages().get("chat-not-found"));
             return;
         }
 
-        if (usingSymbol)
-            message = message.substring(chat.getSymbol().length(), message.length());
-
-        String format = chat.getFormat();
-        format = format.replace("{player}", "%1$s");
-        format = format.replace("{message}", "%2$s");
-        format = format.replace("{prefix}", getPrefix(player));
-        format = format.replace("{suffix}", getSuffix(player));
+        if (chatPair.getKey()) {
+            message = message.substring(chat.getSymbol().length());
+        }
 
         message = stylish(player, message, chat.getName());
 
         if (ChatColor.stripColor(message).isEmpty()) {
-            playerChatEvent.setCancelled(true);
+            event.setCancelled(true);
             return;
         }
 
         boolean hasCooldown = chat.getCooldown() == -1 || player.hasPermission("chatty.cooldown") ||
-                player.hasPermission(String.format("chatty.cooldown.%s", chat.getName()));
+                player.hasPermission("chatty.cooldown." + chat.getName());
         long cooldown = hasCooldown ? -1 : chat.getCooldown(player);
 
         if (cooldown != -1) {
             player.sendMessage(Configuration.getMessages().get("cooldown")
                     .replace("{cooldown}", String.valueOf(cooldown)));
-            playerChatEvent.setCancelled(true);
+            event.setCancelled(true);
             return;
         }
 
@@ -153,26 +132,31 @@ public abstract class ChatListener implements Listener {
 
             if (!vaultHook.withdrawMoney(player, chat.getMoney())) {
                 player.sendMessage(Configuration.getMessages().get("not-enough-money")
-                                .replace("{money}", String.valueOf(chat.getMoney())));
-                playerChatEvent.setCancelled(true);
+                        .replace("{money}", String.valueOf(chat.getMoney())));
+                event.setCancelled(true);
                 return;
             }
         }
 
-        playerChatEvent.setFormat(COLORIZE.apply(format));
-        playerChatEvent.setMessage(message);
+        String format = chat.getFormat();
+        format = format.replace("{player}", "%1$s");
+        format = format.replace("{message}", "%2$s");
+        format = format.replace("{prefix}", getPrefix(player));
+        format = format.replace("{suffix}", getSuffix(player));
+
+        format = COLORIZE.apply(format);
+
+        event.setFormat(format);
 
         if (dependencyManager.getPlaceholderApi() != null) {
-            playerChatEvent.setFormat(dependencyManager.getPlaceholderApi()
-                    .setPlaceholders(player, playerChatEvent.getFormat()));
+            event.setFormat(dependencyManager.getPlaceholderApi().setPlaceholders(player, format));
         }
 
-        playerChatEvent.getRecipients().clear();
-        playerChatEvent.getRecipients().addAll(chat.getRecipients(player, permanentStorage));
+        event.getRecipients().clear();
+        event.getRecipients().addAll(chat.getRecipients(player, permanentStorage));
 
-        if (playerChatEvent.getRecipients().size() <= 1) {
-            String noRecipients = Configuration.getMessages()
-                    .get("no-recipients", null);
+        if (event.getRecipients().size() <= 1) {
+            String noRecipients = Configuration.getMessages().get("no-recipients", null);
 
             if (noRecipients != null)
                 Bukkit.getScheduler().runTaskLater(Chatty.instance(), () -> player.sendMessage(noRecipients), 5L);
@@ -180,72 +164,97 @@ public abstract class ChatListener implements Listener {
 
         if (!hasCooldown) chat.setCooldown(player);
 
-        CapsModerationMethod capsModerationMethod;
-        SwearModerationMethod swearModerationMethod = null;
-        boolean swearModerationEnabled = moderationManager.isSwearModerationEnabled();
-        if (swearModerationEnabled && !player.hasPermission("chatty.moderation.swear")
-                && (swearModerationMethod = moderationManager.getSwearMethod(message)).isBlocked()) {
-            playerChatEvent.getRecipients().clear();
-            playerChatEvent.getRecipients().add(player);
-            playerChatEvent.setMessage(swearModerationMethod.getEditedMessage());
+        boolean cancelEvent = false;
 
-            chatManager.getLogger().write(player, message, "[SWEAR] ");
+        StringBuilder logPrefixBuilder = new StringBuilder();
+        if (moderationManager.isSwearModerationEnabled()) {
+            SwearModerationMethod swearMethod = moderationManager.getSwearMethod(message);
+            if (!player.hasPermission("chatty.moderation.swear")) {
+                if (swearMethod.isBlocked()) {
 
-            if (configuration.getNode("json.enable").getAsBoolean(false)
-                    && configuration.getNode("json.swears.enable").getAsBoolean(false)) {
-                pendingSwears.put(playerChatEvent.getPlayer(), swearModerationMethod.getWords());
-            }
+                    message = swearMethod.getEditedMessage();
+                    if (swearMethod.isUseBlock()) {
+                        if (configuration.getNode("general.completely-cancel").getAsBoolean(false))
+                            cancelEvent = true;
+                        else {
+                            event.getRecipients().clear();
+                            event.getRecipients().add(player);
+                        }
 
-            String swearFound = Configuration.getMessages().get("swear-found", null);
+                        logPrefixBuilder.append("[SWEAR] ");
+                    }
 
-            if (swearFound != null)
-                Bukkit.getScheduler().runTaskLater(Chatty.instance(),
-                        () -> player.sendMessage(swearFound), 5L);
-        } else {
-            if (swearModerationEnabled && swearModerationMethod != null && !player.hasPermission("chatty.moderation.swear")) {
+                    String swearFound = Configuration.getMessages().get("swear-found", null);
+
+                    if (swearFound != null)
+                        Bukkit.getScheduler().runTaskLater(Chatty.instance(),
+                                () -> player.sendMessage(swearFound), 5L);
+                }
+
                 if (configuration.getNode("json.enable").getAsBoolean(false)
                         && configuration.getNode("json.swears.enable").getAsBoolean(false)) {
-                    pendingSwears.put(playerChatEvent.getPlayer(), swearModerationMethod.getWords());
+                    pendingSwears.put(player, swearMethod.getWords());
                 }
-
-                playerChatEvent.setMessage(swearModerationMethod.getEditedMessage());
             }
-
-            if (moderationManager.isCapsModerationEnabled() &&
-                    !player.hasPermission("chatty.moderation.caps")
-                    && (capsModerationMethod = moderationManager.getCapsMethod(message)).isBlocked()) {
-                if (capsModerationMethod.isUseBlock()) {
-                    playerChatEvent.getRecipients().clear();
-                    playerChatEvent.getRecipients().add(player);
-
-                    chatManager.getLogger().write(player, message, "[CAPS] ");
-                } else {
-                    playerChatEvent.setMessage(capsModerationMethod.getEditedMessage());
-                    chatManager.getLogger().write(player, message, "");
-                }
-
-                String capsFound = Configuration.getMessages().get("caps-found", null);
-
-                if (capsFound != null)
-                    Bukkit.getScheduler().runTaskLater(Chatty.instance(),
-                            () -> player.sendMessage(capsFound), 5L);
-            } else if (moderationManager.isAdvertisementModerationEnabled() &&
-                    !player.hasPermission("chatty.moderation.advertisement")
-                    && moderationManager.getAdvertisementMethod(message).isBlocked()) {
-                playerChatEvent.getRecipients().clear();
-                playerChatEvent.getRecipients().add(player);
-
-                chatManager.getLogger().write(player, message, "[ADS] ");
-
-                String adsFound = Configuration.getMessages().get("advertisement-found", null);
-
-                if (adsFound != null)
-                    Bukkit.getScheduler().runTaskLater(Chatty.instance(),
-                            () -> player.sendMessage(adsFound), 5L);
-            } else chatManager.getLogger().write(player, message, "");
         }
 
+        if (this.moderationManager.isCapsModerationEnabled()) {
+            CapsModerationMethod capsMethod = this.moderationManager.getCapsMethod(message);
+            if (!player.hasPermission("chatty.moderation.caps")) {
+                if (capsMethod.isBlocked()) {
+
+                    message = capsMethod.getEditedMessage();
+                    if (capsMethod.isUseBlock()) {
+                        if (configuration.getNode("general.completely-cancel").getAsBoolean(false))
+                            cancelEvent = true;
+                        else {
+                            event.getRecipients().clear();
+                            event.getRecipients().add(player);
+                        }
+
+                        logPrefixBuilder.append("[CAPS] ");
+                    }
+
+                    String capsFound = Configuration.getMessages().get("caps-found", null);
+
+                    if (capsFound != null)
+                        Bukkit.getScheduler().runTaskLater(Chatty.instance(),
+                                () -> player.sendMessage(capsFound), 5L);
+                }
+            }
+        }
+
+        if (this.moderationManager.isAdvertisementModerationEnabled()) {
+            AdvertisementModerationMethod advertisementMethod = this.moderationManager.getAdvertisementMethod(message);
+            if (!player.hasPermission("chatty.moderation.advertisement")) {
+                if (advertisementMethod.isBlocked()) {
+                    message = advertisementMethod.getEditedMessage();
+
+                    if (advertisementMethod.isUseBlock()) {
+                        if (configuration.getNode("general.completely-cancel").getAsBoolean(false))
+                            cancelEvent = true;
+                        else {
+                            event.getRecipients().clear();
+                            event.getRecipients().add(player);
+                        }
+
+                        logPrefixBuilder.append("[ADS] ");
+                    }
+
+                    String adsFound = Configuration.getMessages().get("advertisement-found", null);
+
+                    if (adsFound != null)
+                        Bukkit.getScheduler().runTaskLater(Chatty.instance(),
+                                () -> player.sendMessage(adsFound), 5L);
+                }
+            }
+        }
+
+        if (cancelEvent) event.setCancelled(true);
+
+        event.setMessage(message);
         pendingPlayers.put(player, chat);
+        this.chatManager.getLogger().write(player, message, logPrefixBuilder.toString());
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -305,7 +314,8 @@ public abstract class ChatListener implements Listener {
                     .tooltip(tooltip));
 
         configuration.getNode("json.replacements").getChildNodes().forEach(replacement -> {
-            String replacementName = replacement.getName();
+            String replacementName = replacement.getNode("original").getAsString(replacement.getName());
+
             String text = replacement.getNode("text").getAsString(replacementName);
             List<String> replacementTooltip = replacement.getNode("tooltip").getAsStringList();
 
@@ -332,7 +342,7 @@ public abstract class ChatListener implements Listener {
             String replacement = configuration.getNode("moderation.swear.replacement").getAsString("<swear>");
             List<String> swears = pendingSwears.remove(playerChatEvent.getPlayer());
 
-            if (player.hasPermission("chatty.swears.see")) {
+            if (swears != null && player.hasPermission("chatty.swears.see")) {
                 List<String> swearTooltip = configuration.getNode("json.swears.tooltip").getAsStringList()
                         .stream().map(tooltipLine -> ChatColor.translateAlternateColorCodes('&', tooltipLine)).collect(Collectors.toList());
 
@@ -407,6 +417,31 @@ public abstract class ChatListener implements Listener {
                     .replace("{suffix}", getSuffix(playerDeathEvent.getEntity()))
                     .replace("{player}", playerDeathEvent.getEntity().getName())));
         }
+    }
+
+    private Pair<Boolean, Chat> getChat(final Player player, final String message) {
+        Chat currentChat = null;
+
+        for (Chat chat : this.chatManager.getChats()) {
+            if (!chat.isEnable()) {
+                continue;
+            }
+
+            if (!chat.isPermission()
+                    || player.hasPermission(String.format("chatty.chat.%s", chat.getName()))
+                    || player.hasPermission(String.format("chatty.chat.%s.write", chat.getName()))) {
+                if (chat.getSymbol().isEmpty()) {
+                    currentChat = chat;
+                } else if (message.startsWith(chat.getSymbol())) {
+                    currentChat = chat;
+                    break;
+                }
+            }
+        }
+
+        return currentChat == null
+                ? new Pair<>(false, null)
+                : new Pair<>(!currentChat.getSymbol().isEmpty(), currentChat);
     }
 
     private String getPrefix(Player player) {

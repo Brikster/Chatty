@@ -19,7 +19,7 @@ public class CapsModerationMethod extends ModerationMethod {
 
     @Override
     public String getEditedMessage() {
-        return useBlock ? message : message.toLowerCase();
+        return message.toLowerCase();
     }
 
     @Override
@@ -28,19 +28,15 @@ public class CapsModerationMethod extends ModerationMethod {
     }
 
     private double getProcent() {
-        String messageWithoutChars = message
-                .replaceAll("[^a-zA-Zа-яА-Я]", "");
-
-        if (messageWithoutChars.isEmpty())
-            return 0;
-
-        int length = 0, capsLength = 0;
-
-        for (String word : messageWithoutChars.split(" ")) {
-            length += word.length();
-
-            for (char c : word.toCharArray())
-                if (c == Character.toUpperCase(c)) capsLength++;
+        int codePoint, length = 0, capsLength = 0;
+        for (char c : message.toCharArray()) {
+            codePoint = (int) c;
+            if (Character.isLetter(codePoint)) {
+                length++;
+                if (codePoint == Character.toUpperCase(codePoint)) {
+                    capsLength++;
+                }
+            }
         }
 
         return (double) capsLength / (double) length * 100;

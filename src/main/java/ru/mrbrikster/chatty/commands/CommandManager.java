@@ -62,8 +62,8 @@ public class CommandManager {
             this.ignoreCommand = new IgnoreCommand(permanentStorage);
 
             this.msgCommand.registerCommand(getCommandMap());
-            this.replyCommand.registerCommand(getCommandMap());
             this.ignoreCommand.registerCommand(getCommandMap());
+            this.replyCommand.registerCommand(getCommandMap());
         }
 
         if (configuration.getNode("moderation.swear.enable").getAsBoolean(false)) {
@@ -84,11 +84,11 @@ public class CommandManager {
         if (msgCommand != null)
             this.msgCommand.unregisterCommand(getCommandMap());
 
-        if (replyCommand != null)
-            this.replyCommand.unregisterCommand(getCommandMap());
-
         if (ignoreCommand != null)
             this.ignoreCommand.unregisterCommand(getCommandMap());
+
+        if (replyCommand != null)
+            this.replyCommand.unregisterCommand(getCommandMap());
 
         if (swearsCommand != null)
             this.swearsCommand.unregisterCommand(getCommandMap());

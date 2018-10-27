@@ -96,4 +96,9 @@ public class ConfigurationNodeImpl implements ConfigurationNode {
         configuration.set(path, value);
     }
 
+    @Override
+    public boolean isEmpty() {
+        return !configuration.contains(path);
+    }
+
 }

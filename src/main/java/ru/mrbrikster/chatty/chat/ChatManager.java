@@ -51,7 +51,7 @@ public class ChatManager {
 
     public class Logger {
 
-        public void write(Player player, String message, String additionalPrefix) {
+        void write(Player player, String message, String additionalPrefix) {
             BufferedWriter bufferedWriter = null;
             File logsDirectory = new File(Chatty.instance().getDataFolder().getAbsolutePath() + File.separator + "logs");
             if (!logsDirectory.exists()) {
@@ -65,7 +65,7 @@ public class ChatManager {
 
             dateFormat = new SimpleDateFormat("[HH:mm:ss] ");
             String prefix = dateFormat.format(calendar.getTime());
-            String line = String.format("%1$s%2$s %3$s (%4$s): %5$s",
+            String line = String.format("%1$s%2$s%3$s (%4$s): %5$s",
                     prefix, additionalPrefix, player.getName(), player.getUniqueId().toString(), message);
 
             try {
