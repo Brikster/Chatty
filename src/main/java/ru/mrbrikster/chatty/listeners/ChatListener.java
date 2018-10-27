@@ -4,13 +4,12 @@ import com.google.common.collect.ImmutableMap;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
+import org.bukkit.event.*;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.plugin.EventExecutor;
 import ru.mrbrikster.chatty.Chatty;
 import ru.mrbrikster.chatty.chat.Chat;
 import ru.mrbrikster.chatty.chat.ChatManager;
@@ -37,7 +36,7 @@ import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public abstract class ChatListener implements Listener {
+public class ChatListener implements Listener, EventExecutor {
 
     private static final Function<String, String> COLORIZE
             = (string) -> string == null ? null : ChatColor.translateAlternateColorCodes('&', string);
@@ -480,6 +479,14 @@ public abstract class ChatListener implements Listener {
         }
 
         return new String(b);
+    }
+
+    @Override
+    public void execute(Listener listener, Event event) throws EventException {
+        if (listener != this || !(event instanceof AsyncPlayerChatEvent)) {
+            return;
+        }
+        this.onChat((AsyncPlayerChatEvent) event);
     }
 
 }
