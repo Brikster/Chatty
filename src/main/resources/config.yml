@@ -24,6 +24,11 @@ general:
   # Chat logging in "Chatty/logs".
   log: true
 
+  # Completely cancels chat events,
+  # if it cancels by moderation method
+  # (instead of clearing recipients).
+  completely-cancel: false
+
   # Spy-mode.
   # Permission:
   # chatty.spy.<chat>

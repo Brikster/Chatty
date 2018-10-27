@@ -1,5 +1,6 @@
 package ru.mrbrikster.chatty;
 
+import org.bstats.bukkit.Metrics;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -36,16 +37,16 @@ public final class Chatty extends JavaPlugin {
         this.commandManager = new CommandManager(configuration, temporaryStorage, permanentStorage);
         new NotificationManager(configuration);
 
-        EventPriority priority;
+        EventPriority eventPriority;
         try {
             String priorityName = configuration.getNode("general.priority").getAsString("normal").toUpperCase();
-            priority = EventPriority.valueOf(priorityName);
-        } catch (IllegalArgumentException e) {
-            priority = EventPriority.NORMAL;
-        }
+            eventPriority = EventPriority.valueOf(priorityName);
 
-        if (priority == EventPriority.MONITOR) {
-            priority = EventPriority.NORMAL;
+            if (eventPriority == EventPriority.MONITOR) {
+                eventPriority = EventPriority.NORMAL;
+            }
+        } catch (IllegalArgumentException e) {
+            eventPriority = EventPriority.NORMAL;
         }
 
         ChatListener chatListener = new ChatListener(
@@ -56,11 +57,25 @@ public final class Chatty extends JavaPlugin {
         this.getServer().getPluginManager().registerEvent(
                 AsyncPlayerChatEvent.class,
                 chatListener,
-                priority,
+                eventPriority,
                 chatListener,
-                this,
+                Chatty.instance,
                 true
         );
+
+        if (configuration.getNode("general.metrics").getAsBoolean(true)) {
+            Metrics metrics = new Metrics(this);
+            metrics.addCustomChart(new Metrics.SimplePie("language",
+                    () -> configuration.getNode("general.locale").getAsString("en")));
+            metrics.addCustomChart(new Metrics.SimplePie("json",
+                    () -> String.valueOf(configuration.getNode("json.enable").getAsBoolean(false))));
+            metrics.addCustomChart(new Metrics.SimplePie("chat_notifications",
+                    () -> String.valueOf(configuration.getNode("notifications.chat.enable").getAsBoolean(false))));
+            metrics.addCustomChart(new Metrics.SimplePie("actionbar_notifications",
+                    () -> String.valueOf(configuration.getNode("notifications.actionbar.enable").getAsBoolean(false))));
+            metrics.addCustomChart(new Metrics.SimplePie("advancements_notifications",
+                    () -> String.valueOf(configuration.getNode("notifications.advancements.enable").getAsBoolean(false))));
+        }
     }
 
     @Override

@@ -21,7 +21,6 @@ public class AdvertisementModerationMethod extends ModerationMethod {
 
     AdvertisementModerationMethod(ConfigurationNode configurationNode, String message) {
         super(message);
-        this.editedMessage = null;
 
         this.whitelist = configurationNode.getNode("whitelist")
                 .getAsStringList().stream().map(String::toLowerCase).collect(Collectors.toList());

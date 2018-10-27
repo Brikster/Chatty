@@ -4,7 +4,10 @@ import com.google.common.collect.ImmutableMap;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import org.bukkit.event.*;
+import org.bukkit.event.Event;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -86,7 +89,14 @@ public class ChatListener implements Listener, EventExecutor {
         this.pendingSwears = new IdentityHashMap<>();
     }
 
-    public void onChat(final AsyncPlayerChatEvent event) {
+    @Override
+    public void execute(Listener listener, Event event) {
+        if (listener == this && event instanceof AsyncPlayerChatEvent) {
+            this.onChat((AsyncPlayerChatEvent) event);
+        }
+    }
+
+    private void onChat(AsyncPlayerChatEvent event) {
         final Player player = event.getPlayer();
         String message = event.getMessage();
 
@@ -158,7 +168,8 @@ public class ChatListener implements Listener, EventExecutor {
 
         if (!hasCooldown) chat.setCooldown(player);
 
-        boolean blocked = false;
+        boolean cancelEvent = false;
+
         StringBuilder logPrefixBuilder = new StringBuilder();
         if (moderationManager.isSwearModerationEnabled()) {
             SwearModerationMethod swearMethod = moderationManager.getSwearMethod(message);
@@ -167,10 +178,12 @@ public class ChatListener implements Listener, EventExecutor {
 
                     message = swearMethod.getEditedMessage();
                     if (swearMethod.isUseBlock()) {
-                        event.getRecipients().clear();
-                        event.getRecipients().add(player);
-
-                        blocked = true;
+                        if (configuration.getNode("general.completely-cancel").getAsBoolean(false))
+                            cancelEvent = true;
+                        else {
+                            event.getRecipients().clear();
+                            event.getRecipients().add(player);
+                        }
 
                         logPrefixBuilder.append("[SWEAR] ");
                     }
@@ -196,10 +209,13 @@ public class ChatListener implements Listener, EventExecutor {
 
                     message = capsMethod.getEditedMessage();
                     if (capsMethod.isUseBlock()) {
-                        event.getRecipients().clear();
-                        event.getRecipients().add(player);
+                        if (configuration.getNode("general.completely-cancel").getAsBoolean(false))
+                            cancelEvent = true;
+                        else {
+                            event.getRecipients().clear();
+                            event.getRecipients().add(player);
+                        }
 
-                        blocked = true;
 
                         logPrefixBuilder.append("[CAPS] ");
                     }
@@ -217,13 +233,15 @@ public class ChatListener implements Listener, EventExecutor {
             AdvertisementModerationMethod advertisementMethod = this.moderationManager.getAdvertisementMethod(message);
             if (!player.hasPermission("chatty.moderation.advertisement")) {
                 if (advertisementMethod.isBlocked()) {
-
                     message = advertisementMethod.getEditedMessage();
-                    if (advertisementMethod.isUseBlock()) {
-                        event.getRecipients().clear();
-                        event.getRecipients().add(player);
 
-                        blocked = true;
+                    if (advertisementMethod.isUseBlock()) {
+                        if (configuration.getNode("general.completely-cancel").getAsBoolean(false))
+                            cancelEvent = true;
+                        else {
+                            event.getRecipients().clear();
+                            event.getRecipients().add(player);
+                        }
 
                         logPrefixBuilder.append("[ADS] ");
                     }
@@ -237,9 +255,7 @@ public class ChatListener implements Listener, EventExecutor {
             }
         }
 
-        if (blocked) {
-            event.setCancelled(true);
-        }
+        if (cancelEvent) event.setCancelled(true);
 
         event.setMessage(message);
         pendingPlayers.put(player, chat);
@@ -479,14 +495,6 @@ public class ChatListener implements Listener, EventExecutor {
         }
 
         return new String(b);
-    }
-
-    @Override
-    public void execute(Listener listener, Event event) throws EventException {
-        if (listener != this || !(event instanceof AsyncPlayerChatEvent)) {
-            return;
-        }
-        this.onChat((AsyncPlayerChatEvent) event);
     }
 
 }
