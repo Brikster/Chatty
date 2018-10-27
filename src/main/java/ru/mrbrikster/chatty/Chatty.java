@@ -1,5 +1,7 @@
 package ru.mrbrikster.chatty;
 
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import ru.mrbrikster.chatty.chat.ChatManager;
 import ru.mrbrikster.chatty.chat.PermanentStorage;
@@ -34,29 +36,31 @@ public final class Chatty extends JavaPlugin {
         this.commandManager = new CommandManager(configuration, temporaryStorage, permanentStorage);
         new NotificationManager(configuration);
 
-        ChatListener chatListener;
+        EventPriority priority;
         try {
-            chatListener = (ChatListener) Class.forName(String.format("ru.mrbrikster.chatty.listeners.%s",
-                    configuration.getNode("general.priority").getAsString("normal").toUpperCase()))
-                    .getConstructor(
-                            Configuration.class,
-                            ChatManager.class,
-                            TemporaryStorage.class,
-                            DependencyManager.class,
-                            ModerationManager.class,
-                            PermanentStorage.class)
-                    .newInstance(
-                            configuration,
-                            chatManager,
-                            temporaryStorage,
-                            dependencyManager,
-                            moderationManager,
-                            permanentStorage);
-        } catch (Exception ex) {
-            chatListener = new ru.mrbrikster.chatty.listeners.NORMAL(configuration, chatManager, temporaryStorage, dependencyManager, moderationManager, permanentStorage);
+            String priorityName = configuration.getNode("general.priority").getAsString("normal").toUpperCase();
+            priority = EventPriority.valueOf(priorityName);
+        } catch (IllegalArgumentException e) {
+            priority = EventPriority.NORMAL;
         }
 
+        if (priority == EventPriority.MONITOR) {
+            priority = EventPriority.NORMAL;
+        }
+
+        ChatListener chatListener = new ChatListener(
+                configuration, chatManager, temporaryStorage, dependencyManager, moderationManager, permanentStorage
+        );
+
         this.getServer().getPluginManager().registerEvents(chatListener, this);
+        this.getServer().getPluginManager().registerEvent(
+                AsyncPlayerChatEvent.class,
+                chatListener,
+                priority,
+                chatListener,
+                this,
+                true
+        );
     }
 
     @Override
