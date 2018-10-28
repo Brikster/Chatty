@@ -32,9 +32,9 @@ public final class Chatty extends JavaPlugin {
         ChatManager chatManager = new ChatManager(configuration);
         ModerationManager moderationManager = new ModerationManager(this, configuration);
         TemporaryStorage temporaryStorage = new TemporaryStorage();
-        PermanentStorage permanentStorage = new PermanentStorage(this);
+        PermanentStorage permanentStorage = new PermanentStorage(configuration, this);
 
-        this.commandManager = new CommandManager(configuration, temporaryStorage, permanentStorage);
+        this.commandManager = new CommandManager(configuration, dependencyManager, temporaryStorage, permanentStorage);
         new NotificationManager(configuration);
 
         EventPriority eventPriority;

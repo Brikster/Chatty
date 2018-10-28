@@ -3,6 +3,7 @@ package ru.mrbrikster.chatty.chat;
 import com.google.gson.*;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import ru.mrbrikster.chatty.config.Configuration;
 
 import java.io.*;
 import java.util.Optional;
@@ -11,8 +12,11 @@ public class PermanentStorage {
 
     private final File storageFile;
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    private final Configuration configuration;
 
-    public PermanentStorage(JavaPlugin javaPlugin) {
+    public PermanentStorage(Configuration configuration,
+                            JavaPlugin javaPlugin) {
+        this.configuration = configuration;
         this.storageFile = new File(javaPlugin.getDataFolder(), "storage.json");
 
         if (!storageFile.exists()) {
@@ -24,7 +28,7 @@ public class PermanentStorage {
         }
     }
 
-    public void setProperty(String player, String property, JsonElement value) {
+    private void setProperty(String player, String property, JsonElement value) {
         JsonElement jsonObject = null;
         try {
             jsonObject = new JsonParser().parse(read());
@@ -61,10 +65,14 @@ public class PermanentStorage {
     }
 
     public void setProperty(Player player, String property, JsonElement value) {
-        setProperty(player.getName(), property, value);
+        if (configuration.getNode("general.uuid").getAsBoolean(false)) {
+            setProperty(player.getUniqueId().toString(), property, value);
+        } else {
+            setProperty(player.getName(), property, value);
+        }
     }
 
-    public Optional<JsonElement> getProperty(String player, String property) {
+    private Optional<JsonElement> getProperty(String player, String property) {
         try {
             JsonElement jsonObject = new JsonParser().parse(read());
 
@@ -91,7 +99,11 @@ public class PermanentStorage {
     }
 
     public Optional<JsonElement> getProperty(Player player, String property) {
-        return getProperty(player.getName(), property);
+        if (configuration.getNode("general.uuid").getAsBoolean(false)) {
+            return getProperty(player.getUniqueId().toString(), property);
+        } else {
+            return getProperty(player.getName(), property);
+        }
     }
 
     private String read() throws IOException {

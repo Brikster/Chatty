@@ -24,7 +24,7 @@ public class MsgCommand extends AbstractCommand {
             Configuration configuration,
             TemporaryStorage commandsStorage,
             PermanentStorage permanentStorage) {
-        super("msg", "message", "pm", "m");
+        super("msg", "message", "pm", "m", "w");
 
         this.configuration = configuration;
         this.commandsStorage = commandsStorage;

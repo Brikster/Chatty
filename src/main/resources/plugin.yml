@@ -3,4 +3,4 @@ version: ${project.version}
 main: ru.mrbrikster.chatty.Chatty
 authors: [MrBrikster]
 
-softdepend: [Vault, PlaceholderAPI]
+softdepend: [Vault, PlaceholderAPI, NametagEdit]
