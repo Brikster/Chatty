@@ -55,7 +55,7 @@ general:
     enable: true
     # Automatically adds a string after prefix.
     after-prefix: ' '
-    # Auto-applying in NameTagEdit.
+    # Auto-applying in NametagEdit.
     # (Requires NameTagEdit plugin).
     auto-nte: false
 
@@ -63,7 +63,7 @@ general:
     enable: true
     # Automatically adds a string before suffix.
     before-suffix: ' '
-    # Auto-applying in NameTagEdit.
+    # Auto-applying in NametagEdit.
     # (Requires NameTagEdit plugin).
     auto-nte: false
 
