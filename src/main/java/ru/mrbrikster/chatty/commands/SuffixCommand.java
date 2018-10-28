@@ -7,6 +7,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import ru.mrbrikster.chatty.chat.PermanentStorage;
 import ru.mrbrikster.chatty.config.Configuration;
+import ru.mrbrikster.chatty.dependencies.DependencyManager;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -15,12 +16,15 @@ public class SuffixCommand extends AbstractCommand {
 
     private final Configuration configuration;
     private final PermanentStorage permanentStorage;
+    private final DependencyManager dependencyManager;
 
     SuffixCommand(Configuration configuration,
+                  DependencyManager dependencyManager,
                   PermanentStorage permanentStorage) {
         super("suffix", "setsuffix");
 
         this.configuration = configuration;
+        this.dependencyManager = dependencyManager;
         this.permanentStorage = permanentStorage;
     }
 
@@ -47,13 +51,25 @@ public class SuffixCommand extends AbstractCommand {
             if (args[1].equalsIgnoreCase("clear")) {
                 permanentStorage.setProperty(player, "suffix", null);
 
+                if (configuration.getNode("general.suffix-command.auto-nte").getAsBoolean(false)) {
+                    if (dependencyManager.getNametagEdit() != null) {
+                        dependencyManager.getNametagEdit().setSuffix(player, null);
+                    }
+                }
+
                 sender.sendMessage(Configuration.getMessages().get("suffix-command.suffix-clear")
                         .replace("{player}", player.getName()));
             } else {
                 String suffix = Arrays.stream(Arrays.copyOfRange(args, 1, args.length)).collect(Collectors.joining(" "));
+                String formattedSuffix = configuration.getNode("general.suffix-command.before-suffix").getAsString("") + suffix;
 
-                permanentStorage.setProperty(player, "suffix", new JsonPrimitive(
-                        configuration.getNode("general.suffix-command.before-suffix").getAsString("") + suffix));
+                permanentStorage.setProperty(player, "suffix", new JsonPrimitive(formattedSuffix));
+
+                if (configuration.getNode("general.suffix-command.auto-nte").getAsBoolean(false)) {
+                    if (dependencyManager.getNametagEdit() != null) {
+                        dependencyManager.getNametagEdit().setSuffix(player, formattedSuffix);
+                    }
+                }
 
                 sender.sendMessage(Configuration.getMessages().get("suffix-command.suffix-set")
                         .replace("{player}", player.getName())

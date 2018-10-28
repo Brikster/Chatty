@@ -9,6 +9,7 @@ import ru.mrbrikster.chatty.commands.pm.IgnoreCommand;
 import ru.mrbrikster.chatty.commands.pm.MsgCommand;
 import ru.mrbrikster.chatty.commands.pm.ReplyCommand;
 import ru.mrbrikster.chatty.config.Configuration;
+import ru.mrbrikster.chatty.dependencies.DependencyManager;
 
 import java.lang.reflect.Field;
 import java.util.Objects;
@@ -40,6 +41,7 @@ public class CommandManager {
     private final Configuration configuration;
     private final TemporaryStorage temporaryStorage;
     private final PermanentStorage permanentStorage;
+    private final DependencyManager dependencyManager;
 
     private ChattyCommand chattyCommand;
     private ClearChatCommand clearChatCommand;
@@ -52,9 +54,11 @@ public class CommandManager {
     private SuffixCommand suffixCommand;
 
     public CommandManager(Configuration configuration,
+                          DependencyManager dependencyManager,
                           TemporaryStorage temporaryStorage,
                           PermanentStorage permanentStorage) {
         this.configuration = configuration;
+        this.dependencyManager = dependencyManager;
         this.temporaryStorage = temporaryStorage;
         this.permanentStorage = permanentStorage;
 
@@ -91,12 +95,12 @@ public class CommandManager {
         }
 
         if (configuration.getNode("general.prefix-command.enable").getAsBoolean(false)) {
-            this.prefixCommand = new PrefixCommand(configuration, permanentStorage);
+            this.prefixCommand = new PrefixCommand(configuration, dependencyManager, permanentStorage);
             this.prefixCommand.registerCommand(getCommandMap());
         }
 
         if (configuration.getNode("general.suffix-command.enable").getAsBoolean(false)) {
-            this.suffixCommand = new SuffixCommand(configuration, permanentStorage);
+            this.suffixCommand = new SuffixCommand(configuration, dependencyManager, permanentStorage);
             this.suffixCommand.registerCommand(getCommandMap());
         }
     }

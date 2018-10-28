@@ -9,6 +9,7 @@ public class DependencyManager {
 
     @Getter private VaultHook vault;
     @Getter private PlaceholderAPIHook placeholderApi;
+    @Getter private NametagEditHook nametagEdit;
 
     public DependencyManager(JavaPlugin javaPlugin) {
         if (javaPlugin.getServer().getPluginManager().isPluginEnabled("Vault")) {
@@ -19,6 +20,11 @@ public class DependencyManager {
         if (javaPlugin.getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
             this.placeholderApi = new PlaceholderAPIHook();
             javaPlugin.getLogger().log(Level.INFO, "PlaceholderAPI has successful hooked.");
+        }
+
+        if (javaPlugin.getServer().getPluginManager().isPluginEnabled("NametagEdit")) {
+            this.nametagEdit = new NametagEditHook();
+            javaPlugin.getLogger().log(Level.INFO, "NametagEdit has successful hooked.");
         }
     }
 

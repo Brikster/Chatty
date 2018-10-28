@@ -3,7 +3,7 @@
 #   Universal chat-system for Bukkit-server.
 #   Creator: MrBrikster.
 # * Optional dependencies:
-#   Vault, PlaceholderAPI.
+#   Vault, PlaceholderAPI, NameTagEdit.
 # ******************************************************
 
 # * General settings section.
@@ -29,6 +29,11 @@ general:
   # (instead of clearing recipients).
   completely-cancel: false
 
+  # Storage player data mode.
+  # true - for online-mode servers and under BungeeCord.
+  # false - for offline-mode servers.
+  uuid: false
+
   # Spy-mode.
   # Permission:
   # chatty.spy.<chat>
@@ -50,11 +55,17 @@ general:
     enable: true
     # Automatically adds a string after prefix.
     after-prefix: ' '
+    # Auto-applying in NameTagEdit.
+    # (Requires NameTagEdit plugin).
+    auto-nte: false
 
   suffix-command:
     enable: true
     # Automatically adds a string before suffix.
     before-suffix: ' '
+    # Auto-applying in NameTagEdit.
+    # (Requires NameTagEdit plugin).
+    auto-nte: false
 
   # Private messages.
   # Permissions:
