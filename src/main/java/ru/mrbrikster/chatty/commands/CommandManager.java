@@ -79,13 +79,18 @@ public class CommandManager {
         this.clearChatCommand.registerCommand(getCommandMap());
         this.spyCommand.registerCommand(getCommandMap());
 
-        if (configuration.getNode("general.pm").getAsBoolean(false)) {
+        if (configuration.getNode("commands.msg.enable").getAsBoolean(false)) {
             this.msgCommand = new MsgCommand(configuration, temporaryStorage, permanentStorage);
-            this.replyCommand = new ReplyCommand(configuration, temporaryStorage, permanentStorage);
-            this.ignoreCommand = new IgnoreCommand(permanentStorage);
-
             this.msgCommand.registerCommand(getCommandMap());
+        }
+
+        if (configuration.getNode("commands.ignore.enable").getAsBoolean(false)) {
+            this.ignoreCommand = new IgnoreCommand(configuration, permanentStorage);
             this.ignoreCommand.registerCommand(getCommandMap());
+        }
+
+        if (configuration.getNode("commands.reply.enable").getAsBoolean(false)) {
+            this.replyCommand = new ReplyCommand(configuration, temporaryStorage, permanentStorage);
             this.replyCommand.registerCommand(getCommandMap());
         }
 

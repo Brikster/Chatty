@@ -51,7 +51,11 @@ general:
     # or chatty.spy.pm
     pm-format: '&6[Spy] &7{sender} &6-> &7{recipient}: &f{message}'
 
-  prefix-command:
+# * Commands.
+commands:
+  prefix:
+    # Enables "/prefix command.
+    # Permission: chatty.command.prefix
     enable: true
     # Automatically adds a string after prefix.
     after-prefix: ' '
@@ -59,7 +63,9 @@ general:
     # (Requires NameTagEdit plugin).
     auto-nte: false
 
-  suffix-command:
+  suffix:
+    # Enables "/suffix command.
+    # Permission: chatty.command.suffix
     enable: true
     # Automatically adds a string before suffix.
     before-suffix: ' '
@@ -67,14 +73,29 @@ general:
     # (Requires NameTagEdit plugin).
     auto-nte: false
 
-  # Private messages.
-  # Permissions:
-  # chatty.command.message
-  # chatty.command.reply
-  pm: true
+  msg:
+    # Enables "/msg" command.
+    # Permission: chatty.command.msg
+    enable: true
+    # Aliases for "/msg" command.
+    aliases: ['message', 'pm', 'm', 'w']
+    allow-console: false
+
+  reply:
+    # Enables "/reply" command.
+    # Permission: chatty.command.reply
+    enable: true
+    # Aliases for "/reply" command.
+    aliases: ['r']
+
+  ignore:
+    # Enables "/ignore" command.
+    # Permission: chatty.command.ignore
+    enable: true
+    # Aliases for "/ignore" command.
+    aliases: []
 
 # * Chats.
-# There
 # On the server there can be different chats with different settings,
 # whether it's donate-chat, admin-chat, or the usual local and global.
 #
