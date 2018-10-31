@@ -3,6 +3,7 @@ package ru.mrbrikster.chatty.commands.pm;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
+import net.amoebaman.util.ArrayWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -14,8 +15,10 @@ public class IgnoreCommand extends AbstractCommand {
 
     private final PermanentStorage permanentStorage;
 
-    public IgnoreCommand(PermanentStorage permanentStorage) {
-        super("ignore");
+    public IgnoreCommand(
+            Configuration configuration,
+            PermanentStorage permanentStorage) {
+        super("ignore", ArrayWrapper.toArray(configuration.getNode("commands.ignore.aliases").getAsStringList(), String.class));
 
         this.permanentStorage = permanentStorage;
     }

@@ -26,7 +26,7 @@ messages:
     sender-format: '&7{sender} &6-> &7{recipient}: &f{message}'
 
   ignore-command:
-    usage: '&сИспользование: /{label} <игрок>'
+    usage: '&cИспользование: /{label} <игрок>'
     player-not-found: '&cИгрок не найден.'
     add-ignore: '&cТеперь вы игнорируете игрока {player}.'
     remove-ignore: '&aВы больше не игнорируете игрока {player}.'

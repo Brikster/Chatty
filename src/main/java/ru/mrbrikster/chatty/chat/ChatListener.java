@@ -268,8 +268,7 @@ public class ChatListener implements Listener, EventExecutor {
             if (!playerChatEvent.isCancelled() && chat != null) {
                 Reflection.getOnlinePlayers().stream().filter(spy -> (spy.hasPermission("chatty.spy") || spy.hasPermission("chatty.spy." + chat.getName()))
                         && !temporaryStorage.getSpyDisabled().contains(spy) &&
-                        !playerChatEvent.getRecipients().contains(spy)).
-                        forEach(spy ->
+                        !playerChatEvent.getRecipients().contains(spy)).forEach(spy ->
                                 spy.sendMessage(
                                         COLORIZE.apply(configuration.getNode("general.spy.format").getAsString("&6[Spy] &r{format}")
                                                 .replace("{format}", String.format(playerChatEvent.getFormat(), playerChatEvent.getPlayer().getName(), playerChatEvent.getMessage())))));
@@ -339,7 +338,7 @@ public class ChatListener implements Listener, EventExecutor {
                     .tooltip(replacementTooltip));
         });
 
-        formattedMessage.replace("{message}", new LegacyMessagePart(playerChatEvent.getMessage()));
+        formattedMessage.replace("{message}", new LegacyMessagePart(playerChatEvent.getMessage(), false));
 
         if (configuration.getNode("json.swears.enable").getAsBoolean(false)) {
             String replacement = configuration.getNode("moderation.swear.replacement").getAsString("<swear>");

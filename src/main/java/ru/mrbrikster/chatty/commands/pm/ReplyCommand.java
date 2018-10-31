@@ -3,6 +3,7 @@ package ru.mrbrikster.chatty.commands.pm;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
+import net.amoebaman.util.ArrayWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -24,7 +25,7 @@ public class ReplyCommand extends AbstractCommand {
             Configuration configuration,
             TemporaryStorage commandsStorage,
             PermanentStorage permanentStorage) {
-        super("reply", "r");
+        super("msg", ArrayWrapper.toArray(configuration.getNode("commands.reply.aliases").getAsStringList(), String.class));
 
         this.configuration = configuration;
         this.commandsStorage = commandsStorage;

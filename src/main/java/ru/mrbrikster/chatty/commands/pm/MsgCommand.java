@@ -3,6 +3,7 @@ package ru.mrbrikster.chatty.commands.pm;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
+import net.amoebaman.util.ArrayWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -24,7 +25,7 @@ public class MsgCommand extends AbstractCommand {
             Configuration configuration,
             TemporaryStorage commandsStorage,
             PermanentStorage permanentStorage) {
-        super("msg", "message", "pm", "m", "w");
+        super("msg", ArrayWrapper.toArray(configuration.getNode("commands.msg.aliases").getAsStringList(), String.class));
 
         this.configuration = configuration;
         this.commandsStorage = commandsStorage;
@@ -33,7 +34,7 @@ public class MsgCommand extends AbstractCommand {
 
     @Override
     public void handle(CommandSender sender, String label, String[] args) {
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof Player) && !configuration.getNode("commands.msg.allow-console").getAsBoolean(false)) {
             sender.sendMessage(Configuration.getMessages().get("only-for-players"));
             return;
         }
@@ -49,17 +50,19 @@ public class MsgCommand extends AbstractCommand {
             return;
         }
 
-        String recipient = args[0];
+        String recipientName = args[0];
         String message = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
 
-        Player playerRecipient = Bukkit.getPlayer(recipient);
+        CommandSender recipient =
+                recipientName.equalsIgnoreCase("CONSOLE") && configuration.getNode("commands.msg.allow-console").getAsBoolean(false)
+                        ? Bukkit.getConsoleSender() : Bukkit.getPlayer(recipientName);
 
-        if (playerRecipient == null) {
+        if (recipient == null) {
             sender.sendMessage(Configuration.getMessages().get("msg-command.player-not-found"));
             return;
         }
 
-        if (playerRecipient.equals(sender)) {
+        if (recipient.equals(sender)) {
             sender.sendMessage(Configuration.getMessages().get("msg-command.cannot-message-yourself"));
             return;
         }
@@ -67,35 +70,40 @@ public class MsgCommand extends AbstractCommand {
         sender.sendMessage(
                 Configuration.getMessages().get("msg-command.sender-format")
                         .replace("{sender}", sender.getName())
-                        .replace("{recipient}", playerRecipient.getName())
+                        .replace("{recipient}", recipient.getName())
                         .replace("{message}", message)
         );
 
-        JsonElement jsonElement = permanentStorage.getProperty(playerRecipient, "ignore").orElseGet(JsonArray::new);
+        if (recipient instanceof Player) {
+            JsonElement jsonElement = permanentStorage.getProperty((Player) recipient, "ignore").orElseGet(JsonArray::new);
 
-        if (!jsonElement.isJsonArray())
-            jsonElement = new JsonArray();
+            if (!jsonElement.isJsonArray())
+                jsonElement = new JsonArray();
 
-        if (!jsonElement.getAsJsonArray().contains(new JsonPrimitive(sender.getName())))
-            playerRecipient.sendMessage(
-                    Configuration.getMessages().get("msg-command.recipient-format")
-                            .replace("{sender}", sender.getName())
-                            .replace("{recipient}", playerRecipient.getName())
-                            .replace("{message}", message)
-            );
+            if (!jsonElement.getAsJsonArray().contains(new JsonPrimitive(sender.getName())))
+                recipient.sendMessage(
+                        Configuration.getMessages().get("msg-command.recipient-format")
+                                .replace("{sender}", sender.getName())
+                                .replace("{recipient}", recipient.getName())
+                                .replace("{message}", message)
+                );
+        }
 
-        commandsStorage.setLastMessaged(playerRecipient, (Player) sender);
-        commandsStorage.setLastMessaged((Player) sender, playerRecipient);
+
+        if (sender instanceof Player && recipient instanceof Player) {
+            commandsStorage.setLastMessaged((Player) recipient, (Player) sender);
+            commandsStorage.setLastMessaged((Player) sender, (Player) recipient);
+        }
 
         Bukkit.getOnlinePlayers().stream()
-                .filter(spyPlayer -> !spyPlayer.equals(sender) && !spyPlayer.equals(playerRecipient))
+                .filter(spyPlayer -> !spyPlayer.equals(sender) && !spyPlayer.equals(recipient))
                 .filter(spyPlayer -> spyPlayer.hasPermission("chatty.spy") || spyPlayer.hasPermission("chatty.spy.pm"))
                 .filter(spyPlayer -> !commandsStorage.getSpyDisabled().contains(spyPlayer))
                 .forEach(spyPlayer -> spyPlayer.sendMessage(
                         ChatColor.translateAlternateColorCodes('&', configuration.getNode("general.spy.pm-format")
                                 .getAsString("&6[Spy] &7{sender} &6-> &7{recipient}: &f{message}"))
                                 .replace("{sender}", sender.getName())
-                                .replace("{recipient}", playerRecipient.getName())
+                                .replace("{recipient}", recipient.getName())
                                 .replace("{message}", message)
                 ));
     }
