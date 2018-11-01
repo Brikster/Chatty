@@ -95,7 +95,7 @@
         </repository>
         <repository>
             <id>brikster-repo</id>
-            <url>https://nexus.brikster.ru/repository</url>
+            <url>https://nexus.brikster.ru/repository/brikster-public</url>
         </repository>
     </repositories>
 
