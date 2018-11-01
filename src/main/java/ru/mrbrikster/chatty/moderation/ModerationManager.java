@@ -2,8 +2,8 @@ package ru.mrbrikster.chatty.moderation;
 
 import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
-import ru.mrbrikster.chatty.config.Configuration;
-import ru.mrbrikster.chatty.config.ConfigurationNode;
+import ru.mrbrikster.baseplugin.config.Configuration;
+import ru.mrbrikster.baseplugin.config.ConfigurationNode;
 
 public class ModerationManager {
 

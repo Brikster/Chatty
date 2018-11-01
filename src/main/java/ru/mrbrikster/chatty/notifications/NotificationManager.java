@@ -1,7 +1,7 @@
 package ru.mrbrikster.chatty.notifications;
 
-import ru.mrbrikster.chatty.config.Configuration;
-import ru.mrbrikster.chatty.config.ConfigurationNode;
+import ru.mrbrikster.baseplugin.config.Configuration;
+import ru.mrbrikster.baseplugin.config.ConfigurationNode;
 
 import java.util.ArrayList;
 import java.util.List;

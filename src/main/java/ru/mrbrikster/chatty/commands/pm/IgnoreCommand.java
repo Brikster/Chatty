@@ -7,11 +7,12 @@ import net.amoebaman.util.ArrayWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import ru.mrbrikster.baseplugin.commands.BukkitCommand;
+import ru.mrbrikster.baseplugin.config.Configuration;
+import ru.mrbrikster.chatty.Chatty;
 import ru.mrbrikster.chatty.chat.PermanentStorage;
-import ru.mrbrikster.chatty.commands.AbstractCommand;
-import ru.mrbrikster.chatty.config.Configuration;
 
-public class IgnoreCommand extends AbstractCommand {
+public class IgnoreCommand extends BukkitCommand {
 
     private final PermanentStorage permanentStorage;
 
@@ -26,17 +27,17 @@ public class IgnoreCommand extends AbstractCommand {
     @Override
     public void handle(CommandSender sender, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage(Configuration.getMessages().get("only-for-players"));
+            sender.sendMessage(Chatty.instance().getMessages().get("only-for-players"));
             return;
         }
 
         if (!sender.hasPermission("chatty.command.ignore")) {
-            sender.sendMessage(Configuration.getMessages().get("no-permission"));
+            sender.sendMessage(Chatty.instance().getMessages().get("no-permission"));
             return;
         }
 
         if (args.length != 1) {
-            sender.sendMessage(Configuration.getMessages().get("ignore-command.usage")
+            sender.sendMessage(Chatty.instance().getMessages().get("ignore-command.usage")
                     .replace("{label}", label));
             return;
         }
@@ -46,13 +47,13 @@ public class IgnoreCommand extends AbstractCommand {
         Player ignoreTargetPlayer = Bukkit.getPlayer(ignoreTarget);
 
         if (ignoreTargetPlayer == null) {
-            sender.sendMessage(Configuration.getMessages().get("ignore-command.player-not-found")
+            sender.sendMessage(Chatty.instance().getMessages().get("ignore-command.player-not-found")
                     .replace("{label}", label));
             return;
         }
 
         if (sender.equals(ignoreTargetPlayer)) {
-            sender.sendMessage(Configuration.getMessages().get("ignore-command.cannot-ignore-yourself")
+            sender.sendMessage(Chatty.instance().getMessages().get("ignore-command.cannot-ignore-yourself")
                     .replace("{label}", label));
             return;
         }
@@ -63,11 +64,11 @@ public class IgnoreCommand extends AbstractCommand {
             jsonElement = new JsonArray();
 
         if (jsonElement.getAsJsonArray().contains(new JsonPrimitive(ignoreTargetPlayer.getName()))) {
-            sender.sendMessage(Configuration.getMessages().get("ignore-command.remove-ignore")
+            sender.sendMessage(Chatty.instance().getMessages().get("ignore-command.remove-ignore")
                     .replace("{label}", label).replace("{player}", ignoreTargetPlayer.getName()));
             ((JsonArray) jsonElement).remove(new JsonPrimitive(ignoreTargetPlayer.getName()));
         } else {
-            sender.sendMessage(Configuration.getMessages().get("ignore-command.add-ignore")
+            sender.sendMessage(Chatty.instance().getMessages().get("ignore-command.add-ignore")
                     .replace("{label}", label).replace("{player}", ignoreTargetPlayer.getName()));
             jsonElement.getAsJsonArray().add(ignoreTargetPlayer.getName());
         }

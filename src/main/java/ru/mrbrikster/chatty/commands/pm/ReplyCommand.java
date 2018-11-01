@@ -8,14 +8,15 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import ru.mrbrikster.baseplugin.commands.BukkitCommand;
+import ru.mrbrikster.baseplugin.config.Configuration;
+import ru.mrbrikster.chatty.Chatty;
 import ru.mrbrikster.chatty.chat.PermanentStorage;
 import ru.mrbrikster.chatty.chat.TemporaryStorage;
-import ru.mrbrikster.chatty.commands.AbstractCommand;
-import ru.mrbrikster.chatty.config.Configuration;
 
 import java.util.Optional;
 
-public class ReplyCommand extends AbstractCommand {
+public class ReplyCommand extends BukkitCommand {
 
     private final Configuration configuration;
     private final TemporaryStorage commandsStorage;
@@ -35,17 +36,17 @@ public class ReplyCommand extends AbstractCommand {
     @Override
     public void handle(CommandSender sender, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage(Configuration.getMessages().get("only-for-players"));
+            sender.sendMessage(Chatty.instance().getMessages().get("only-for-players"));
             return;
         }
 
         if (!sender.hasPermission("chatty.command.reply")) {
-            sender.sendMessage(Configuration.getMessages().get("no-permission"));
+            sender.sendMessage(Chatty.instance().getMessages().get("no-permission"));
             return;
         }
 
         if (args.length < 1) {
-            sender.sendMessage(Configuration.getMessages().get("reply-command.usage")
+            sender.sendMessage(Chatty.instance().getMessages().get("reply-command.usage")
                     .replace("{label}", label));
             return;
         }
@@ -54,7 +55,7 @@ public class ReplyCommand extends AbstractCommand {
 
         Optional<Player> optionalRecipient = commandsStorage.getLastMessaged((Player) sender);
         if (!optionalRecipient.isPresent()) {
-            sender.sendMessage(Configuration.getMessages().get("reply-command.target-not-found"));
+            sender.sendMessage(Chatty.instance().getMessages().get("reply-command.target-not-found"));
             return;
         }
 
@@ -67,14 +68,14 @@ public class ReplyCommand extends AbstractCommand {
 
         if (!jsonElement.getAsJsonArray().contains(new JsonPrimitive(sender.getName())))
             playerRecipient.sendMessage(
-                    Configuration.getMessages().get("reply-command.recipient-format")
+                    Chatty.instance().getMessages().get("reply-command.recipient-format")
                             .replace("{sender}", sender.getName())
                             .replace("{recipient}", playerRecipient.getName())
                             .replace("{message}", message)
             );
 
         sender.sendMessage(
-                Configuration.getMessages().get("reply-command.sender-format")
+                Chatty.instance().getMessages().get("reply-command.sender-format")
                         .replace("{sender}", sender.getName())
                         .replace("{recipient}", playerRecipient.getName())
                         .replace("{message}", message)

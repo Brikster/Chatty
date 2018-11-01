@@ -1,23 +1,26 @@
 package ru.mrbrikster.chatty;
 
+import lombok.Getter;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.plugin.java.JavaPlugin;
+import ru.mrbrikster.baseplugin.config.Configuration;
+import ru.mrbrikster.baseplugin.plugin.BukkitBasePlugin;
 import ru.mrbrikster.chatty.chat.ChatListener;
 import ru.mrbrikster.chatty.chat.ChatManager;
 import ru.mrbrikster.chatty.chat.PermanentStorage;
 import ru.mrbrikster.chatty.chat.TemporaryStorage;
 import ru.mrbrikster.chatty.commands.CommandManager;
-import ru.mrbrikster.chatty.config.Configuration;
 import ru.mrbrikster.chatty.dependencies.DependencyManager;
 import ru.mrbrikster.chatty.moderation.ModerationManager;
 import ru.mrbrikster.chatty.notifications.NotificationManager;
+import ru.mrbrikster.chatty.util.Messages;
 
-public final class Chatty extends JavaPlugin {
+public final class Chatty extends BukkitBasePlugin {
 
     private static Chatty instance;
     private CommandManager commandManager;
+    @Getter private Messages messages;
 
     public static Chatty instance() {
         return Chatty.instance;
@@ -27,12 +30,18 @@ public final class Chatty extends JavaPlugin {
     public void onEnable() {
         Chatty.instance = Chatty.this;
 
-        Configuration configuration = new Configuration(this);
+        Configuration configuration = getConfiguration();
         DependencyManager dependencyManager = new DependencyManager(this);
         ChatManager chatManager = new ChatManager(configuration);
         ModerationManager moderationManager = new ModerationManager(this, configuration);
         TemporaryStorage temporaryStorage = new TemporaryStorage();
         PermanentStorage permanentStorage = new PermanentStorage(configuration, this);
+
+        this.messages = new Messages(this, configuration);
+
+        configuration.registerReloadHandler(() -> {
+            this.messages = new Messages(this, configuration);
+        });
 
         this.commandManager = new CommandManager(configuration, dependencyManager, temporaryStorage, permanentStorage);
         new NotificationManager(configuration);

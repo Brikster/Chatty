@@ -2,9 +2,10 @@ package ru.mrbrikster.chatty.commands;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
-import ru.mrbrikster.chatty.config.Configuration;
+import ru.mrbrikster.baseplugin.commands.BukkitCommand;
+import ru.mrbrikster.chatty.Chatty;
 
-public class ClearChatCommand extends AbstractCommand {
+public class ClearChatCommand extends BukkitCommand {
 
     ClearChatCommand() {
         super("clearchat", "cc");
@@ -18,9 +19,9 @@ public class ClearChatCommand extends AbstractCommand {
                     player.sendMessage(" ");
                 }
 
-                player.sendMessage(Configuration.getMessages().get("chat-cleared").replace("{player}", sender.getName()));
+                player.sendMessage(Chatty.instance().getMessages().get("chat-cleared").replace("{player}", sender.getName()));
             });
-        } else sender.sendMessage(Configuration.getMessages().get("no-permission"));
+        } else sender.sendMessage(Chatty.instance().getMessages().get("no-permission"));
     }
 
 }

@@ -8,14 +8,15 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import ru.mrbrikster.baseplugin.commands.BukkitCommand;
+import ru.mrbrikster.baseplugin.config.Configuration;
+import ru.mrbrikster.chatty.Chatty;
 import ru.mrbrikster.chatty.chat.PermanentStorage;
 import ru.mrbrikster.chatty.chat.TemporaryStorage;
-import ru.mrbrikster.chatty.commands.AbstractCommand;
-import ru.mrbrikster.chatty.config.Configuration;
 
 import java.util.Arrays;
 
-public class MsgCommand extends AbstractCommand {
+public class MsgCommand extends BukkitCommand {
 
     private final Configuration configuration;
     private final TemporaryStorage commandsStorage;
@@ -35,17 +36,17 @@ public class MsgCommand extends AbstractCommand {
     @Override
     public void handle(CommandSender sender, String label, String[] args) {
         if (!(sender instanceof Player) && !configuration.getNode("commands.msg.allow-console").getAsBoolean(false)) {
-            sender.sendMessage(Configuration.getMessages().get("only-for-players"));
+            sender.sendMessage(Chatty.instance().getMessages().get("only-for-players"));
             return;
         }
 
         if (!sender.hasPermission("chatty.command.msg")) {
-            sender.sendMessage(Configuration.getMessages().get("no-permission"));
+            sender.sendMessage(Chatty.instance().getMessages().get("no-permission"));
             return;
         }
 
         if (args.length < 2) {
-            sender.sendMessage(Configuration.getMessages().get("msg-command.usage")
+            sender.sendMessage(Chatty.instance().getMessages().get("msg-command.usage")
                 .replace("{label}", label));
             return;
         }
@@ -58,17 +59,17 @@ public class MsgCommand extends AbstractCommand {
                         ? Bukkit.getConsoleSender() : Bukkit.getPlayer(recipientName);
 
         if (recipient == null) {
-            sender.sendMessage(Configuration.getMessages().get("msg-command.player-not-found"));
+            sender.sendMessage(Chatty.instance().getMessages().get("msg-command.player-not-found"));
             return;
         }
 
         if (recipient.equals(sender)) {
-            sender.sendMessage(Configuration.getMessages().get("msg-command.cannot-message-yourself"));
+            sender.sendMessage(Chatty.instance().getMessages().get("msg-command.cannot-message-yourself"));
             return;
         }
 
         sender.sendMessage(
-                Configuration.getMessages().get("msg-command.sender-format")
+                Chatty.instance().getMessages().get("msg-command.sender-format")
                         .replace("{sender}", sender.getName())
                         .replace("{recipient}", recipient.getName())
                         .replace("{message}", message)
@@ -82,7 +83,7 @@ public class MsgCommand extends AbstractCommand {
 
             if (!jsonElement.getAsJsonArray().contains(new JsonPrimitive(sender.getName())))
                 recipient.sendMessage(
-                        Configuration.getMessages().get("msg-command.recipient-format")
+                        Chatty.instance().getMessages().get("msg-command.recipient-format")
                                 .replace("{sender}", sender.getName())
                                 .replace("{recipient}", recipient.getName())
                                 .replace("{message}", message)
