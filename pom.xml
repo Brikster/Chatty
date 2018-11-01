@@ -6,7 +6,7 @@
 
     <groupId>ru.mrbrikster</groupId>
     <artifactId>chatty</artifactId>
-    <version>2.9</version>
+    <version>2.10</version>
     <packaging>jar</packaging>
 
     <name>Chatty</name>
@@ -93,9 +93,19 @@
             <id>nte-repo</id>
             <url>http://ci.nametagedit.com/plugin/repository/everything/</url>
         </repository>
+        <repository>
+            <id>brikster-repo</id>
+            <url>https://nexus.brikster.ru/nexus</url>
+        </repository>
     </repositories>
 
     <dependencies>
+        <dependency>
+            <groupId>ru.mrbrikster</groupId>
+            <artifactId>baseplugin</artifactId>
+            <version>1.0</version>
+            <scope>compile</scope>
+        </dependency>
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>

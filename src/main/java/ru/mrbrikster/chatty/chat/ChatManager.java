@@ -2,8 +2,8 @@ package ru.mrbrikster.chatty.chat;
 
 import lombok.Getter;
 import org.bukkit.entity.Player;
+import ru.mrbrikster.baseplugin.config.Configuration;
 import ru.mrbrikster.chatty.Chatty;
-import ru.mrbrikster.chatty.config.Configuration;
 
 import java.io.BufferedWriter;
 import java.io.File;

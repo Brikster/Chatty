@@ -3,7 +3,7 @@ package ru.mrbrikster.chatty.moderation;
 import com.google.common.io.Files;
 import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
-import ru.mrbrikster.chatty.config.ConfigurationNode;
+import ru.mrbrikster.baseplugin.config.ConfigurationNode;
 
 import java.io.File;
 import java.io.IOException;

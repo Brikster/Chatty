@@ -2,14 +2,15 @@ package ru.mrbrikster.chatty.commands;
 
 import com.google.common.io.Files;
 import org.bukkit.command.CommandSender;
-import ru.mrbrikster.chatty.config.Configuration;
+import ru.mrbrikster.baseplugin.commands.BukkitCommand;
+import ru.mrbrikster.chatty.Chatty;
 import ru.mrbrikster.chatty.moderation.SwearModerationMethod;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
 
-public class SwearsCommand extends AbstractCommand {
+public class SwearsCommand extends BukkitCommand {
 
     SwearsCommand() {
         super("swears", "swear");
@@ -30,9 +31,9 @@ public class SwearsCommand extends AbstractCommand {
 
                 SwearModerationMethod.addWord(Pattern.compile(word, Pattern.CASE_INSENSITIVE));
 
-                sender.sendMessage(Configuration.getMessages().get("swears-command.add-word").replace("{word}", word));
-            } else sender.sendMessage(Configuration.getMessages().get("swears-command.usage")
+                sender.sendMessage(Chatty.instance().getMessages().get("swears-command.add-word").replace("{word}", word));
+            } else sender.sendMessage(Chatty.instance().getMessages().get("swears-command.usage")
                     .replace("{label}", label));
-        } else sender.sendMessage(Configuration.getMessages().get("no-permission"));
+        } else sender.sendMessage(Chatty.instance().getMessages().get("no-permission"));
     }
 }

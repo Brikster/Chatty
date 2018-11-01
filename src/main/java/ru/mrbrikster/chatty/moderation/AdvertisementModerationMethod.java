@@ -1,7 +1,7 @@
 package ru.mrbrikster.chatty.moderation;
 
 import lombok.Getter;
-import ru.mrbrikster.chatty.config.ConfigurationNode;
+import ru.mrbrikster.baseplugin.config.ConfigurationNode;
 
 import java.util.List;
 import java.util.function.Function;

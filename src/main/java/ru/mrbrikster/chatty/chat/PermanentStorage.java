@@ -3,7 +3,7 @@ package ru.mrbrikster.chatty.chat;
 import com.google.gson.*;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import ru.mrbrikster.chatty.config.Configuration;
+import ru.mrbrikster.baseplugin.config.Configuration;
 
 import java.io.*;
 import java.util.Optional;

@@ -1,8 +1,9 @@
-package ru.mrbrikster.chatty.config;
+package ru.mrbrikster.chatty.util;
 
 import org.apache.commons.io.FileUtils;
 import org.bukkit.ChatColor;
-import org.bukkit.plugin.java.JavaPlugin;
+import ru.mrbrikster.baseplugin.config.Configuration;
+import ru.mrbrikster.baseplugin.plugin.BukkitBasePlugin;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,8 +21,8 @@ public class Messages {
             = (string) -> string == null ? null : ChatColor.translateAlternateColorCodes('&', string);
     private final Configuration localeConfiguration;
 
-    Messages(JavaPlugin javaPlugin, Configuration configuration) {
-        File localeDir = new File(javaPlugin.getDataFolder(), "locale");
+    public Messages(BukkitBasePlugin bukkitBasePlugin, Configuration configuration) {
+        File localeDir = new File(bukkitBasePlugin.getDataFolder(), "locale");
 
         String localeName = configuration.getNode("general.locale")
                 .getAsString("en");
@@ -35,7 +36,7 @@ public class Messages {
             URL localeFileUrl = getClass().getResource("/locale/" + localeName + ".yml");
 
             if (localeFileUrl == null) {
-                javaPlugin.getLogger().warning("Locale " + '"' + localeName + '"' + " not found. Using English locale.");
+                bukkitBasePlugin.getLogger().warning("Locale " + '"' + localeName + '"' + " not found. Using English locale.");
 
                 File enLocaleFile = new File(localeDir, "en.yml");
 
@@ -57,7 +58,7 @@ public class Messages {
             }
         }
 
-        this.localeConfiguration = new Configuration("locale/" + localeName + ".yml", javaPlugin);
+        this.localeConfiguration = bukkitBasePlugin.getConfiguration("locale/" + localeName + ".yml");
 
         put("chat-not-found",
                 ChatColor.RED + "Applicable chat not found. You can't send the message.");

@@ -15,8 +15,8 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.EventExecutor;
+import ru.mrbrikster.baseplugin.config.Configuration;
 import ru.mrbrikster.chatty.Chatty;
-import ru.mrbrikster.chatty.config.Configuration;
 import ru.mrbrikster.chatty.dependencies.DependencyManager;
 import ru.mrbrikster.chatty.dependencies.PlaceholderAPIHook;
 import ru.mrbrikster.chatty.dependencies.VaultHook;
@@ -104,7 +104,7 @@ public class ChatListener implements Listener, EventExecutor {
 
         if (chat == null) {
             event.setCancelled(true);
-            player.sendMessage(Configuration.getMessages().get("chat-not-found"));
+            player.sendMessage(Chatty.instance().getMessages().get("chat-not-found"));
             return;
         }
 
@@ -124,7 +124,7 @@ public class ChatListener implements Listener, EventExecutor {
         long cooldown = hasCooldown ? -1 : chat.getCooldown(player);
 
         if (cooldown != -1) {
-            player.sendMessage(Configuration.getMessages().get("cooldown")
+            player.sendMessage(Chatty.instance().getMessages().get("cooldown")
                     .replace("{cooldown}", String.valueOf(cooldown)));
             event.setCancelled(true);
             return;
@@ -134,7 +134,7 @@ public class ChatListener implements Listener, EventExecutor {
             VaultHook vaultHook = dependencyManager.getVault();
 
             if (!vaultHook.withdrawMoney(player, chat.getMoney())) {
-                player.sendMessage(Configuration.getMessages().get("not-enough-money")
+                player.sendMessage(Chatty.instance().getMessages().get("not-enough-money")
                         .replace("{money}", String.valueOf(chat.getMoney())));
                 event.setCancelled(true);
                 return;
@@ -159,7 +159,7 @@ public class ChatListener implements Listener, EventExecutor {
         event.getRecipients().addAll(chat.getRecipients(player, permanentStorage));
 
         if (event.getRecipients().size() <= 1) {
-            String noRecipients = Configuration.getMessages().get("no-recipients", null);
+            String noRecipients = Chatty.instance().getMessages().get("no-recipients", null);
 
             if (noRecipients != null)
                 Bukkit.getScheduler().runTaskLater(Chatty.instance(), () -> player.sendMessage(noRecipients), 5L);
@@ -187,7 +187,7 @@ public class ChatListener implements Listener, EventExecutor {
                         logPrefixBuilder.append("[SWEAR] ");
                     }
 
-                    String swearFound = Configuration.getMessages().get("swear-found", null);
+                    String swearFound = Chatty.instance().getMessages().get("swear-found", null);
 
                     if (swearFound != null)
                         Bukkit.getScheduler().runTaskLater(Chatty.instance(),
@@ -218,7 +218,7 @@ public class ChatListener implements Listener, EventExecutor {
                         logPrefixBuilder.append("[CAPS] ");
                     }
 
-                    String capsFound = Configuration.getMessages().get("caps-found", null);
+                    String capsFound = Chatty.instance().getMessages().get("caps-found", null);
 
                     if (capsFound != null)
                         Bukkit.getScheduler().runTaskLater(Chatty.instance(),
@@ -244,7 +244,7 @@ public class ChatListener implements Listener, EventExecutor {
                         logPrefixBuilder.append("[ADS] ");
                     }
 
-                    String adsFound = Configuration.getMessages().get("advertisement-found", null);
+                    String adsFound = Chatty.instance().getMessages().get("advertisement-found", null);
 
                     if (adsFound != null)
                         Bukkit.getScheduler().runTaskLater(Chatty.instance(),

@@ -5,14 +5,16 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import ru.mrbrikster.baseplugin.commands.BukkitCommand;
+import ru.mrbrikster.baseplugin.config.Configuration;
+import ru.mrbrikster.chatty.Chatty;
 import ru.mrbrikster.chatty.chat.PermanentStorage;
-import ru.mrbrikster.chatty.config.Configuration;
 import ru.mrbrikster.chatty.dependencies.DependencyManager;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-public class PrefixCommand extends AbstractCommand {
+public class PrefixCommand extends BukkitCommand {
 
     private final Configuration configuration;
     private final DependencyManager dependencyManager;
@@ -32,52 +34,52 @@ public class PrefixCommand extends AbstractCommand {
     public void handle(CommandSender sender, String label, String[] args) {
         if (args.length >= 2) {
             if (!sender.hasPermission("chatty.command.prefix")) {
-                sender.sendMessage(Configuration.getMessages().get("no-permission"));
+                sender.sendMessage(Chatty.instance().getMessages().get("no-permission"));
                 return;
             }
 
             Player player = Bukkit.getPlayer(args[0]);
 
             if (player == null) {
-                sender.sendMessage(Configuration.getMessages().get("prefix-command.player-not-found"));
+                sender.sendMessage(Chatty.instance().getMessages().get("prefix-command.player-not-found"));
                 return;
             }
 
             if (!player.equals(sender) && !sender.hasPermission("chatty.command.prefix.others")) {
-                sender.sendMessage(Configuration.getMessages().get("prefix-command.no-permission-others"));
+                sender.sendMessage(Chatty.instance().getMessages().get("prefix-command.no-permission-others"));
                 return;
             }
 
             if (args[1].equalsIgnoreCase("clear")) {
                 permanentStorage.setProperty(player, "prefix", null);
 
-                if (configuration.getNode("general.prefix-command.auto-nte").getAsBoolean(false)) {
+                if (configuration.getNode("commands.prefix.auto-nte").getAsBoolean(false)) {
                     if (dependencyManager.getNametagEdit() != null) {
                         dependencyManager.getNametagEdit().setPrefix(player, null);
                     }
                 }
 
-                sender.sendMessage(Configuration.getMessages().get("prefix-command.prefix-clear")
+                sender.sendMessage(Chatty.instance().getMessages().get("prefix-command.prefix-clear")
                         .replace("{player}", player.getName()));
             } else {
                 String prefix = Arrays.stream(Arrays.copyOfRange(args, 1, args.length)).collect(Collectors.joining(" "));
                 String formattedPrefix = prefix
-                        + configuration.getNode("general.prefix-command.after-prefix").getAsString("");
+                        + configuration.getNode("commands.prefix.after-prefix").getAsString("");
 
                 permanentStorage.setProperty(player, "prefix", new JsonPrimitive(formattedPrefix));
 
-                if (configuration.getNode("general.prefix-command.auto-nte").getAsBoolean(false)) {
+                if (configuration.getNode("commands.prefix.auto-nte").getAsBoolean(false)) {
                     if (dependencyManager.getNametagEdit() != null) {
                         dependencyManager.getNametagEdit().setPrefix(player, formattedPrefix);
                     }
                 }
 
-                sender.sendMessage(Configuration.getMessages().get("prefix-command.prefix-set")
+                sender.sendMessage(Chatty.instance().getMessages().get("prefix-command.prefix-set")
                         .replace("{player}", player.getName())
                         .replace("{prefix}", ChatColor.translateAlternateColorCodes('&', prefix)));
             }
         } else {
-            sender.sendMessage(Configuration.getMessages().get("prefix-command.usage")
+            sender.sendMessage(Chatty.instance().getMessages().get("prefix-command.usage")
                     .replace("{label}", label));
         }
     }

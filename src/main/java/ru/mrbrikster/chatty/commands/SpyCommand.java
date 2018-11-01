@@ -2,10 +2,11 @@ package ru.mrbrikster.chatty.commands;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import ru.mrbrikster.baseplugin.commands.BukkitCommand;
+import ru.mrbrikster.chatty.Chatty;
 import ru.mrbrikster.chatty.chat.TemporaryStorage;
-import ru.mrbrikster.chatty.config.Configuration;
 
-public class SpyCommand extends AbstractCommand {
+public class SpyCommand extends BukkitCommand {
 
     private final TemporaryStorage temporaryStorage;
 
@@ -19,18 +20,18 @@ public class SpyCommand extends AbstractCommand {
     public void handle(CommandSender sender, String label, String[] args) {
         if (sender instanceof Player) {
             if (!sender.hasPermission("chatty.command.spy")) {
-                sender.sendMessage(Configuration.getMessages().get("no-permission"));
+                sender.sendMessage(Chatty.instance().getMessages().get("no-permission"));
                 return;
             }
 
             if (temporaryStorage.getSpyDisabled().contains(sender)) {
-                sender.sendMessage(Configuration.getMessages().get("spy-on"));
+                sender.sendMessage(Chatty.instance().getMessages().get("spy-on"));
                 temporaryStorage.getSpyDisabled().remove(sender);
             } else {
-                sender.sendMessage(Configuration.getMessages().get("spy-off"));
+                sender.sendMessage(Chatty.instance().getMessages().get("spy-off"));
                 temporaryStorage.getSpyDisabled().add((Player) sender);
             }
-        } else sender.sendMessage(Configuration.getMessages().get("only-for-players"));
+        } else sender.sendMessage(Chatty.instance().getMessages().get("only-for-players"));
     }
 
 }
