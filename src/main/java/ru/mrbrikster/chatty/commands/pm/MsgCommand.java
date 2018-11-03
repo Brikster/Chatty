@@ -1,8 +1,5 @@
 package ru.mrbrikster.chatty.commands.pm;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
 import net.amoebaman.util.ArrayWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -68,6 +65,14 @@ public class MsgCommand extends BukkitCommand {
             return;
         }
 
+        if (!permanentStorage.isIgnore(recipient, sender))
+            recipient.sendMessage(
+                    Chatty.instance().getMessages().get("msg-command.recipient-format")
+                            .replace("{sender}", sender.getName())
+                            .replace("{recipient}", recipient.getName())
+                            .replace("{message}", message)
+            );
+
         sender.sendMessage(
                 Chatty.instance().getMessages().get("msg-command.sender-format")
                         .replace("{sender}", sender.getName())
@@ -75,26 +80,8 @@ public class MsgCommand extends BukkitCommand {
                         .replace("{message}", message)
         );
 
-        if (recipient instanceof Player) {
-            JsonElement jsonElement = permanentStorage.getProperty((Player) recipient, "ignore").orElseGet(JsonArray::new);
-
-            if (!jsonElement.isJsonArray())
-                jsonElement = new JsonArray();
-
-            if (!jsonElement.getAsJsonArray().contains(new JsonPrimitive(sender.getName())))
-                recipient.sendMessage(
-                        Chatty.instance().getMessages().get("msg-command.recipient-format")
-                                .replace("{sender}", sender.getName())
-                                .replace("{recipient}", recipient.getName())
-                                .replace("{message}", message)
-                );
-        }
-
-
-        if (sender instanceof Player && recipient instanceof Player) {
-            commandsStorage.setLastMessaged((Player) recipient, (Player) sender);
-            commandsStorage.setLastMessaged((Player) sender, (Player) recipient);
-        }
+        commandsStorage.setLastMessaged(recipient.getName(), sender.getName());
+        commandsStorage.setLastMessaged(sender.getName(), recipient.getName());
 
         Bukkit.getOnlinePlayers().stream()
                 .filter(spyPlayer -> !spyPlayer.equals(sender) && !spyPlayer.equals(recipient))
