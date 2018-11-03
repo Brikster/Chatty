@@ -1,6 +1,7 @@
 package ru.mrbrikster.chatty.chat;
 
 import com.google.gson.*;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import ru.mrbrikster.baseplugin.config.Configuration;
@@ -104,6 +105,19 @@ public class PermanentStorage {
         } else {
             return getProperty(player.getName(), property);
         }
+    }
+
+    public boolean isIgnore(CommandSender recipient, CommandSender sender) {
+        if (recipient instanceof Player) {
+            JsonElement jsonElement = getProperty((Player) recipient, "ignore").orElseGet(JsonArray::new);
+
+            if (!jsonElement.isJsonArray())
+                jsonElement = new JsonArray();
+
+            return jsonElement.getAsJsonArray().contains(new JsonPrimitive(sender.getName()));
+        }
+
+        return false;
     }
 
     private String read() throws IOException {

@@ -87,6 +87,7 @@ commands:
     enable: true
     # Aliases for "/reply" command.
     aliases: ['r']
+    allow-console: false
 
   ignore:
     # Enables "/ignore" command.

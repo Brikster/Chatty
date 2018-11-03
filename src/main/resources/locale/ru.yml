@@ -48,7 +48,7 @@ messages:
     no-permissions-others: '&cУ вас недостаточно прав для смены суффикса другим игрокам.'
     player-not-found: '&cИгрок не найден.'
     suffix-clear: '&aВы удалили суффикс игроку {player}.'
-    suffix-set: '&aВы установили префикс &r{suffix} &aигроку {player}.'
+    suffix-set: '&aВы установили суффикс &r{suffix} &aигроку {player}.'
 
   # Удаляемые строки.
   # Удалите строку, чтобы убрать сообщение.
