@@ -94,8 +94,8 @@
             <url>http://ci.nametagedit.com/plugin/repository/everything/</url>
         </repository>
         <repository>
-            <id>brikster-repo</id>
-            <url>https://nexus.brikster.ru/repository/brikster-public</url>
+            <id>digi-public</id>
+            <url>http://nexus.xdigi.xyz/repository/digi-public</url>
         </repository>
     </repositories>
 
