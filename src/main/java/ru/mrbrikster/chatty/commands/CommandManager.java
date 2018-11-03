@@ -77,7 +77,7 @@ public class CommandManager {
             this.prefixCommand.register(Chatty.instance());
         }
 
-        if (configuration.getNode("commands.prefix.enable").getAsBoolean(false)) {
+        if (configuration.getNode("commands.suffix.enable").getAsBoolean(false)) {
             this.suffixCommand = new SuffixCommand(configuration, dependencyManager, permanentStorage);
             this.suffixCommand.register(Chatty.instance());
         }
