@@ -2,7 +2,6 @@ package ru.mrbrikster.chatty.chat;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonElement;
-import com.nametagedit.plugin.api.events.NametagFirstLoadedEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -378,25 +377,6 @@ public class ChatListener implements Listener, EventExecutor {
                     .replace("{prefix}", getPrefix(playerJoinEvent.getPlayer()))
                     .replace("{suffix}", getSuffix(playerJoinEvent.getPlayer()))
                     .replace("{player}", playerJoinEvent.getPlayer().getName())));
-        }
-    }
-
-    @EventHandler
-    public void onNametagFirstLoadedEvent(NametagFirstLoadedEvent nametagFirstLoadedEvent) {
-        Player player = nametagFirstLoadedEvent.getPlayer();
-
-        if (configuration.getNode("general.prefix-command.enable").getAsBoolean(false)
-                && configuration.getNode("general.prefix-command.auto-nte").getAsBoolean(false)) {
-            if (dependencyManager.getNametagEdit() != null) {
-                permanentStorage.getProperty(player, "prefix").ifPresent(prefix -> dependencyManager.getNametagEdit().setPrefix(player, prefix.getAsString()));
-            }
-        }
-
-        if (configuration.getNode("general.suffix-command.enable").getAsBoolean(false)
-                && configuration.getNode("general.suffix-command.auto-nte").getAsBoolean(false)) {
-            if (dependencyManager.getNametagEdit() != null) {
-                permanentStorage.getProperty(player, "suffix").ifPresent(suffix -> dependencyManager.getNametagEdit().setSuffix(player, suffix.getAsString()));
-            }
         }
     }
 
