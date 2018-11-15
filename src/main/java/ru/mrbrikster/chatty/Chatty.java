@@ -31,11 +31,11 @@ public final class Chatty extends BukkitBasePlugin {
         Chatty.instance = Chatty.this;
 
         Configuration configuration = getConfiguration();
-        DependencyManager dependencyManager = new DependencyManager(this);
         ChatManager chatManager = new ChatManager(configuration);
         ModerationManager moderationManager = new ModerationManager(this, configuration);
         TemporaryStorage temporaryStorage = new TemporaryStorage();
         PermanentStorage permanentStorage = new PermanentStorage(configuration, this);
+        DependencyManager dependencyManager = new DependencyManager(configuration, permanentStorage, this);
 
         this.messages = new Messages(this, configuration);
 
