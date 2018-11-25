@@ -29,10 +29,7 @@ import ru.mrbrikster.chatty.moderation.SwearModerationMethod;
 import ru.mrbrikster.chatty.reflection.Reflection;
 import ru.mrbrikster.chatty.util.Pair;
 
-import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -66,7 +63,7 @@ public class ChatListener implements Listener, EventExecutor {
     private final Configuration configuration;
     private final ModerationManager moderationManager;
     private final PermanentStorage permanentStorage;
-    private IdentityHashMap<Player, Chat> pendingPlayers;
+    private IdentityHashMap<Player, Pair<Chat, Set<Player>>> pendingPlayers;
     private IdentityHashMap<Player, List<String>> pendingSwears;
 
     @SuppressWarnings("all")
@@ -94,15 +91,15 @@ public class ChatListener implements Listener, EventExecutor {
         }
     }
 
-    private void onChat(AsyncPlayerChatEvent event) {
-        final Player player = event.getPlayer();
-        String message = event.getMessage();
+    private void onChat(AsyncPlayerChatEvent playerChatEvent) {
+        final Player player = playerChatEvent.getPlayer();
+        String message = playerChatEvent.getMessage();
 
         Pair<Boolean, Chat> chatPair = getChat(player, message);
         Chat chat = chatPair.getValue();
 
         if (chat == null) {
-            event.setCancelled(true);
+            playerChatEvent.setCancelled(true);
             player.sendMessage(Chatty.instance().getMessages().get("chat-not-found"));
             return;
         }
@@ -114,7 +111,7 @@ public class ChatListener implements Listener, EventExecutor {
         message = stylish(player, message, chat.getName());
 
         if (ChatColor.stripColor(message).isEmpty()) {
-            event.setCancelled(true);
+            playerChatEvent.setCancelled(true);
             return;
         }
 
@@ -125,7 +122,7 @@ public class ChatListener implements Listener, EventExecutor {
         if (cooldown != -1) {
             player.sendMessage(Chatty.instance().getMessages().get("cooldown")
                     .replace("{cooldown}", String.valueOf(cooldown)));
-            event.setCancelled(true);
+            playerChatEvent.setCancelled(true);
             return;
         }
 
@@ -135,7 +132,7 @@ public class ChatListener implements Listener, EventExecutor {
             if (!vaultHook.withdrawMoney(player, chat.getMoney())) {
                 player.sendMessage(Chatty.instance().getMessages().get("not-enough-money")
                         .replace("{money}", String.valueOf(chat.getMoney())));
-                event.setCancelled(true);
+                playerChatEvent.setCancelled(true);
                 return;
             }
         }
@@ -148,16 +145,16 @@ public class ChatListener implements Listener, EventExecutor {
 
         format = COLORIZE.apply(format);
 
-        event.setFormat(format);
+        playerChatEvent.setFormat(format);
 
         if (dependencyManager.getPlaceholderApi() != null) {
-            event.setFormat(dependencyManager.getPlaceholderApi().setPlaceholders(player, format));
+            playerChatEvent.setFormat(dependencyManager.getPlaceholderApi().setPlaceholders(player, format));
         }
 
-        event.getRecipients().clear();
-        event.getRecipients().addAll(chat.getRecipients(player, permanentStorage));
+        playerChatEvent.getRecipients().clear();
+        playerChatEvent.getRecipients().addAll(chat.getRecipients(player, permanentStorage));
 
-        if (event.getRecipients().size() <= 1) {
+        if (playerChatEvent.getRecipients().size() <= 1) {
             String noRecipients = Chatty.instance().getMessages().get("no-recipients", null);
 
             if (noRecipients != null)
@@ -179,8 +176,8 @@ public class ChatListener implements Listener, EventExecutor {
                         if (configuration.getNode("general.completely-cancel").getAsBoolean(false))
                             cancelEvent = true;
                         else {
-                            event.getRecipients().clear();
-                            event.getRecipients().add(player);
+                            playerChatEvent.getRecipients().clear();
+                            playerChatEvent.getRecipients().add(player);
                         }
 
                         logPrefixBuilder.append("[SWEAR] ");
@@ -210,8 +207,8 @@ public class ChatListener implements Listener, EventExecutor {
                         if (configuration.getNode("general.completely-cancel").getAsBoolean(false))
                             cancelEvent = true;
                         else {
-                            event.getRecipients().clear();
-                            event.getRecipients().add(player);
+                            playerChatEvent.getRecipients().clear();
+                            playerChatEvent.getRecipients().add(player);
                         }
 
                         logPrefixBuilder.append("[CAPS] ");
@@ -236,8 +233,8 @@ public class ChatListener implements Listener, EventExecutor {
                         if (configuration.getNode("general.completely-cancel").getAsBoolean(false))
                             cancelEvent = true;
                         else {
-                            event.getRecipients().clear();
-                            event.getRecipients().add(player);
+                            playerChatEvent.getRecipients().clear();
+                            playerChatEvent.getRecipients().add(player);
                         }
 
                         logPrefixBuilder.append("[ADS] ");
@@ -252,22 +249,22 @@ public class ChatListener implements Listener, EventExecutor {
             }
         }
 
-        if (cancelEvent) event.setCancelled(true);
+        if (cancelEvent) playerChatEvent.setCancelled(true);
 
-        event.setMessage(message);
-        pendingPlayers.put(player, chat);
+        playerChatEvent.setMessage(message);
+        pendingPlayers.put(player, new Pair<>(chat, playerChatEvent.getRecipients()));
         this.chatManager.getLogger().write(player, message, logPrefixBuilder.toString());
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onSpyMessage(AsyncPlayerChatEvent playerChatEvent) {
         if (configuration.getNode("general.spy.enable").getAsBoolean(false)) {
-            Chat chat = pendingPlayers.remove(playerChatEvent.getPlayer());
+            Pair<Chat, Set<Player>> pair = pendingPlayers.remove(playerChatEvent.getPlayer());
 
-            if (!playerChatEvent.isCancelled() && chat != null) {
-                Reflection.getOnlinePlayers().stream().filter(spy -> (spy.hasPermission("chatty.spy") || spy.hasPermission("chatty.spy." + chat.getName()))
+            if (!playerChatEvent.isCancelled() && pair != null && pair.getKey() != null) {
+                Reflection.getOnlinePlayers().stream().filter(spy -> (spy.hasPermission("chatty.spy") || spy.hasPermission("chatty.spy." + pair.getKey().getName()))
                         && !temporaryStorage.getSpyDisabled().contains(spy) &&
-                        !playerChatEvent.getRecipients().contains(spy)).forEach(spy ->
+                        !pair.getValue().contains(spy)).forEach(spy ->
                                 spy.sendMessage(
                                         COLORIZE.apply(configuration.getNode("general.spy.format").getAsString("&6[Spy] &r{format}")
                                                 .replace("{format}", String.format(playerChatEvent.getFormat(), playerChatEvent.getPlayer().getName(), playerChatEvent.getMessage())))));
