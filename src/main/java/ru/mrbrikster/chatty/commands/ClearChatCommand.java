@@ -19,9 +19,9 @@ public class ClearChatCommand extends BukkitCommand {
                     player.sendMessage(" ");
                 }
 
-                player.sendMessage(Chatty.instance().getMessages().get("chat-cleared").replace("{player}", sender.getName()));
+                player.sendMessage(Chatty.instance().messages().get("chat-cleared").replace("{player}", sender.getName()));
             });
-        } else sender.sendMessage(Chatty.instance().getMessages().get("no-permission"));
+        } else sender.sendMessage(Chatty.instance().messages().get("no-permission"));
     }
 
 }

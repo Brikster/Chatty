@@ -28,6 +28,8 @@ public class ActionBarNotification extends Notification {
     }
 
     private void update() {
+        Chatty.instance().debugger().debug("Update ActionBarNotification message.");
+
         if (messages.size() <= ++currentMessage) {
             currentMessage = 0;
         }
@@ -43,6 +45,8 @@ public class ActionBarNotification extends Notification {
 
     @Override
     public void run() {
+        Chatty.instance().debugger().debug("Send ActionBarNotification.");
+
         String message = COLORIZE.apply(prefix + messages.get(currentMessage));
 
         Reflection.getOnlinePlayers().stream().filter(player -> !isPermission() || player.hasPermission(PERMISSION_NODE))

@@ -33,17 +33,17 @@ public class ReplyCommand extends BukkitCommand {
     @Override
     public void handle(CommandSender sender, String label, String[] args) {
         if (!(sender instanceof Player) && !configuration.getNode("commands.reply.allow-console").getAsBoolean(false)) {
-            sender.sendMessage(Chatty.instance().getMessages().get("only-for-players"));
+            sender.sendMessage(Chatty.instance().messages().get("only-for-players"));
             return;
         }
 
         if (!sender.hasPermission("chatty.command.reply")) {
-            sender.sendMessage(Chatty.instance().getMessages().get("no-permission"));
+            sender.sendMessage(Chatty.instance().messages().get("no-permission"));
             return;
         }
 
         if (args.length < 1) {
-            sender.sendMessage(Chatty.instance().getMessages().get("reply-command.usage")
+            sender.sendMessage(Chatty.instance().messages().get("reply-command.usage")
                     .replace("{label}", label));
             return;
         }
@@ -52,7 +52,7 @@ public class ReplyCommand extends BukkitCommand {
 
         Optional<String> optionalRecipient = commandsStorage.getLastMessaged(sender.getName());
         if (!optionalRecipient.isPresent()) {
-            sender.sendMessage(Chatty.instance().getMessages().get("reply-command.target-not-found"));
+            sender.sendMessage(Chatty.instance().messages().get("reply-command.target-not-found"));
             return;
         }
 
@@ -61,20 +61,20 @@ public class ReplyCommand extends BukkitCommand {
                 ? Bukkit.getConsoleSender() : Bukkit.getPlayer(optionalRecipient.get());
 
         if (recipient == null) {
-            sender.sendMessage(Chatty.instance().getMessages().get("reply-command.target-not-found"));
+            sender.sendMessage(Chatty.instance().messages().get("reply-command.target-not-found"));
             return;
         }
 
         if (!permanentStorage.isIgnore(recipient, sender))
             recipient.sendMessage(
-                    Chatty.instance().getMessages().get("reply-command.recipient-format")
+                    Chatty.instance().messages().get("reply-command.recipient-format")
                             .replace("{sender}", sender.getName())
                             .replace("{recipient}", recipient.getName())
                             .replace("{message}", message)
             );
 
         sender.sendMessage(
-                Chatty.instance().getMessages().get("reply-command.sender-format")
+                Chatty.instance().messages().get("reply-command.sender-format")
                         .replace("{sender}", sender.getName())
                         .replace("{recipient}", recipient.getName())
                         .replace("{message}", message)

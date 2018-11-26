@@ -1,5 +1,6 @@
 package ru.mrbrikster.chatty.notifications;
 
+import ru.mrbrikster.chatty.Chatty;
 import ru.mrbrikster.chatty.reflection.Reflection;
 
 import java.util.List;
@@ -23,6 +24,8 @@ public class ChatNotification extends Notification {
 
     @Override
     public void run() {
+        Chatty.instance().debugger().debug("Run \"%s\" ChatNotification.", name);
+
         if (currentMessage == -1 || messages.size() <= ++currentMessage) {
             currentMessage = 0;
         }

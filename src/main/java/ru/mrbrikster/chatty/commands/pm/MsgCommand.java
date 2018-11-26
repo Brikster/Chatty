@@ -33,17 +33,17 @@ public class MsgCommand extends BukkitCommand {
     @Override
     public void handle(CommandSender sender, String label, String[] args) {
         if (!(sender instanceof Player) && !configuration.getNode("commands.msg.allow-console").getAsBoolean(false)) {
-            sender.sendMessage(Chatty.instance().getMessages().get("only-for-players"));
+            sender.sendMessage(Chatty.instance().messages().get("only-for-players"));
             return;
         }
 
         if (!sender.hasPermission("chatty.command.msg")) {
-            sender.sendMessage(Chatty.instance().getMessages().get("no-permission"));
+            sender.sendMessage(Chatty.instance().messages().get("no-permission"));
             return;
         }
 
         if (args.length < 2) {
-            sender.sendMessage(Chatty.instance().getMessages().get("msg-command.usage")
+            sender.sendMessage(Chatty.instance().messages().get("msg-command.usage")
                 .replace("{label}", label));
             return;
         }
@@ -56,25 +56,25 @@ public class MsgCommand extends BukkitCommand {
                         ? Bukkit.getConsoleSender() : Bukkit.getPlayer(recipientName);
 
         if (recipient == null) {
-            sender.sendMessage(Chatty.instance().getMessages().get("msg-command.player-not-found"));
+            sender.sendMessage(Chatty.instance().messages().get("msg-command.player-not-found"));
             return;
         }
 
         if (recipient.equals(sender)) {
-            sender.sendMessage(Chatty.instance().getMessages().get("msg-command.cannot-message-yourself"));
+            sender.sendMessage(Chatty.instance().messages().get("msg-command.cannot-message-yourself"));
             return;
         }
 
         if (!permanentStorage.isIgnore(recipient, sender))
             recipient.sendMessage(
-                    Chatty.instance().getMessages().get("msg-command.recipient-format")
+                    Chatty.instance().messages().get("msg-command.recipient-format")
                             .replace("{sender}", sender.getName())
                             .replace("{recipient}", recipient.getName())
                             .replace("{message}", message)
             );
 
         sender.sendMessage(
-                Chatty.instance().getMessages().get("msg-command.sender-format")
+                Chatty.instance().messages().get("msg-command.sender-format")
                         .replace("{sender}", sender.getName())
                         .replace("{recipient}", recipient.getName())
                         .replace("{message}", message)

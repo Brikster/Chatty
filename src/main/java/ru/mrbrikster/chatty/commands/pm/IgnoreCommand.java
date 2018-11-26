@@ -27,17 +27,17 @@ public class IgnoreCommand extends BukkitCommand {
     @Override
     public void handle(CommandSender sender, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage(Chatty.instance().getMessages().get("only-for-players"));
+            sender.sendMessage(Chatty.instance().messages().get("only-for-players"));
             return;
         }
 
         if (!sender.hasPermission("chatty.command.ignore")) {
-            sender.sendMessage(Chatty.instance().getMessages().get("no-permission"));
+            sender.sendMessage(Chatty.instance().messages().get("no-permission"));
             return;
         }
 
         if (args.length != 1) {
-            sender.sendMessage(Chatty.instance().getMessages().get("ignore-command.usage")
+            sender.sendMessage(Chatty.instance().messages().get("ignore-command.usage")
                     .replace("{label}", label));
             return;
         }
@@ -47,13 +47,13 @@ public class IgnoreCommand extends BukkitCommand {
         Player ignoreTargetPlayer = Bukkit.getPlayer(ignoreTarget);
 
         if (ignoreTargetPlayer == null) {
-            sender.sendMessage(Chatty.instance().getMessages().get("ignore-command.player-not-found")
+            sender.sendMessage(Chatty.instance().messages().get("ignore-command.player-not-found")
                     .replace("{label}", label));
             return;
         }
 
         if (sender.equals(ignoreTargetPlayer)) {
-            sender.sendMessage(Chatty.instance().getMessages().get("ignore-command.cannot-ignore-yourself")
+            sender.sendMessage(Chatty.instance().messages().get("ignore-command.cannot-ignore-yourself")
                     .replace("{label}", label));
             return;
         }
@@ -64,11 +64,11 @@ public class IgnoreCommand extends BukkitCommand {
             jsonElement = new JsonArray();
 
         if (jsonElement.getAsJsonArray().contains(new JsonPrimitive(ignoreTargetPlayer.getName()))) {
-            sender.sendMessage(Chatty.instance().getMessages().get("ignore-command.remove-ignore")
+            sender.sendMessage(Chatty.instance().messages().get("ignore-command.remove-ignore")
                     .replace("{label}", label).replace("{player}", ignoreTargetPlayer.getName()));
             ((JsonArray) jsonElement).remove(new JsonPrimitive(ignoreTargetPlayer.getName()));
         } else {
-            sender.sendMessage(Chatty.instance().getMessages().get("ignore-command.add-ignore")
+            sender.sendMessage(Chatty.instance().messages().get("ignore-command.add-ignore")
                     .replace("{label}", label).replace("{player}", ignoreTargetPlayer.getName()));
             jsonElement.getAsJsonArray().add(ignoreTargetPlayer.getName());
         }

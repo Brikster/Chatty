@@ -1,6 +1,5 @@
 package ru.mrbrikster.chatty;
 
-import lombok.Getter;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
@@ -14,16 +13,26 @@ import ru.mrbrikster.chatty.commands.CommandManager;
 import ru.mrbrikster.chatty.dependencies.DependencyManager;
 import ru.mrbrikster.chatty.moderation.ModerationManager;
 import ru.mrbrikster.chatty.notifications.NotificationManager;
+import ru.mrbrikster.chatty.util.Debugger;
 import ru.mrbrikster.chatty.util.Messages;
 
 public final class Chatty extends BukkitBasePlugin {
 
     private static Chatty instance;
     private CommandManager commandManager;
-    @Getter private Messages messages;
+    private Messages messages;
+    private Debugger debugger;
 
     public static Chatty instance() {
         return Chatty.instance;
+    }
+
+    public Messages messages() {
+        return this.messages;
+    }
+
+    public Debugger debugger() {
+        return this.debugger;
     }
 
     @Override
@@ -38,6 +47,7 @@ public final class Chatty extends BukkitBasePlugin {
         DependencyManager dependencyManager = new DependencyManager(configuration, permanentStorage, this);
 
         this.messages = new Messages(this, configuration);
+        this.debugger = new Debugger(this, configuration);
 
         configuration.registerReloadHandler(() -> {
             this.messages = new Messages(this, configuration);

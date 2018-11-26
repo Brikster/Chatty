@@ -2,6 +2,7 @@ package ru.mrbrikster.chatty.reflection;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import ru.mrbrikster.chatty.Chatty;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -16,14 +17,19 @@ public class Reflection {
 
     static {
         try {
+            Chatty.instance().debugger().debug("Choose modern getOnlinePlayers method.");
+
             getOnlinePlayersMethod = MethodHandles.lookup()
                     .findStatic(Bukkit.class, "getOnlinePlayers", MethodType.methodType(Collection.class));
         } catch (NoSuchMethodException | IllegalAccessException e) {
             try {
+                Chatty.instance().debugger().debug("Choose outdated getOnlinePlayers method.");
+
                 getOnlinePlayersMethod = MethodHandles.lookup()
                         .findStatic(Bukkit.class, "getOnlinePlayers", MethodType.methodType(Player[].class));
             } catch (NoSuchMethodException | IllegalAccessException e1) {
                 e1.printStackTrace();
+                Chatty.instance().debugger().debug("Unable to choose getOnlinePlayers method.");
             }
         }
     }

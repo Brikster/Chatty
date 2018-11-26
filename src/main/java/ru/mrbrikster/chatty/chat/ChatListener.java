@@ -63,7 +63,7 @@ public class ChatListener implements Listener, EventExecutor {
     private final Configuration configuration;
     private final ModerationManager moderationManager;
     private final PermanentStorage permanentStorage;
-    private IdentityHashMap<Player, Pair<Chat, Set<Player>>> pendingPlayers;
+    private IdentityHashMap<Player, Pair<Chat, List<Player>>> pendingPlayers;
     private IdentityHashMap<Player, List<String>> pendingSwears;
 
     @SuppressWarnings("all")
@@ -100,7 +100,7 @@ public class ChatListener implements Listener, EventExecutor {
 
         if (chat == null) {
             playerChatEvent.setCancelled(true);
-            player.sendMessage(Chatty.instance().getMessages().get("chat-not-found"));
+            player.sendMessage(Chatty.instance().messages().get("chat-not-found"));
             return;
         }
 
@@ -120,7 +120,7 @@ public class ChatListener implements Listener, EventExecutor {
         long cooldown = hasCooldown ? -1 : chat.getCooldown(player);
 
         if (cooldown != -1) {
-            player.sendMessage(Chatty.instance().getMessages().get("cooldown")
+            player.sendMessage(Chatty.instance().messages().get("cooldown")
                     .replace("{cooldown}", String.valueOf(cooldown)));
             playerChatEvent.setCancelled(true);
             return;
@@ -130,7 +130,7 @@ public class ChatListener implements Listener, EventExecutor {
             VaultHook vaultHook = dependencyManager.getVault();
 
             if (!vaultHook.withdrawMoney(player, chat.getMoney())) {
-                player.sendMessage(Chatty.instance().getMessages().get("not-enough-money")
+                player.sendMessage(Chatty.instance().messages().get("not-enough-money")
                         .replace("{money}", String.valueOf(chat.getMoney())));
                 playerChatEvent.setCancelled(true);
                 return;
@@ -155,7 +155,7 @@ public class ChatListener implements Listener, EventExecutor {
         playerChatEvent.getRecipients().addAll(chat.getRecipients(player, permanentStorage));
 
         if (playerChatEvent.getRecipients().size() <= 1) {
-            String noRecipients = Chatty.instance().getMessages().get("no-recipients", null);
+            String noRecipients = Chatty.instance().messages().get("no-recipients", null);
 
             if (noRecipients != null)
                 Bukkit.getScheduler().runTaskLater(Chatty.instance(), () -> player.sendMessage(noRecipients), 5L);
@@ -183,7 +183,7 @@ public class ChatListener implements Listener, EventExecutor {
                         logPrefixBuilder.append("[SWEAR] ");
                     }
 
-                    String swearFound = Chatty.instance().getMessages().get("swear-found", null);
+                    String swearFound = Chatty.instance().messages().get("swear-found", null);
 
                     if (swearFound != null)
                         Bukkit.getScheduler().runTaskLater(Chatty.instance(),
@@ -214,7 +214,7 @@ public class ChatListener implements Listener, EventExecutor {
                         logPrefixBuilder.append("[CAPS] ");
                     }
 
-                    String capsFound = Chatty.instance().getMessages().get("caps-found", null);
+                    String capsFound = Chatty.instance().messages().get("caps-found", null);
 
                     if (capsFound != null)
                         Bukkit.getScheduler().runTaskLater(Chatty.instance(),
@@ -240,7 +240,7 @@ public class ChatListener implements Listener, EventExecutor {
                         logPrefixBuilder.append("[ADS] ");
                     }
 
-                    String adsFound = Chatty.instance().getMessages().get("advertisement-found", null);
+                    String adsFound = Chatty.instance().messages().get("advertisement-found", null);
 
                     if (adsFound != null)
                         Bukkit.getScheduler().runTaskLater(Chatty.instance(),
@@ -252,22 +252,32 @@ public class ChatListener implements Listener, EventExecutor {
         if (cancelEvent) playerChatEvent.setCancelled(true);
 
         playerChatEvent.setMessage(message);
-        pendingPlayers.put(player, new Pair<>(chat, playerChatEvent.getRecipients()));
+        pendingPlayers.put(player, new Pair<>(chat, new ArrayList<>(playerChatEvent.getRecipients())));
         this.chatManager.getLogger().write(player, message, logPrefixBuilder.toString());
+
+        Chatty.instance().debugger().debug("Put pendingsPlayers with player: \"%s\", chat: \"%s\", recipients: \"%s\".",
+                player.getName(), chat.getName(), String.join(", ", pendingPlayers.get(player).getValue().stream().map(Player::getName).collect(Collectors.toList())));
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onSpyMessage(AsyncPlayerChatEvent playerChatEvent) {
         if (configuration.getNode("general.spy.enable").getAsBoolean(false)) {
-            Pair<Chat, Set<Player>> pair = pendingPlayers.remove(playerChatEvent.getPlayer());
+            Pair<Chat, List<Player>> pair = pendingPlayers.remove(playerChatEvent.getPlayer());
 
-            if (!playerChatEvent.isCancelled() && pair != null && pair.getKey() != null) {
+            if (!playerChatEvent.isCancelled() && pair != null) {
+                Chatty.instance().debugger().debug("Called method onSpyMessage with chat: \"%s\", players: \"%s\".",
+                        pair.getKey().getName(), String.join(", ", pair.getValue().stream().map(Player::getName).collect(Collectors.toList())));
+
                 Reflection.getOnlinePlayers().stream().filter(spy -> (spy.hasPermission("chatty.spy") || spy.hasPermission("chatty.spy." + pair.getKey().getName()))
                         && !temporaryStorage.getSpyDisabled().contains(spy) &&
-                        !pair.getValue().contains(spy)).forEach(spy ->
-                                spy.sendMessage(
-                                        COLORIZE.apply(configuration.getNode("general.spy.format").getAsString("&6[Spy] &r{format}")
-                                                .replace("{format}", String.format(playerChatEvent.getFormat(), playerChatEvent.getPlayer().getName(), playerChatEvent.getMessage())))));
+                        !pair.getValue().contains(spy)).forEach(spy ->  {
+                    Chatty.instance().debugger().debug("Sending spy message from chat \"%s\" to player \"%s\".",
+                            pair.getKey().getName(), spy.getName());
+
+                    spy.sendMessage(
+                            COLORIZE.apply(configuration.getNode("general.spy.format").getAsString("&6[Spy] &r{format}")
+                                    .replace("{format}", String.format(playerChatEvent.getFormat(), playerChatEvent.getPlayer().getName(), playerChatEvent.getMessage()))));
+                });
             }
         }
     }
@@ -346,16 +356,31 @@ public class ChatListener implements Listener, EventExecutor {
 
                 String suggest = configuration.getNode("json.swears.suggest_command").getAsString(null);
 
-                if (swears != null) swears.forEach(swear -> formattedMessage.replace(replacement,
+                swears.forEach(swear -> formattedMessage.replace(replacement,
                         new JSONMessagePart(replacement)
                                 .tooltip(swearTooltip.stream().map(tooltipLine -> tooltipLine.replace("{word}", swear)).collect(Collectors.toList()))
                                 .suggest(suggest != null ? suggest.replace("{word}", swear) : null)));
             }
         }
 
+        Chatty.instance().debugger().debug("Sending JSON message from player \"%s\" with recipients \"%s\".",
+                player.getName(), String.join(", ", playerChatEvent.getRecipients().stream().map(Player::getName).collect(Collectors.toList())));
+
         formattedMessage.send(playerChatEvent.getRecipients());
 
         playerChatEvent.getRecipients().clear();
+
+        StringBuilder stringBuilder = new StringBuilder();
+
+        for (Map.Entry<Player, Pair<Chat, List<Player>>> playerPairEntry : pendingPlayers.entrySet()) {
+            stringBuilder = stringBuilder.append("{").
+                append("player: \"").append(playerPairEntry.getKey().getName()).append("\", ").
+                append("chat: \"").append(playerPairEntry.getValue().getKey().getName()).append("\", ").
+                append("players: \"").append(playerPairEntry.getValue().getValue().stream().map(Player::getName).collect(Collectors.toList())).
+                append("\"} ");
+        }
+
+        Chatty.instance().debugger().debug("Current pending players %s(%s).", stringBuilder.toString(), String.valueOf(pendingPlayers.size()));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

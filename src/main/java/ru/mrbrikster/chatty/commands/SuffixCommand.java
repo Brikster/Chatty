@@ -34,19 +34,19 @@ public class SuffixCommand extends BukkitCommand {
     public void handle(CommandSender sender, String label, String[] args) {
         if (args.length >= 2) {
             if (!sender.hasPermission("chatty.command.suffix")) {
-                sender.sendMessage(Chatty.instance().getMessages().get("no-permission"));
+                sender.sendMessage(Chatty.instance().messages().get("no-permission"));
                 return;
             }
 
             Player player = Bukkit.getPlayer(args[0]);
 
             if (player == null) {
-                sender.sendMessage(Chatty.instance().getMessages().get("suffix-command.player-not-found"));
+                sender.sendMessage(Chatty.instance().messages().get("suffix-command.player-not-found"));
                 return;
             }
 
             if (!player.equals(sender) && !sender.hasPermission("chatty.command.suffix.others")) {
-                sender.sendMessage(Chatty.instance().getMessages().get("suffix-command.no-permission-others"));
+                sender.sendMessage(Chatty.instance().messages().get("suffix-command.no-permission-others"));
                 return;
             }
 
@@ -59,7 +59,7 @@ public class SuffixCommand extends BukkitCommand {
                     }
                 }
 
-                sender.sendMessage(Chatty.instance().getMessages().get("suffix-command.suffix-clear")
+                sender.sendMessage(Chatty.instance().messages().get("suffix-command.suffix-clear")
                         .replace("{player}", player.getName()));
             } else {
                 String suffix = Arrays.stream(Arrays.copyOfRange(args, 1, args.length)).collect(Collectors.joining(" "));
@@ -73,12 +73,12 @@ public class SuffixCommand extends BukkitCommand {
                     }
                 }
 
-                sender.sendMessage(Chatty.instance().getMessages().get("suffix-command.suffix-set")
+                sender.sendMessage(Chatty.instance().messages().get("suffix-command.suffix-set")
                         .replace("{player}", player.getName())
                         .replace("{suffix}", ChatColor.translateAlternateColorCodes('&', suffix)));
             }
         } else {
-            sender.sendMessage(Chatty.instance().getMessages().get("suffix-command.usage")
+            sender.sendMessage(Chatty.instance().messages().get("suffix-command.usage")
                     .replace("{label}", label));
         }
     }
