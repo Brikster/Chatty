@@ -19,8 +19,8 @@ public class ChattyCommand extends BukkitCommand {
     public void handle(CommandSender sender, String label, String[] args) {
         if (sender.hasPermission("chatty.command.reload")) {
             configuration.reload();
-            sender.sendMessage(Chatty.instance().getMessages().get("reload"));
-        } else sender.sendMessage(Chatty.instance().getMessages().get("no-permission"));
+            sender.sendMessage(Chatty.instance().messages().get("reload"));
+        } else sender.sendMessage(Chatty.instance().messages().get("no-permission"));
     }
 
 }

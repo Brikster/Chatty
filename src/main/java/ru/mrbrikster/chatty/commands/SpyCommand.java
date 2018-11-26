@@ -20,18 +20,18 @@ public class SpyCommand extends BukkitCommand {
     public void handle(CommandSender sender, String label, String[] args) {
         if (sender instanceof Player) {
             if (!sender.hasPermission("chatty.command.spy")) {
-                sender.sendMessage(Chatty.instance().getMessages().get("no-permission"));
+                sender.sendMessage(Chatty.instance().messages().get("no-permission"));
                 return;
             }
 
             if (temporaryStorage.getSpyDisabled().contains(sender)) {
-                sender.sendMessage(Chatty.instance().getMessages().get("spy-on"));
+                sender.sendMessage(Chatty.instance().messages().get("spy-on"));
                 temporaryStorage.getSpyDisabled().remove(sender);
             } else {
-                sender.sendMessage(Chatty.instance().getMessages().get("spy-off"));
+                sender.sendMessage(Chatty.instance().messages().get("spy-off"));
                 temporaryStorage.getSpyDisabled().add((Player) sender);
             }
-        } else sender.sendMessage(Chatty.instance().getMessages().get("only-for-players"));
+        } else sender.sendMessage(Chatty.instance().messages().get("only-for-players"));
     }
 
 }

@@ -34,19 +34,19 @@ public class PrefixCommand extends BukkitCommand {
     public void handle(CommandSender sender, String label, String[] args) {
         if (args.length >= 2) {
             if (!sender.hasPermission("chatty.command.prefix")) {
-                sender.sendMessage(Chatty.instance().getMessages().get("no-permission"));
+                sender.sendMessage(Chatty.instance().messages().get("no-permission"));
                 return;
             }
 
             Player player = Bukkit.getPlayer(args[0]);
 
             if (player == null) {
-                sender.sendMessage(Chatty.instance().getMessages().get("prefix-command.player-not-found"));
+                sender.sendMessage(Chatty.instance().messages().get("prefix-command.player-not-found"));
                 return;
             }
 
             if (!player.equals(sender) && !sender.hasPermission("chatty.command.prefix.others")) {
-                sender.sendMessage(Chatty.instance().getMessages().get("prefix-command.no-permission-others"));
+                sender.sendMessage(Chatty.instance().messages().get("prefix-command.no-permission-others"));
                 return;
             }
 
@@ -59,7 +59,7 @@ public class PrefixCommand extends BukkitCommand {
                     }
                 }
 
-                sender.sendMessage(Chatty.instance().getMessages().get("prefix-command.prefix-clear")
+                sender.sendMessage(Chatty.instance().messages().get("prefix-command.prefix-clear")
                         .replace("{player}", player.getName()));
             } else {
                 String prefix = Arrays.stream(Arrays.copyOfRange(args, 1, args.length)).collect(Collectors.joining(" "));
@@ -74,12 +74,12 @@ public class PrefixCommand extends BukkitCommand {
                     }
                 }
 
-                sender.sendMessage(Chatty.instance().getMessages().get("prefix-command.prefix-set")
+                sender.sendMessage(Chatty.instance().messages().get("prefix-command.prefix-set")
                         .replace("{player}", player.getName())
                         .replace("{prefix}", ChatColor.translateAlternateColorCodes('&', prefix)));
             }
         } else {
-            sender.sendMessage(Chatty.instance().getMessages().get("prefix-command.usage")
+            sender.sendMessage(Chatty.instance().messages().get("prefix-command.usage")
                     .replace("{label}", label));
         }
     }

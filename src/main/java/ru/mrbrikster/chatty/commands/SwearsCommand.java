@@ -31,9 +31,9 @@ public class SwearsCommand extends BukkitCommand {
 
                 SwearModerationMethod.addWord(Pattern.compile(word, Pattern.CASE_INSENSITIVE));
 
-                sender.sendMessage(Chatty.instance().getMessages().get("swears-command.add-word").replace("{word}", word));
-            } else sender.sendMessage(Chatty.instance().getMessages().get("swears-command.usage")
+                sender.sendMessage(Chatty.instance().messages().get("swears-command.add-word").replace("{word}", word));
+            } else sender.sendMessage(Chatty.instance().messages().get("swears-command.usage")
                     .replace("{label}", label));
-        } else sender.sendMessage(Chatty.instance().getMessages().get("no-permission"));
+        } else sender.sendMessage(Chatty.instance().messages().get("no-permission"));
     }
 }

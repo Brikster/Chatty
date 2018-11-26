@@ -25,6 +25,8 @@ public abstract class Notification {
     public void cancel() {
         if (bukkitTask != null)
             bukkitTask.cancel();
+
+        Chatty.instance().debugger().debug(this.getClass().getSimpleName() + " task cancelled.");
     }
 
     public abstract void run();
