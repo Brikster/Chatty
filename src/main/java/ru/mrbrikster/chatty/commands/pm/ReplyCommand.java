@@ -65,18 +65,21 @@ public class ReplyCommand extends BukkitCommand {
             return;
         }
 
+        String senderName = sender instanceof Player ? ((Player) sender).getDisplayName() : sender.getName();
+        String recipientName = recipient instanceof Player ? ((Player) recipient).getDisplayName() : recipient.getName();
+
         if (!permanentStorage.isIgnore(recipient, sender))
             recipient.sendMessage(
                     Chatty.instance().messages().get("reply-command.recipient-format")
-                            .replace("{sender}", sender.getName())
-                            .replace("{recipient}", recipient.getName())
+                            .replace("{sender}", senderName)
+                            .replace("{recipient}", recipientName)
                             .replace("{message}", message)
             );
 
         sender.sendMessage(
                 Chatty.instance().messages().get("reply-command.sender-format")
-                        .replace("{sender}", sender.getName())
-                        .replace("{recipient}", recipient.getName())
+                        .replace("{sender}", senderName)
+                        .replace("{recipient}", recipientName)
                         .replace("{message}", message)
         );
 
@@ -89,8 +92,8 @@ public class ReplyCommand extends BukkitCommand {
                 .forEach(spyPlayer -> spyPlayer.sendMessage(
                         ChatColor.translateAlternateColorCodes('&', configuration.getNode("general.spy.pm-format")
                                 .getAsString("&6[Spy] &7{sender} &6-> &7{recipient}: &f{message}"))
-                                .replace("{sender}", sender.getName())
-                                .replace("{recipient}", recipient.getName())
+                                .replace("{sender}", senderName)
+                                .replace("{recipient}", recipientName)
                                 .replace("{message}", message)
                 ));
     }

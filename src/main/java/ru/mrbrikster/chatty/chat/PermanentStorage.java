@@ -5,6 +5,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import ru.mrbrikster.baseplugin.config.Configuration;
+import ru.mrbrikster.chatty.util.JsonUtil;
 
 import java.io.*;
 import java.util.Optional;
@@ -114,7 +115,7 @@ public class PermanentStorage {
             if (!jsonElement.isJsonArray())
                 jsonElement = new JsonArray();
 
-            return jsonElement.getAsJsonArray().contains(new JsonPrimitive(sender.getName()));
+            return JsonUtil.contains((JsonArray) jsonElement, new JsonPrimitive(sender.getName()));
         }
 
         return false;

@@ -10,7 +10,7 @@ public class LegacyMessagePart implements MessagePart {
     private final String text;
     private final boolean colorize;
 
-    public LegacyMessagePart(String text) {
+    LegacyMessagePart(String text) {
         this.text = text;
         this.colorize = true;
     }

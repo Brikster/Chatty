@@ -305,7 +305,7 @@ public class ChatListener implements Listener, EventExecutor {
         Function<String, String> replaceVariables = string -> {
             if (string == null) return null;
 
-            string = string.replace("{player}", player.getName());
+            string = string.replace("{player}", player.getDisplayName());
 
             if (placeholderAPI != null)
                 string = placeholderAPI.setPlaceholders(player, string);
@@ -315,7 +315,7 @@ public class ChatListener implements Listener, EventExecutor {
 
         FormattedMessage formattedMessage = new FormattedMessage(format);
         formattedMessage.replace("{player}",
-                new JSONMessagePart(player.getName())
+                new JSONMessagePart(player.getDisplayName())
                     .command(replaceVariables.apply(command))
                     .suggest(replaceVariables.apply(suggestCommand))
                     .link(replaceVariables.apply(link))
@@ -327,7 +327,7 @@ public class ChatListener implements Listener, EventExecutor {
             String text = replacement.getNode("text").getAsString(replacementName);
             List<String> replacementTooltip = replacement.getNode("tooltip").getAsStringList();
 
-            replacementTooltip = replacementTooltip.stream().map(line -> ChatColor.translateAlternateColorCodes('&', line.replace("{player}", player.getName())))
+            replacementTooltip = replacementTooltip.stream().map(line -> ChatColor.translateAlternateColorCodes('&', line.replace("{player}", player.getDisplayName())))
                     .collect(Collectors.toList());
 
             if (placeholderAPI != null)
@@ -398,7 +398,7 @@ public class ChatListener implements Listener, EventExecutor {
             } else playerJoinEvent.setJoinMessage(COLORIZE.apply(joinMessage
                     .replace("{prefix}", getPrefix(playerJoinEvent.getPlayer()))
                     .replace("{suffix}", getSuffix(playerJoinEvent.getPlayer()))
-                    .replace("{player}", playerJoinEvent.getPlayer().getName())));
+                    .replace("{player}", playerJoinEvent.getPlayer().getDisplayName())));
         }
     }
 
@@ -419,7 +419,7 @@ public class ChatListener implements Listener, EventExecutor {
             } else playerQuitEvent.setQuitMessage(COLORIZE.apply(quitMessage
                     .replace("{prefix}", getPrefix(playerQuitEvent.getPlayer()))
                     .replace("{suffix}", getSuffix(playerQuitEvent.getPlayer()))
-                    .replace("{player}", playerQuitEvent.getPlayer().getName())));
+                    .replace("{player}", playerQuitEvent.getPlayer().getDisplayName())));
         }
     }
 
@@ -438,7 +438,7 @@ public class ChatListener implements Listener, EventExecutor {
             } else playerDeathEvent.setDeathMessage(COLORIZE.apply(deathMessage
                     .replace("{prefix}", getPrefix(playerDeathEvent.getEntity()))
                     .replace("{suffix}", getSuffix(playerDeathEvent.getEntity()))
-                    .replace("{player}", playerDeathEvent.getEntity().getName())));
+                    .replace("{player}", playerDeathEvent.getEntity().getDisplayName())));
         }
     }
 
