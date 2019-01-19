@@ -97,6 +97,8 @@ public final class Chatty extends BukkitBasePlugin {
                     () -> String.valueOf(configuration.getNode("notifications.actionbar.enable").getAsBoolean(false))));
             metrics.addCustomChart(new Metrics.SimplePie("advancements_notifications",
                     () -> String.valueOf(configuration.getNode("notifications.advancements.enable").getAsBoolean(false))));
+            metrics.addCustomChart(new Metrics.SimplePie("debug",
+                    () -> String.valueOf(configuration.getNode("general.debug").getAsBoolean(false))));
         }
     }
 
