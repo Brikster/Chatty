@@ -11,6 +11,7 @@ import ru.mrbrikster.baseplugin.commands.BukkitCommand;
 import ru.mrbrikster.baseplugin.config.Configuration;
 import ru.mrbrikster.chatty.Chatty;
 import ru.mrbrikster.chatty.chat.PermanentStorage;
+import ru.mrbrikster.chatty.util.JsonUtil;
 
 public class IgnoreCommand extends BukkitCommand {
 
@@ -63,7 +64,7 @@ public class IgnoreCommand extends BukkitCommand {
         if (!jsonElement.isJsonArray())
             jsonElement = new JsonArray();
 
-        if (jsonElement.getAsJsonArray().contains(new JsonPrimitive(ignoreTargetPlayer.getName()))) {
+        if (JsonUtil.contains(jsonElement.getAsJsonArray(), new JsonPrimitive(ignoreTargetPlayer.getName()))) {
             sender.sendMessage(Chatty.instance().messages().get("ignore-command.remove-ignore")
                     .replace("{label}", label).replace("{player}", ignoreTargetPlayer.getName()));
             ((JsonArray) jsonElement).remove(new JsonPrimitive(ignoreTargetPlayer.getName()));

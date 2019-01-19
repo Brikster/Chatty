@@ -96,4 +96,5 @@ class LegacyConverter {
     static List<ru.mrbrikster.chatty.json.fanciful.MessagePart> getMessageParts(String message) {
         return new LegacyConverter(message).toMessageParts();
     }
+
 }

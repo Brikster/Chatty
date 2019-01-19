@@ -65,24 +65,28 @@ public class MsgCommand extends BukkitCommand {
             return;
         }
 
+        String senderName = sender instanceof Player ? ((Player) sender).getDisplayName() : sender.getName();
+        recipientName = recipient instanceof Player ? ((Player) recipient).getDisplayName() : recipient.getName();
+
         if (!permanentStorage.isIgnore(recipient, sender))
             recipient.sendMessage(
                     Chatty.instance().messages().get("msg-command.recipient-format")
-                            .replace("{sender}", sender.getName())
-                            .replace("{recipient}", recipient.getName())
+                            .replace("{sender}", senderName)
+                            .replace("{recipient}", recipientName)
                             .replace("{message}", message)
             );
 
         sender.sendMessage(
                 Chatty.instance().messages().get("msg-command.sender-format")
-                        .replace("{sender}", sender.getName())
-                        .replace("{recipient}", recipient.getName())
+                        .replace("{sender}", senderName)
+                        .replace("{recipient}", recipientName)
                         .replace("{message}", message)
         );
 
         commandsStorage.setLastMessaged(recipient.getName(), sender.getName());
         commandsStorage.setLastMessaged(sender.getName(), recipient.getName());
 
+        String finalRecipientName = recipientName;
         Bukkit.getOnlinePlayers().stream()
                 .filter(spyPlayer -> !spyPlayer.equals(sender) && !spyPlayer.equals(recipient))
                 .filter(spyPlayer -> spyPlayer.hasPermission("chatty.spy") || spyPlayer.hasPermission("chatty.spy.pm"))
@@ -90,8 +94,8 @@ public class MsgCommand extends BukkitCommand {
                 .forEach(spyPlayer -> spyPlayer.sendMessage(
                         ChatColor.translateAlternateColorCodes('&', configuration.getNode("general.spy.pm-format")
                                 .getAsString("&6[Spy] &7{sender} &6-> &7{recipient}: &f{message}"))
-                                .replace("{sender}", sender.getName())
-                                .replace("{recipient}", recipient.getName())
+                                .replace("{sender}", senderName)
+                                .replace("{recipient}", finalRecipientName)
                                 .replace("{message}", message)
                 ));
     }
