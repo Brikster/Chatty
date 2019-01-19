@@ -94,8 +94,8 @@
             <url>http://ci.nametagedit.com/plugin/repository/everything/</url>
         </repository>
         <repository>
-            <id>digi-public</id>
-            <url>http://nexus.xdigi.xyz/repository/digi-public</url>
+            <id>rednite-public</id>
+            <url>https://nexus.rednite.ru/repository/maven-public</url>
         </repository>
     </repositories>
 
