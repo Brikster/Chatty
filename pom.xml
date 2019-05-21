@@ -34,6 +34,10 @@
                 <configuration>
                     <relocations>
                         <relocation>
+                            <pattern>ru.mrbrikster.baseplugin</pattern>
+                            <shadedPattern>ru.mrbrikster.chatty.baseplugin</shadedPattern>
+                        </relocation>
+                        <relocation>
                             <pattern>org.bstats.bukkit</pattern>
                             <shadedPattern>ru.mrbrikster.chatty.util.metrics</shadedPattern>
                         </relocation>
@@ -94,16 +98,16 @@
             <url>http://ci.nametagedit.com/plugin/repository/everything/</url>
         </repository>
         <repository>
-            <id>rednite-public</id>
-            <url>https://nexus.rednite.ru/repository/maven-public</url>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
         </repository>
     </repositories>
 
     <dependencies>
         <dependency>
-            <groupId>ru.mrbrikster</groupId>
-            <artifactId>baseplugin</artifactId>
-            <version>1.0</version>
+            <groupId>com.github.Brikster</groupId>
+            <artifactId>BasePlugin</artifactId>
+            <version>v1.7</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
