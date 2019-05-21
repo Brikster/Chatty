@@ -6,7 +6,7 @@
 
     <groupId>ru.mrbrikster</groupId>
     <artifactId>chatty</artifactId>
-    <version>2.15.1</version>
+    <version>2.15.2</version>
     <packaging>jar</packaging>
 
     <name>Chatty</name>
@@ -94,10 +94,6 @@
             <url>https://repo.codemc.org/repository/maven-public</url>
         </repository>
         <repository>
-            <id>nte-repo</id>
-            <url>http://ci.nametagedit.com/plugin/repository/everything/</url>
-        </repository>
-        <repository>
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
         </repository>
@@ -161,14 +157,15 @@
         <dependency>
             <groupId>org.bstats</groupId>
             <artifactId>bstats-bukkit</artifactId>
-            <version>1.4</version>
+            <version>1.5</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.nametagedit</groupId>
             <artifactId>nametagedit</artifactId>
-            <version>4.1.0</version>
-            <scope>provided</scope>
+            <version>4.4.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/NametagEdit.jar</systemPath>
         </dependency>
     </dependencies>
 

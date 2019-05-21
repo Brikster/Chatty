@@ -1,6 +1,6 @@
-name: Chatty
+name: ${project.name}
 version: ${project.version}
-main: ru.mrbrikster.chatty.Chatty
+main: ${project.groupId}.${project.artifactId}.${project.name}
 authors: [MrBrikster]
 
 softdepend: [Vault, PlaceholderAPI, NametagEdit]
