@@ -6,7 +6,7 @@
 
     <groupId>ru.mrbrikster</groupId>
     <artifactId>chatty</artifactId>
-    <version>2.15.1</version>
+    <version>2.15.2</version>
     <packaging>jar</packaging>
 
     <name>Chatty</name>
@@ -33,6 +33,10 @@
                 <version>3.1.0</version>
                 <configuration>
                     <relocations>
+                        <relocation>
+                            <pattern>ru.mrbrikster.baseplugin</pattern>
+                            <shadedPattern>ru.mrbrikster.chatty.baseplugin</shadedPattern>
+                        </relocation>
                         <relocation>
                             <pattern>org.bstats.bukkit</pattern>
                             <shadedPattern>ru.mrbrikster.chatty.util.metrics</shadedPattern>
@@ -90,20 +94,16 @@
             <url>https://repo.codemc.org/repository/maven-public</url>
         </repository>
         <repository>
-            <id>nte-repo</id>
-            <url>http://ci.nametagedit.com/plugin/repository/everything/</url>
-        </repository>
-        <repository>
-            <id>rednite-public</id>
-            <url>https://nexus.rednite.ru/repository/maven-public</url>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
         </repository>
     </repositories>
 
     <dependencies>
         <dependency>
-            <groupId>ru.mrbrikster</groupId>
-            <artifactId>baseplugin</artifactId>
-            <version>1.0</version>
+            <groupId>com.github.Brikster</groupId>
+            <artifactId>BasePlugin</artifactId>
+            <version>v1.7</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -157,14 +157,15 @@
         <dependency>
             <groupId>org.bstats</groupId>
             <artifactId>bstats-bukkit</artifactId>
-            <version>1.4</version>
+            <version>1.5</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.nametagedit</groupId>
             <artifactId>nametagedit</artifactId>
-            <version>4.1.0</version>
-            <scope>provided</scope>
+            <version>4.4.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/NametagEdit.jar</systemPath>
         </dependency>
     </dependencies>
 

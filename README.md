@@ -1,7 +1,7 @@
 ![alt text](https://i.imgur.com/8D5JcGn.png "Chatty")
 
 # Chatty (Bukkit)
-[![Build Status](https://jenkins.brikster.ru/job/Chatty/badge/icon)](https://jenkins.brikster.ru/job/Chatty/)
+[![Build Status](https://travis-ci.org/Brikster/Chatty.svg?branch=master)](https://travis-ci.org/Brikster/Chatty)
 
 Chatty is a unique Bukkit-plugin, that supports all modern Bukkit-servers, such as Thermos, Cauldron, Spigot, PaperSpigot e t.c. This plugin doesn't have any non-switchable options. It's simple, stable and lightweight.
 
