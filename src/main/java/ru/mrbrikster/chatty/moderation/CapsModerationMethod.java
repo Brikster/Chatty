@@ -5,7 +5,7 @@ import ru.mrbrikster.baseplugin.config.ConfigurationNode;
 
 public class CapsModerationMethod extends ModerationMethod {
 
-    private final int procent;
+    private final int percent;
     private final int length;
     @Getter private final boolean useBlock;
 
@@ -13,7 +13,7 @@ public class CapsModerationMethod extends ModerationMethod {
         super(message);
 
         this.useBlock = configurationNode.getNode("block").getAsBoolean(true);
-        this.procent = configurationNode.getNode("procent").getAsInt(80);
+        this.percent = configurationNode.getNode("percent").getAsInt(80);
         this.length = configurationNode.getNode("length").getAsInt(6);
     }
 
@@ -24,10 +24,10 @@ public class CapsModerationMethod extends ModerationMethod {
 
     @Override
     public boolean isBlocked() {
-        return message.length() >= length && getProcent() >= procent;
+        return message.length() >= length && getPercent() >= percent;
     }
 
-    private double getProcent() {
+    private double getPercent() {
         int codePoint, length = 0, capsLength = 0;
         for (char c : message.toCharArray()) {
             codePoint = (int) c;

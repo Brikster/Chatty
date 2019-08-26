@@ -1,19 +1,20 @@
 package ru.mrbrikster.chatty.commands;
 
+import com.google.gson.JsonPrimitive;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import ru.mrbrikster.baseplugin.commands.BukkitCommand;
 import ru.mrbrikster.chatty.Chatty;
-import ru.mrbrikster.chatty.chat.TemporaryStorage;
+import ru.mrbrikster.chatty.chat.JsonStorage;
 
 public class SpyCommand extends BukkitCommand {
 
-    private final TemporaryStorage temporaryStorage;
+    private final JsonStorage jsonStorage;
 
-    SpyCommand(TemporaryStorage temporaryStorage) {
+    SpyCommand(JsonStorage jsonStorage) {
         super("spy");
 
-        this.temporaryStorage = temporaryStorage;
+        this.jsonStorage = jsonStorage;
     }
 
     @Override
@@ -24,14 +25,16 @@ public class SpyCommand extends BukkitCommand {
                 return;
             }
 
-            if (temporaryStorage.getSpyDisabled().contains(sender)) {
-                sender.sendMessage(Chatty.instance().messages().get("spy-on"));
-                temporaryStorage.getSpyDisabled().remove(sender);
-            } else {
+            if (jsonStorage.getProperty((Player) sender, "spy-mode").orElse(new JsonPrimitive(true)).getAsBoolean()) {
+                jsonStorage.setProperty((Player) sender, "spy-mode", new JsonPrimitive(false));
                 sender.sendMessage(Chatty.instance().messages().get("spy-off"));
-                temporaryStorage.getSpyDisabled().add((Player) sender);
+            } else {
+                jsonStorage.setProperty((Player) sender, "spy-mode", new JsonPrimitive(true));
+                sender.sendMessage(Chatty.instance().messages().get("spy-on"));
             }
-        } else sender.sendMessage(Chatty.instance().messages().get("only-for-players"));
+        } else {
+            sender.sendMessage(Chatty.instance().messages().get("only-for-players"));
+        }
     }
 
 }

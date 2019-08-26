@@ -1,16 +1,19 @@
 # ******************************************************
 # * Chatty (version ${project.version})
 #   Universal chat-system for Bukkit-server.
-#   Creator: MrBrikster.
+#
+#   Creator: MrBrikster
+#
 # * Optional dependencies:
 #   Vault, PlaceholderAPI, NameTagEdit.
 # ******************************************************
 
-# * General settings section.
-# Common settings and small features.
+# * GENERAL
+#
+# Very important settings.
 general:
   # Plugin localization.
-  # Possible values:
+  #
   # en - English.
   # ru - Russian.
   # de - German.
@@ -30,73 +33,12 @@ general:
   completely-cancel: false
 
   # Storage player data mode.
-  # true - for online-mode servers and under BungeeCord.
+  # true - for online-mode servers and servers under BungeeCord.
   # false - for offline-mode servers.
   uuid: false
 
-  # Spy-mode.
-  # Permission:
-  # chatty.spy.<chat>
-  # or chatty.spy.
-  #
-  # Permission for /spy:
-  # chatty.command.spy
-  spy:
-    # On/off spy-mode.
-    enable: true
-    # Spy-mode message format.
-    format: '&6[Spy] &r{format}'
-    # PM spy-mode message format.
-    # Permission: chatty.spy
-    # or chatty.spy.pm
-    pm-format: '&6[Spy] &7{sender} &6-> &7{recipient}: &f{message}'
-
-# * Commands.
-commands:
-  prefix:
-    # Enables "/prefix command.
-    # Permission: chatty.command.prefix
-    enable: true
-    # Automatically adds a string after prefix.
-    after-prefix: ' '
-    # Auto-applying in NametagEdit.
-    # (Requires NameTagEdit plugin).
-    auto-nte: false
-
-  suffix:
-    # Enables "/suffix command.
-    # Permission: chatty.command.suffix
-    enable: true
-    # Automatically adds a string before suffix.
-    before-suffix: ' '
-    # Auto-applying in NametagEdit.
-    # (Requires NameTagEdit plugin).
-    auto-nte: false
-
-  msg:
-    # Enables "/msg" command.
-    # Permission: chatty.command.msg
-    enable: true
-    # Aliases for "/msg" command.
-    aliases: ['message', 'pm', 'm', 'w']
-    allow-console: false
-
-  reply:
-    # Enables "/reply" command.
-    # Permission: chatty.command.reply
-    enable: true
-    # Aliases for "/reply" command.
-    aliases: ['r']
-    allow-console: false
-
-  ignore:
-    # Enables "/ignore" command.
-    # Permission: chatty.command.ignore
-    enable: true
-    # Aliases for "/ignore" command.
-    aliases: []
-
-# * Chats.
+# * CHATS
+#
 # On the server there can be different chats with different settings,
 # whether it's donate-chat, admin-chat, or the usual local and global.
 #
@@ -127,11 +69,70 @@ chats:
     symbol: '!'
     cooldown: -1
 
-# * JSON.
-# Formatting chat messages with JSON.
-# 1.7.10+.
+# * PRIVATE MESSAGING
+pm:
+  # Enables private messaging function.
+  enable: true
+
+  # Allows console to messaging players
+  # and messaging players to console.
+  allow-console: false
+
+  # Format of messages
+  #
+  # Variables:
+  # {sender-name}, {recipient-name} - nicknames of sender and recipient.
+  # {sender-prefix}, {recipient-prefix} - prefixes of sender and recipient.
+  # {sender-suffix}, {recipient-suffix} - suffixes of sender and recipient.
+  # {message} - private message.
+  format:
+    recipient: '&7{sender-prefix}{sender-name} &6-> &7{recipient-prefix}{recipient-name}: &f{message}'
+    sender: '&7{sender-prefix}{sender-name} &6-> &7{recipient-prefix}{recipient-name}: &f{message}'
+
+  commands:
+    msg:
+      # Enables "/msg" command.
+      # Permission: chatty.command.msg
+      enable: true
+      # Aliases for "/msg" command.
+      aliases: ['message', 'pm', 'm', 'w']
+
+    reply:
+      # Enables "/reply" command.
+      # Permission: chatty.command.reply
+      enable: true
+      # Aliases for "/reply" command.
+      aliases: ['r']
+
+    ignore:
+      # Enables "/ignore" command.
+      # Permission: chatty.command.ignore
+      enable: true
+      # Aliases for "/ignore" command.
+      aliases: []
+
+# * SPY
+#
+# Mode for spying for chat and private messages.
+spy:
+  enable: true
+
+  # Spy-mode message format.
+  format:
+    # Permission: chatty.spy.<chat
+    chat: '&6[Spy] &r{format}'
+
+    # Permission: chatty.spy.pm
+    #
+    # Uses sender format of PM.
+    pm: '&6[Spy] &r{format}'
+
+# * JSON
+#
+# Chat formatting with additional interactive features.
+#
+# 1.7.10 and newer.
 json:
-  # 1.7.10+
   enable: false
 
   # Command that executes (by player) when you click on the player's name.
@@ -176,7 +177,7 @@ json:
     - '&eClick here to add word to whitelist.'
     suggest_command: /swears add {word}
 
-  # Replacements for chat formats
+  # Replacements for chat formats.
   #
   # You can replace plain text with JSON-pieces
   # to make chat more interactive.
@@ -214,11 +215,12 @@ json:
       # You can use "{player}" variable here.
       command: /rules
 
-# * Notifications.
+# * NOTIFICATIONS
+#
 # There are three types of notifications:
-# via Chat, ActionBar (1.8+) and Advancements (1.12+).
+# via Chat, ActionBar (1.8 and newer) and Advancements (1.12 and newer).
 notifications:
-  # Chat notifications..
+  # Chat notifications.
   chat:
     # On/off chat notifications.
     enable: true
@@ -233,7 +235,7 @@ notifications:
         prefix: ''
         # List of messages.
         messages:
-        - '&cThe server is using Chatty!'
+        - '&cThe server is using Chatty!\n&fOur address: 127.0.0.1\n&fVisit out site: example.com'
         - '&aThe server is using Chatty!'
         # Disable permission checking.
         # Delete the line, if you need this.
@@ -260,10 +262,29 @@ notifications:
     # Delete the line, if you need this.
     permission: false
 
+  # Title notifications.
+  title:
+    # On/off title notifications.
+    enable: true
+    # Notification lists.
+    lists:
+      # List "default".
+      # Permission: chatty.notification.title.default
+      default:
+        # Messages interval.
+        time: 60
+        # List of messages.
+        messages:
+        - '&cThe server is using Chatty!\n&eOur address: 127.0.0.1'
+        - '&aThe server is using Chatty!'
+        # Disable permission checking.
+        # Delete the line, if you need this.
+        permission: false
+
   # Advancements (Achievements) notifications.
   advancements:
     # Advancements notifications.
-    # Only 1.12+.
+    # Only 1.12 and newer.
     enable: false
     # Notification lists.
     lists:
@@ -284,7 +305,8 @@ notifications:
         # Delete the line, if you need this.
         permission: false
 
-# * Moderation.
+# * MODERATION
+#
 # Automatic chat moderation tools.
 moderation:
   caps:
@@ -293,11 +315,12 @@ moderation:
     enable: true
     # Minimal length of message to caps checking.
     length: 6
-    # Minimal upper case procent for caps.
-    procent: 80
+    # Minimal upper case percent for caps.
+    percent: 80
     # On/off caps message blocking.
     # When false, message will be sent in lower case.
     block: true
+
   advertisement:
     # On/off advertisement protection.
     # Bypass permission: chatty.moderation.advertisement
@@ -310,47 +333,80 @@ moderation:
     # When false, advertisements will be replaced.
     block: true
     # Replacement for advertisement.
-    replacement: '<ads>'
+    replacement: '<advertisement>'
     # Whitelisted IP-addresses and sites.
     whitelist:
     - 'example.com'
     - 'vk.com'
     - 'google.com'
+    - 'youtube.com'
     - 'yandex.ru'
     - '192.168.1.1'
     - '127.0.0.1'
+
   swear:
     # On/off swear protection.
     # Bypass permission: chatty.moderation.swear
-    enable: true
-    # On/off caps message blocking.
+    enable: false
+    # On/off swear message blocking.
     # When false, swears will be replaced.
     block: true
     # Replacement for swears.
     replacement: '<swear>'
     # Swear-list configuration: "Chatty/swears"
 
-# * Misc.
-# Change default Minecraft messages.
-misc:
-  join:
-    # Set '' to disable.
-    message: '&e{prefix}{player}{suffix} &ejoined the server.'
-    # If player doesn't have permission, message won't send.
-    #
-    # Permission: chatty.misc.joinmessage
-    permission: false
-  quit:
-    # Set '' to disable.
-    message: '&e{prefix}{player}{suffix} &eleft the server.'
-    # If player doesn't have permission, message won't send.
-    #
-    # Permission: chatty.misc.quitmessage
-    permission: false
-  death:
-    # Set '' to disable.
-    message: '&e{prefix}{player}{suffix} &edied.'
-    # If player doesn't have permission, message won't send.
-    #
-    # Permission: chatty.misc.deathmessage
-    permission: false
+# * MISCELLANEOUS
+miscellaneous:
+  commands:
+    # Permission: chatty.command.clearchat
+    clearchat:
+      enable: true
+      aliases: ['chatclear']
+
+    # Permission: chatty.command.prefix
+    prefix:
+      enable: true
+      # Automatically adds a string after prefix.
+      after-prefix: ' '
+      # Limits prefix length (inclusive "after-prefix")
+      length-limit: 16
+      # Auto-applying in NametagEdit.
+      # (Requires NameTagEdit plugin).
+      auto-nte: false
+
+    # Permission: chatty.command.suffix
+    suffix:
+      enable: true
+      # Automatically adds a string before suffix.
+      before-suffix: ' '
+      # Limits suffix length (inclusive "before-suffix")
+      length-limit: 16
+      # Auto-applying in NametagEdit.
+      # (Requires NameTagEdit plugin).
+      auto-nte: false
+
+  # Change default Minecraft messages.
+  vanilla:
+    join:
+      enable: true
+
+      message: '&e{prefix}{player}{suffix} &ejoined the server.'
+
+      # Permission: chatty.misc.joinmessage
+      permission: false
+    quit:
+      enable: true
+
+      message: '&e{prefix}{player}{suffix} &eleft the server.'
+
+      # Permission: chatty.misc.quitmessage
+      permission: false
+    death:
+      enable: true
+
+      message: '&e{prefix}{player}{suffix} &edied.'
+
+      # Permission: chatty.misc.deathmessage
+      permission: false
+
+config-version: 2.0

@@ -18,7 +18,7 @@ public class ModerationManager {
         this.configuration = configuration;
 
         init();
-        configuration.registerReloadHandler(this::reload);
+        configuration.onReload(config -> reload());
     }
 
     private void init() {

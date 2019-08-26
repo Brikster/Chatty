@@ -1,10 +1,10 @@
 package ru.mrbrikster.chatty.notifications;
 
-import io.github.theluca98.textapi.ActionBar;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
 import ru.mrbrikster.chatty.Chatty;
 import ru.mrbrikster.chatty.reflection.Reflection;
+import ru.mrbrikster.chatty.util.textapi.ActionBar;
 
 import java.util.List;
 
@@ -45,7 +45,7 @@ public class ActionBarNotification extends Notification {
 
     @Override
     public void run() {
-        Chatty.instance().debugger().debug("Send ActionBarNotification.");
+        Chatty.instance().debugger().debug("Run ActionBarNotification.");
 
         String message = COLORIZE.apply(prefix + messages.get(currentMessage));
 

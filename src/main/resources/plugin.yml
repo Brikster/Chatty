@@ -3,4 +3,5 @@ version: ${project.version}
 main: ${project.groupId}.${project.artifactId}.${project.name}
 authors: [MrBrikster]
 
-softdepend: [Vault, PlaceholderAPI, NametagEdit]
+# Essentials needed only for overwriting existing private-messaging commands.
+softdepend: [Vault, PlaceholderAPI, NametagEdit, Essentials]

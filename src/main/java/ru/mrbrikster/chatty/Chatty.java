@@ -7,7 +7,7 @@ import ru.mrbrikster.baseplugin.config.Configuration;
 import ru.mrbrikster.baseplugin.plugin.BukkitBasePlugin;
 import ru.mrbrikster.chatty.chat.ChatListener;
 import ru.mrbrikster.chatty.chat.ChatManager;
-import ru.mrbrikster.chatty.chat.PermanentStorage;
+import ru.mrbrikster.chatty.chat.JsonStorage;
 import ru.mrbrikster.chatty.chat.TemporaryStorage;
 import ru.mrbrikster.chatty.commands.CommandManager;
 import ru.mrbrikster.chatty.dependencies.DependencyManager;
@@ -43,17 +43,15 @@ public final class Chatty extends BukkitBasePlugin {
         ChatManager chatManager = new ChatManager(configuration);
         ModerationManager moderationManager = new ModerationManager(this, configuration);
         TemporaryStorage temporaryStorage = new TemporaryStorage();
-        PermanentStorage permanentStorage = new PermanentStorage(configuration, this);
-        DependencyManager dependencyManager = new DependencyManager(configuration, permanentStorage, this);
+        JsonStorage jsonStorage = new JsonStorage(configuration, this);
+        DependencyManager dependencyManager = new DependencyManager(configuration, jsonStorage, this);
 
         this.messages = new Messages(this, configuration);
         this.debugger = new Debugger(this, configuration);
 
-        configuration.registerReloadHandler(() -> {
-            this.messages = new Messages(this, configuration);
-        });
+        configuration.onReload(config -> this.messages = new Messages(this, config));
 
-        this.commandManager = new CommandManager(configuration, dependencyManager, temporaryStorage, permanentStorage);
+        this.commandManager = new CommandManager(configuration, dependencyManager, temporaryStorage, jsonStorage);
         new NotificationManager(configuration);
 
         EventPriority eventPriority;
@@ -68,22 +66,10 @@ public final class Chatty extends BukkitBasePlugin {
             eventPriority = EventPriority.NORMAL;
         }
 
-        ChatListener chatListener = new ChatListener(
-                configuration,
-                chatManager,
-                temporaryStorage,
-                dependencyManager,
-                moderationManager,
-                permanentStorage);
+        ChatListener chatListener = new ChatListener(configuration, chatManager, temporaryStorage, dependencyManager, moderationManager, jsonStorage);
 
         this.getServer().getPluginManager().registerEvents(chatListener, this);
-        this.getServer().getPluginManager().registerEvent(
-                AsyncPlayerChatEvent.class,
-                chatListener,
-                eventPriority,
-                chatListener,
-                Chatty.instance,
-                true);
+        this.getServer().getPluginManager().registerEvent(AsyncPlayerChatEvent.class, chatListener, eventPriority, chatListener, Chatty.instance, true);
 
         if (configuration.getNode("general.metrics").getAsBoolean(true)) {
             Metrics metrics = new Metrics(this);

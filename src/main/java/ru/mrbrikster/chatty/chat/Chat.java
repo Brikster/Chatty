@@ -37,7 +37,7 @@ public class Chat {
         this.money = money;
     }
 
-    public List<Player> getRecipients(Player player, PermanentStorage permanentStorage) {
+    public List<Player> getRecipients(Player player, JsonStorage jsonStorage) {
         Location location = player.getLocation();
 
         double squaredDistance = Math.pow(range, 2);
@@ -49,7 +49,7 @@ public class Chat {
 
         return players.stream()
                 .filter(recipient -> {
-                    JsonElement jsonElement = permanentStorage.getProperty(recipient, "ignore").orElseGet(JsonArray::new);
+                    JsonElement jsonElement = jsonStorage.getProperty(recipient, "ignore").orElseGet(JsonArray::new);
 
                     if (!jsonElement.isJsonArray())
                         jsonElement = new JsonArray();

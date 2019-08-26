@@ -16,14 +16,10 @@ messages:
     usage: '&cИспользование: /{label} <игрок> <сообщение>'
     player-not-found: '&cИгрок не найден.'
     cannot-message-yourself: '&cВы не можете написать самому себе.'
-    recipient-format: '&7{sender} &6-> &7{recipient}: &f{message}'
-    sender-format: '&7{sender} &6-> &7{recipient}: &f{message}'
 
   reply-command:
     usage: '&cИспользование: /{label} <сообщение>'
     target-not-found: '&cИгрок, которому можно отправить сообщение, не найден.'
-    recipient-format: '&7{sender} &6-> &7{recipient}: &f{message}'
-    sender-format: '&7{sender} &6-> &7{recipient}: &f{message}'
 
   ignore-command:
     usage: '&cИспользование: /{label} <игрок>'

@@ -2,7 +2,7 @@ package ru.mrbrikster.chatty.commands;
 
 import ru.mrbrikster.baseplugin.config.Configuration;
 import ru.mrbrikster.chatty.Chatty;
-import ru.mrbrikster.chatty.chat.PermanentStorage;
+import ru.mrbrikster.chatty.chat.JsonStorage;
 import ru.mrbrikster.chatty.chat.TemporaryStorage;
 import ru.mrbrikster.chatty.commands.pm.IgnoreCommand;
 import ru.mrbrikster.chatty.commands.pm.MsgCommand;
@@ -13,7 +13,7 @@ public class CommandManager {
 
     private final Configuration configuration;
     private final TemporaryStorage temporaryStorage;
-    private final PermanentStorage permanentStorage;
+    private final JsonStorage jsonStorage;
     private final DependencyManager dependencyManager;
 
     private ChattyCommand chattyCommand;
@@ -29,15 +29,15 @@ public class CommandManager {
     public CommandManager(Configuration configuration,
                           DependencyManager dependencyManager,
                           TemporaryStorage temporaryStorage,
-                          PermanentStorage permanentStorage) {
+                          JsonStorage jsonStorage) {
         this.configuration = configuration;
         this.dependencyManager = dependencyManager;
         this.temporaryStorage = temporaryStorage;
-        this.permanentStorage = permanentStorage;
+        this.jsonStorage = jsonStorage;
 
         this.init();
 
-        configuration.registerReloadHandler(() -> {
+        configuration.onReload(config -> {
             this.unregisterAll();
             this.init();
         });
@@ -45,25 +45,30 @@ public class CommandManager {
 
     private void init() {
         this.chattyCommand = new ChattyCommand(configuration);
-        this.clearChatCommand = new ClearChatCommand();
-        this.spyCommand = new SpyCommand(temporaryStorage);
-
         this.chattyCommand.register(Chatty.instance());
-        this.clearChatCommand.register(Chatty.instance());
-        this.spyCommand.register(Chatty.instance());
 
-        if (configuration.getNode("commands.msg.enable").getAsBoolean(false)) {
-            this.msgCommand = new MsgCommand(configuration, temporaryStorage, permanentStorage);
+        if (configuration.getNode("miscellaneous.commands.clearchat.enable").getAsBoolean(false)) {
+            this.clearChatCommand = new ClearChatCommand(configuration);
+            this.clearChatCommand.register(Chatty.instance());
+        }
+
+        if (configuration.getNode("spy.enable").getAsBoolean(false)) {
+            this.spyCommand = new SpyCommand(jsonStorage);
+            this.spyCommand.register(Chatty.instance());
+        }
+
+        if (configuration.getNode("pm.commands.msg.enable").getAsBoolean(false)) {
+            this.msgCommand = new MsgCommand(configuration, dependencyManager, jsonStorage);
             this.msgCommand.register(Chatty.instance());
         }
 
-        if (configuration.getNode("commands.ignore.enable").getAsBoolean(false)) {
-            this.ignoreCommand = new IgnoreCommand(configuration, permanentStorage);
+        if (configuration.getNode("pm.commands.ignore.enable").getAsBoolean(false)) {
+            this.ignoreCommand = new IgnoreCommand(configuration, jsonStorage);
             this.ignoreCommand.register(Chatty.instance());
         }
 
-        if (configuration.getNode("commands.reply.enable").getAsBoolean(false)) {
-            this.replyCommand = new ReplyCommand(configuration, temporaryStorage, permanentStorage);
+        if (configuration.getNode("pm.commands.reply.enable").getAsBoolean(false)) {
+            this.replyCommand = new ReplyCommand(configuration, dependencyManager, jsonStorage);
             this.replyCommand.register(Chatty.instance());
         }
 
@@ -72,13 +77,13 @@ public class CommandManager {
             this.swearsCommand.register(Chatty.instance());
         }
 
-        if (configuration.getNode("commands.prefix.enable").getAsBoolean(false)) {
-            this.prefixCommand = new PrefixCommand(configuration, dependencyManager, permanentStorage);
+        if (configuration.getNode("miscellaneous.commands.prefix.enable").getAsBoolean(false)) {
+            this.prefixCommand = new PrefixCommand(configuration, dependencyManager, jsonStorage);
             this.prefixCommand.register(Chatty.instance());
         }
 
-        if (configuration.getNode("commands.suffix.enable").getAsBoolean(false)) {
-            this.suffixCommand = new SuffixCommand(configuration, dependencyManager, permanentStorage);
+        if (configuration.getNode("miscellaneous.commands.suffix.enable").getAsBoolean(false)) {
+            this.suffixCommand = new SuffixCommand(configuration, dependencyManager, jsonStorage);
             this.suffixCommand.register(Chatty.instance());
         }
     }
@@ -86,25 +91,34 @@ public class CommandManager {
     public void unregisterAll() {
         this.chattyCommand.unregister(Chatty.instance());
         this.clearChatCommand.unregister(Chatty.instance());
-        this.spyCommand.unregister(Chatty.instance());
 
-        if (msgCommand != null)
+        if (spyCommand != null) {
+            this.spyCommand.unregister(Chatty.instance());
+        }
+
+        if (msgCommand != null) {
             this.msgCommand.unregister(Chatty.instance());
+        }
 
-        if (ignoreCommand != null)
+        if (ignoreCommand != null) {
             this.ignoreCommand.unregister(Chatty.instance());
+        }
 
-        if (replyCommand != null)
+        if (replyCommand != null) {
             this.replyCommand.unregister(Chatty.instance());
+        }
 
-        if (swearsCommand != null)
+        if (swearsCommand != null) {
             this.swearsCommand.unregister(Chatty.instance());
+        }
 
-        if (prefixCommand != null)
+        if (prefixCommand != null) {
             this.prefixCommand.unregister(Chatty.instance());
+        }
 
-        if (suffixCommand != null)
+        if (suffixCommand != null) {
             this.suffixCommand.unregister(Chatty.instance());
+        }
     }
 
 }

@@ -1,7 +1,6 @@
 package ru.mrbrikster.chatty.chat;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.gson.JsonElement;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -18,6 +17,7 @@ import ru.mrbrikster.baseplugin.config.Configuration;
 import ru.mrbrikster.chatty.Chatty;
 import ru.mrbrikster.chatty.dependencies.DependencyManager;
 import ru.mrbrikster.chatty.dependencies.PlaceholderAPIHook;
+import ru.mrbrikster.chatty.dependencies.PrefixAndSuffixManager;
 import ru.mrbrikster.chatty.dependencies.VaultHook;
 import ru.mrbrikster.chatty.json.FormattedMessage;
 import ru.mrbrikster.chatty.json.JSONMessagePart;
@@ -29,7 +29,10 @@ import ru.mrbrikster.chatty.moderation.SwearModerationMethod;
 import ru.mrbrikster.chatty.reflection.Reflection;
 import ru.mrbrikster.chatty.util.Pair;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -62,7 +65,9 @@ public class ChatListener implements Listener, EventExecutor {
     private final TemporaryStorage temporaryStorage;
     private final Configuration configuration;
     private final ModerationManager moderationManager;
-    private final PermanentStorage permanentStorage;
+    private final JsonStorage jsonStorage;
+    private final PrefixAndSuffixManager prefixAndSuffixManager;
+    
     private IdentityHashMap<Player, Pair<Chat, List<Player>>> pendingPlayers;
     private IdentityHashMap<Player, List<String>> pendingSwears;
 
@@ -72,16 +77,18 @@ public class ChatListener implements Listener, EventExecutor {
                         TemporaryStorage temporaryStorage,
                         DependencyManager dependencyManager,
                         ModerationManager moderationManager,
-                        PermanentStorage permanentStorage) {
+                        JsonStorage jsonStorage) {
         this.configuration = configuration;
         this.chatManager = chatManager;
         this.temporaryStorage = temporaryStorage;
         this.dependencyManager = dependencyManager;
         this.moderationManager = moderationManager;
-        this.permanentStorage = permanentStorage;
+        this.jsonStorage = jsonStorage;
 
         this.pendingPlayers = new IdentityHashMap<>();
         this.pendingSwears = new IdentityHashMap<>();
+        
+        this.prefixAndSuffixManager = new PrefixAndSuffixManager(dependencyManager, jsonStorage);
     }
 
     @Override
@@ -140,28 +147,33 @@ public class ChatListener implements Listener, EventExecutor {
         String format = chat.getFormat();
         format = format.replace("{player}", "%1$s");
         format = format.replace("{message}", "%2$s");
-        format = format.replace("{prefix}", getPrefix(player));
-        format = format.replace("{suffix}", getSuffix(player));
+        format = format.replace("{prefix}", prefixAndSuffixManager.getPrefix(player));
+        format = format.replace("{suffix}", prefixAndSuffixManager.getSuffix(player));
+
+        if (dependencyManager.getPlaceholderApi() != null) {
+            format = dependencyManager.getPlaceholderApi().setPlaceholders(player, format);
+        }
 
         format = COLORIZE.apply(format);
 
+
         playerChatEvent.setFormat(format);
 
-        if (dependencyManager.getPlaceholderApi() != null) {
-            playerChatEvent.setFormat(dependencyManager.getPlaceholderApi().setPlaceholders(player, format));
-        }
 
         playerChatEvent.getRecipients().clear();
-        playerChatEvent.getRecipients().addAll(chat.getRecipients(player, permanentStorage));
+        playerChatEvent.getRecipients().addAll(chat.getRecipients(player, jsonStorage));
 
         if (playerChatEvent.getRecipients().size() <= 1) {
             String noRecipients = Chatty.instance().messages().get("no-recipients", null);
 
-            if (noRecipients != null)
+            if (noRecipients != null) {
                 Bukkit.getScheduler().runTaskLater(Chatty.instance(), () -> player.sendMessage(noRecipients), 5L);
+            }
         }
 
-        if (!hasCooldown) chat.setCooldown(player);
+        if (!hasCooldown) {
+            chat.setCooldown(player);
+        }
 
         boolean cancelEvent = false;
 
@@ -261,7 +273,7 @@ public class ChatListener implements Listener, EventExecutor {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onSpyMessage(AsyncPlayerChatEvent playerChatEvent) {
-        if (configuration.getNode("general.spy.enable").getAsBoolean(false)) {
+        if (configuration.getNode("spy.enable").getAsBoolean(false)) {
             Pair<Chat, List<Player>> pair = pendingPlayers.remove(playerChatEvent.getPlayer());
 
             if (!playerChatEvent.isCancelled() && pair != null) {
@@ -274,9 +286,8 @@ public class ChatListener implements Listener, EventExecutor {
                     Chatty.instance().debugger().debug("Sending spy message from chat \"%s\" to player \"%s\".",
                             pair.getKey().getName(), spy.getName());
 
-                    spy.sendMessage(
-                            COLORIZE.apply(configuration.getNode("general.spy.format").getAsString("&6[Spy] &r{format}")
-                                    .replace("{format}", String.format(playerChatEvent.getFormat(), playerChatEvent.getPlayer().getName(), playerChatEvent.getMessage()))));
+                    spy.sendMessage(COLORIZE.apply(configuration.getNode("spy.format.chat").getAsString("&6[Spy] &r{format}")
+                            .replace("{format}", String.format(playerChatEvent.getFormat(), playerChatEvent.getPlayer().getName(), playerChatEvent.getMessage()))));
                 });
             }
         }
@@ -385,59 +396,71 @@ public class ChatListener implements Listener, EventExecutor {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onJoin(PlayerJoinEvent playerJoinEvent) {
+        if (!configuration.getNode("miscellaneous.vanilla.join.enable").getAsBoolean(false)) {
+            return;
+        }
+
         String joinMessage = configuration
-                .getNode("misc.join.message")
+                .getNode("miscellaneous.vanilla.join.message")
                 .getAsString(null);
 
         if (joinMessage != null) {
             if (joinMessage.isEmpty() ||
-                    (configuration.getNode("misc.join.permission")
+                    (configuration.getNode("miscellaneous.vanilla.join.permission")
                             .getAsBoolean(false)
                             && !playerJoinEvent.getPlayer().hasPermission("chatty.misc.joinmessage"))) {
                 playerJoinEvent.setJoinMessage(null);
             } else playerJoinEvent.setJoinMessage(COLORIZE.apply(joinMessage
-                    .replace("{prefix}", getPrefix(playerJoinEvent.getPlayer()))
-                    .replace("{suffix}", getSuffix(playerJoinEvent.getPlayer()))
+                    .replace("{prefix}", prefixAndSuffixManager.getPrefix(playerJoinEvent.getPlayer()))
+                    .replace("{suffix}", prefixAndSuffixManager.getSuffix(playerJoinEvent.getPlayer()))
                     .replace("{player}", playerJoinEvent.getPlayer().getDisplayName())));
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onQuit(PlayerQuitEvent playerQuitEvent) {
+        if (!configuration.getNode("miscellaneous.vanilla.quit.enable").getAsBoolean(false)) {
+            return;
+        }
+
         temporaryStorage.getSpyDisabled().remove(playerQuitEvent.getPlayer());
 
         String quitMessage = configuration
-                .getNode("misc.quit.message")
+                .getNode("miscellaneous.vanilla.quit.message")
                 .getAsString(null);
 
         if (quitMessage != null) {
             if (quitMessage.isEmpty() ||
-                    (configuration.getNode("misc.quit.permission")
+                    (configuration.getNode("miscellaneous.vanilla.quit.permission")
                             .getAsBoolean(false)
                             && !playerQuitEvent.getPlayer().hasPermission("chatty.misc.quitmessage"))) {
                 playerQuitEvent.setQuitMessage(null);
             } else playerQuitEvent.setQuitMessage(COLORIZE.apply(quitMessage
-                    .replace("{prefix}", getPrefix(playerQuitEvent.getPlayer()))
-                    .replace("{suffix}", getSuffix(playerQuitEvent.getPlayer()))
+                    .replace("{prefix}", prefixAndSuffixManager.getPrefix(playerQuitEvent.getPlayer()))
+                    .replace("{suffix}", prefixAndSuffixManager.getSuffix(playerQuitEvent.getPlayer()))
                     .replace("{player}", playerQuitEvent.getPlayer().getDisplayName())));
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerDeath(PlayerDeathEvent playerDeathEvent) {
+        if (!configuration.getNode("miscellaneous.vanilla.death.enable").getAsBoolean(false)) {
+            return;
+        }
+
         String deathMessage = configuration
-                .getNode("misc.death.message")
+                .getNode("miscellaneous.vanilla.death.message")
                 .getAsString(null);
 
         if (deathMessage != null) {
             if (deathMessage.isEmpty() ||
-                    (configuration.getNode("misc.death.permission")
+                    (configuration.getNode("miscellaneous.vanilla.death.permission")
                             .getAsBoolean(false)
                             && !playerDeathEvent.getEntity().hasPermission("chatty.misc.deathmessage"))) {
                 playerDeathEvent.setDeathMessage(null);
             } else playerDeathEvent.setDeathMessage(COLORIZE.apply(deathMessage
-                    .replace("{prefix}", getPrefix(playerDeathEvent.getEntity()))
-                    .replace("{suffix}", getSuffix(playerDeathEvent.getEntity()))
+                    .replace("{prefix}", prefixAndSuffixManager.getPrefix(playerDeathEvent.getEntity()))
+                    .replace("{suffix}", prefixAndSuffixManager.getSuffix(playerDeathEvent.getEntity()))
                     .replace("{player}", playerDeathEvent.getEntity().getDisplayName())));
         }
     }
@@ -467,43 +490,6 @@ public class ChatListener implements Listener, EventExecutor {
                 : new Pair<>(!currentChat.getSymbol().isEmpty(), currentChat);
     }
 
-    private String getPrefix(Player player) {
-        String prefix = "";
-
-        Optional<JsonElement> jsonElement = permanentStorage.getProperty(player, "prefix");
-
-        if (jsonElement.isPresent()) {
-            return jsonElement.get().getAsString();
-        }
-
-        if (dependencyManager.getVault() != null) {
-            VaultHook vaultHook = dependencyManager.getVault();
-            prefix = vaultHook.getPrefix(player);
-
-            if (prefix == null) prefix = "";
-        }
-
-        return prefix;
-    }
-
-    private String getSuffix(Player player) {
-        String suffix = "";
-
-        Optional<JsonElement> jsonElement = permanentStorage.getProperty(player, "suffix");
-
-        if (jsonElement.isPresent()) {
-            return jsonElement.get().getAsString();
-        }
-
-        if (dependencyManager.getVault() != null) {
-            VaultHook vaultHook = dependencyManager.getVault();
-            suffix = vaultHook.getSuffix(player);
-
-            if (suffix == null) suffix = "";
-        }
-
-        return suffix;
-    }
 
     private String stylish(Player player, String message, String chat) {
         for (Map.Entry<String, Pattern> entry : PATTERNS.entrySet()) {

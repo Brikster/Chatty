@@ -8,17 +8,17 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import ru.mrbrikster.baseplugin.config.Configuration;
 import ru.mrbrikster.chatty.Chatty;
-import ru.mrbrikster.chatty.chat.PermanentStorage;
+import ru.mrbrikster.chatty.chat.JsonStorage;
 
 public class NametagEditHook implements Listener {
 
     private final Configuration configuration;
-    private final PermanentStorage permanentStorage;
+    private final JsonStorage jsonStorage;
 
     NametagEditHook(Configuration configuration,
-                    PermanentStorage permanentStorage) {
+                    JsonStorage jsonStorage) {
         this.configuration = configuration;
-        this.permanentStorage = permanentStorage;
+        this.jsonStorage = jsonStorage;
 
         Bukkit.getPluginManager().registerEvents(this, Chatty.instance());
     }
@@ -49,12 +49,12 @@ public class NametagEditHook implements Listener {
 
         if (configuration.getNode("general.prefix-command.enable").getAsBoolean(false)
                 && configuration.getNode("general.prefix-command.auto-nte").getAsBoolean(false)) {
-            permanentStorage.getProperty(player, "prefix").ifPresent(prefix -> setPrefix(player, prefix.getAsString()));
+            jsonStorage.getProperty(player, "prefix").ifPresent(prefix -> setPrefix(player, prefix.getAsString()));
         }
 
         if (configuration.getNode("general.suffix-command.enable").getAsBoolean(false)
                 && configuration.getNode("general.suffix-command.auto-nte").getAsBoolean(false)) {
-            permanentStorage.getProperty(player, "suffix").ifPresent(suffix -> setSuffix(player, suffix.getAsString()));
+            jsonStorage.getProperty(player, "suffix").ifPresent(suffix -> setSuffix(player, suffix.getAsString()));
         }
     }
 

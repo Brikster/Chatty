@@ -18,7 +18,7 @@ messages:
 
   reply-command:
     usage: '&cSyntax: /{label} <Nachricht>'
-    target-not-found: '&cSpieler wurde nicht gefunden'
+    target-not-found: '&cSpieler wurde nicht gefunden.'
     recipient-format: '&7{sender} &6-> &7{recipient}: &f{message}'
     sender-format: '&7{sender} &6-> &7{recipient}: &f{message}'
 

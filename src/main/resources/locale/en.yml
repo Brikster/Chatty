@@ -3,7 +3,7 @@ messages:
   # If you delete the line, a default English localization will be applied.
   only-for-players: '&cThis command is only for players.'
   chat-not-found: '&cApplicable chat not found. You can''t send the message.'
-  reload: '&aConfig successful reloaded!'
+  reload: '&aConfig successfully reloaded!'
   no-permission: '&cYou don''t have permission.'
   spy-on: '&aYou have been enabled spy-mode.'
   spy-off: '&cYou have been disabled spy-mode.'
@@ -16,14 +16,10 @@ messages:
     usage: '&cUsing: /{label} <player> <message>'
     player-not-found: '&cPlayer not found.'
     cannot-message-yourself: '&cYou cannot message yourself.'
-    recipient-format: '&7{sender} &6-> &7{recipient}: &f{message}'
-    sender-format: '&7{sender} &6-> &7{recipient}: &f{message}'
 
   reply-command:
     usage: '&cUsing: /{label} <message>'
     target-not-found: '&cPlayer not found.'
-    recipient-format: '&7{sender} &6-> &7{recipient}: &f{message}'
-    sender-format: '&7{sender} &6-> &7{recipient}: &f{message}'
 
   ignore-command:
     usage: '&cUsing: /{label} <player>'
@@ -40,6 +36,7 @@ messages:
     usage: '&cUsing: /{label} <player> <<prefix>|clear>'
     no-permissions-others: '&cYou don''t have permission to changing prefixes of other players.'
     player-not-found: '&cPlayer not found.'
+    length-limit: '&cPrefix length limited to {limit} symbols.'
     prefix-clear: '&aYou cleared prefix of {player}.'
     prefix-set: '&aYou set prefix &r{prefix} &afor player {player}.'
 
@@ -47,6 +44,7 @@ messages:
     usage: '&cUsing: /{label} <player> <<suffix>|clear>'
     no-permissions-others: '&cYou don''t have permission to changing suffixes of other players.'
     player-not-found: '&cPlayer not found.'
+    length-limit: '&cSuffix length limited to {limit} symbols.'
     prefix-clear: '&aYou cleared suffix of {player}.'
     prefix-set: '&aYou set suffix &r{suffix} &afor player {player}.'
 
@@ -55,4 +53,4 @@ messages:
   advertisement-found: '&cAdvertisement is detected in your message.'
   no-recipients: '&cNobody heard you.'
   caps-found: '&cCaps abuse is detected in your message.'
-  swear-found: '&cSwear is detected in your message.'
+  swear-found: '&cSwearing is detected in your message.'

@@ -1,14 +1,16 @@
 package ru.mrbrikster.chatty.commands;
 
+import net.amoebaman.util.ArrayWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import ru.mrbrikster.baseplugin.commands.BukkitCommand;
+import ru.mrbrikster.baseplugin.config.Configuration;
 import ru.mrbrikster.chatty.Chatty;
 
 public class ClearChatCommand extends BukkitCommand {
 
-    ClearChatCommand() {
-        super("clearchat", "cc");
+    ClearChatCommand(Configuration configuration) {
+        super("clearchat", ArrayWrapper.toArray(configuration.getNode("miscellaneous.commands.clearchat.aliases").getAsStringList(), String.class));
     }
 
     @Override

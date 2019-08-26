@@ -12,8 +12,7 @@ public class Debugger {
         this.chatty = chatty;
         this.debug = configuration.getNode("general.debug").getAsBoolean(false);
 
-        configuration.registerReloadHandler(() ->
-                this.debug = configuration.getNode("general.debug").getAsBoolean(false));
+        configuration.onReload(config -> this.debug = config.getNode("general.debug").getAsBoolean(false));
     }
 
     @SuppressWarnings("all")

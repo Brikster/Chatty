@@ -27,7 +27,7 @@ public class ChatManager {
 
         init();
 
-        configuration.registerReloadHandler(this::reload);
+        configuration.onReload(config -> reload());
     }
 
     private void init() {

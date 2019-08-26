@@ -30,7 +30,7 @@ public class ChatNotification extends Notification {
             currentMessage = 0;
         }
 
-        String[] message = COLORIZE.apply(prefix + messages.get(currentMessage)).split("(?<!\\\\)\\\\n");
+        String[] message = COLORIZE.apply(prefix + messages.get(currentMessage)).split("\\\\n");
 
         Reflection.getOnlinePlayers().stream().filter(player -> !isPermission() || player.hasPermission(String.format(PERMISSION_NODE, name)))
                 .forEach(player -> player.sendMessage(message));

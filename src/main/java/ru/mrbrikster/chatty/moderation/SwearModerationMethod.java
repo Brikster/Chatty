@@ -40,8 +40,9 @@ public class SwearModerationMethod extends ModerationMethod {
         SwearModerationMethod.swearsFile = new File(swearsDirectory, "swears.txt");
         SwearModerationMethod.whitelistFile = new File(swearsDirectory, "whitelist.txt");
 
-        if (!swearsDirectory.exists())
+        if (!swearsDirectory.exists()) {
             swearsDirectory.mkdir();
+        }
 
         if (!swearsFile.exists()) {
             try {

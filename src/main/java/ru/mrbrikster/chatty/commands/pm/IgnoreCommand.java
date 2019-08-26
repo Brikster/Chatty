@@ -10,19 +10,19 @@ import org.bukkit.entity.Player;
 import ru.mrbrikster.baseplugin.commands.BukkitCommand;
 import ru.mrbrikster.baseplugin.config.Configuration;
 import ru.mrbrikster.chatty.Chatty;
-import ru.mrbrikster.chatty.chat.PermanentStorage;
+import ru.mrbrikster.chatty.chat.JsonStorage;
 import ru.mrbrikster.chatty.util.JsonUtil;
 
 public class IgnoreCommand extends BukkitCommand {
 
-    private final PermanentStorage permanentStorage;
+    private final JsonStorage jsonStorage;
 
     public IgnoreCommand(
             Configuration configuration,
-            PermanentStorage permanentStorage) {
-        super("ignore", ArrayWrapper.toArray(configuration.getNode("commands.ignore.aliases").getAsStringList(), String.class));
+            JsonStorage jsonStorage) {
+        super("ignore", ArrayWrapper.toArray(configuration.getNode("pm.commands.ignore.aliases").getAsStringList(), String.class));
 
-        this.permanentStorage = permanentStorage;
+        this.jsonStorage = jsonStorage;
     }
 
     @Override
@@ -59,7 +59,7 @@ public class IgnoreCommand extends BukkitCommand {
             return;
         }
 
-        JsonElement jsonElement = permanentStorage.getProperty((Player) sender, "ignore").orElseGet(JsonArray::new);
+        JsonElement jsonElement = jsonStorage.getProperty((Player) sender, "ignore").orElseGet(JsonArray::new);
 
         if (!jsonElement.isJsonArray())
             jsonElement = new JsonArray();
@@ -74,7 +74,7 @@ public class IgnoreCommand extends BukkitCommand {
             jsonElement.getAsJsonArray().add(ignoreTargetPlayer.getName());
         }
 
-        permanentStorage.setProperty((Player) sender, "ignore", jsonElement);
+        jsonStorage.setProperty((Player) sender, "ignore", jsonElement);
     }
 
 }

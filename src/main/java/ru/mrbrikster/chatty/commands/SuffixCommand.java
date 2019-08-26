@@ -8,7 +8,7 @@ import org.bukkit.entity.Player;
 import ru.mrbrikster.baseplugin.commands.BukkitCommand;
 import ru.mrbrikster.baseplugin.config.Configuration;
 import ru.mrbrikster.chatty.Chatty;
-import ru.mrbrikster.chatty.chat.PermanentStorage;
+import ru.mrbrikster.chatty.chat.JsonStorage;
 import ru.mrbrikster.chatty.dependencies.DependencyManager;
 
 import java.util.Arrays;
@@ -17,17 +17,17 @@ import java.util.stream.Collectors;
 public class SuffixCommand extends BukkitCommand {
 
     private final Configuration configuration;
-    private final PermanentStorage permanentStorage;
+    private final JsonStorage jsonStorage;
     private final DependencyManager dependencyManager;
 
     SuffixCommand(Configuration configuration,
                   DependencyManager dependencyManager,
-                  PermanentStorage permanentStorage) {
+                  JsonStorage jsonStorage) {
         super("suffix", "setsuffix");
 
         this.configuration = configuration;
         this.dependencyManager = dependencyManager;
-        this.permanentStorage = permanentStorage;
+        this.jsonStorage = jsonStorage;
     }
 
     @Override
@@ -51,9 +51,9 @@ public class SuffixCommand extends BukkitCommand {
             }
 
             if (args[1].equalsIgnoreCase("clear")) {
-                permanentStorage.setProperty(player, "suffix", null);
+                jsonStorage.setProperty(player, "suffix", null);
 
-                if (configuration.getNode("commands.suffix.auto-nte").getAsBoolean(false)) {
+                if (configuration.getNode("miscellaneous.commands.suffix.auto-nte").getAsBoolean(false)) {
                     if (dependencyManager.getNametagEdit() != null) {
                         dependencyManager.getNametagEdit().setSuffix(player, null);
                     }
@@ -63,11 +63,16 @@ public class SuffixCommand extends BukkitCommand {
                         .replace("{player}", player.getName()));
             } else {
                 String suffix = Arrays.stream(Arrays.copyOfRange(args, 1, args.length)).collect(Collectors.joining(" "));
-                String formattedSuffix = configuration.getNode("commands.suffix.before-suffix").getAsString("") + suffix;
+                String formattedSuffix = configuration.getNode("miscellaneous.commands.suffix.before-suffix").getAsString("") + suffix;
 
-                permanentStorage.setProperty(player, "suffix", new JsonPrimitive(formattedSuffix));
+                if (formattedSuffix.length() > configuration.getNode("miscellaneous.commands.suffix.length-limit").getAsInt(16)) {
+                    sender.sendMessage(Chatty.instance().messages().get("suffix-command.length-limit"));
+                    return;
+                }
 
-                if (configuration.getNode("commands.suffix.auto-nte").getAsBoolean(false)) {
+                jsonStorage.setProperty(player, "suffix", new JsonPrimitive(formattedSuffix));
+
+                if (configuration.getNode("miscellaneous.commands.suffix.auto-nte").getAsBoolean(false)) {
                     if (dependencyManager.getNametagEdit() != null) {
                         dependencyManager.getNametagEdit().setSuffix(player, formattedSuffix);
                     }

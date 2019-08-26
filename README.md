@@ -1,21 +1,21 @@
 ![alt text](https://i.imgur.com/8D5JcGn.png "Chatty")
 
-# Chatty (Bukkit)
+# Chatty (Bukkit plugin)
 [![Build Status](https://travis-ci.org/Brikster/Chatty.svg?branch=master)](https://travis-ci.org/Brikster/Chatty)
 [![JitPack](https://jitpack.io/v/Brikster/Chatty.svg)](https://jitpack.io/#Brikster/Chatty)
 
-Chatty is a unique Bukkit-plugin, that supports all modern Bukkit-servers, such as Thermos, Cauldron, Spigot, PaperSpigot e t.c. This plugin doesn't have any non-switchable options. It's simple, stable and lightweight.
+Chatty is the unique Bukkit-plugin, that supports all modern Bukkit-servers, such as Thermos, Cauldron, Spigot, PaperSpigot e t.c. This plugin doesn't have any non-switchable options. It's simple, stable and lightweight.
 
   - Chats, such as local and global chats. Also you can add another chat.
   - Chats separation by permission. For example, if you have permission "chatty.chat.local", but have "chatty.chat.global", your message will sent at global chat.
-  - SPY-mode permission. Players with "chatty.spy" permission can see all messages from all chats.
+  - Spy-mode permission. Players with "chatty.spy" permission can see all messages from all chats.
   - Vault API support.
   - Advancements announcements system.
   - Cooldowns for chats.
   - Auto-messages system.
   - Private messages system.
   
-# Permissions
+## Permissions
     chatty.chat.<chat> (chatty.chat.<chat>.see or chatty.chat.<chat_mode>.send) - grants access for chat.
     chatty.spy.<chat> or chatty.spy - allows to see all messages from chat-modes.
     chatty.command.spy - allows to use "/spy" command for enabling/disabling spy-mode.
@@ -31,11 +31,11 @@ Chatty is a unique Bukkit-plugin, that supports all modern Bukkit-servers, such 
     chatty.moderation.caps - bypass caps moderation.
     chatty.cooldown or chatty.cooldown.<chat-mode> - allows to bypass cooldown of chat.
     
-# Comparison with ChatEx
-Reference object | ChatEx | Chatty
+## Comparison with ChatEx
+Feature | ChatEx | Chatty
 --- | --- | ---
 Vault support | + | +
-Ads protection | + | +
+Advertisement protection | + | +
 Old versions support (1.5.2+) | - | +
 Replacement of AutoMessage | - | +
 Advancements and ActionBar notifications | - | +
@@ -44,9 +44,14 @@ Custom chat groups | - | +
 Cooldowns system | - | +
 Built-in spy-mode | - | +
 Private messages | - | +
+
+## Configuration
+See default configuration in <b><u>src/main/java/resources/config.yml.</u></b>
     
-# A little life-hack
-You can delete all excess blocks and make config as here:
+#### A little life-hack
+You can delete all excess blocks and keep only needed features.
+
+Plugin will work even with this simple config:
 
     chats:
       default:
@@ -54,8 +59,22 @@ You can delete all excess blocks and make config as here:
         format: '{prefix}{player}{suffix}&r: {message}'
         permission: false
 
-# Configuration
-See in <b><u>src/main/java/resources/config.yml.</u></b>
+## Building
+Chatty uses Apache Maven to handle dependencies & building.
 
-# Credits
+#### Requirements
+* Java 8 JDK or newer
+* Apache Maven
+* Git
+
+#### Compiling from source
+```sh
+git clone https://github.com/Brikster/Chatty.git
+cd Chatty/
+./mvn clean package
+```
+
+You can find the output jar in `/target` directory.
+
+## Credits
 Supports by McStudio.

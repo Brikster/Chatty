@@ -8,7 +8,7 @@ import org.bukkit.entity.Player;
 import ru.mrbrikster.baseplugin.commands.BukkitCommand;
 import ru.mrbrikster.baseplugin.config.Configuration;
 import ru.mrbrikster.chatty.Chatty;
-import ru.mrbrikster.chatty.chat.PermanentStorage;
+import ru.mrbrikster.chatty.chat.JsonStorage;
 import ru.mrbrikster.chatty.dependencies.DependencyManager;
 
 import java.util.Arrays;
@@ -18,16 +18,16 @@ public class PrefixCommand extends BukkitCommand {
 
     private final Configuration configuration;
     private final DependencyManager dependencyManager;
-    private final PermanentStorage permanentStorage;
+    private final JsonStorage jsonStorage;
 
     PrefixCommand(Configuration configuration,
                   DependencyManager dependencyManager,
-                  PermanentStorage permanentStorage) {
+                  JsonStorage jsonStorage) {
         super("prefix", "setprefix");
 
         this.configuration = configuration;
         this.dependencyManager = dependencyManager;
-        this.permanentStorage = permanentStorage;
+        this.jsonStorage = jsonStorage;
     }
 
     @Override
@@ -51,9 +51,9 @@ public class PrefixCommand extends BukkitCommand {
             }
 
             if (args[1].equalsIgnoreCase("clear")) {
-                permanentStorage.setProperty(player, "prefix", null);
+                jsonStorage.setProperty(player, "prefix", null);
 
-                if (configuration.getNode("commands.prefix.auto-nte").getAsBoolean(false)) {
+                if (configuration.getNode("miscellaneous.commands.prefix.auto-nte").getAsBoolean(false)) {
                     if (dependencyManager.getNametagEdit() != null) {
                         dependencyManager.getNametagEdit().setPrefix(player, null);
                     }
@@ -64,11 +64,16 @@ public class PrefixCommand extends BukkitCommand {
             } else {
                 String prefix = Arrays.stream(Arrays.copyOfRange(args, 1, args.length)).collect(Collectors.joining(" "));
                 String formattedPrefix = prefix
-                        + configuration.getNode("commands.prefix.after-prefix").getAsString("");
+                        + configuration.getNode("miscellaneous.commands.prefix.after-prefix").getAsString("");
 
-                permanentStorage.setProperty(player, "prefix", new JsonPrimitive(formattedPrefix));
+                if (formattedPrefix.length() > configuration.getNode("miscellaneous.commands.prefix.length-limit").getAsInt(16)) {
+                    sender.sendMessage(Chatty.instance().messages().get("prefix-command.length-limit"));
+                    return;
+                }
 
-                if (configuration.getNode("commands.prefix.auto-nte").getAsBoolean(false)) {
+                jsonStorage.setProperty(player, "prefix", new JsonPrimitive(formattedPrefix));
+
+                if (configuration.getNode("miscellaneous.commands.prefix.auto-nte").getAsBoolean(false)) {
                     if (dependencyManager.getNametagEdit() != null) {
                         dependencyManager.getNametagEdit().setPrefix(player, formattedPrefix);
                     }

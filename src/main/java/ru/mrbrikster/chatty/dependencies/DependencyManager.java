@@ -3,7 +3,7 @@ package ru.mrbrikster.chatty.dependencies;
 import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
 import ru.mrbrikster.baseplugin.config.Configuration;
-import ru.mrbrikster.chatty.chat.PermanentStorage;
+import ru.mrbrikster.chatty.chat.JsonStorage;
 
 import java.util.logging.Level;
 
@@ -13,7 +13,7 @@ public class DependencyManager {
     @Getter private PlaceholderAPIHook placeholderApi;
     @Getter private NametagEditHook nametagEdit;
 
-    public DependencyManager(Configuration configuration, PermanentStorage permanentStorage, JavaPlugin javaPlugin) {
+    public DependencyManager(Configuration configuration, JsonStorage jsonStorage, JavaPlugin javaPlugin) {
         if (javaPlugin.getServer().getPluginManager().isPluginEnabled("Vault")) {
             this.vault = new VaultHook();
             javaPlugin.getLogger().log(Level.INFO, "Vault has successful hooked.");
@@ -25,7 +25,7 @@ public class DependencyManager {
         }
 
         if (javaPlugin.getServer().getPluginManager().isPluginEnabled("NametagEdit")) {
-            this.nametagEdit = new NametagEditHook(configuration, permanentStorage);
+            this.nametagEdit = new NametagEditHook(configuration, jsonStorage);
             javaPlugin.getLogger().log(Level.INFO, "NametagEdit has successful hooked.");
         }
     }
