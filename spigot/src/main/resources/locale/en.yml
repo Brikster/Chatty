@@ -1,0 +1,58 @@
+messages:
+  # Non-removable lines.
+  # If you delete the line, a default English localization will be applied.
+  only-for-players: '&cThis command is only for players.'
+  chat-not-found: '&cApplicable chat not found. You can''t send the message.'
+  reload: '&aConfig successfully reloaded!'
+  no-permission: '&cYou don''t have permission.'
+  spy-on: '&aYou have been enabled spy-mode.'
+  spy-off: '&cYou have been disabled spy-mode.'
+  cooldown: '&cWait for {cooldown} seconds, before send message in this chat again.'
+  not-enough-money: '&cYou need {money} money to send message in this chat.'
+
+  chat-cleared: '&aChat cleared by {player}.'
+
+  msg-command:
+    usage: '&cUsing: /{label} <player> <message>'
+    player-not-found: '&cPlayer not found.'
+    cannot-message-yourself: '&cYou cannot message yourself.'
+
+  reply-command:
+    usage: '&cUsing: /{label} <message>'
+    target-not-found: '&cPlayer not found.'
+
+  ignore-command:
+    usage: '&cUsing: /{label} <player>'
+    player-not-found: '&cPlayer not found.'
+    add-ignore: '&cYou are now ignoring player {player}.'
+    remove-ignore: '&aYou are no more ignoring player {player}.'
+    cannot-ignore-yourself: '&cYou cannot ignore yourself.'
+
+  swears-command:
+    usage: '&cUsing: /{label} add <word>'
+    add-word: '&aYou added word {word} to whitelist.'
+
+  prefix-command:
+    usage: '&cUsing: /{label} <player> <<prefix>|clear>'
+    no-permissions-others: '&cYou don''t have permission to changing prefixes of other players.'
+    player-not-found: '&cPlayer not found.'
+    length-limit-min: '&cPrefix cannot be shorter than {limit} symbols.'
+    length-limit-max: '&cPrefix cannot be longer than {limit} symbols.'
+    prefix-clear: '&aYou cleared prefix of {player}.'
+    prefix-set: '&aYou set prefix &r{prefix} &afor player {player}.'
+
+  suffix-command:
+    usage: '&cUsing: /{label} <player> <<suffix>|clear>'
+    no-permissions-others: '&cYou don''t have permission to changing suffixes of other players.'
+    player-not-found: '&cPlayer not found.'
+    length-limit-min: '&cSuffix cannot be shorter than {limit} symbols.'
+    length-limit-max: '&cSuffix cannot be longer than {limit} symbols.'
+    prefix-clear: '&aYou cleared suffix of {player}.'
+    prefix-set: '&aYou set suffix &r{suffix} &afor player {player}.'
+
+  # Removable lines.
+  # Delete the line to disable message.
+  advertisement-found: '&cAdvertisement is detected in your message.'
+  no-recipients: '&cNobody heard you.'
+  caps-found: '&cCaps abuse is detected in your message.'
+  swear-found: '&cSwearing is detected in your message.'

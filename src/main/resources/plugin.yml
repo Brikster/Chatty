@@ -1,7 +1,0 @@
-name: ${project.name}
-version: ${project.version}
-main: ${project.groupId}.${project.artifactId}.${project.name}
-authors: [MrBrikster]
-
-# Essentials needed only for overwriting existing private-messaging commands.
-softdepend: [Vault, PlaceholderAPI, NametagEdit, Essentials]

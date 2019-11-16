@@ -1,0 +1,4 @@
+name: Chatty
+version: ${project.version}
+main: ru.mrbrikster.chatty.Chatty
+author: MrBrikster
