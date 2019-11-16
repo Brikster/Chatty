@@ -12,8 +12,6 @@ config-version: '2.0'
 # ******************************************************
 
 # * GENERAL
-#
-# Very important settings.
 general:
   # Plugin localization.
   #
@@ -27,7 +25,7 @@ general:
   # lowest, low, normal, high, highest.
   priority: low
 
-  # Chat logging in "Chatty/logs".
+  # Chat logging in "plugins/Chatty/logs/".
   log: true
 
   # Completely cancels chat events,
@@ -36,12 +34,17 @@ general:
   completely-cancel: false
 
   # Storage player data mode.
-  # true - for online-mode servers and servers under BungeeCord.
-  # false - for offline-mode servers.
+  # true - data will store by UUIDs.
+  # false - data will store by nicknames.
   uuid: false
 
   # Enables support for "-3" chat range.
   # Messages from that chats will be sent to all BungeeCord servers with Chatty.
+  #
+  # Notes:
+  # * Console logs will not prints on empty BungeeCord servers (non-fixable)
+  # * So Chatty send message to another server, there must be chat with the same name and range -3.
+  #
   # !!! Chatty must be also installed in BungeeCord !!!
   bungeecord: false
 
@@ -143,25 +146,29 @@ spy:
 json:
   enable: false
 
-  # Command that executes (by player) when you click on the player's name.
-  # Supports PlaceholderAPI.
-  # *** You should use "command" OR "suggest-command" OR "link" and cannot combine.
+  # Command or text that executes (by player) when you click on the player's name.
   #
+  # *** You can use EITHER "command" OR "suggest" OR "link".
+  #
+  # Supports PlaceholderAPI.
   # You can use "{player}" variable here.
   command: /home
 
-  # Command that suggests when you click on the player's name.
-  # Supports PlaceholderAPI.
-  # *** You should use "command" OR "suggest_command" OR "link" and cannot combine.
+  # Command or text that suggests when you click on the player's name.
   #
+  # *** You can use EITHER "command" OR "suggest" OR "link".
+  #
+  # Supports PlaceholderAPI.
   # You can use "{player}" variable here.
-  suggest-command: '/msg {player} '
+  suggest: '/msg {player} '
 
   # URL that opens when when you click on the player's name.
+  #
   # You must use "http://" or "https://" prefix, else you will crash Minecraft client :D
   #
-  # Supports PlaceholderAPI.
+  # *** You can use EITHER "command" OR "suggest" OR "link".
   #
+  # Supports PlaceholderAPI.
   # You can use "{player}" variable here.
   link: 'http://google.com'
 
@@ -176,6 +183,9 @@ json:
 
   # Swears hovers.
   #
+  # Available properties:
+  # tooltip, suggest
+  - #
   # Permission: chatty.swears.see
   swears:
     enable: true
@@ -183,15 +193,15 @@ json:
     - '&o{word}'
     - ''
     - '&eClick here to add word to whitelist.'
-    suggest-command: /swears add {word}
+    suggest: /swears add {word}
 
   # Replacements for chat formats.
   #
-  # You can replace some plain text with clickable pieces
+  # You can replace some plain text with clickable parts
   # to make chat more interactive.
   #
   # Available properties:
-  # text, tooltip, command, suggest-command, link.
+  # text, tooltip, command, suggest, link.
   replacements:
     'Admin':
       # Original text.
@@ -247,7 +257,7 @@ notifications:
 
         # List of messages.
         messages:
-        - '&cThe server is using Chatty!\n&fOur address: 127.0.0.1\n&fVisit out site: example.com'
+        - '&cThe server is using Chatty!\n&aOur address: 127.0.0.1\n&aVisit out site: example.com'
         - '&aThe server is using Chatty!'
 
         # Permission for seeing notification.
@@ -432,6 +442,7 @@ miscellaneous:
     join:
       enable: true
 
+      # Set to '' if you want to make it hidden.
       message: '&e{prefix}{player}{suffix} &ejoined the server.'
 
       # Permission: chatty.misc.joinmessage
@@ -440,6 +451,7 @@ miscellaneous:
     quit:
       enable: true
 
+      # Set to '' if you want to make it hidden.
       message: '&e{prefix}{player}{suffix} &eleft the server.'
 
       # Permission: chatty.misc.quitmessage
@@ -448,6 +460,7 @@ miscellaneous:
     death:
       enable: true
 
+      # Set to '' if you want to make it hidden.
       message: '&e{prefix}{player}{suffix} &edied.'
 
       # Permission: chatty.misc.deathmessage

@@ -37,11 +37,12 @@ Feature | ChatEx | Chatty
 Vault support | + | +
 Advertisement protection | + | +
 Old versions support (1.5.2+) | - | +
+BungeeCord support | - | +
 Replacement of AutoMessage | - | +
 Advancements and ActionBar notifications | - | +
 PlaceholderAPI support | - | +
 Custom chat groups | - | +
-Cooldowns system | - | +
+Cooldowns | - | +
 Built-in spy-mode | - | +
 Private messages | - | +
 

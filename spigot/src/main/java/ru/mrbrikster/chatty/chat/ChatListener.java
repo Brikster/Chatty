@@ -320,7 +320,7 @@ public class ChatListener implements Listener, EventExecutor {
             tooltip = placeholderAPI.setPlaceholders(player, tooltip);
 
         String command = configuration.getNode("json.command").getAsString(null);
-        String suggestCommand = configuration.getNode("json.suggest_command").getAsString(null);
+        String suggestCommand = configuration.getNode("json.suggest").getAsString(null);
         String link = configuration.getNode("json.link").getAsString(null);
 
         Function<String, String> replaceVariables = string -> {
@@ -355,7 +355,7 @@ public class ChatListener implements Listener, EventExecutor {
                 replacementTooltip = placeholderAPI.setPlaceholders(player, replacementTooltip);
 
             String replacementCommand = replacement.getNode("command").getAsString(null);
-            String replacementSuggestCommand = replacement.getNode("suggest-command").getAsString(null);
+            String replacementSuggestCommand = replacement.getNode("suggest").getAsString(null);
             String replacementLink = replacement.getNode("link").getAsString(null);
 
             formattedMessage.replace(replacementName, new JSONMessagePart(replaceVariables.apply(text))
@@ -375,7 +375,7 @@ public class ChatListener implements Listener, EventExecutor {
                 List<String> swearTooltip = configuration.getNode("json.swears.tooltip").getAsStringList()
                         .stream().map(tooltipLine -> ChatColor.translateAlternateColorCodes('&', tooltipLine)).collect(Collectors.toList());
 
-                String suggest = configuration.getNode("json.swears.suggest_command").getAsString(null);
+                String suggest = configuration.getNode("json.swears.suggest").getAsString(null);
 
                 swears.forEach(swear -> formattedMessage.replace(replacement,
                         new JSONMessagePart(replacement)
@@ -484,7 +484,7 @@ public class ChatListener implements Listener, EventExecutor {
 
         return currentChat;
     }
-    
+
     private String stylish(Player player, String message, String chat) {
         for (Map.Entry<String, Pattern> entry : PATTERNS.entrySet()) {
             if (player.hasPermission(entry.getKey()) || player.hasPermission(entry.getKey() + "." + chat)) {
