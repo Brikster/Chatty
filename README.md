@@ -54,7 +54,7 @@ Chatty is the unique Bukkit-plugin, that supports all modern Bukkit-servers, suc
 
 See default configuration in <b><u>src/main/java/resources/config.yml.</u></b>
 
-#### A little life-hack
+### A little life-hack
 
 You can delete all excess blocks and keep only needed features.
 
@@ -70,15 +70,16 @@ Plugin will work even with this simple config:
 
 Chatty uses Apache Maven to handle dependencies & building.
 
-#### Requirements
+### Requirements
 
 -   Java 8 JDK or newer
 -   Apache Maven
 -   Git
 
-#### Compiling from source
+### Compiling from source
 
-```sh
+```
+sh
 git clone https://github.com/Brikster/Chatty.git
 cd Chatty/
 ./mvn clean package
