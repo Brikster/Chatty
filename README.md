@@ -78,8 +78,7 @@ Chatty uses Apache Maven to handle dependencies & building.
 
 ### Compiling from source
 
-```
-sh
+```shell script
 git clone https://github.com/Brikster/Chatty.git
 cd Chatty/
 ./mvn clean package
