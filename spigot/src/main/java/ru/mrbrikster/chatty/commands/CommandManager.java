@@ -90,7 +90,10 @@ public class CommandManager {
 
     public void unregisterAll() {
         this.chattyCommand.unregister(Chatty.instance());
-        this.clearChatCommand.unregister(Chatty.instance());
+
+        if (clearChatCommand != null) {
+            this.clearChatCommand.unregister(Chatty.instance());
+        }
 
         if (spyCommand != null) {
             this.spyCommand.unregister(Chatty.instance());

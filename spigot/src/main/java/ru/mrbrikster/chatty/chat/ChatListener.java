@@ -367,11 +367,30 @@ public class ChatListener implements Listener, EventExecutor {
 
         formattedMessage.replace("{message}", new LegacyMessagePart(playerChatEvent.getMessage(), false));
 
+        if (configuration.getNode("general.bungeecord").getAsBoolean(false)) {
+            BungeeBroadcaster.broadcast(chat.getName(), formattedMessage.toJSONString(), true);
+        }
+
         if (configuration.getNode("json.swears.enable").getAsBoolean(false)) {
             String replacement = configuration.getNode("moderation.swear.replacement").getAsString("<swear>");
             List<String> swears = pendingSwears.remove(playerChatEvent.getPlayer());
 
-            if (swears != null && player.hasPermission("chatty.swears.see")) {
+            if (swears == null) {
+                formattedMessage.send(playerChatEvent.getRecipients());
+            } else {
+                List<Player> canSeeSwears = new ArrayList<>();
+                List<Player> cannotSeeSwears = new ArrayList<>();
+
+                Reflection.getOnlinePlayers().forEach(onlinePlayer -> {
+                    if (onlinePlayer.hasPermission("chatty.swears.see")) {
+                        canSeeSwears.add(onlinePlayer);
+                    } else {
+                        cannotSeeSwears.add(onlinePlayer);
+                    }
+                });
+
+                formattedMessage.send(cannotSeeSwears);
+
                 List<String> swearTooltip = configuration.getNode("json.swears.tooltip").getAsStringList()
                         .stream().map(tooltipLine -> ChatColor.translateAlternateColorCodes('&', tooltipLine)).collect(Collectors.toList());
 
@@ -381,13 +400,11 @@ public class ChatListener implements Listener, EventExecutor {
                         new JSONMessagePart(replacement)
                                 .tooltip(swearTooltip.stream().map(tooltipLine -> tooltipLine.replace("{word}", swear)).collect(Collectors.toList()))
                                 .suggest(suggest != null ? suggest.replace("{word}", swear) : null)));
+
+                formattedMessage.send(canSeeSwears);
             }
-        }
-
-        formattedMessage.send(playerChatEvent.getRecipients());
-
-        if (configuration.getNode("general.bungeecord").getAsBoolean(false)) {
-            BungeeBroadcaster.broadcast(chat.getName(), formattedMessage.toJSONString(), true);
+        } else {
+            formattedMessage.send(playerChatEvent.getRecipients());
         }
 
         playerChatEvent.getRecipients().clear();
