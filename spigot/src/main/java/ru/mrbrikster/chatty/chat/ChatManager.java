@@ -49,7 +49,7 @@ public class ChatManager {
         init();
     }
 
-    public class Logger {
+    public static class Logger {
 
         void write(Player player, String message, String additionalPrefix) {
             BufferedWriter bufferedWriter = null;

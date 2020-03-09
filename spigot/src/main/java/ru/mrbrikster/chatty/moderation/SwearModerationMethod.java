@@ -101,19 +101,28 @@ public class SwearModerationMethod extends ModerationMethod {
         this.editedMessage = message;
         Matcher swearPatternMatcher = swearsPattern.matcher(message.toLowerCase());
 
+        int previousWordStart = -1;
+        int previousWordEnd = -1;
         while (swearPatternMatcher.find()) {
-            if (swearPatternMatcher.group().trim().isEmpty())
+            if (swearPatternMatcher.group().trim().isEmpty()) {
                 continue;
-
-            String swear = getWord(message, swearPatternMatcher.start(), swearPatternMatcher.end());
-
-            boolean matches = false;
-            for (Pattern pattern : swearsWhitelist) {
-                if (pattern.matcher(swear).matches())
-                    matches = true;
             }
 
-            if (!matches) {
+            int[] wordStartAndEndArray = getWord(message, swearPatternMatcher.start(), swearPatternMatcher.end());
+
+            if (previousWordStart == wordStartAndEndArray[0] && previousWordEnd == wordStartAndEndArray[1]) {
+                continue;
+            }
+
+            String swear = message.substring(previousWordStart = wordStartAndEndArray[0], previousWordEnd = wordStartAndEndArray[1]);
+
+            boolean whitelisted = false;
+            for (Pattern pattern : swearsWhitelist) {
+                if (pattern.matcher(swear).matches())
+                    whitelisted = true;
+            }
+
+            if (!whitelisted) {
                 words.add(swear);
                 editedMessage = editedMessage.replaceAll(Pattern.quote(swear), replacement);
             }
@@ -127,14 +136,14 @@ public class SwearModerationMethod extends ModerationMethod {
         return !getEditedMessage().equals(message);
     }
 
-    private String getWord(String message, int start, int end) {
+    private int[] getWord(String message, int start, int end) {
         int wordStart = 0;
         int wordEnd = message.length();
 
         char[] chars = message.toCharArray();
         for (int i = start; i >= 0; i--) {
             if (chars[i] == ' ') {
-                wordStart = i;
+                wordStart = i + 1;
                 break;
             }
         }
@@ -146,8 +155,7 @@ public class SwearModerationMethod extends ModerationMethod {
             }
         }
 
-        String word = message.substring(wordStart, wordEnd);
-        return word.trim();
+        return new int[] {wordStart, wordEnd};
     }
 
 }

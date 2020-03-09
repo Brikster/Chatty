@@ -93,7 +93,7 @@ public class ActionBar {
             Object packetPlayOutChat = ServerPackage.MINECRAFT.getClass("PacketPlayOutChat").getConstructor(clsIChatBaseComponent, clsChatMessageType).newInstance(chatBaseComponent, chatMessageType);
             playerConnection.getClass().getMethod("sendPacket", ServerPackage.MINECRAFT.getClass("Packet")).invoke(playerConnection, packetPlayOutChat);
         } catch (Throwable e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("ActionBar is not supported by Chatty on your server version (" + ServerPackage.getServerVersion() + ")", e);
         }
     }
 

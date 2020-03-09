@@ -237,7 +237,7 @@ json:
 # * NOTIFICATIONS
 #
 # There are four types of notifications:
-# via Chat, Title (1.8 and newer), ActionBar (1.8 and newer) and Advancements (1.12 and newer).
+# via Chat, Title (1.8.8 and newer), ActionBar (1.8.8 and newer) and Advancements (1.12 and newer).
 notifications:
   # Chat notifications.
   chat:

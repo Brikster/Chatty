@@ -24,6 +24,8 @@ messages:
   ignore-command:
     usage: '&cИспользование: /{label} <игрок>'
     player-not-found: '&cИгрок не найден.'
+    ignore-list: '&eСейчас вы игнорируете: &6{players}.'
+    ignore-list-delimiter: '&8, &6'
     add-ignore: '&cТеперь вы игнорируете игрока {player}.'
     remove-ignore: '&aВы больше не игнорируете игрока {player}.'
     cannot-ignore-yourself: '&cВы не можете игнорировать самого себя.'

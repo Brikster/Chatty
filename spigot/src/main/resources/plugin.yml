@@ -4,4 +4,5 @@ main: ru.mrbrikster.chatty.Chatty
 authors: [MrBrikster]
 
 # Essentials needed only for overwriting existing private-messaging commands.
-softdepend: [Vault, PlaceholderAPI, NametagEdit, Essentials]
+loadbefore: [Essentials]
+softdepend: [Vault, PlaceholderAPI, NametagEdit]

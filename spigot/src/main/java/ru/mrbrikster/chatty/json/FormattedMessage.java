@@ -95,6 +95,10 @@ public class FormattedMessage {
             fancyMessage = messagePart.append(fancyMessage);
         }
 
+        fancyMessage.getMessageParts().removeIf(messagePart ->
+            messagePart.text.toString().isEmpty()
+        );
+
         return fancyMessage;
     }
 

@@ -146,8 +146,7 @@ public class ChatListener implements Listener, EventExecutor {
         }
 
         String format = chat.getFormat();
-        format = format.replace("{player}", "%1$s");
-        format = format.replace("{message}", "%2$s");
+
         format = format.replace("{prefix}", prefixAndSuffixManager.getPrefix(player));
         format = format.replace("{suffix}", prefixAndSuffixManager.getSuffix(player));
 
@@ -156,6 +155,10 @@ public class ChatListener implements Listener, EventExecutor {
         }
 
         format = COLORIZE.apply(format);
+
+        format = format.replace("%", "%%");
+        format = format.replace("{player}", "%1$s");
+        format = format.replace("{message}", "%2$s");
 
         playerChatEvent.setFormat(format);
 
@@ -181,7 +184,6 @@ public class ChatListener implements Listener, EventExecutor {
             SwearModerationMethod swearMethod = moderationManager.getSwearMethod(message);
             if (!player.hasPermission("chatty.moderation.swear")) {
                 if (swearMethod.isBlocked()) {
-
                     message = swearMethod.getEditedMessage();
                     if (swearMethod.isUseBlock()) {
                         if (configuration.getNode("general.completely-cancel").getAsBoolean(false))

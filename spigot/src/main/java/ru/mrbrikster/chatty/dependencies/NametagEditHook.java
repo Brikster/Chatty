@@ -47,13 +47,13 @@ public class NametagEditHook implements Listener {
     public void onNametagFirstLoadedEvent(NametagFirstLoadedEvent nametagFirstLoadedEvent) {
         Player player = nametagFirstLoadedEvent.getPlayer();
 
-        if (configuration.getNode("general.prefix-command.enable").getAsBoolean(false)
-                && configuration.getNode("general.prefix-command.auto-nte").getAsBoolean(false)) {
+        if (configuration.getNode("miscellaneous.commands.prefix.enable").getAsBoolean(false)
+                && configuration.getNode("miscellaneous.commands.prefix.auto-nte").getAsBoolean(false)) {
             jsonStorage.getProperty(player, "prefix").ifPresent(prefix -> setPrefix(player, prefix.getAsString()));
         }
 
-        if (configuration.getNode("general.suffix-command.enable").getAsBoolean(false)
-                && configuration.getNode("general.suffix-command.auto-nte").getAsBoolean(false)) {
+        if (configuration.getNode("miscellaneous.commands.suffix.enable").getAsBoolean(false)
+                && configuration.getNode("miscellaneous.commands.suffix .auto-nte").getAsBoolean(false)) {
             jsonStorage.getProperty(player, "suffix").ifPresent(suffix -> setSuffix(player, suffix.getAsString()));
         }
     }

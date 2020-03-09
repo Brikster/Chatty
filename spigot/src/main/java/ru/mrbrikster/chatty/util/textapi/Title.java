@@ -104,7 +104,7 @@ public class Title {
                 playerConnection.getClass().getMethod("sendPacket", clsPacket).invoke(playerConnection, subtitlePacket);
             }
         } catch (Throwable e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Titles are not supported by Chatty on your server version (" + ServerPackage.getServerVersion() + ")", e);
         }
     }
 

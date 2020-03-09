@@ -149,24 +149,24 @@ public class MsgCommand extends BukkitCommand {
         String senderFormat;
         if (!jsonStorage.isIgnore(recipient, sender)) {
             recipient.sendMessage(ChatColor.translateAlternateColorCodes('&', configuration.getNode("pm.format.recipient")
-                    .getAsString("&7{sender-prefix}{sender-name} &6-> &7{recipient-prefix}{recipient-name}: &f{message}"))
+                    .getAsString("&7{sender-prefix}{sender-name} &6-> &7{recipient-prefix}{recipient-name}: &f{message}")
                     .replace("{sender-prefix}", senderPrefix)
                     .replace("{sender-suffix}", senderSuffix)
                     .replace("{sender-name}", senderName)
                     .replace("{recipient-name}", recipientName)
                     .replace("{recipient-prefix}", recipientPrefix)
-                    .replace("{recipient-suffix}", recipientSuffix)
+                    .replace("{recipient-suffix}", recipientSuffix))
                     .replace("{message}", message));
         }
 
         sender.sendMessage(senderFormat = ChatColor.translateAlternateColorCodes('&', configuration.getNode("pm.format.sender")
-                .getAsString("&7{sender-prefix}{sender-name} &6-> &7{recipient-prefix}{recipient-name}: &f{message}"))
+                .getAsString("&7{sender-prefix}{sender-name} &6-> &7{recipient-prefix}{recipient-name}: &f{message}")
                 .replace("{sender-prefix}", senderPrefix)
                 .replace("{sender-suffix}", senderSuffix)
                 .replace("{sender-name}", senderName)
                 .replace("{recipient-name}", recipientName)
                 .replace("{recipient-prefix}", recipientPrefix)
-                .replace("{recipient-suffix}", recipientSuffix)
+                .replace("{recipient-suffix}", recipientSuffix))
                 .replace("{message}", message));
 
         Bukkit.getOnlinePlayers().stream()
