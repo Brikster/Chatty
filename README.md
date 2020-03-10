@@ -40,11 +40,11 @@ Chatty is the unique Bukkit-plugin, that supports all modern Bukkit-servers, suc
 | ---------------------------------------- | ------ | ------ |
 | Vault support                            | +      | +      |
 | Advertisement protection                 | +      | +      |
+| PlaceholderAPI support                   | +      | +      |
 | Old versions support (1.5.2+)            | -      | +      |
 | BungeeCord support                       | -      | +      |
 | Replacement of AutoMessage               | -      | +      |
 | Advancements and ActionBar notifications | -      | +      |
-| PlaceholderAPI support                   | -      | +      |
 | Custom chat groups                       | -      | +      |
 | Cooldowns                                | -      | +      |
 | Built-in spy-mode                        | -      | +      |
@@ -88,4 +88,4 @@ You can find the output jar in `/target` directory.
 
 ## Credits
 
-Supports by McStudio.
+Supports by MCSTUDIO
