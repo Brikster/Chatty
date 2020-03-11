@@ -93,7 +93,7 @@ public class IgnoreCommand extends BukkitCommand {
 
             sender.sendMessage(Chatty.instance().messages().get("ignore-command.add-ignore")
                     .replace("{label}", label).replace("{player}", ignoreTargetPlayer.getName()));
-            jsonElement.getAsJsonArray().add(ignoreTargetPlayer.getName());
+            jsonElement.getAsJsonArray().add(ignoreTargetPlayer.getName().toLowerCase());
         }
 
         jsonStorage.setProperty((Player) sender, "ignore", jsonElement);
