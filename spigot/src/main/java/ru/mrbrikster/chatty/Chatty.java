@@ -25,6 +25,7 @@ public final class Chatty extends BukkitBasePlugin {
     private Messages messages;
     private Debugger debugger;
     private Configuration configuration;
+    private ChatManager chatManager;
 
     public static Chatty instance() {
         return Chatty.instance;
@@ -51,9 +52,9 @@ public final class Chatty extends BukkitBasePlugin {
             configuration = getConfiguration("config.yml");
         }
 
-        ChatManager chatManager = new ChatManager(configuration);
         ModerationManager moderationManager = new ModerationManager(this, configuration);
         JsonStorage jsonStorage = new JsonStorage(configuration, this);
+        this.chatManager = new ChatManager(configuration, jsonStorage);
         DependencyManager dependencyManager = new DependencyManager(configuration, jsonStorage, this);
 
         this.messages = new Messages(this, configuration);
@@ -61,7 +62,7 @@ public final class Chatty extends BukkitBasePlugin {
 
         configuration.onReload(config -> this.messages = new Messages(this, config));
 
-        this.commandManager = new CommandManager(configuration, dependencyManager, jsonStorage, moderationManager);
+        this.commandManager = new CommandManager(configuration, chatManager, dependencyManager, jsonStorage, moderationManager);
         new NotificationManager(configuration);
 
         EventPriority eventPriority;
@@ -146,6 +147,11 @@ public final class Chatty extends BukkitBasePlugin {
     public void onDisable() {
         this.getServer().getScheduler().cancelTasks(this);
         this.commandManager.unregisterAll();
+        this.chatManager.getChats().forEach(chat -> {
+            if (chat.getBukkitCommand() != null) {
+                chat.getBukkitCommand().unregister(Chatty.instance());
+            }
+        });
     }
 
 }

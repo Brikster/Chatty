@@ -102,6 +102,10 @@ public class FormattedMessage {
         return fancyMessage;
     }
 
+    public String toReadableText() {
+        return buildFancyMessage().toOldMessageFormat();
+    }
+
     public String toJSONString() {
         return buildFancyMessage().toJSONString();
     }

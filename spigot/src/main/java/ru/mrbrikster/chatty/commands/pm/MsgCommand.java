@@ -15,6 +15,7 @@ import ru.mrbrikster.chatty.dependencies.PrefixAndSuffixManager;
 import ru.mrbrikster.chatty.moderation.AdvertisementModerationMethod;
 import ru.mrbrikster.chatty.moderation.ModerationManager;
 import ru.mrbrikster.chatty.moderation.SwearModerationMethod;
+import ru.mrbrikster.chatty.reflection.Reflection;
 
 import java.util.Arrays;
 
@@ -169,13 +170,32 @@ public class MsgCommand extends BukkitCommand {
                 .replace("{recipient-suffix}", recipientSuffix))
                 .replace("{message}", message));
 
-        Bukkit.getOnlinePlayers().stream()
+        MsgCommand.sendMessageToSpy(sender, recipient,
+                recipientPrefix, recipientName, recipientSuffix,
+                senderPrefix, senderName, senderSuffix,
+                senderFormat, message,
+                jsonStorage, configuration);
+    }
+
+    static void sendMessageToSpy(CommandSender sender, CommandSender recipient,
+                                 String recipientPrefix, String recipientName, String recipientSuffix,
+                                 String senderPrefix, String senderName, String senderSuffix,
+                                 String senderFormat, String message,
+                                 JsonStorage jsonStorage, Configuration configuration) {
+        Reflection.getOnlinePlayers().stream()
                 .filter(spyPlayer -> !spyPlayer.equals(sender) && !spyPlayer.equals(recipient))
                 .filter(spyPlayer -> spyPlayer.hasPermission("chatty.spy") || spyPlayer.hasPermission("chatty.spy.pm"))
                 .filter(spyPlayer -> jsonStorage.getProperty(spyPlayer, "spy-mode").orElse(new JsonPrimitive(true)).getAsBoolean())
                 .forEach(spyPlayer -> spyPlayer.sendMessage(
                         ChatColor.translateAlternateColorCodes('&', configuration.getNode("spy.format.pm")
-                                .getAsString("&6[Spy] &r{format}"))
+                                .getAsString("&6[Spy] &r{format}")
+                                .replace("{sender-prefix}", senderPrefix)
+                                .replace("{sender-suffix}", senderSuffix)
+                                .replace("{sender-name}", senderName)
+                                .replace("{recipient-name}", recipientName)
+                                .replace("{recipient-prefix}", recipientPrefix)
+                                .replace("{recipient-suffix}", recipientSuffix))
+                                .replace("{message}", message)
                                 .replace("{format}", senderFormat)
                 ));
     }

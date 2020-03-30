@@ -10,7 +10,10 @@ messages:
   cooldown: '&cПодождите {cooldown} секунд, прежде чем отправлять сообщение в этот чат снова.'
   not-enough-money: '&cВам необходимо {money} монет для отправки сообщения в этот чат.'
 
-  chat-cleared: '&a{player} очистил чат.'
+  clearchat-command:
+    usage: '&cИспользование: /{label} [all]'
+    clear-chat-for-all: '&a{player} очистил чат.'
+    clear-chat-for-yourself: '&aЧат очищен.'
 
   msg-command:
     usage: '&cИспользование: /{label} <игрок> <сообщение>'
@@ -33,6 +36,12 @@ messages:
   swears-command:
     usage: '&cИспользование: /{label} add <слово>'
     add-word: '&aВы добавили слово {word} в белый список.'
+
+  chat-command:
+    usage: '&cИспользование: /{label} <чат>'
+    chat-not-found: '&cЧат с таким именем не найден.'
+    chat-switched: '&aВы перешли в чат "{chat}".'
+    no-chat-permission: '&cУ вас недостаточно прав для этого чата.'
 
   prefix-command:
     usage: '&cИспользование: /{label} <игрок> <<префикс>|clear>'

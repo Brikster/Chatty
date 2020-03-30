@@ -7,7 +7,7 @@ import ru.mrbrikster.baseplugin.config.ConfigurationNode;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -62,7 +62,7 @@ public class SwearModerationMethod extends ModerationMethod {
 
         try {
             StringBuilder pattern = new StringBuilder();
-            for (String swear : Files.readLines(swearsFile, Charset.forName("UTF-8"))) {
+            for (String swear : Files.readLines(swearsFile, StandardCharsets.UTF_8)) {
                 if (swear.isEmpty())
                     continue;
 
@@ -74,7 +74,7 @@ public class SwearModerationMethod extends ModerationMethod {
             }
 
             SwearModerationMethod.swearsPattern = Pattern.compile(pattern.toString(), Pattern.CASE_INSENSITIVE);
-            SwearModerationMethod.swearsWhitelist = Files.readLines(whitelistFile, Charset.forName("UTF-8")).stream().map(whitelistPattern
+            SwearModerationMethod.swearsWhitelist = Files.readLines(whitelistFile, StandardCharsets.UTF_8).stream().map(whitelistPattern
                     -> Pattern.compile(whitelistPattern.toLowerCase(), Pattern.CASE_INSENSITIVE)).collect(Collectors.toList());
         } catch (IOException e) {
             e.printStackTrace();

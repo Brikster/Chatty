@@ -10,7 +10,10 @@ messages:
   cooldown: '&cWait for {cooldown} seconds, before send message in this chat again.'
   not-enough-money: '&cYou need {money} money to send message in this chat.'
 
-  chat-cleared: '&aChat cleared by {player}.'
+  clearchat-command:
+    usage: '&cUsing: /{label} [all]'
+    clear-chat-for-all: '&aChat cleared by {player}.'
+    clear-chat-for-yourself: '&aChat cleared.'
 
   msg-command:
     usage: '&cUsing: /{label} <player> <message>'
@@ -33,6 +36,12 @@ messages:
   swears-command:
     usage: '&cUsing: /{label} add <word>'
     add-word: '&aYou added word {word} to whitelist.'
+
+  chat-command:
+    usage: '&cUsing: /{label} <chat>'
+    chat-not-found: '&cChat with this name was not found.'
+    chat-switched: '&aYou have switched to chat "{chat}".'
+    no-chat-permission: '&cYou don''have permission for this chat.'
 
   prefix-command:
     usage: '&cUsing: /{label} <player> <<prefix>|clear>'

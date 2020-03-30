@@ -34,6 +34,10 @@ public class AdvancementsNotification extends Notification {
 
     @Override
     public void run() {
+        if (messages.isEmpty()) {
+            return;
+        }
+
         Chatty.instance().debugger().debug("Run \"%s\" AdvancementsNotification.", name);
 
         if (currentMessage == -1 || messages.size() <= ++currentMessage) {

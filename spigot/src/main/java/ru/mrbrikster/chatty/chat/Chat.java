@@ -3,10 +3,12 @@ package ru.mrbrikster.chatty.chat;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
+import ru.mrbrikster.baseplugin.commands.BukkitCommand;
 import ru.mrbrikster.chatty.Chatty;
 import ru.mrbrikster.chatty.reflection.Reflection;
 
@@ -26,8 +28,11 @@ public class Chat {
     @Getter private final boolean permission;
     @Getter private final long cooldown;
     @Getter private final int money;
+    @Getter private final String command;
 
-    public Chat(String name, boolean enable, String format, int range, String symbol, boolean permission, long cooldown, int money) {
+    @Getter @Setter private BukkitCommand bukkitCommand;
+
+    public Chat(String name, boolean enable, String format, int range, String symbol, boolean permission, long cooldown, int money, String command) {
         this.name = name;
         this.enable = enable;
         this.format = format;
@@ -36,6 +41,13 @@ public class Chat {
         this.permission = permission;
         this.cooldown = cooldown * 1000;
         this.money = money;
+        this.command = command;
+    }
+
+    public boolean isAllowed(Player player) {
+        return !isPermission()
+                || player.hasPermission(String.format("chatty.chat.%s", getName()))
+                || player.hasPermission(String.format("chatty.chat.%s.write", getName()));
     }
 
     List<Player> getRecipients(Player player, JsonStorage jsonStorage) {

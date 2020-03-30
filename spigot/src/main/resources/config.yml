@@ -66,12 +66,14 @@ general:
 # *cooldown*    - message cooldown in seconds (bypass permission - chatty.cooldown.<chat>).
 # *money*       - message price (depends on Vault).
 # *permission*  - check permissions for this chat? Default: true.
+# *command*     - Command that is used to switch to chat to use it by default if symbol is not specified. Default: empty.
 chats:
   local:
     enable: true
     format: '[Local] {prefix}{player}{suffix}: {message}'
     range: 100
     cooldown: -1
+    command: 'localchat'
 
   global:
     enable: true
@@ -79,6 +81,7 @@ chats:
     range: -1
     symbol: '!'
     cooldown: -1
+    command: 'globalchat'
 
 # * PRIVATE MESSAGING
 pm:
@@ -136,6 +139,9 @@ spy:
     # Permission: chatty.spy.pm
     #
     # Uses sender format of PM.
+    # Supports variables:
+    # {format}, {sender-prefix}, {sender-name}, {sender-suffix},
+    # {recipient-prefix}, {recipient-name}, {recipient-suffix}, {message}
     pm: '&6[Spy] &r{format}'
 
 # * JSON
@@ -185,7 +191,7 @@ json:
   #
   # Available properties:
   # tooltip, suggest
-  - #
+  #
   # Permission: chatty.swears.see
   swears:
     enable: true
@@ -400,12 +406,27 @@ moderation:
 # * MISCELLANEOUS
 miscellaneous:
   commands:
+    # Used to switch default chat (when symbol is not specified): /chat <chat>
+    # Permission: chatty.command.chat
+    chat:
+      enable: true
+      aliases: ['chats', 'switchchat']
+
+    # Clear chat for yourself: /clearchat
     # Permission: chatty.command.clearchat
+    #
+    # Clear chat for all: /clearchat all
+    # Permission: chatty.command.clearchat.all
     clearchat:
       enable: true
       aliases: ['chatclear']
 
-    # Permission: chatty.command.prefix
+    # Change chat (and NametagEdit, if enabled) prefix
+    # /prefix <player> <prefix>
+    #
+    # Permissions:
+    # chatty.command.prefix
+    # chatty.command.prefix.others
     prefix:
       enable: true
 
@@ -421,7 +442,12 @@ miscellaneous:
       # (Requires NameTagEdit plugin).
       auto-nte: false
 
-    # Permission: chatty.command.suffix
+    # Change chat (and NametagEdit, if enabled) suffix
+    # /suffix <player> <suffix>
+    #
+    # Permissions:
+    # chatty.command.suffix
+    # chatty.command.suffix.others
     suffix:
       enable: true
 

@@ -1,6 +1,7 @@
 package ru.mrbrikster.chatty.chat;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -31,10 +32,7 @@ import ru.mrbrikster.chatty.moderation.SwearModerationMethod;
 import ru.mrbrikster.chatty.reflection.Reflection;
 import ru.mrbrikster.chatty.util.Pair;
 
-import java.util.ArrayList;
-import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -100,9 +98,10 @@ public class ChatListener implements Listener, EventExecutor {
 
     private void onChat(AsyncPlayerChatEvent playerChatEvent) {
         final Player player = playerChatEvent.getPlayer();
-        String message = playerChatEvent.getMessage();
 
-        Chat chat = getChat(player, message);
+        Pair<Chat, String> chatMessagePair = getChat(player, playerChatEvent.getMessage());
+        Chat chat = chatMessagePair.getKey();
+        String message = chatMessagePair.getValue();
 
         if (chat == null) {
             playerChatEvent.setCancelled(true);
@@ -111,10 +110,6 @@ public class ChatListener implements Listener, EventExecutor {
         }
 
         boolean json = configuration.getNode("json.enable").getAsBoolean(false);
-
-        if (!chat.getSymbol().isEmpty()) {
-            message = message.substring(chat.getSymbol().length());
-        }
 
         message = stylish(player, message, chat.getName());
 
@@ -383,11 +378,11 @@ public class ChatListener implements Listener, EventExecutor {
                 List<Player> canSeeSwears = new ArrayList<>();
                 List<Player> cannotSeeSwears = new ArrayList<>();
 
-                Reflection.getOnlinePlayers().forEach(onlinePlayer -> {
-                    if (onlinePlayer.hasPermission("chatty.swears.see")) {
-                        canSeeSwears.add(onlinePlayer);
+                playerChatEvent.getRecipients().forEach(recipient -> {
+                    if (recipient.hasPermission("chatty.swears.see")) {
+                        canSeeSwears.add(recipient);
                     } else {
-                        cannotSeeSwears.add(onlinePlayer);
+                        cannotSeeSwears.add(recipient);
                     }
                 });
 
@@ -409,6 +404,7 @@ public class ChatListener implements Listener, EventExecutor {
             formattedMessage.send(playerChatEvent.getRecipients());
         }
 
+        playerChatEvent.setFormat(formattedMessage.toReadableText().replace("%", "%%"));
         playerChatEvent.getRecipients().clear();
     }
 
@@ -481,27 +477,38 @@ public class ChatListener implements Listener, EventExecutor {
         }
     }
 
-    private Chat getChat(final Player player, final String message) {
+    private Pair<Chat, String> getChat(final Player player, String message) {
         Chat currentChat = null;
 
-        for (Chat chat : this.chatManager.getChats()) {
-            if (!chat.isEnable()) {
-                continue;
+        Optional<JsonElement> optional = jsonStorage.getProperty(player, "chat");
+        if (optional.isPresent()) {
+            JsonElement jsonElement = optional.get();
+            if (jsonElement.isJsonPrimitive()) {
+                String chatName = jsonElement.getAsJsonPrimitive().getAsString();
+                Chat chat = chatManager.getChat(chatName);
+                if (chat != null) {
+                    if (chat.isAllowed(player)) {
+                        currentChat = chat;
+                    }
+                }
             }
+        }
 
-            if (!chat.isPermission()
-                    || player.hasPermission(String.format("chatty.chat.%s", chat.getName()))
-                    || player.hasPermission(String.format("chatty.chat.%s.write", chat.getName()))) {
+        for (Chat chat : this.chatManager.getChats()) {
+            if (chat.isAllowed(player)) {
                 if (chat.getSymbol().isEmpty()) {
-                    currentChat = chat;
+                    if (currentChat == null) {
+                        currentChat = chat;
+                    }
                 } else if (message.startsWith(chat.getSymbol())) {
                     currentChat = chat;
+                    message = message.substring(chat.getSymbol().length());
                     break;
                 }
             }
         }
 
-        return currentChat;
+        return new Pair<>(currentChat, message);
     }
 
     private String stylish(Player player, String message, String chat) {

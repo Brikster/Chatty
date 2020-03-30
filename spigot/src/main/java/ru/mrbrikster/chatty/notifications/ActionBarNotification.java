@@ -28,6 +28,10 @@ public class ActionBarNotification extends Notification {
     }
 
     private void update() {
+        if (messages.isEmpty()) {
+            return;
+        }
+
         Chatty.instance().debugger().debug("Update ActionBarNotification message.");
 
         if (messages.size() <= ++currentMessage) {
@@ -45,6 +49,10 @@ public class ActionBarNotification extends Notification {
 
     @Override
     public void run() {
+        if (messages.isEmpty()) {
+            return;
+        }
+
         Chatty.instance().debugger().debug("Run ActionBarNotification.");
 
         String message = COLORIZE.apply(prefix + messages.get(currentMessage));

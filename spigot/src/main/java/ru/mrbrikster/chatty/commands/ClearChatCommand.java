@@ -1,11 +1,12 @@
 package ru.mrbrikster.chatty.commands;
 
 import net.amoebaman.util.ArrayWrapper;
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import ru.mrbrikster.baseplugin.commands.BukkitCommand;
 import ru.mrbrikster.baseplugin.config.Configuration;
 import ru.mrbrikster.chatty.Chatty;
+import ru.mrbrikster.chatty.reflection.Reflection;
 
 public class ClearChatCommand extends BukkitCommand {
 
@@ -16,14 +17,38 @@ public class ClearChatCommand extends BukkitCommand {
     @Override
     public void handle(CommandSender sender, String label, String[] args) {
         if (sender.hasPermission("chatty.command.clearchat")) {
-            Bukkit.getOnlinePlayers().forEach(player -> {
-                for (int i = 0; i < 100; i++) {
-                    player.sendMessage(" ");
-                }
+            if (args.length == 0) {
+                if (sender instanceof Player) {
+                    for (int i = 0; i < 100; i++) {
+                        sender.sendMessage(" ");
+                    }
 
-                player.sendMessage(Chatty.instance().messages().get("chat-cleared").replace("{player}", sender.getName()));
-            });
-        } else sender.sendMessage(Chatty.instance().messages().get("no-permission"));
+                    sender.sendMessage(Chatty.instance().messages().get("clearchat-command.clear-chat-for-yourself"));
+                } else {
+                    sender.sendMessage(Chatty.instance().messages().get("only-for-players"));
+                }
+            } else {
+                if (args.length == 1 && args[0].equalsIgnoreCase("all")) {
+                    if (sender.hasPermission("chatty.command.clearchat.all")) {
+                        String chatClearedMessage = Chatty.instance().messages().get("clearchat-command.clear-chat-for-all").replace("{player}", sender.getName());
+
+                        Reflection.getOnlinePlayers().forEach(player -> {
+                            for (int i = 0; i < 100; i++) {
+                                player.sendMessage(" ");
+                            }
+
+                            player.sendMessage(chatClearedMessage);
+                        });
+                    } else {
+                        sender.sendMessage(Chatty.instance().messages().get("no-permission"));
+                    }
+                } else {
+                    sender.sendMessage(Chatty.instance().messages().get("clearchat-command.usage").replace("{label}", label));
+                }
+            }
+        } else {
+            sender.sendMessage(Chatty.instance().messages().get("no-permission"));
+        }
     }
 
 }

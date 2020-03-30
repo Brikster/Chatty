@@ -24,6 +24,10 @@ public class ChatNotification extends Notification {
 
     @Override
     public void run() {
+        if (messages.isEmpty()) {
+            return;
+        }
+
         Chatty.instance().debugger().debug("Run \"%s\" ChatNotification.", name);
 
         if (currentMessage == -1 || messages.size() <= ++currentMessage) {

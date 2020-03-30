@@ -166,15 +166,11 @@ public class ReplyCommand extends BukkitCommand {
                         .replace("{message}", message)
         );
 
-        Bukkit.getOnlinePlayers().stream()
-                .filter(spyPlayer -> !spyPlayer.equals(sender) && !spyPlayer.equals(recipient))
-                .filter(spyPlayer -> spyPlayer.hasPermission("chatty.spy") || spyPlayer.hasPermission("chatty.spy.pm"))
-                .filter(spyPlayer -> jsonStorage.getProperty(spyPlayer, "spy-mode").orElse(new JsonPrimitive(true)).getAsBoolean())
-                .forEach(spyPlayer -> spyPlayer.sendMessage(
-                        ChatColor.translateAlternateColorCodes('&', configuration.getNode("spy.format.pm")
-                                .getAsString("&6[Spy] &r{format}"))
-                                .replace("{format}", senderFormat)
-                ));
+        MsgCommand.sendMessageToSpy(sender, recipient,
+                recipientPrefix, recipientName, recipientSuffix,
+                senderPrefix, senderName, senderSuffix,
+                senderFormat, message,
+                jsonStorage, configuration);
     }
 
 }

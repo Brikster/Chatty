@@ -2,6 +2,7 @@ package ru.mrbrikster.chatty.commands;
 
 import ru.mrbrikster.baseplugin.config.Configuration;
 import ru.mrbrikster.chatty.Chatty;
+import ru.mrbrikster.chatty.chat.ChatManager;
 import ru.mrbrikster.chatty.chat.JsonStorage;
 import ru.mrbrikster.chatty.commands.pm.IgnoreCommand;
 import ru.mrbrikster.chatty.commands.pm.MsgCommand;
@@ -12,8 +13,9 @@ import ru.mrbrikster.chatty.moderation.ModerationManager;
 public class CommandManager {
 
     private final Configuration configuration;
-    private final JsonStorage jsonStorage;
+    private final ChatManager chatManager;
     private final DependencyManager dependencyManager;
+    private final JsonStorage jsonStorage;
     private final ModerationManager moderationManager;
 
     private ChattyCommand chattyCommand;
@@ -23,14 +25,17 @@ public class CommandManager {
     private MsgCommand msgCommand;
     private ReplyCommand replyCommand;
     private SwearsCommand swearsCommand;
+    private ChatCommand chatCommand;
     private PrefixCommand prefixCommand;
     private SuffixCommand suffixCommand;
 
     public CommandManager(Configuration configuration,
+                          ChatManager chatManager,
                           DependencyManager dependencyManager,
                           JsonStorage jsonStorage,
                           ModerationManager moderationManager) {
         this.configuration = configuration;
+        this.chatManager = chatManager;
         this.dependencyManager = dependencyManager;
         this.jsonStorage = jsonStorage;
         this.moderationManager = moderationManager;
@@ -77,6 +82,11 @@ public class CommandManager {
             this.swearsCommand.register(Chatty.instance());
         }
 
+        if (configuration.getNode("miscellaneous.commands.chat.enable").getAsBoolean(false)) {
+            this.chatCommand = new ChatCommand(configuration, chatManager, jsonStorage);
+            this.chatCommand.register(Chatty.instance());
+        }
+
         if (configuration.getNode("miscellaneous.commands.prefix.enable").getAsBoolean(false)) {
             this.prefixCommand = new PrefixCommand(configuration, dependencyManager, jsonStorage);
             this.prefixCommand.register(Chatty.instance());
@@ -113,6 +123,10 @@ public class CommandManager {
 
         if (swearsCommand != null) {
             this.swearsCommand.unregister(Chatty.instance());
+        }
+
+        if (chatCommand != null) {
+            this.chatCommand.unregister(Chatty.instance());
         }
 
         if (prefixCommand != null) {
