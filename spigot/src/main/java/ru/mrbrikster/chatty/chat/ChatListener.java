@@ -508,7 +508,7 @@ public class ChatListener implements Listener, EventExecutor {
             }
         }
 
-        return new Pair<>(currentChat, message);
+        return new Pair<>(currentChat, message.trim());
     }
 
     private String stylish(Player player, String message, String chat) {
