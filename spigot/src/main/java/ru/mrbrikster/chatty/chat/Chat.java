@@ -68,8 +68,9 @@ public class Chat {
                         jsonElement = new JsonArray();
 
                     for (JsonElement ignoreJsonElement : jsonElement.getAsJsonArray()) {
-                        if (player.getName().equals(ignoreJsonElement.getAsString()))
+                        if (player.getName().equalsIgnoreCase(ignoreJsonElement.getAsString())) {
                             return false;
+                        }
                     }
 
                     return true;

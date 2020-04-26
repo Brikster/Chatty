@@ -30,10 +30,10 @@ public class CapsModerationMethod extends ModerationMethod {
     private double getPercent() {
         int codePoint, length = 0, capsLength = 0;
         for (char c : message.toCharArray()) {
-            codePoint = (int) c;
+            codePoint = c;
             if (Character.isLetter(codePoint)) {
                 length++;
-                if (codePoint == Character.toUpperCase(codePoint)) {
+                if (codePoint == Character.toUpperCase(codePoint) && (Character.toLowerCase(codePoint) != Character.toUpperCase(codePoint))) {
                     capsLength++;
                 }
             }
