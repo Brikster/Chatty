@@ -119,9 +119,8 @@
         <dependency>
             <groupId>com.nametagedit</groupId>
             <artifactId>nametagedit</artifactId>
-            <version>4.4.0</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/NametagEdit.jar</systemPath>
+            <version>4.1.0</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>
