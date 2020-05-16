@@ -44,8 +44,6 @@ general:
   # Notes:
   # * Console logs will not prints on empty BungeeCord servers (non-fixable)
   # * So Chatty send message to another server, there must be chat with the same name and range -3.
-  #
-  # !!! Chatty must be also installed in BungeeCord !!!
   bungeecord: false
 
 # * CHATS

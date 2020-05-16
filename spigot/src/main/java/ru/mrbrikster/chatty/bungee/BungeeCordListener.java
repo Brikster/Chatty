@@ -30,7 +30,10 @@ public class BungeeCordListener implements PluginMessageListener {
 
         ByteArrayDataInput in = ByteStreams.newDataInput(message);
         String subchannel = in.readUTF();
+
         if (subchannel.equals("chatty")) {
+            in.readShort(); // Skip unnecessary data
+
             String chatName = in.readUTF();
             String text = in.readUTF();
             boolean json = in.readBoolean();

@@ -5,7 +5,6 @@ deploy:
     secure: RZ1C/t8/Np7L8HBvugIQNY/ACm0hvYXCw05odg2J7hcYU84d+iAfQyO2lOZY16It6xCHTESMv6++6ifqwNK3lHQl1xza3IkUSzqqdrogghRG/+GWsAMPAJdga2yZZmtE58VCzBCOkTkX0hbqltkow+GIDd1VzSX1L3lXPdItod+CUOJprsBsJ5oJatp2ScDit7PEFybObq7KzzOuhQrbrO573SfsOO7axwf9AbzwERptNVZ5qrzfKx3dCC/356xAFAevAJFDaFKLmOhh03hl7aDDODIipHXc38keB2MSw7v1iqV0vxA6lgdbv9WvvTHs3Ucx4loM+CCZK7D3Kx1WtdyARZK6338z9KhwtpJIQK3QburUpD6GeKD1+RS9wqWTivlbpMJ2/fJOGcbj181FctR+hst0Mn4wCR8On99YnVMWUzJYdcrkQIGwctN1viVTATGBjjG8JgoyAlEYFa+Ce+Lf8GpfQzB6MN7UjHFaG/F6R57MoU4HLQTeoWXemq9QjmKimG0rYviLCaoen4Wt3pUa8URqvSY6q+nqnOf2DTo192PysAhL0hUzZhDw/rnPPsF5kfB8ERdqGkj8xQlN8v/Z4Ru9ujUGY85n1uxra4b+QyBkeD7ttLF8EJ041CIeCu6RKe6nFis5edvg6Hiew921OZK6C74yCHX6DsuTW0Q=
   file:
     - 'spigot/target/Chatty.jar'
-    - 'bungee/target/Chatty-BungeeCord.jar'
   skip_cleanup: true
   on:
     tags: true

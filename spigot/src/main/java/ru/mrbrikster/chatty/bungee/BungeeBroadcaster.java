@@ -12,10 +12,21 @@ public class BungeeBroadcaster {
     @SuppressWarnings("all")
     public static void broadcast(String chat, String message, boolean json) {
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
+
+        // https://www.spigotmc.org/wiki/bukkit-bungee-plugin-messaging-channel/#forward
+        out.writeUTF("Forward");
+        out.writeUTF("ALL");
         out.writeUTF("chatty");
-        out.writeUTF(chat);
-        out.writeUTF(message);
-        out.writeBoolean(json);
+
+        ByteArrayDataOutput messageStream = ByteStreams.newDataOutput();
+        messageStream.writeUTF(chat);
+        messageStream.writeUTF(message);
+        messageStream.writeBoolean(json);
+
+        byte[] bytes = messageStream.toByteArray();
+
+        out.writeShort(bytes.length);
+        out.write(bytes);
 
         Player player = Iterables.getFirst(Reflection.getOnlinePlayers(), null);
 
