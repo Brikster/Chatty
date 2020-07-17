@@ -94,7 +94,7 @@ public interface Chat {
     Collection<? extends Player> getRecipients(@Nullable Player player);
 
     /**
-     * This method let you send any message to the chat participants
+     * This method let you send any message to the chat participants (without {@link Chat#getFormat()})
      * Message will be processed with {@link ru.mrbrikster.chatty.util.TextUtil#stylish(String)}
      *
      * Messages supports Chatty stylish formats (1.16+):
@@ -108,12 +108,13 @@ public interface Chat {
     }
 
     /**
-     * This method let you send any message to the chat participants
+     * This method let you send any message to the chat participants (without {@link Chat#getFormat()})
      * Message will be processed with {@link ru.mrbrikster.chatty.util.TextUtil#stylish(String)}
      *
      * Messages supports Chatty stylish formats (1.16+):
      * {#hexhex}text - for plain hex-colored strings
      * {#hexhex:#hexhex:#hexhex... text} - for gradient-colored strings
+     *
      *
      * @param message message to send
      * @param playerPredicate predicate for message recipient
@@ -121,7 +122,7 @@ public interface Chat {
     void sendMessage(String message, Predicate<Player> playerPredicate);
 
     /**
-     * This method let you send {@link FormattedMessage} to the chat participants
+     * This method let you send {@link FormattedMessage} to the chat participants (without {@link Chat#getFormat()})
      * {@link FormattedMessage} object let you create various JSON-formatted messages,
      * make hover tooltips, clickable links etc.
      *
@@ -132,7 +133,7 @@ public interface Chat {
     }
 
     /**
-     * This method let you send {@link FormattedMessage} to the chat participants
+     * This method let you send {@link FormattedMessage} to the chat participants (without {@link Chat#getFormat()})
      * {@link FormattedMessage} object let you create various JSON-formatted messages,
      * make hover tooltips, clickable links etc.
      *
