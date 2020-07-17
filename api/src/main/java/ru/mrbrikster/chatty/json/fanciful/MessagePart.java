@@ -120,7 +120,6 @@ public final class MessagePart implements JsonRepresentedObject, ConfigurationSe
         }
     }
 
-    // TODO rewrite color serializing
     @Override
     public Map<String, Object> serialize() {
         HashMap<String, Object> map = new HashMap<String, Object>();
@@ -136,7 +135,6 @@ public final class MessagePart implements JsonRepresentedObject, ConfigurationSe
         return map;
     }
 
-    // TODO rewrite color deserializing
     @SuppressWarnings("unchecked")
     public static MessagePart deserialize(Map<String, Object> serialized) {
         MessagePart part = new MessagePart((TextualComponent) serialized.get("text"));

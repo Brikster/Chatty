@@ -41,7 +41,7 @@ public final class Chatty extends BukkitBasePlugin {
      * Returns API object for interacting with Chatty
      * @return API object
      */
-    public static ChattyApi api() {
+    public ChattyApi api() {
         return Chatty.api;
     }
 
