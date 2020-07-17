@@ -12,6 +12,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import ru.mrbrikster.chatty.Chatty;
 import ru.mrbrikster.chatty.reflection.Reflection;
+import ru.mrbrikster.chatty.util.TextUtil;
 
 import java.util.HashMap;
 import java.util.List;
@@ -52,10 +53,11 @@ public class AdvancementsNotification extends Notification {
 
     private static class AdvancementMessage implements ConfigurationSerializable {
 
-        private NamespacedKey id;
-        private String icon;
-        private String header, footer;
-        private JavaPlugin javaPlugin;
+        private final NamespacedKey id;
+        private final String icon;
+        private final String header;
+        private final String footer;
+        private final JavaPlugin javaPlugin;
         private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
         private AdvancementMessage(Map<String, String> list) {
@@ -122,7 +124,7 @@ public class AdvancementsNotification extends Notification {
             icon.addProperty("item", this.icon);
 
             display.add("icon", icon);
-            display.addProperty("title", COLORIZE.apply(this.header + "\n" + this.footer));
+            display.addProperty("title", TextUtil.stylish(this.header + "\n" + this.footer));
             display.addProperty("description", "Chatty Announcement");
             display.addProperty("background", "minecraft:textures/gui/advancements/backgrounds/stone.png");
             display.addProperty("frame", "goal");

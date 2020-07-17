@@ -2,6 +2,7 @@ package ru.mrbrikster.chatty.chat;
 
 import com.google.gson.JsonPrimitive;
 import lombok.Getter;
+import net.amoebaman.util.ArrayWrapper;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import ru.mrbrikster.baseplugin.commands.BukkitCommand;
@@ -56,11 +57,12 @@ public class ChatManager {
                         chatNode.getNode("permission").getAsBoolean(true),
                         chatNode.getNode("cooldown").getAsLong(-1),
                         chatNode.getNode("money").getAsInt(0),
-                        chatNode.getNode("command").getAsString(null)))
+                        chatNode.getNode("command").getAsString(null),
+                        chatNode.getNode("aliases").getAsStringList()))
                 .forEach(chat -> {
                     if (chat.isEnable()) {
                         if (chat.getCommand() != null) {
-                            chat.setBukkitCommand(new BukkitCommand(chat.getCommand()) {
+                            chat.setBukkitCommand(new BukkitCommand(chat.getCommand(), ArrayWrapper.toArray(chat.getAliases(), String.class)) {
 
                                 @Override
                                 public void handle(CommandSender sender, String label, String[] args) {
@@ -107,9 +109,9 @@ public class ChatManager {
         void write(Player player, String message, String additionalPrefix) {
             BufferedWriter bufferedWriter = null;
             File logsDirectory = new File(Chatty.instance().getDataFolder().getAbsolutePath() + File.separator + "logs");
-            if (!logsDirectory.exists()) {
-                if (!logsDirectory.mkdir())
-                    return;
+
+            if (!logsDirectory.exists() && !logsDirectory.mkdir()) {
+                return;
             }
 
             DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");

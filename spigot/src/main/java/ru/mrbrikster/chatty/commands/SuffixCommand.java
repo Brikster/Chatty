@@ -2,7 +2,6 @@ package ru.mrbrikster.chatty.commands;
 
 import com.google.gson.JsonPrimitive;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import ru.mrbrikster.baseplugin.commands.BukkitCommand;
@@ -10,6 +9,7 @@ import ru.mrbrikster.baseplugin.config.Configuration;
 import ru.mrbrikster.chatty.Chatty;
 import ru.mrbrikster.chatty.chat.JsonStorage;
 import ru.mrbrikster.chatty.dependencies.DependencyManager;
+import ru.mrbrikster.chatty.util.TextUtil;
 
 import java.util.Arrays;
 
@@ -88,7 +88,7 @@ public class SuffixCommand extends BukkitCommand {
 
                 sender.sendMessage(Chatty.instance().messages().get("suffix-command.suffix-set")
                         .replace("{player}", player.getName())
-                        .replace("{suffix}", ChatColor.translateAlternateColorCodes('&', suffix)));
+                        .replace("{suffix}", TextUtil.stylish(suffix)));
             }
         } else {
             sender.sendMessage(Chatty.instance().messages().get("suffix-command.usage")

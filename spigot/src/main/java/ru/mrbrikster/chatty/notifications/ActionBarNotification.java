@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
 import ru.mrbrikster.chatty.Chatty;
 import ru.mrbrikster.chatty.reflection.Reflection;
+import ru.mrbrikster.chatty.util.TextUtil;
 import ru.mrbrikster.chatty.util.textapi.ActionBar;
 
 import java.util.List;
@@ -23,7 +24,7 @@ public class ActionBarNotification extends Notification {
         this.prefix = prefix;
         this.messages = messages;
 
-        updateTask = Bukkit.getScheduler().runTaskTimer(Chatty.instance(), ActionBarNotification.this::update, (long) delay * 20,
+        updateTask = Bukkit.getScheduler().runTaskTimerAsynchronously(Chatty.instance(), ActionBarNotification.this::update, (long) delay * 20,
                 (long) delay * 20);
     }
 
@@ -55,7 +56,7 @@ public class ActionBarNotification extends Notification {
 
         Chatty.instance().debugger().debug("Run ActionBarNotification.");
 
-        String message = COLORIZE.apply(prefix + messages.get(currentMessage));
+        String message = TextUtil.stylish(prefix + messages.get(currentMessage));
 
         Reflection.getOnlinePlayers().stream().filter(player -> !isPermission() || player.hasPermission(PERMISSION_NODE))
                 .forEach(player -> new ActionBar(message).send(player));

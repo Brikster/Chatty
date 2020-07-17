@@ -2,6 +2,7 @@ package ru.mrbrikster.chatty.moderation;
 
 import lombok.Getter;
 import ru.mrbrikster.baseplugin.config.ConfigurationNode;
+import ru.mrbrikster.chatty.util.TextUtil;
 
 import java.util.List;
 import java.util.function.Function;
@@ -15,9 +16,12 @@ public class AdvertisementModerationMethod extends ModerationMethod {
     private boolean checked = false, result = false;
 
     private final List<String> whitelist;
-    private Pattern ipPattern, webPattern;
-    private String replacement;
-    @Getter private boolean useBlock;
+
+    private final Pattern ipPattern;
+    private final Pattern webPattern;
+
+    @Getter private final String replacement;
+    @Getter private final boolean useBlock;
 
     AdvertisementModerationMethod(ConfigurationNode configurationNode, String message) {
         super(message);
@@ -28,7 +32,7 @@ public class AdvertisementModerationMethod extends ModerationMethod {
                 .getAsString("(?:\\d{1,3}[.,\\-:;\\/()=?}+ ]{1,4}){3}\\d{1,3}"));
         this.webPattern = Pattern.compile(configurationNode.getNode("patterns.web")
                 .getAsString("[-a-zA-Zа-яА-Я0-9@:%_\\+.~#?&//=]{2,256}\\.[a-z]{2,4}\\b(\\/[-a-zA-Zа-яА-Я0-9@:%_\\+~#?&//=]*)?"));
-        this.replacement = configurationNode.getNode("replacement").getAsString("<ads>");
+        this.replacement = TextUtil.stylish(configurationNode.getNode("replacement").getAsString("<ads>"));
         this.useBlock = configurationNode.getNode("block").getAsBoolean(true);
     }
 

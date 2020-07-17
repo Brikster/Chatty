@@ -3,7 +3,6 @@ package ru.mrbrikster.chatty.commands.pm;
 import com.google.gson.JsonPrimitive;
 import net.amoebaman.util.ArrayWrapper;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import ru.mrbrikster.baseplugin.commands.BukkitCommand;
@@ -16,6 +15,7 @@ import ru.mrbrikster.chatty.moderation.AdvertisementModerationMethod;
 import ru.mrbrikster.chatty.moderation.ModerationManager;
 import ru.mrbrikster.chatty.moderation.SwearModerationMethod;
 import ru.mrbrikster.chatty.reflection.Reflection;
+import ru.mrbrikster.chatty.util.TextUtil;
 
 import java.util.Arrays;
 
@@ -111,7 +111,7 @@ public class MsgCommand extends BukkitCommand {
                         String swearFound = Chatty.instance().messages().get("swear-found", null);
 
                         if (swearFound != null)
-                            Bukkit.getScheduler().runTaskLater(Chatty.instance(),
+                            Bukkit.getScheduler().runTaskLaterAsynchronously(Chatty.instance(),
                                     () -> sender.sendMessage(swearFound), 5L);
                     }
                 }
@@ -132,7 +132,7 @@ public class MsgCommand extends BukkitCommand {
                         String adsFound = Chatty.instance().messages().get("advertisement-found", null);
 
                         if (adsFound != null)
-                            Bukkit.getScheduler().runTaskLater(Chatty.instance(),
+                            Bukkit.getScheduler().runTaskLaterAsynchronously(Chatty.instance(),
                                     () -> sender.sendMessage(adsFound), 5L);
                     }
                 }
@@ -149,7 +149,7 @@ public class MsgCommand extends BukkitCommand {
 
         String senderFormat;
         if (!jsonStorage.isIgnore(recipient, sender)) {
-            recipient.sendMessage(ChatColor.translateAlternateColorCodes('&', configuration.getNode("pm.format.recipient")
+            recipient.sendMessage(TextUtil.stylish(configuration.getNode("pm.format.recipient")
                     .getAsString("&7{sender-prefix}{sender-name} &6-> &7{recipient-prefix}{recipient-name}: &f{message}")
                     .replace("{sender-prefix}", senderPrefix)
                     .replace("{sender-suffix}", senderSuffix)
@@ -160,7 +160,7 @@ public class MsgCommand extends BukkitCommand {
                     .replace("{message}", message));
         }
 
-        sender.sendMessage(senderFormat = ChatColor.translateAlternateColorCodes('&', configuration.getNode("pm.format.sender")
+        sender.sendMessage(senderFormat = TextUtil.stylish(configuration.getNode("pm.format.sender")
                 .getAsString("&7{sender-prefix}{sender-name} &6-> &7{recipient-prefix}{recipient-name}: &f{message}")
                 .replace("{sender-prefix}", senderPrefix)
                 .replace("{sender-suffix}", senderSuffix)
@@ -187,7 +187,7 @@ public class MsgCommand extends BukkitCommand {
                 .filter(spyPlayer -> spyPlayer.hasPermission("chatty.spy") || spyPlayer.hasPermission("chatty.spy.pm"))
                 .filter(spyPlayer -> jsonStorage.getProperty(spyPlayer, "spy-mode").orElse(new JsonPrimitive(true)).getAsBoolean())
                 .forEach(spyPlayer -> spyPlayer.sendMessage(
-                        ChatColor.translateAlternateColorCodes('&', configuration.getNode("spy.format.pm")
+                        TextUtil.stylish(configuration.getNode("spy.format.pm")
                                 .getAsString("&6[Spy] &r{format}")
                                 .replace("{sender-prefix}", senderPrefix)
                                 .replace("{sender-suffix}", senderSuffix)

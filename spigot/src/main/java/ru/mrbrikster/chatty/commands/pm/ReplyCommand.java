@@ -4,7 +4,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import net.amoebaman.util.ArrayWrapper;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import ru.mrbrikster.baseplugin.commands.BukkitCommand;
@@ -16,6 +15,7 @@ import ru.mrbrikster.chatty.dependencies.PrefixAndSuffixManager;
 import ru.mrbrikster.chatty.moderation.AdvertisementModerationMethod;
 import ru.mrbrikster.chatty.moderation.ModerationManager;
 import ru.mrbrikster.chatty.moderation.SwearModerationMethod;
+import ru.mrbrikster.chatty.util.TextUtil;
 
 import java.util.Optional;
 
@@ -110,7 +110,7 @@ public class ReplyCommand extends BukkitCommand {
                     String swearFound = Chatty.instance().messages().get("swear-found", null);
 
                     if (swearFound != null)
-                        Bukkit.getScheduler().runTaskLater(Chatty.instance(),
+                        Bukkit.getScheduler().runTaskLaterAsynchronously(Chatty.instance(),
                                 () -> sender.sendMessage(swearFound), 5L);
                 }
             }
@@ -131,7 +131,7 @@ public class ReplyCommand extends BukkitCommand {
                     String adsFound = Chatty.instance().messages().get("advertisement-found", null);
 
                     if (adsFound != null)
-                        Bukkit.getScheduler().runTaskLater(Chatty.instance(),
+                        Bukkit.getScheduler().runTaskLaterAsynchronously(Chatty.instance(),
                                 () -> sender.sendMessage(adsFound), 5L);
                 }
             }
@@ -142,7 +142,7 @@ public class ReplyCommand extends BukkitCommand {
         }
 
         if (!jsonStorage.isIgnore(recipient, sender)) {
-            recipient.sendMessage(ChatColor.translateAlternateColorCodes('&', configuration.getNode("pm.format.recipient")
+            recipient.sendMessage(TextUtil.stylish(configuration.getNode("pm.format.recipient")
                     .getAsString("&7{sender-prefix}{sender-name} &6-> &7{recipient-prefix}{recipient-name}: &f{message}")
                             .replace("{sender-prefix}", senderPrefix)
                             .replace("{sender-suffix}", senderSuffix)
@@ -155,7 +155,7 @@ public class ReplyCommand extends BukkitCommand {
         }
 
         String senderFormat;
-        sender.sendMessage(senderFormat = ChatColor.translateAlternateColorCodes('&', configuration.getNode("pm.format.sender")
+        sender.sendMessage(senderFormat = TextUtil.stylish(configuration.getNode("pm.format.sender")
                 .getAsString("&7{sender-prefix}{sender-name} &6-> &7{recipient-prefix}{recipient-name}: &f{message}")
                         .replace("{sender-prefix}", senderPrefix)
                         .replace("{sender-suffix}", senderSuffix)

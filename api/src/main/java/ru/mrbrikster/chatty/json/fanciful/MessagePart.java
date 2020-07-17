@@ -3,16 +3,19 @@ package ru.mrbrikster.chatty.json.fanciful;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableBiMap;
 import com.google.gson.stream.JsonWriter;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
+import ru.mrbrikster.chatty.util.TextUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
+
+import static net.md_5.bungee.api.ChatColor.MAGIC;
 
 /**
  * Internal class: Represents a component of a JSON-serializable {@link FancyMessage}.
@@ -60,21 +63,17 @@ public final class MessagePart implements JsonRepresentedObject, ConfigurationSe
     static {
         ImmutableBiMap.Builder<ChatColor, String> builder = ImmutableBiMap.builder();
         for (final ChatColor style : ChatColor.values()) {
-            if (!style.isFormat()) {
+            if (TextUtil.isColor(style)) {
                 continue;
             }
 
             String styleName;
-            switch (style) {
-                case MAGIC:
-                    styleName = "obfuscated";
-                    break;
-                case UNDERLINE:
-                    styleName = "underlined";
-                    break;
-                default:
-                    styleName = style.name().toLowerCase();
-                    break;
+            if (MAGIC.equals(style)) {
+                styleName = "obfuscated";
+            } else if (ChatColor.UNDERLINE.equals(style)) {
+                styleName = "underlined";
+            } else {
+                styleName = style.name().toLowerCase();
             }
 
             builder.put(style, styleName);
@@ -86,7 +85,7 @@ public final class MessagePart implements JsonRepresentedObject, ConfigurationSe
         try {
             json.beginObject();
             text.writeJson(json);
-            json.name("color").value(color.name().toLowerCase());
+            json.name("color").value(color.getName());
             for (final ChatColor style : styles) {
                 json.name(stylesToNames.get(style)).value(true);
             }
@@ -121,11 +120,13 @@ public final class MessagePart implements JsonRepresentedObject, ConfigurationSe
         }
     }
 
+    // TODO rewrite color serializing
+    @Override
     public Map<String, Object> serialize() {
         HashMap<String, Object> map = new HashMap<String, Object>();
         map.put("text", text);
         map.put("styles", styles);
-        map.put("color", color.getChar());
+        map.put("color", color.getName());
         map.put("hoverActionName", hoverActionName);
         map.put("hoverActionData", hoverActionData);
         map.put("clickActionName", clickActionName);
@@ -135,11 +136,12 @@ public final class MessagePart implements JsonRepresentedObject, ConfigurationSe
         return map;
     }
 
+    // TODO rewrite color deserializing
     @SuppressWarnings("unchecked")
     public static MessagePart deserialize(Map<String, Object> serialized) {
         MessagePart part = new MessagePart((TextualComponent) serialized.get("text"));
         part.styles = (ArrayList<ChatColor>) serialized.get("styles");
-        part.color = ChatColor.getByChar(serialized.get("color").toString());
+        part.color = ChatColor.of(serialized.get("color").toString());
         part.hoverActionName = (String) serialized.get("hoverActionName");
         part.hoverActionData = (JsonRepresentedObject) serialized.get("hoverActionData");
         part.clickActionName = (String) serialized.get("clickActionName");

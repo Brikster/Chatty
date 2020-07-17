@@ -5,7 +5,10 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import ru.mrbrikster.baseplugin.config.Configuration;
 import ru.mrbrikster.baseplugin.plugin.BukkitBasePlugin;
+import ru.mrbrikster.chatty.api.ChattyApi;
+import ru.mrbrikster.chatty.api.ChattyApiImplementation;
 import ru.mrbrikster.chatty.bungee.BungeeCordListener;
+import ru.mrbrikster.chatty.chat.Chat;
 import ru.mrbrikster.chatty.chat.ChatListener;
 import ru.mrbrikster.chatty.chat.ChatManager;
 import ru.mrbrikster.chatty.chat.JsonStorage;
@@ -17,18 +20,29 @@ import ru.mrbrikster.chatty.util.Debugger;
 import ru.mrbrikster.chatty.util.Messages;
 
 import java.io.File;
+import java.util.stream.Collectors;
 
 public final class Chatty extends BukkitBasePlugin {
 
     private static Chatty instance;
+    private static ChattyApi api;
     private CommandManager commandManager;
     private Messages messages;
     private Debugger debugger;
     private Configuration configuration;
     private ChatManager chatManager;
+    private JsonStorage jsonStorage;
 
     public static Chatty instance() {
         return Chatty.instance;
+    }
+
+    /**
+     * Returns API object for interacting with Chatty
+     * @return API object
+     */
+    public static ChattyApi api() {
+        return Chatty.api;
     }
 
     public Messages messages() {
@@ -37,6 +51,10 @@ public final class Chatty extends BukkitBasePlugin {
 
     public Debugger debugger() {
         return this.debugger;
+    }
+
+    public JsonStorage jsonStorage() {
+        return this.jsonStorage;
     }
 
     @Override
@@ -53,7 +71,7 @@ public final class Chatty extends BukkitBasePlugin {
         }
 
         ModerationManager moderationManager = new ModerationManager(this, configuration);
-        JsonStorage jsonStorage = new JsonStorage(configuration, this);
+        this.jsonStorage = new JsonStorage(configuration, this);
         this.chatManager = new ChatManager(configuration, jsonStorage);
         DependencyManager dependencyManager = new DependencyManager(configuration, jsonStorage, this);
 
@@ -141,6 +159,8 @@ public final class Chatty extends BukkitBasePlugin {
             this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
             this.getServer().getMessenger().registerIncomingPluginChannel(this, "BungeeCord", new BungeeCordListener(chatManager));
         }
+
+        Chatty.api = new ChattyApiImplementation(chatManager.getChats().stream().filter(Chat::isEnable).collect(Collectors.toSet()));
     }
 
     @Override

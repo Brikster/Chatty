@@ -1,5 +1,6 @@
 package ru.mrbrikster.chatty.json.fanciful;
 
+import com.google.common.collect.Iterables;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -7,13 +8,13 @@ import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonWriter;
 import lombok.Getter;
 import net.amoebaman.util.ArrayWrapper;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.entity.Player;
-import ru.mrbrikster.chatty.Chatty;
+import ru.mrbrikster.chatty.util.TextUtil;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -112,7 +113,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
      * @throws IllegalArgumentException If the specified {@code ChatColor} enumeration value is not a color (but a format value).
      */
     public FancyMessage color(final ChatColor color) {
-        if (!color.isColor()) {
+        if (TextUtil.isFormat(color)) {
             throw new IllegalArgumentException(color.name() + " is not a color");
         }
         latest().color = color;
@@ -129,7 +130,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
      */
     public FancyMessage style(ChatColor... styles) {
         for (final ChatColor style : styles) {
-            if (!style.isFormat()) {
+            if (TextUtil.isColor(style)) {
                 throw new IllegalArgumentException(style.name() + " is not a style");
             }
         }
@@ -431,11 +432,17 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
         if (messageParts.size() == 1) {
             latest().writeJson(writer);
         } else {
-            writer.beginObject().name("text").value("").name("extra").beginArray();
-            for (final MessagePart part : this) {
-                part.writeJson(writer);
+            writer.beginObject().name("text").value("");
+
+            if (Iterables.size(this) != 0) {
+                writer.name("extra").beginArray();
+                for (final MessagePart part : this) {
+                    part.writeJson(writer);
+                }
+                writer.endArray();
             }
-            writer.endArray().endObject();
+
+            writer.endObject();
         }
     }
 
@@ -477,10 +484,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
             return;
         }
 
-        Player player = (Player) sender;
-        Bukkit.getScheduler().runTask(Chatty.instance(), () ->
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "tellraw " + player.getName() + " " + jsonString)
-        );
+        TextUtil.sendJson((Player) sender, jsonString);
     }
 
     /**
@@ -503,6 +507,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
      */
     public void send(final Iterable<? extends CommandSender> senders) {
         String string = toJSONString();
+
         for (final CommandSender sender : senders) {
             send(sender, string);
         }

@@ -96,7 +96,7 @@ public class FormattedMessage {
         }
 
         fancyMessage.getMessageParts().removeIf(messagePart ->
-            messagePart.text.toString().isEmpty()
+                messagePart.text.toString().isEmpty()
         );
 
         return fancyMessage;

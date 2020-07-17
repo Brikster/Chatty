@@ -1,8 +1,8 @@
 package ru.mrbrikster.chatty.json;
 
 import lombok.Getter;
-import org.bukkit.ChatColor;
 import ru.mrbrikster.chatty.json.fanciful.FancyMessage;
+import ru.mrbrikster.chatty.util.TextUtil;
 
 public class LegacyMessagePart implements MessagePart {
 
@@ -22,7 +22,7 @@ public class LegacyMessagePart implements MessagePart {
 
     @Override
     public FancyMessage append(FancyMessage fancyMessage) {
-        LegacyConverter.getMessageParts(fancyMessage.getLastColors() + (colorize ? ChatColor.translateAlternateColorCodes('&', text) : text)).forEach(fancyMessage::then);
+        LegacyConverter.getMessageParts(fancyMessage.getLastColors() + (colorize ? TextUtil.stylish(text) : text)).forEach(fancyMessage::then);
         return fancyMessage;
     }
 

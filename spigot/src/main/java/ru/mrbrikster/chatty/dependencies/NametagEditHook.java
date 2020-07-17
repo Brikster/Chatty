@@ -28,7 +28,7 @@ public class NametagEditHook implements Listener {
             String suffix = NametagEdit.getApi().getNametag(player).getSuffix();
             NametagEdit.getApi().reloadNametag(player);
 
-            Bukkit.getScheduler().runTaskLater(Chatty.instance(), () ->
+            Bukkit.getScheduler().runTaskLaterAsynchronously(Chatty.instance(), () ->
                     NametagEdit.getApi().setSuffix(player, suffix), 10L);
         } else NametagEdit.getApi().setPrefix(player, prefix);
     }
@@ -38,7 +38,7 @@ public class NametagEditHook implements Listener {
             String prefix = NametagEdit.getApi().getNametag(player).getPrefix();
             NametagEdit.getApi().reloadNametag(player);
 
-            Bukkit.getScheduler().runTaskLater(Chatty.instance(), () ->
+            Bukkit.getScheduler().runTaskLaterAsynchronously(Chatty.instance(), () ->
                     NametagEdit.getApi().setPrefix(player, prefix), 10L);
         } else NametagEdit.getApi().setSuffix(player, suffix);
     }

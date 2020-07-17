@@ -2,9 +2,12 @@
 
 # Chatty (Bukkit plugin)
 
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/Brikster/Chatty)
+![GitHub All Releases](https://img.shields.io/github/downloads/Brikster/Chatty/total)
 [![Build Status](https://travis-ci.org/Brikster/Chatty.svg?branch=master)](https://travis-ci.org/Brikster/Chatty)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/8463f0bb652842d4a5676ce4fd54f65c)](https://www.codacy.com/manual/Brikster/Chatty?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=MrBrikster/Chatty&amp;utm_campaign=Badge_Grade)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/Brikster/Chatty)
 [![JitPack](https://jitpack.io/v/Brikster/Chatty.svg)](https://jitpack.io/#Brikster/Chatty)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/8463f0bb652842d4a5676ce4fd54f65c)](https://www.codacy.com/manual/Brikster/Chatty?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=MrBrikster/Chatty&amp;utm_campaign=Badge_Grade)
 
 Chatty is the unique Bukkit-plugin, that supports all modern Bukkit-servers, such as Thermos, Cauldron, Spigot, PaperSpigot e t.c. This plugin doesn't have any non-switchable options. It's simple, stable and lightweight.
 
@@ -49,6 +52,28 @@ Chatty is the unique Bukkit-plugin, that supports all modern Bukkit-servers, suc
 | Cooldowns                                | -      | +      |
 | Built-in spy-mode                        | -      | +      |
 | Private messages                         | -      | +      |
+| New 1.16+ hex color codes                | -      | +      |
+
+## Hex color codes and gradient
+Chatty supports new 1.16+ color codes.
+To add a new color code in your chat format, you need use the following pattern:
+    
+    {#12ABCD}text
+    
+{#12ABCD} is hex code. You also can combine it with style codes:
+
+    {#ffffff}&ltext
+    
+### Gradient
+You can create various multi-color gradient strings with this pattern:
+
+    {#ffffff:#0039a6:#d52b1e This is awesome tricolor gradient}
+    
+Number of hex codes is unlimited:
+
+    {#d818c4:#ae6be6:#0f7584:#7983a7:#a793ba:#34344b This is multicolor gradient}
+   
+![In-game gradient example](https://i.imgur.com/Z1iXJm8.png)
 
 ## Configuration
 
@@ -65,6 +90,14 @@ Plugin will work even with this simple config:
         enable: true
         format: '{prefix}{player}{suffix}&r: {message}'
         permission: false
+
+## API
+
+Project provides particular Maven module with API classes.
+
+You can get access to plugin API with <b>Chatty#api()</b> method.
+
+Now plugin has only one event in API: <b>ChattyMessageEvent</b>, that calls when any player messages the chat.
 
 ## Building
 

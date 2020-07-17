@@ -19,7 +19,7 @@ package ru.mrbrikster.chatty.util.textapi;
 
 import org.bukkit.Bukkit;
 
-enum ServerPackage {
+public enum ServerPackage {
 
     MINECRAFT("net.minecraft.server." + getServerVersion());
 

@@ -1,7 +1,7 @@
 package ru.mrbrikster.chatty.json;
 
-import org.bukkit.ChatColor;
 import ru.mrbrikster.chatty.json.fanciful.FancyMessage;
+import ru.mrbrikster.chatty.util.TextUtil;
 
 import java.util.List;
 
@@ -43,7 +43,7 @@ public class JSONMessagePart implements MessagePart {
 
     @Override
     public FancyMessage append(FancyMessage fancyMessage) {
-        LegacyConverter.getMessageParts(fancyMessage.getLastColors() + ChatColor.translateAlternateColorCodes('&', text)).forEach(messagePart -> {
+        LegacyConverter.getMessageParts(fancyMessage.getLastColors() + TextUtil.stylish(text)).forEach(messagePart -> {
             fancyMessage.then(messagePart);
 
             if (command != null)

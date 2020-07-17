@@ -1,7 +1,6 @@
 package ru.mrbrikster.chatty.util;
 
 import org.apache.commons.io.FileUtils;
-import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.YamlConfiguration;
 import ru.mrbrikster.baseplugin.config.BukkitConfiguration;
 import ru.mrbrikster.baseplugin.config.Configuration;
@@ -15,10 +14,10 @@ import java.util.function.Function;
 
 public class Messages {
 
-    private static final Function<String, String> COLORIZE = (string) -> string == null ? null : ChatColor.translateAlternateColorCodes('&', string);
+    private static final Function<String, String> COLORIZE = (string) -> string == null ? null : TextUtil.stylish(string);
 
-    private Configuration localeConfiguration;
-    private Configuration inJarConfiguration;
+    private final Configuration localeConfiguration;
+    private final Configuration inJarConfiguration;
 
     public Messages(BukkitBasePlugin bukkitBasePlugin, Configuration configuration) {
         File localeDir = new File(bukkitBasePlugin.getDataFolder(), "locale");
@@ -27,7 +26,9 @@ public class Messages {
                 .getAsString("en");
 
         if (!localeDir.exists()) {
-            localeDir.mkdir();
+            if (!localeDir.mkdir()) {
+                bukkitBasePlugin.getLogger().warning("Cannot create \"locale\" directory");
+            }
         }
 
         File localeFile = new File(localeDir, localeName + ".yml");
@@ -66,7 +67,7 @@ public class Messages {
     }
 
     public String get(String key, String def) {
-        return COLORIZE.apply(localeConfiguration == null ? def : localeConfiguration.getNode("messages." + key).getAsString(def));
+        return TextUtil.stylish(localeConfiguration == null ? def : localeConfiguration.getNode("messages." + key).getAsString(def));
     }
 
 }

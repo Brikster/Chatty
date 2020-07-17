@@ -65,6 +65,7 @@ general:
 # *money*       - message price (depends on Vault).
 # *permission*  - check permissions for this chat? Default: true.
 # *command*     - Command that is used to switch to chat to use it by default if symbol is not specified. Default: empty.
+# *aliaes*      - Aliases for command. Default: empty.
 chats:
   local:
     enable: true
@@ -72,6 +73,7 @@ chats:
     range: 100
     cooldown: -1
     command: 'localchat'
+    aliases: ['lchat']
 
   global:
     enable: true
@@ -80,6 +82,7 @@ chats:
     symbol: '!'
     cooldown: -1
     command: 'globalchat'
+    aliases: ['gchat']
 
 # * PRIVATE MESSAGING
 pm:
@@ -131,7 +134,7 @@ spy:
 
   # Spy-mode message format.
   format:
-    # Permission: chatty.spy.<chat
+    # Permission: chatty.spy.<chat>
     chat: '&6[Spy] &r{format}'
 
     # Permission: chatty.spy.pm
@@ -260,6 +263,11 @@ notifications:
         prefix: ''
 
         # List of messages.
+        # Supports JSON formatting.
+        #
+        # Notification messages are using "/tellraw" JSON format.
+        # For example: {"text":"","extra":[{"text":"Try to search it with ","color":"white"},{"text":"search system","color":"yellow","clickEvent":{"action":"open_url","value":"http://google.com"},"hoverEvent":{"action":"show_text","value":"Search it in Google"}}]}
+        # This JSON will be a message "Try to search it with search system" with hover and clickable text
         messages:
         - '&cThe server is using Chatty!\n&aOur address: 127.0.0.1\n&aVisit out site: example.com'
         - '&aThe server is using Chatty!'

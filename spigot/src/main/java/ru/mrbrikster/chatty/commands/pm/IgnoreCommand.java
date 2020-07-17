@@ -18,6 +18,7 @@ import java.util.Set;
 
 public class IgnoreCommand extends BukkitCommand {
 
+    private final Configuration configuration;
     private final JsonStorage jsonStorage;
 
     public IgnoreCommand(
@@ -25,6 +26,7 @@ public class IgnoreCommand extends BukkitCommand {
             JsonStorage jsonStorage) {
         super("ignore", ArrayWrapper.toArray(configuration.getNode("pm.commands.ignore.aliases").getAsStringList(), String.class));
 
+        this.configuration = configuration;
         this.jsonStorage = jsonStorage;
     }
 

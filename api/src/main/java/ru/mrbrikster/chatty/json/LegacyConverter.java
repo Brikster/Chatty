@@ -1,6 +1,6 @@
 package ru.mrbrikster.chatty.json;
 
-import org.bukkit.ChatColor;
+import net.md_5.bungee.api.ChatColor;
 import ru.mrbrikster.chatty.json.fanciful.FancyMessage;
 import ru.mrbrikster.chatty.json.fanciful.MessagePart;
 
@@ -10,12 +10,17 @@ import java.util.List;
 
 class LegacyConverter {
 
+    private final FancyMessage fancyMessage = new FancyMessage();
+
     private final String strippedString;
     private boolean url;
-    private boolean bold, italic, underline, strike, magic, lastCharSection = false;
+    private boolean bold;
+    private boolean italic;
+    private boolean underline;
+    private boolean strike;
+    private boolean magic;
     private StringBuilder builder = new StringBuilder();
     private ChatColor color;
-    private FancyMessage fancyMessage = new FancyMessage();
     private boolean first = true;
 
     private LegacyConverter(String message) {
@@ -27,14 +32,43 @@ class LegacyConverter {
             url = false;
         }
 
+        String hex = "";
+        boolean checkingForHex = false;
+        boolean lastCharSection = false;
+
         for (char c : message.toCharArray()) {
             if (c == '§') {
+                if (lastCharSection && checkingForHex) {
+                    checkingForHex = false;
+                    hex = "";
+                }
+
                 lastCharSection = true;
+                continue;
+            } else if (checkingForHex) {
+                lastCharSection = false;
+                hex = hex + c;
+            }
+
+            if (hex.length() == 6) {
+                finalizeSection();
+                try {
+                    this.color = ChatColor.of("#" + hex);
+                } catch (Exception ignored) {}
+                checkingForHex = false;
+                hex = "";
+                continue;
+            } else if (checkingForHex) {
                 continue;
             }
 
             if (lastCharSection) {
                 lastCharSection = false;
+
+                if (c == 'x') {
+                    checkingForHex = true;
+                    continue;
+                }
 
                 if (processFormatCodeContains(c)) {
                     continue;

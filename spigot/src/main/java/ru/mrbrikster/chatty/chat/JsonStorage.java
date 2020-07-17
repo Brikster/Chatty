@@ -11,8 +11,10 @@ import java.util.Optional;
 
 public class JsonStorage {
 
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    private static final JsonParser JSON_PARSER = new JsonParser();
+
     private final File storageFile;
-    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
     private final Configuration configuration;
 
     public JsonStorage(Configuration configuration,
@@ -22,7 +24,9 @@ public class JsonStorage {
 
         if (!storageFile.exists()) {
             try {
-                storageFile.createNewFile();
+                if (!storageFile.createNewFile()) {
+                    throw new IOException("Cannot create storage.json");
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -32,7 +36,7 @@ public class JsonStorage {
     private void setProperty(String player, String property, JsonElement value) {
         JsonElement jsonObject = null;
         try {
-            jsonObject = new JsonParser().parse(read());
+            jsonObject = JSON_PARSER.parse(read());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -59,7 +63,7 @@ public class JsonStorage {
         ((JsonObject) jsonObject).add(property, propertyElement);
 
         try {
-            write(gson.toJson(jsonObject));
+            write(GSON.toJson(jsonObject));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -75,7 +79,7 @@ public class JsonStorage {
 
     private Optional<JsonElement> getProperty(String player, String property) {
         try {
-            JsonElement jsonObject = new JsonParser().parse(read());
+            JsonElement jsonObject = JSON_PARSER.parse(read());
 
             if (!jsonObject.isJsonObject())
                 return Optional.empty();

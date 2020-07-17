@@ -19,8 +19,10 @@ package ru.mrbrikster.chatty.util.textapi;
 
 import com.google.common.base.Preconditions;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import ru.mrbrikster.chatty.json.FormattedMessage;
 
 /**
  * Represents a title that appears at the center of the screen.
@@ -29,6 +31,7 @@ import org.bukkit.entity.Player;
  */
 public class Title {
 
+    private static final JsonParser JSON_PARSER = new JsonParser();
     private JsonObject title, subtitle;
     private int fadeIn, fadeOut, stay;
 
@@ -68,9 +71,7 @@ public class Title {
     }
 
     static JsonObject convert(String text) {
-        JsonObject json = new JsonObject();
-        json.addProperty("text", text);
-        return json;
+        return JSON_PARSER.parse(new FormattedMessage(text).toJSONString()).getAsJsonObject();
     }
 
     /**

@@ -10,6 +10,9 @@ import ru.mrbrikster.chatty.chat.ChatManager;
 import ru.mrbrikster.chatty.json.fanciful.FancyMessage;
 import ru.mrbrikster.chatty.reflection.Reflection;
 
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -32,11 +35,24 @@ public class BungeeCordListener implements PluginMessageListener {
         String subchannel = in.readUTF();
 
         if (subchannel.equals("chatty")) {
-            in.readShort(); // Skip unnecessary data
+            short length = in.readShort();
+            byte[] bytes = new byte[length];
+            in.readFully(bytes);
 
-            String chatName = in.readUTF();
-            String text = in.readUTF();
-            boolean json = in.readBoolean();
+            DataInputStream inputStream = new DataInputStream(new ByteArrayInputStream(bytes));
+
+            String chatName;
+            String text;
+            boolean json;
+
+            try {
+                chatName = inputStream.readUTF();
+                text = inputStream.readUTF();
+                json = inputStream.readBoolean();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return;
+            }
 
             Optional<Chat> optionalChat = chatManager.getChats().stream().filter(c -> c.getName().equals(chatName)).findAny();
 

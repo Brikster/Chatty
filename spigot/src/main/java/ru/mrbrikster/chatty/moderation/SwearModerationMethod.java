@@ -4,6 +4,7 @@ import com.google.common.io.Files;
 import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
 import ru.mrbrikster.baseplugin.config.ConfigurationNode;
+import ru.mrbrikster.chatty.util.TextUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,7 +31,7 @@ public class SwearModerationMethod extends ModerationMethod {
     SwearModerationMethod(ConfigurationNode configurationNode, String message) {
         super(message);
 
-        this.replacement = configurationNode.getNode("replacement").getAsString("<swear>");
+        this.replacement = TextUtil.stylish(configurationNode.getNode("replacement").getAsString("<swear>"));
         this.words = new ArrayList<>();
         this.useBlock = configurationNode.getNode("block").getAsBoolean(true);
     }
@@ -99,16 +100,16 @@ public class SwearModerationMethod extends ModerationMethod {
             return editedMessage;
 
         this.editedMessage = message;
-        Matcher swearPatternMatcher = swearsPattern.matcher(message.toLowerCase());
+        Matcher matcher = swearsPattern.matcher(message.toLowerCase());
 
         int previousWordStart = -1;
         int previousWordEnd = -1;
-        while (swearPatternMatcher.find()) {
-            if (swearPatternMatcher.group().trim().isEmpty()) {
+        while (matcher.find()) {
+            if (matcher.group().trim().isEmpty()) {
                 continue;
             }
 
-            int[] wordStartAndEndArray = getWord(message, swearPatternMatcher.start(), swearPatternMatcher.end());
+            int[] wordStartAndEndArray = getWord(message, matcher.start(), matcher.end());
 
             if (previousWordStart == wordStartAndEndArray[0] && previousWordEnd == wordStartAndEndArray[1]) {
                 continue;
