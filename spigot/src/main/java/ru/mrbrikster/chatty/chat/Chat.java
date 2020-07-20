@@ -100,7 +100,7 @@ public class Chat implements ru.mrbrikster.chatty.api.chats.Chat {
                         return true;
                     }
 
-                    JsonElement jsonElement = Chatty.instance().jsonStorage().getProperty(recipient, "ignore").orElseGet(JsonArray::new);
+                    JsonElement jsonElement = Chatty.instance().storage().getProperty(recipient, "ignore").orElseGet(JsonArray::new);
 
                     if (!jsonElement.isJsonArray())
                         jsonElement = new JsonArray();

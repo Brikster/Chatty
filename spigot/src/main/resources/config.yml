@@ -245,6 +245,8 @@ json:
 #
 # There are four types of notifications:
 # via Chat, Title (1.8.8 and newer), ActionBar (1.8.8 and newer) and Advancements (1.12 and newer).
+#
+# Supports PlaceholderAPI.
 notifications:
   # Chat notifications.
   chat:

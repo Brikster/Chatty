@@ -15,6 +15,7 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.EventExecutor;
+import org.jetbrains.annotations.NotNull;
 import ru.mrbrikster.baseplugin.config.Configuration;
 import ru.mrbrikster.chatty.Chatty;
 import ru.mrbrikster.chatty.api.events.ChattyMessageEvent;
@@ -89,7 +90,7 @@ public class ChatListener implements Listener, EventExecutor {
     }
 
     @Override
-    public void execute(Listener listener, Event event) {
+    public void execute(@NotNull Listener listener, @NotNull Event event) {
         if (listener == this && event instanceof AsyncPlayerChatEvent) {
             this.onChat((AsyncPlayerChatEvent) event);
         }
@@ -314,8 +315,8 @@ public class ChatListener implements Listener, EventExecutor {
             String strippedHexFormat = TextUtil.stripHex(format);
 
             if (!strippedHexFormat.equals(format)) {
-                event.getRecipients().clear();
                 event.getRecipients().forEach(player -> player.sendMessage(format));
+                event.getRecipients().clear();
                 event.setFormat(strippedHexFormat);
             }
         }

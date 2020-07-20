@@ -32,6 +32,7 @@ public final class Chatty extends BukkitBasePlugin {
     private Configuration configuration;
     private ChatManager chatManager;
     private JsonStorage jsonStorage;
+    private DependencyManager dependencyManager;
 
     public static Chatty instance() {
         return Chatty.instance;
@@ -53,8 +54,12 @@ public final class Chatty extends BukkitBasePlugin {
         return this.debugger;
     }
 
-    public JsonStorage jsonStorage() {
+    public JsonStorage storage() {
         return this.jsonStorage;
+    }
+
+    public DependencyManager dependencies() {
+        return this.dependencyManager;
     }
 
     @Override
@@ -73,7 +78,7 @@ public final class Chatty extends BukkitBasePlugin {
         ModerationManager moderationManager = new ModerationManager(this, configuration);
         this.jsonStorage = new JsonStorage(configuration, this);
         this.chatManager = new ChatManager(configuration, jsonStorage);
-        DependencyManager dependencyManager = new DependencyManager(configuration, jsonStorage, this);
+        this.dependencyManager = new DependencyManager(configuration, jsonStorage, this);
 
         this.messages = new Messages(this, configuration);
         this.debugger = new Debugger(this, configuration);

@@ -124,7 +124,7 @@ public class AdvancementsNotification extends Notification {
             icon.addProperty("item", this.icon);
 
             display.add("icon", icon);
-            display.addProperty("title", TextUtil.stylish(this.header + "\n" + this.footer));
+            display.addProperty("title", TextUtil.stripHex(TextUtil.stylish(this.header + "\n" + this.footer)));
             display.addProperty("description", "Chatty Announcement");
             display.addProperty("background", "minecraft:textures/gui/advancements/backgrounds/stone.png");
             display.addProperty("frame", "goal");

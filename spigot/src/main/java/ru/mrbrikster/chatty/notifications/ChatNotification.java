@@ -3,13 +3,17 @@ package ru.mrbrikster.chatty.notifications;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
+import net.amoebaman.util.ArrayWrapper;
 import ru.mrbrikster.chatty.Chatty;
+import ru.mrbrikster.chatty.dependencies.PlaceholderAPIHook;
 import ru.mrbrikster.chatty.reflection.Reflection;
 import ru.mrbrikster.chatty.util.Pair;
 import ru.mrbrikster.chatty.util.TextUtil;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ChatNotification extends Notification {
 
@@ -53,6 +57,7 @@ public class ChatNotification extends Notification {
 
         String[] message = messages.get(currentMessage).getA().split("\\\\n");
 
+        PlaceholderAPIHook placeholderAPIHook = Chatty.instance().dependencies().getPlaceholderApi();
         Reflection.getOnlinePlayers().stream().filter(player -> !isPermission() || player.hasPermission(String.format(PERMISSION_NODE, name)))
                 .forEach(player -> {
                     if (messages.get(currentMessage).getB()) {
@@ -60,7 +65,9 @@ public class ChatNotification extends Notification {
                             TextUtil.sendJson(player, json);
                         }
                     } else {
-                        player.sendMessage(message);
+                        player.sendMessage(placeholderAPIHook != null ? ArrayWrapper.toArray(Arrays.stream(message).map(line ->
+                                placeholderAPIHook.setPlaceholders(player, line)
+                        ).collect(Collectors.toList()), String.class) : message);
                     }
                 });
     }

@@ -3,6 +3,7 @@ package ru.mrbrikster.chatty.notifications;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
 import ru.mrbrikster.chatty.Chatty;
+import ru.mrbrikster.chatty.dependencies.PlaceholderAPIHook;
 import ru.mrbrikster.chatty.reflection.Reflection;
 import ru.mrbrikster.chatty.util.TextUtil;
 import ru.mrbrikster.chatty.util.textapi.ActionBar;
@@ -15,7 +16,7 @@ public class ActionBarNotification extends Notification {
     private final List<String> messages;
     private final String prefix;
 
-    private BukkitTask updateTask;
+    private final BukkitTask updateTask;
     private int currentMessage;
 
     ActionBarNotification(int delay, String prefix, List<String> messages, boolean permission) {
@@ -24,7 +25,7 @@ public class ActionBarNotification extends Notification {
         this.prefix = prefix;
         this.messages = messages;
 
-        updateTask = Bukkit.getScheduler().runTaskTimerAsynchronously(Chatty.instance(), ActionBarNotification.this::update, (long) delay * 20,
+        updateTask = Bukkit.getScheduler().runTaskTimer(Chatty.instance(), ActionBarNotification.this::update, (long) delay * 20,
                 (long) delay * 20);
     }
 
@@ -58,8 +59,9 @@ public class ActionBarNotification extends Notification {
 
         String message = TextUtil.stylish(prefix + messages.get(currentMessage));
 
+        PlaceholderAPIHook placeholderAPIHook = Chatty.instance().dependencies().getPlaceholderApi();
         Reflection.getOnlinePlayers().stream().filter(player -> !isPermission() || player.hasPermission(PERMISSION_NODE))
-                .forEach(player -> new ActionBar(message).send(player));
+                .forEach(player -> new ActionBar(placeholderAPIHook != null ? placeholderAPIHook.setPlaceholders(player, message) : message).send(player));
     }
 
 }

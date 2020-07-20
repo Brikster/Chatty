@@ -55,6 +55,9 @@ Chatty is the unique Bukkit-plugin, that supports all modern Bukkit-servers, suc
 | New 1.16+ hex color codes                | -      | +      |
 
 ## Hex color codes and gradient
+<i>Warning: Early versions of Spigot/PaperSpigot may not be supported.
+Use only latest builds to correct work of Chatty 1.16 features</i>
+
 Chatty supports new 1.16+ color codes.
 To add a new color code in your chat format, you need use the following pattern:
     
