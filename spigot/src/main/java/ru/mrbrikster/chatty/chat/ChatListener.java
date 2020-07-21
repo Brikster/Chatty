@@ -410,8 +410,9 @@ public class ChatListener implements Listener, EventExecutor {
                                             .replace("{suffix}", prefixAndSuffixManager.getSuffix(mentionedPlayer))
                             )).collect(Collectors.toList());
 
-                    if (placeholderAPI != null)
+                    if (placeholderAPI != null) {
                         mentionTooltip = placeholderAPI.setPlaceholders(mentionedPlayer, mentionTooltip);
+                    }
 
                     link = mentionedPlayerVariablesFunc.apply(configuration.getNode("json.mentions.link").getAsString(null));
                     suggestCommand = mentionedPlayerVariablesFunc.apply(configuration.getNode("json.mentions.suggest").getAsString(null));
@@ -420,8 +421,8 @@ public class ChatListener implements Listener, EventExecutor {
                     playerName = mentionedPlayer.getDisplayName();
 
                     messageWithMention.replace(group,
-                            new JsonMessagePart(configuration.getNode("json.mentions.format")
-                                    .getAsString("&e&l@{player}").replace("{player}", playerName))
+                            new JsonMessagePart(applyPlaceholders(mentionedPlayer, configuration.getNode("json.mentions.format")
+                                    .getAsString("&e&l@{player}").replace("{player}", playerName)))
                                     .tooltip(mentionTooltip).command(command).suggest(suggestCommand).link(link),
                             new LegacyMessagePart(TextUtil.getLastColors(event.getFormat())));
 
@@ -430,6 +431,8 @@ public class ChatListener implements Listener, EventExecutor {
                         org.bukkit.Sound sound = Sound.byName(soundName);
                         mentionedPlayer.playSound(mentionedPlayer.getLocation(), sound, 1L, 1L);
                     }
+
+                    event.getRecipients().add(mentionedPlayer);
                 }
             }
 
@@ -610,8 +613,11 @@ public class ChatListener implements Listener, EventExecutor {
                         currentChat = chat;
                     }
                 } else if (message.startsWith(chat.getSymbol())) {
+                    if (currentChat != chat) {
+                        message = message.substring(chat.getSymbol().length());
+                    }
+
                     currentChat = chat;
-                    message = message.substring(chat.getSymbol().length());
                     break;
                 }
             }
