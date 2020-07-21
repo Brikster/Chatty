@@ -5,13 +5,16 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import ru.mrbrikster.chatty.json.fanciful.FancyMessage;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class FormattedMessage {
 
-    private final List<MessagePart> messageParts
-            = new ArrayList<>();
+    private List<MessagePart> messageParts = new ArrayList<>();
 
     public FormattedMessage(String text) {
         this.messageParts.add(new LegacyMessagePart(text));
@@ -45,6 +48,64 @@ public class FormattedMessage {
         return this;
     }
 
+    public FormattedMessage replace(Pattern pattern, FormattedMessage message) {
+        return replace(pattern, message.messageParts);
+    }
+
+    public FormattedMessage replace(String text, FormattedMessage message) {
+        return replace(Pattern.compile(Pattern.quote(text)), message.messageParts);
+    }
+
+    public FormattedMessage replace(String text, MessagePart... parts) {
+        return replace(Pattern.compile(Pattern.quote(text)), Arrays.asList(parts));
+    }
+
+    public FormattedMessage replace(Pattern pattern, MessagePart... parts) {
+        return replace(pattern, Arrays.asList(parts));
+    }
+
+    public FormattedMessage replace(String text, List<MessagePart> parts) {
+        return replace(Pattern.compile(Pattern.quote(text)), parts);
+    }
+
+    /**
+     * EXPERIMENTAL
+     * Rewritten function, that supports multiple parts and should be more stable and effective
+     * @return this instance of FormattedMessage
+     */
+    public FormattedMessage replace(Pattern pattern, List<MessagePart> parts) {
+        List<MessagePart> updatedMessageParts = new ArrayList<>();
+
+        for (MessagePart messagePart : messageParts) {
+            if (messagePart instanceof LegacyMessagePart) {
+                LegacyMessagePart legacyPart = (LegacyMessagePart) messagePart;
+
+                String partText = legacyPart.getText();
+                Matcher matcher = pattern.matcher(partText);
+
+                int firstIndex = 0;
+                while (matcher.find()) {
+                    updatedMessageParts.add(new LegacyMessagePart(partText.substring(firstIndex, matcher.start())));
+                    updatedMessageParts.addAll(parts);
+                    firstIndex = matcher.end();
+                }
+
+                String tail = partText.substring(firstIndex);
+
+                if (!tail.isEmpty()) {
+                    updatedMessageParts.add(new LegacyMessagePart(tail));
+                }
+            } else {
+                updatedMessageParts.add(messagePart);
+            }
+        }
+
+        this.messageParts = updatedMessageParts;
+
+        return this;
+    }
+
+    /*
     public FormattedMessage replace(String text, MessagePart messagePart) {
         Map<Integer, List<MessagePart>> replacements =
                 new HashMap<>();
@@ -86,6 +147,11 @@ public class FormattedMessage {
         }
 
         return this;
+    }
+    */
+
+    public String getLastColors() {
+        return buildFancyMessage().getLastColors();
     }
 
     private FancyMessage buildFancyMessage() {

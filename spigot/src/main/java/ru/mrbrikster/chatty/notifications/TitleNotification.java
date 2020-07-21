@@ -6,6 +6,7 @@ import ru.mrbrikster.chatty.util.TextUtil;
 import ru.mrbrikster.chatty.util.textapi.Title;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class TitleNotification extends Notification {
 
@@ -19,7 +20,10 @@ public class TitleNotification extends Notification {
         super(delay, permission);
 
         this.name = name;
-        this.messages = messages;
+        this.messages = messages.stream()
+                .map(TextUtil::stylish)
+                .map(TextUtil::fixMultilineFormatting)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -34,7 +38,7 @@ public class TitleNotification extends Notification {
             currentMessage = 0;
         }
 
-        String[] message = TextUtil.stylish(messages.get(currentMessage)).split("\\\\n", 2);
+        String[] message = messages.get(currentMessage).split("(\n)|(\\\\n)", 2);
 
         Title title = new Title(message[0], message.length == 2 ? message[1] : "", 20, 40, 20);
         Reflection.getOnlinePlayers().stream().filter(player -> !isPermission() || player.hasPermission(String.format(PERMISSION_NODE, name))).forEach(title::send);

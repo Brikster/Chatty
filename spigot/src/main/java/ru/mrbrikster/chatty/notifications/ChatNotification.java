@@ -3,7 +3,6 @@ package ru.mrbrikster.chatty.notifications;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
-import net.amoebaman.util.ArrayWrapper;
 import ru.mrbrikster.chatty.Chatty;
 import ru.mrbrikster.chatty.dependencies.PlaceholderAPIHook;
 import ru.mrbrikster.chatty.reflection.Reflection;
@@ -11,9 +10,7 @@ import ru.mrbrikster.chatty.util.Pair;
 import ru.mrbrikster.chatty.util.TextUtil;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ChatNotification extends Notification {
 
@@ -21,7 +18,7 @@ public class ChatNotification extends Notification {
     private static final JsonParser JSON_PARSER = new JsonParser();
 
     private final String name;
-    private final List<Pair<String, Boolean>> messages = new ArrayList<>();
+    private final List<List<Pair<String, Boolean>>> messages = new ArrayList<>();
 
     private int currentMessage = -1;
 
@@ -32,14 +29,23 @@ public class ChatNotification extends Notification {
         this.messages.clear();
 
         for (String message : messages) {
-            try {
-                JsonObject jsonObject = JSON_PARSER.parse(message).getAsJsonObject();
-                Chatty.instance().debugger().debug("Seems to message is JSON!");
-                this.messages.add(Pair.of(jsonObject.toString(), true));
-            } catch (JsonSyntaxException | IllegalStateException exception) {
-                Chatty.instance().debugger().debug("Seems to message is not JSON. Using as plain text");
-                this.messages.add(Pair.of(TextUtil.stylish(prefix + message), false));
+            message = TextUtil.fixMultilineFormatting(message);
+
+            String[] lines = message.split("(\n)|(\\\\n)");
+
+            List<Pair<String, Boolean>> formattedLines = new ArrayList<>();
+            for (String line : lines) {
+                try {
+                    JsonObject jsonObject = JSON_PARSER.parse(line).getAsJsonObject();
+                    Chatty.instance().debugger().debug("Seems to line is JSON!");
+                    formattedLines.add(Pair.of(jsonObject.toString(), true));
+                } catch (JsonSyntaxException | IllegalStateException exception) {
+                    Chatty.instance().debugger().debug("Seems to line is not JSON. Using as plain text");
+                    formattedLines.add(Pair.of(TextUtil.stylish(prefix + line), false));
+                }
             }
+
+            this.messages.add(formattedLines);
         }
     }
 
@@ -55,21 +61,20 @@ public class ChatNotification extends Notification {
             currentMessage = 0;
         }
 
-        String[] message = messages.get(currentMessage).getA().split("\\\\n");
+        List<Pair<String, Boolean>> lines = messages.get(currentMessage);
 
         PlaceholderAPIHook placeholderAPIHook = Chatty.instance().dependencies().getPlaceholderApi();
         Reflection.getOnlinePlayers().stream().filter(player -> !isPermission() || player.hasPermission(String.format(PERMISSION_NODE, name)))
-                .forEach(player -> {
-                    if (messages.get(currentMessage).getB()) {
-                        for (String json : message) {
-                            TextUtil.sendJson(player, json);
-                        }
+                .forEach(player -> lines.forEach(line -> {
+                    String formattedLine = placeholderAPIHook != null
+                            ? placeholderAPIHook.setPlaceholders(player, line.getA()) : line.getA();
+
+                    if (line.getB()) {
+                        TextUtil.sendJson(player, formattedLine);
                     } else {
-                        player.sendMessage(placeholderAPIHook != null ? ArrayWrapper.toArray(Arrays.stream(message).map(line ->
-                                placeholderAPIHook.setPlaceholders(player, line)
-                        ).collect(Collectors.toList()), String.class) : message);
+                        player.sendMessage(formattedLine);
                     }
-                });
+                }));
     }
 
 }

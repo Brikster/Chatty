@@ -65,11 +65,11 @@ general:
 # *money*       - message price (depends on Vault).
 # *permission*  - check permissions for this chat? Default: true.
 # *command*     - Command that is used to switch to chat to use it by default if symbol is not specified. Default: empty.
-# *aliaes*      - Aliases for command. Default: empty.
+# *aliases*      - Aliases for command. Default: empty.
 chats:
   local:
     enable: true
-    format: '[Local] {prefix}{player}{suffix}: {message}'
+    format: '&e[&6Local&e] &r{prefix}{player}{suffix}&8: &f{message}'
     range: 100
     cooldown: -1
     command: 'localchat'
@@ -77,12 +77,24 @@ chats:
 
   global:
     enable: true
-    format: '[Global] {prefix}{player}{suffix}: {message}'
+    format: '&e[&aGlobal&e] &r{prefix}{player}{suffix}&8: &f{message}'
     range: -1
     symbol: '!'
     cooldown: -1
     command: 'globalchat'
     aliases: ['gchat']
+
+  # Example chat with multiline format
+  notify:
+    enable: true
+    format: |
+      &7====================================================================
+        &c{player}&8: &7{message}
+      &7====================================================================
+    range: -3
+    symbol: '@'
+    cooldown: -1
+
 
 # * PRIVATE MESSAGING
 pm:
@@ -188,6 +200,54 @@ json:
   - '&fThis tooltip supports'
   - '&fPlaceholderAPI placeholders!'
 
+  # Mentions.
+  # "@nickname" will notify player that he's mentioned.
+  # Also it will replaced to a clickable JSON-part.
+  #
+  # Requires permission: chatty.mentions
+  mentions:
+    enable: true
+
+    # Display format of mention.
+    format: '&e&l@{player}'
+
+    # Plays sound to player, that was mentioned.
+    # Remove the line if not needed.
+    sound: CLICK
+
+    # Command or text that executes (by player) when you click on the mention.
+    #
+    # *** You can use EITHER "command" OR "suggest" OR "link".
+    #
+    # Supports PlaceholderAPI.
+    # You can use "{player}" variable here.
+    command: /home
+
+    # Command or text that suggests when you click on the mention.
+    #
+    # *** You can use EITHER "command" OR "suggest" OR "link".
+    #
+    # Supports PlaceholderAPI.
+    # You can use "{player}" variable here.
+    suggest: '/msg {player} '
+
+    # URL that opens when when you click on the mention.
+    #
+    # You must use "http://" or "https://" prefix, else you will crash Minecraft client :D
+    #
+    # *** You can use EITHER "command" OR "suggest" OR "link".
+    #
+    # Supports PlaceholderAPI.
+    # You can use "{player}" variable here.
+    link: 'https://example.com/players?name={player}'
+
+    # Hover tooltip for the mention.
+    # Supports PlaceholderAPI.
+    #
+    # You can use "{player}" variable here.
+    tooltip:
+      - '&fClick here to message &e{player}'
+
   # Swears hovers.
   #
   # Available properties:
@@ -245,8 +305,6 @@ json:
 #
 # There are four types of notifications:
 # via Chat, Title (1.8.8 and newer), ActionBar (1.8.8 and newer) and Advancements (1.12 and newer).
-#
-# Supports PlaceholderAPI.
 notifications:
   # Chat notifications.
   chat:
@@ -265,6 +323,7 @@ notifications:
         prefix: ''
 
         # List of messages.
+        # Supports PlaceholderAPI.
         # Supports JSON formatting.
         #
         # Notification messages are using "/tellraw" JSON format.
@@ -295,6 +354,7 @@ notifications:
     prefix: ''
 
     # List of messages.
+    # Supports PlaceholderAPI.
     messages:
     - '&cThe server is using Chatty!'
     - '&aThe server is using Chatty!'
@@ -317,8 +377,11 @@ notifications:
         time: 60
 
         # List of messages.
+        # Supports PlaceholderAPI.
         messages:
-        - '&cThe server is using Chatty!\n&eOur address: 127.0.0.1'
+        - |
+          &cThe server is using Chatty!
+          &eOur address: 127.0.0.1'
         - '&aThe server is using Chatty!'
 
         # Permission for seeing notification.
@@ -472,12 +535,17 @@ miscellaneous:
       auto-nte: false
 
   # Change vanilla Minecraft messages.
+  # Supports PlaceholderAPI.
   vanilla:
     join:
       enable: true
 
       # Set to '' if you want to make it hidden.
-      message: '&e{prefix}{player}{suffix} &ejoined the server.'
+      message: '&8> &e{prefix}{player}{suffix} &ejoined the server.'
+
+      # Plays sound to all, when player joins.
+      # Remove the line if not needed.
+      sound: ORB_PICKUP
 
       # Permission: chatty.misc.joinmessage
       # Default: true
@@ -486,7 +554,11 @@ miscellaneous:
       enable: true
 
       # Set to '' if you want to make it hidden.
-      message: '&e{prefix}{player}{suffix} &eleft the server.'
+      message: '&8> &e{prefix}{player}{suffix} &eleft the server.'
+
+      # Plays sound to all, when player quits.
+      # Remove the line if not needed.
+      sound: ORB_PICKUP
 
       # Permission: chatty.misc.quitmessage
       # Default: true
@@ -495,7 +567,11 @@ miscellaneous:
       enable: true
 
       # Set to '' if you want to make it hidden.
-      message: '&e{prefix}{player}{suffix} &edied.'
+      message: '&8> &e{prefix}{player}{suffix} &edied.'
+
+      # Plays sound to all, when player dies.
+      # Remove the line if not required.
+      sound: BAT_DEATH
 
       # Permission: chatty.misc.deathmessage
       # Default: true

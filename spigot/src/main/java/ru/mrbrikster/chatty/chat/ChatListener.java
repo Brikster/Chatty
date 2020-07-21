@@ -25,7 +25,7 @@ import ru.mrbrikster.chatty.dependencies.PlaceholderAPIHook;
 import ru.mrbrikster.chatty.dependencies.PrefixAndSuffixManager;
 import ru.mrbrikster.chatty.dependencies.VaultHook;
 import ru.mrbrikster.chatty.json.FormattedMessage;
-import ru.mrbrikster.chatty.json.JSONMessagePart;
+import ru.mrbrikster.chatty.json.JsonMessagePart;
 import ru.mrbrikster.chatty.json.LegacyMessagePart;
 import ru.mrbrikster.chatty.moderation.AdvertisementModerationMethod;
 import ru.mrbrikster.chatty.moderation.CapsModerationMethod;
@@ -33,10 +33,12 @@ import ru.mrbrikster.chatty.moderation.ModerationManager;
 import ru.mrbrikster.chatty.moderation.SwearModerationMethod;
 import ru.mrbrikster.chatty.reflection.Reflection;
 import ru.mrbrikster.chatty.util.Pair;
+import ru.mrbrikster.chatty.util.Sound;
 import ru.mrbrikster.chatty.util.TextUtil;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -59,6 +61,8 @@ public class ChatListener implements Listener, EventExecutor {
             .put(PERMISSION_PREFIX + "underline", UNDERLINE_PATTERN)
             .put(PERMISSION_PREFIX + "italic", ITALIC_PATTERN)
             .put(PERMISSION_PREFIX + "reset", RESET_PATTERN).build();
+
+    private static final Pattern MENTION_PATTERN = Pattern.compile("@[a-zA-Zа-яА-Я0-9_]{3,16}");
 
     private final DependencyManager dependencyManager;
     private final ChatManager chatManager;
@@ -141,6 +145,8 @@ public class ChatListener implements Listener, EventExecutor {
         }
 
         String format = chat.getFormat();
+
+        format = TextUtil.fixMultilineFormatting(format);
 
         format = format.replace("{prefix}", prefixAndSuffixManager.getPrefix(player));
         format = format.replace("{suffix}", prefixAndSuffixManager.getSuffix(player));
@@ -343,22 +349,11 @@ public class ChatListener implements Listener, EventExecutor {
         String suggestCommand = configuration.getNode("json.suggest").getAsString(null);
         String link = configuration.getNode("json.link").getAsString(null);
 
-        Function<String, String> stringVariablesFunction = string -> {
-            if (string == null) return null;
-
-            string = string.replace("{player}", player.getDisplayName());
-            string = string.replace("{prefix}", prefixAndSuffixManager.getPrefix(player));
-            string = string.replace("{suffix}", prefixAndSuffixManager.getSuffix(player));
-
-            if (placeholderAPI != null)
-                string = placeholderAPI.setPlaceholders(player, string);
-
-            return ChatColor.stripColor(string);
-        };
+        Function<String, String> stringVariablesFunction = createVariablesFunction(player);
 
         FormattedMessage formattedMessage = new FormattedMessage(format);
         formattedMessage.replace("{player}",
-                new JSONMessagePart(player.getDisplayName())
+                new JsonMessagePart(player.getDisplayName())
                         .command(stringVariablesFunction.apply(command))
                         .suggest(stringVariablesFunction.apply(suggestCommand))
                         .link(stringVariablesFunction.apply(link))
@@ -384,14 +379,65 @@ public class ChatListener implements Listener, EventExecutor {
             String replacementSuggestCommand = replacement.getNode("suggest").getAsString(null);
             String replacementLink = replacement.getNode("link").getAsString(null);
 
-            formattedMessage.replace(replacementName, new JSONMessagePart(stringVariablesFunction.apply(text))
+            formattedMessage.replace(replacementName, new JsonMessagePart(stringVariablesFunction.apply(text))
                     .command(stringVariablesFunction.apply(replacementCommand))
                     .suggest(stringVariablesFunction.apply(replacementSuggestCommand))
                     .link(stringVariablesFunction.apply(replacementLink))
                     .tooltip(replacementTooltip));
         });
 
-        formattedMessage.replace("{message}", new LegacyMessagePart(event.getMessage(), false));
+        if (configuration.getNode("json.mentions.enable").getAsBoolean(false) && player.hasPermission("chatty.mentions")) {
+            FormattedMessage messageWithMention = new FormattedMessage(event.getMessage());
+            Matcher matcher = MENTION_PATTERN.matcher(event.getMessage());
+
+            while (matcher.find()) {
+                String group = matcher.group();
+                String playerName = group.substring(1);
+
+                Player mentionedPlayer;
+                if ((mentionedPlayer = Bukkit.getPlayer(playerName)) != null) {
+                    if (mentionedPlayer.equals(event.getPlayer())) {
+                        continue;
+                    }
+
+                    Function<String, String> mentionedPlayerVariablesFunc = createVariablesFunction(mentionedPlayer);
+
+                    List<String> mentionTooltip = configuration.getNode("json.mentions.tooltip").getAsStringList();
+                    mentionTooltip = mentionTooltip.stream().map(line ->
+                            ChatColor.translateAlternateColorCodes('&',
+                                    line.replace("{player}", mentionedPlayer.getDisplayName())
+                                            .replace("{prefix}", prefixAndSuffixManager.getPrefix(mentionedPlayer))
+                                            .replace("{suffix}", prefixAndSuffixManager.getSuffix(mentionedPlayer))
+                            )).collect(Collectors.toList());
+
+                    if (placeholderAPI != null)
+                        mentionTooltip = placeholderAPI.setPlaceholders(mentionedPlayer, mentionTooltip);
+
+                    link = mentionedPlayerVariablesFunc.apply(configuration.getNode("json.mentions.link").getAsString(null));
+                    suggestCommand = mentionedPlayerVariablesFunc.apply(configuration.getNode("json.mentions.suggest").getAsString(null));
+                    command = mentionedPlayerVariablesFunc.apply(configuration.getNode("json.mentions.command").getAsString(null));
+
+                    playerName = mentionedPlayer.getDisplayName();
+
+                    messageWithMention.replace(group,
+                            new JsonMessagePart(configuration.getNode("json.mentions.format")
+                                    .getAsString("&e&l@{player}").replace("{player}", playerName))
+                                    .tooltip(mentionTooltip).command(command).suggest(suggestCommand).link(link),
+                            new LegacyMessagePart(TextUtil.getLastColors(event.getFormat()))
+                    );
+
+                    String soundName = configuration.getNode("json.mentions.sound").getAsString(null);
+                    if (soundName != null) {
+                        org.bukkit.Sound sound = Sound.byName(soundName);
+                        mentionedPlayer.playSound(mentionedPlayer.getLocation(), sound, 1L, 1L);
+                    }
+                }
+            }
+
+            formattedMessage.replace("{message}", messageWithMention);
+        } else {
+            formattedMessage.replace("{message}", new LegacyMessagePart(event.getMessage(), false));
+        }
 
         if (configuration.getNode("general.bungeecord").getAsBoolean(false)) {
             BungeeBroadcaster.broadcast(event.getPlayer(), chat.getName(), formattedMessage.toJSONString(), true);
@@ -423,8 +469,9 @@ public class ChatListener implements Listener, EventExecutor {
                 String suggest = configuration.getNode("json.swears.suggest").getAsString(null);
 
                 swears.forEach(swear -> formattedMessage.replace(replacement,
-                        new JSONMessagePart(replacement)
-                                .tooltip(swearTooltip.stream().map(tooltipLine -> tooltipLine.replace("{word}", swear)).collect(Collectors.toList()))
+                        new JsonMessagePart(replacement)
+                                .tooltip(swearTooltip.stream().map(tooltipLine -> tooltipLine.replace("{word}", swear))
+                                        .collect(Collectors.toList()))
                                 .suggest(suggest != null ? suggest.replace("{word}", swear) : null)));
 
                 formattedMessage.send(canSeeSwears);
@@ -454,16 +501,25 @@ public class ChatListener implements Listener, EventExecutor {
                 .getNode("miscellaneous.vanilla.join.message")
                 .getAsString(null);
 
+        boolean hasPermission = !configuration.getNode("miscellaneous.vanilla.join.permission").getAsBoolean(true)
+                || event.getPlayer().hasPermission("chatty.misc.joinmessage");
+
         if (joinMessage != null) {
-            if (joinMessage.isEmpty() ||
-                    (configuration.getNode("miscellaneous.vanilla.join.permission").getAsBoolean(true)
-                            && !event.getPlayer().hasPermission("chatty.misc.joinmessage"))) {
+            if (joinMessage.isEmpty() || !hasPermission) {
                 event.setJoinMessage(null);
             } else event.setJoinMessage(TextUtil.stylish(
                     applyPlaceholders(event.getPlayer(),
                             joinMessage.replace("{prefix}", prefixAndSuffixManager.getPrefix(event.getPlayer()))
                                 .replace("{suffix}", prefixAndSuffixManager.getSuffix(event.getPlayer()))
                                 .replace("{player}", event.getPlayer().getDisplayName()))));
+        }
+
+        if (hasPermission) {
+            String soundName = configuration.getNode("miscellaneous.vanilla.join.sound").getAsString(null);
+            if (soundName != null) {
+                org.bukkit.Sound sound = Sound.byName(soundName);
+                Bukkit.getOnlinePlayers().forEach(player -> player.playSound(player.getLocation(), sound, 1L, 1L));
+            }
         }
     }
 
@@ -477,16 +533,25 @@ public class ChatListener implements Listener, EventExecutor {
                 .getNode("miscellaneous.vanilla.quit.message")
                 .getAsString(null);
 
+        boolean hasPermission = !configuration.getNode("miscellaneous.vanilla.quit.permission").getAsBoolean(true)
+                || event.getPlayer().hasPermission("chatty.misc.quitmessage");
+
         if (quitMessage != null) {
-            if (quitMessage.isEmpty() ||
-                    (configuration.getNode("miscellaneous.vanilla.quit.permission").getAsBoolean(true)
-                            && !event.getPlayer().hasPermission("chatty.misc.quitmessage"))) {
+            if (quitMessage.isEmpty() || !hasPermission) {
                 event.setQuitMessage(null);
             } else event.setQuitMessage(TextUtil.stylish(
                     applyPlaceholders(event.getPlayer(),
                             quitMessage.replace("{prefix}", prefixAndSuffixManager.getPrefix(event.getPlayer()))
                                     .replace("{suffix}", prefixAndSuffixManager.getSuffix(event.getPlayer()))
                                     .replace("{player}", event.getPlayer().getDisplayName()))));
+        }
+
+        if (hasPermission) {
+            String soundName = configuration.getNode("miscellaneous.vanilla.quit.sound").getAsString(null);
+            if (soundName != null) {
+                org.bukkit.Sound sound = Sound.byName(soundName);
+                Bukkit.getOnlinePlayers().forEach(player -> player.playSound(player.getLocation(), sound, 1L, 1L));
+            }
         }
     }
 
@@ -500,16 +565,25 @@ public class ChatListener implements Listener, EventExecutor {
                 .getNode("miscellaneous.vanilla.death.message")
                 .getAsString(null);
 
+        boolean hasPermission = !configuration.getNode("miscellaneous.vanilla.death.permission").getAsBoolean(true)
+                || event.getEntity().hasPermission("chatty.misc.deathmessage");
+
         if (deathMessage != null) {
-            if (deathMessage.isEmpty() ||
-                    (configuration.getNode("miscellaneous.vanilla.death.permission").getAsBoolean(true)
-                            && !event.getEntity().hasPermission("chatty.misc.deathmessage"))) {
+            if (deathMessage.isEmpty() || !hasPermission) {
                 event.setDeathMessage(null);
             } else event.setDeathMessage(TextUtil.stylish(
                     applyPlaceholders(event.getEntity(),
                             deathMessage.replace("{prefix}", prefixAndSuffixManager.getPrefix(event.getEntity()))
                                     .replace("{suffix}", prefixAndSuffixManager.getSuffix(event.getEntity()))
                                     .replace("{player}", event.getEntity().getDisplayName()))));
+        }
+
+        if (hasPermission) {
+            String soundName = configuration.getNode("miscellaneous.vanilla.death.sound").getAsString(null);
+            if (soundName != null) {
+                org.bukkit.Sound sound = Sound.byName(soundName);
+                Bukkit.getOnlinePlayers().forEach(player -> player.playSound(player.getLocation(), sound, 1L, 1L));
+            }
         }
     }
 
@@ -575,6 +649,18 @@ public class ChatListener implements Listener, EventExecutor {
         }
 
         return new String(b);
+    }
+
+    private Function<String, String> createVariablesFunction(Player player) {
+        return string -> {
+            if (string == null) return null;
+
+            string = string.replace("{player}", player.getDisplayName());
+            string = string.replace("{prefix}", prefixAndSuffixManager.getPrefix(player));
+            string = string.replace("{suffix}", prefixAndSuffixManager.getSuffix(player));
+
+            return ChatColor.stripColor(applyPlaceholders(player, string));
+        };
     }
 
 }

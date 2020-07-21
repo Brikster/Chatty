@@ -3,6 +3,7 @@ package ru.mrbrikster.chatty.util;
 import lombok.experimental.UtilityClass;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.entity.Player;
+import ru.mrbrikster.chatty.json.LegacyConverter;
 import ru.mrbrikster.chatty.util.textapi.ServerPackage;
 
 import java.awt.*;
@@ -51,15 +52,15 @@ public class TextUtil {
 
     /**
      * Finds simple and gradient hex patterns in string and converts it to Spigot format
-     * @param str string to stylish
+     * @param text string to stylish
      * @return stylished string
      */
-    public String stylish(String str) {
-        if (str == null) {
+    public String stylish(String text) {
+        if (text == null) {
             return null;
         }
 
-        Matcher matcher = HEX_GRADIENT_PATTERN.matcher(str);
+        Matcher matcher = HEX_GRADIENT_PATTERN.matcher(text);
 
         StringBuffer stringBuffer = new StringBuffer();
 
@@ -76,9 +77,9 @@ public class TextUtil {
                 colors[i] = ChatColor.of(gradient.substring((8 * i) + 1, (8 * i) + 8)).getColor();
             }
 
-            String text = gradient.substring((groups - 1) * 8 + 9, gradient.length() - 1);
+            String substring = gradient.substring((groups - 1) * 8 + 9, gradient.length() - 1);
 
-            char[] chars = text.toCharArray();
+            char[] chars = substring.toCharArray();
 
             StringBuilder gradientBuilder = new StringBuilder();
 
@@ -106,9 +107,9 @@ public class TextUtil {
         }
 
         matcher.appendTail(stringBuffer);
-        str = stringBuffer.toString();
+        text = stringBuffer.toString();
 
-        matcher = HEX_COLORS_PATTERN.matcher(str);
+        matcher = HEX_COLORS_PATTERN.matcher(text);
         stringBuffer = new StringBuffer();
 
         while (matcher.find()) {
@@ -119,6 +120,14 @@ public class TextUtil {
         matcher.appendTail(stringBuffer);
 
         return ChatColor.translateAlternateColorCodes('&', stringBuffer.toString());
+    }
+
+    public String fixMultilineFormatting(String text) {
+        return text.replaceAll("\n$", "").replaceAll("\n", "\n&r");
+    }
+
+    public String getLastColors(String text) {
+        return new LegacyConverter(text).toFancyMessage().getLastColors();
     }
 
     /**

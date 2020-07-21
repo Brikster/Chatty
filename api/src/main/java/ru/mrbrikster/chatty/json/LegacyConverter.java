@@ -8,7 +8,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
-class LegacyConverter {
+public class LegacyConverter {
 
     private final FancyMessage fancyMessage = new FancyMessage();
 
@@ -23,7 +23,7 @@ class LegacyConverter {
     private ChatColor color;
     private boolean first = true;
 
-    private LegacyConverter(String message) {
+    public LegacyConverter(String message) {
         strippedString = ChatColor.stripColor(message);
         try {
             new URL(strippedString);
@@ -136,7 +136,11 @@ class LegacyConverter {
         builder = new StringBuilder();
     }
 
-    private List<MessagePart> toMessageParts() {
+    public FancyMessage toFancyMessage() {
+        return fancyMessage;
+    }
+
+    public List<MessagePart> toMessageParts() {
         return fancyMessage.getMessageParts();
     }
 

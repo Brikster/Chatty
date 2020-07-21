@@ -5,7 +5,7 @@ import ru.mrbrikster.chatty.util.TextUtil;
 
 import java.util.List;
 
-public class JSONMessagePart implements MessagePart {
+public class JsonMessagePart implements MessagePart {
 
     private final String text;
     private String command;
@@ -13,29 +13,29 @@ public class JSONMessagePart implements MessagePart {
     private List<String> tooltip;
     private String link;
 
-    public JSONMessagePart(String text) {
+    public JsonMessagePart(String text) {
         this.text = text;
     }
 
-    public JSONMessagePart command(String command) {
+    public JsonMessagePart command(String command) {
         this.command = command;
 
         return this;
     }
 
-    public JSONMessagePart suggest(String suggest) {
+    public JsonMessagePart suggest(String suggest) {
         this.suggest = suggest;
 
         return this;
     }
 
-    public JSONMessagePart tooltip(List<String> tooltip) {
+    public JsonMessagePart tooltip(List<String> tooltip) {
         this.tooltip = tooltip;
 
         return this;
     }
 
-    public JSONMessagePart link(String link) {
+    public JsonMessagePart link(String link) {
         this.link = link;
 
         return this;
