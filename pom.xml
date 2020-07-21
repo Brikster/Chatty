@@ -81,8 +81,8 @@
             <url>https://repo.codemc.org/repository/maven-public</url>
         </repository>
         <repository>
-            <id>nametagedit-repo</id>
-            <url>http://ci.nametagedit.com/plugin/repository/everything/</url>
+            <id>rednite-repo</id>
+            <url>https://nexus.rednite.ru/repository/rednite-public/</url>
         </repository>
     </repositories>
 </project>

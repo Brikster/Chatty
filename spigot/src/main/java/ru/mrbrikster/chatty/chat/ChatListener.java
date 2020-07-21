@@ -423,8 +423,7 @@ public class ChatListener implements Listener, EventExecutor {
                             new JsonMessagePart(configuration.getNode("json.mentions.format")
                                     .getAsString("&e&l@{player}").replace("{player}", playerName))
                                     .tooltip(mentionTooltip).command(command).suggest(suggestCommand).link(link),
-                            new LegacyMessagePart(TextUtil.getLastColors(event.getFormat()))
-                    );
+                            new LegacyMessagePart(TextUtil.getLastColors(event.getFormat())));
 
                     String soundName = configuration.getNode("json.mentions.sound").getAsString(null);
                     if (soundName != null) {
