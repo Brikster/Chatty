@@ -75,9 +75,9 @@ public class ChatListener implements Listener, EventExecutor {
     private final JsonStorage jsonStorage;
     private final PrefixAndSuffixManager prefixAndSuffixManager;
 
-    private final IdentityHashMap<Player, Pair<Chat, List<Player>>> pendingSpyMessages;
-    private final IdentityHashMap<Player, List<String>> pendingSwears;
-    private final IdentityHashMap<Player, Chat> pendingJsonMessages;
+    private final Map<Player, Pair<Chat, List<Player>>> pendingSpyMessages;
+    private final Map<Player, List<String>> pendingSwears;
+    private final Map<Player, Chat> pendingJsonMessages;
 
     public ChatListener(Configuration configuration,
                         ChatManager chatManager,
