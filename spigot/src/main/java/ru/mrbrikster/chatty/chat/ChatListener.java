@@ -36,11 +36,7 @@ import ru.mrbrikster.chatty.util.Pair;
 import ru.mrbrikster.chatty.util.Sound;
 import ru.mrbrikster.chatty.util.TextUtil;
 
-import java.util.ArrayList;
-import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -167,7 +163,7 @@ public class ChatListener implements Listener, EventExecutor {
 
         event.setFormat(format);
 
-        if(configuration.getNode("general.respect-old-recipients").getAsBoolean(true)) {
+        if (configuration.getNode("general.keep-old-recipients").getAsBoolean(true)) {
             chat.filterRecipients(player, event.getRecipients());
         } else {
             event.getRecipients().clear();

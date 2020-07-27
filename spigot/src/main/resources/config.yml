@@ -29,14 +29,16 @@ general:
   log: true
 
   # Completely cancels chat events,
-  # if it cancels by moderation method
+  # if it cancelled by moderation method
   # (instead of clearing recipients).
   completely-cancel: false
 
-  # Respect chat recipients from before,
-  # if some players were blocked from receiving the message by another plugin
-  # (instead of calculating everyone from scratch).
-  respect-old-recipients: true
+  # Keep recipients list from previous listeners.
+  # Useful if you have some plugins, that changes recipients list, and Chatty ignores it
+  # (for example, Chatty may corrupt "/ignore" command of EssentialsX).
+  #
+  # Default: true
+  keep-old-recipients: true
 
   # Storage player data mode.
   # true - data will store by UUIDs.

@@ -97,7 +97,7 @@ public interface Chat {
      * Filters collection of online players chat can see message from this chat
      *
      * @param player player who sends a message. Can be null only if chat chat range <= -2
-     * @param players collection of players to filter from
+     * @param players collection of players to filter
      * @return edited collection of chat recipients
      */
     @NotNull
