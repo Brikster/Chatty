@@ -37,6 +37,19 @@
                             <shadedPattern>ru.mrbrikster.chatty.util.gson</shadedPattern>
                         </relocation>
                     </relocations>
+                    <transformers>
+                        <transformer
+                                implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                            <manifestEntries>
+                                <Specification-Title>Chatty Bukkit-compatible chat plugin</Specification-Title>
+                                <Specification-Version>${project.version}</Specification-Version>
+                                <Specification-Vendor>MrBrikster</Specification-Vendor>
+                                <Implementation-Title>ru.mrbrikster.chatty</Implementation-Title>
+                                <Implementation-Version>${project.version}</Implementation-Version>
+                                <Implementation-Vendor>MrBrikster</Implementation-Vendor>
+                            </manifestEntries>
+                        </transformer>
+                    </transformers>
                     <filters>
                         <filter>
                             <artifact>*:*</artifact>
