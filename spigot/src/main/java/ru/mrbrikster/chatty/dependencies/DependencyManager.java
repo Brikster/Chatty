@@ -21,6 +21,7 @@ public class DependencyManager {
 
         if (javaPlugin.getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
             this.placeholderApi = new PlaceholderAPIHook();
+            placeholderApi.register();
             javaPlugin.getLogger().log(Level.INFO, "PlaceholderAPI has successful hooked.");
         }
 

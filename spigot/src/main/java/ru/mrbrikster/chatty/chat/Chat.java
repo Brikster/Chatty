@@ -62,7 +62,7 @@ public class Chat implements ru.mrbrikster.chatty.api.chats.Chat {
                 new FixedMetadataValue(Chatty.instance(), System.currentTimeMillis()));
     }
 
-    long getCooldown(Player player) {
+    public long getCooldown(Player player) {
         List<MetadataValue> metadataValues = player.getMetadata(String.format(CHAT_COOLDOWN_METADATA_KEY, name));
 
         if (metadataValues.isEmpty())
