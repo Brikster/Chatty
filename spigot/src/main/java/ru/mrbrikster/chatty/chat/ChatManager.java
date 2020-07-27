@@ -7,7 +7,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import ru.mrbrikster.baseplugin.commands.BukkitCommand;
 import ru.mrbrikster.baseplugin.config.Configuration;
+import ru.mrbrikster.baseplugin.config.ConfigurationNode;
 import ru.mrbrikster.chatty.Chatty;
+import ru.mrbrikster.chatty.chat.Chat.ChatBuilder;
+import ru.mrbrikster.chatty.util.Sound;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -47,50 +50,67 @@ public class ChatManager {
     }
 
     private void init() {
-        configuration.getNode("chats")
-                .getChildNodes().stream().map(chatNode ->
-                    new Chat(chatNode.getName(),
-                        chatNode.getNode("enable").getAsBoolean(false),
-                        chatNode.getNode("format").getAsString("{prefix}{player}{suffix}: {message}"),
-                        chatNode.getNode("range").getAsInt(-1),
-                        chatNode.getNode("symbol").getAsString(""),
-                        chatNode.getNode("permission").getAsBoolean(true),
-                        chatNode.getNode("cooldown").getAsLong(-1),
-                        chatNode.getNode("money").getAsInt(0),
-                        chatNode.getNode("command").getAsString(null),
-                        chatNode.getNode("aliases").getAsStringList()))
-                .forEach(chat -> {
-                    if (chat.isEnable()) {
-                        if (chat.getCommand() != null) {
-                            chat.setBukkitCommand(new BukkitCommand(chat.getCommand(), ArrayWrapper.toArray(chat.getAliases(), String.class)) {
+        configuration.getNode("chats").getChildNodes().stream().map(chatNode -> {
+                    ChatBuilder builder = Chat.builder()
+                            .name(chatNode.getName())
+                            .enable(chatNode.getNode("enable").getAsBoolean(false))
+                            .format(chatNode.getNode("format").getAsString("§7{player}§8: §f{message}"))
+                            .range(chatNode.getNode("range").getAsInt(-1))
+                            .symbol(chatNode.getNode("symbol").getAsString(""))
+                            .permissionRequired(chatNode.getNode("permission").getAsBoolean(true))
+                            .cooldown(chatNode.getNode("cooldown").getAsLong(-1))
+                            .money(chatNode.getNode("money").getAsInt(0));
 
-                                @Override
-                                public void handle(CommandSender sender, String label, String[] args) {
-                                    if (sender instanceof Player) {
-                                        if (!sender.hasPermission("chatty.command.chat")) {
-                                            sender.sendMessage(Chatty.instance().messages().get("no-permission"));
-                                            return;
-                                        }
-
-                                        if (chat.isAllowed((Player) sender)) {
-                                            jsonStorage.setProperty((Player) sender, "chat", new JsonPrimitive(chat.getName()));
-                                            sender.sendMessage(Chatty.instance().messages().get("chat-command.chat-switched").replace("{chat}", chat.getName()));
-                                        } else {
-                                            sender.sendMessage(Chatty.instance().messages().get("chat-command.no-chat-permission"));
-                                        }
-                                    } else {
-                                        sender.sendMessage(Chatty.instance().messages().get("only-for-players"));
-                                    }
-                                }
-
-                            });
-
-                            chat.getBukkitCommand().register(Chatty.instance());
-                        }
-
-                        this.chats.add(chat);
+                    String chatCommand = chatNode.getNode("command").getAsString(null);
+                    if (chatCommand != null) {
+                        builder.command(chatCommand)
+                                .aliases(chatNode.getNode("aliases").getAsStringList());
                     }
+
+                    String soundName = chatNode.getNode("sound").getAsString(null);
+
+                    if (soundName != null) {
+                        builder.sound(Sound.byName(soundName));
+                    }
+
+                    ConfigurationNode moderationNode = chatNode.getNode("moderation");
+                    builder.capsModerationEnabled(moderationNode.getNode("caps").getAsBoolean(true))
+                            .swearModerationEnabled(moderationNode.getNode("swear").getAsBoolean(true))
+                            .advertisementModerationEnabled(moderationNode.getNode("advertisement").getAsBoolean(true));
+
+                    builder.spyEnabled(chatNode.getNode("spy").getAsBoolean(true));
+
+                    return builder.build();
+                }).filter(Chat::isEnable).forEach(this.chats::add);
+
+        for (Chat chat : this.chats) {
+            if (chat.getCommand() != null) {
+                chat.setBukkitCommand(new BukkitCommand(chat.getCommand(), ArrayWrapper.toArray(chat.getAliases(), String.class)) {
+
+                    @Override
+                    public void handle(CommandSender sender, String label, String[] args) {
+                        if (sender instanceof Player) {
+                            if (!sender.hasPermission("chatty.command.chat")) {
+                                sender.sendMessage(Chatty.instance().messages().get("no-permission"));
+                                return;
+                            }
+
+                            if (chat.isWriteAllowed((Player) sender)) {
+                                jsonStorage.setProperty((Player) sender, "chat", new JsonPrimitive(chat.getName()));
+                                sender.sendMessage(Chatty.instance().messages().get("chat-command.chat-switched").replace("{chat}", chat.getName()));
+                            } else {
+                                sender.sendMessage(Chatty.instance().messages().get("chat-command.no-chat-permission"));
+                            }
+                        } else {
+                            sender.sendMessage(Chatty.instance().messages().get("only-for-players"));
+                        }
+                    }
+
                 });
+
+                chat.getBukkitCommand().register(Chatty.instance());
+            }
+        }
     }
 
     private void reload() {

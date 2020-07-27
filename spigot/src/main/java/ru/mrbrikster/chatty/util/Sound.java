@@ -1,5 +1,7 @@
 package ru.mrbrikster.chatty.util;
 
+import org.jetbrains.annotations.NotNull;
+
 public enum Sound {
     AMBIENCE_CAVE("AMBIENCE_CAVE", "AMBIENT_CAVE"),
     AMBIENCE_RAIN("AMBIENCE_RAIN", "WEATHER_RAIN"),
@@ -215,7 +217,7 @@ public enum Sound {
         throw new IllegalArgumentException("Found no valid sound name for " + this.name());
     }
 
-    public static org.bukkit.Sound byName(String name) {
+    public static org.bukkit.Sound byName(@NotNull String name) {
         for (Sound value : Sound.values()) {
             for (String versionDependentName : value.versionDependentNames) {
                 if (versionDependentName.equalsIgnoreCase(name)) {

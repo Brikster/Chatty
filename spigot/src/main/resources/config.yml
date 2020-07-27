@@ -102,6 +102,17 @@ chats:
     symbol: '@'
     cooldown: -1
 
+    # Plays sound for all chat recipients
+    sound: CLICK
+
+    # Disables some moderation methods for this chat
+    moderation:
+      caps: false
+      swear: false
+      advertisement: false
+
+    # Disables spy-mode for this chat
+    spy: false
 
 # * PRIVATE MESSAGING
 pm:

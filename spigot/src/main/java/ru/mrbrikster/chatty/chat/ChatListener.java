@@ -73,7 +73,7 @@ public class ChatListener implements Listener, EventExecutor {
 
     private final Map<Player, Pair<Chat, List<Player>>> pendingSpyMessages;
     private final Map<Player, List<String>> pendingSwears;
-    private final Map<Player, Chat> pendingJsonMessages;
+    private final Map<Player, Chat> pendindMessages;
 
     public ChatListener(Configuration configuration,
                         ChatManager chatManager,
@@ -88,7 +88,7 @@ public class ChatListener implements Listener, EventExecutor {
 
         this.pendingSpyMessages = new IdentityHashMap<>();
         this.pendingSwears = new IdentityHashMap<>();
-        this.pendingJsonMessages = new IdentityHashMap<>();
+        this.pendindMessages = new IdentityHashMap<>();
 
         this.prefixAndSuffixManager = new PrefixAndSuffixManager(dependencyManager, jsonStorage);
     }
@@ -185,7 +185,7 @@ public class ChatListener implements Listener, EventExecutor {
         boolean cancelledByModeration = false;
 
         StringBuilder logPrefixBuilder = new StringBuilder();
-        if (moderationManager.isSwearModerationEnabled()) {
+        if (chat.isSwearModerationEnabled() && moderationManager.isSwearModerationEnabled()) {
             SwearModerationMethod swearMethod = moderationManager.getSwearMethod(message);
             if (!player.hasPermission("chatty.moderation.swear")) {
                 if (swearMethod.isBlocked()) {
@@ -214,7 +214,7 @@ public class ChatListener implements Listener, EventExecutor {
             }
         }
 
-        if (this.moderationManager.isCapsModerationEnabled()) {
+        if (chat.isCapsModerationEnabled() && this.moderationManager.isCapsModerationEnabled()) {
             CapsModerationMethod capsMethod = this.moderationManager.getCapsMethod(message);
             if (!player.hasPermission("chatty.moderation.caps")) {
                 if (capsMethod.isBlocked()) {
@@ -239,7 +239,7 @@ public class ChatListener implements Listener, EventExecutor {
             }
         }
 
-        if (this.moderationManager.isAdvertisementModerationEnabled()) {
+        if (chat.isAdvertisementModerationEnabled() && this.moderationManager.isAdvertisementModerationEnabled()) {
             AdvertisementModerationMethod advertisementMethod = this.moderationManager.getAdvertisementMethod(message);
             if (!player.hasPermission("chatty.moderation.advertisement")) {
                 if (advertisementMethod.isBlocked()) {
@@ -270,7 +270,7 @@ public class ChatListener implements Listener, EventExecutor {
             event.setCancelled(true);
         } else {
             if (json) {
-                pendingJsonMessages.put(player, chat);
+                pendindMessages.put(player, chat);
             } else {
                 if (configuration.getNode("general.bungeecord").getAsBoolean(false) && chat.getRange() <= -3) {
                     BungeeBroadcaster.broadcast(event.getPlayer(), chat.getName(), String.format(event.getFormat(), player.getName(), message), false);
@@ -290,10 +290,10 @@ public class ChatListener implements Listener, EventExecutor {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onSpyMessage(AsyncPlayerChatEvent event) {
-        if (configuration.getNode("spy.enable").getAsBoolean(false)) {
-            Pair<Chat, List<Player>> pair = pendingSpyMessages.remove(event.getPlayer());
+        Pair<Chat, List<Player>> pair = pendingSpyMessages.remove(event.getPlayer());
 
-            if (!event.isCancelled() && pair != null) {
+        if (pair.getA().isSpyEnabled() && configuration.getNode("spy.enable").getAsBoolean(false)) {
+            if (!event.isCancelled()) {
                 String spyInfo = TextUtil.stylish(configuration.getNode("spy.format.chat")
                         .getAsString("&6[Spy] &r{format}")
                         .replace("{format}", String.format(
@@ -317,9 +317,11 @@ public class ChatListener implements Listener, EventExecutor {
      * @param event AsyncPlayerChatEvent object
      */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onJsonMessage(AsyncPlayerChatEvent event) {
+    public void onChatMonitor(AsyncPlayerChatEvent event) {
+        Chat chat = pendindMessages.remove(event.getPlayer());
+
         if (configuration.getNode("json.enable").getAsBoolean(false)) {
-            performJsonMessage(event);
+            performJsonMessage(event, chat);
         } else {
             String format = String.format(event.getFormat(), event.getPlayer().getName(), event.getMessage());
             String strippedHexFormat = TextUtil.stripHex(format);
@@ -330,11 +332,17 @@ public class ChatListener implements Listener, EventExecutor {
                 event.setFormat(strippedHexFormat);
             }
         }
+
+        if (chat.getSound() != null) {
+            for (Player recipient : event.getRecipients()) {
+                if (!recipient.equals(event.getPlayer())) {
+                    recipient.playSound(recipient.getLocation(), chat.getSound(), 1L, 1L);
+                }
+            }
+        }
     }
 
-    private void performJsonMessage(AsyncPlayerChatEvent event) {
-        Chat chat = pendingJsonMessages.remove(event.getPlayer());
-
+    private void performJsonMessage(AsyncPlayerChatEvent event, Chat chat) {
         Player player = event.getPlayer();
         String format = unstylish(String.format(event.getFormat(), "{player}", "{message}"));
 
@@ -603,7 +611,7 @@ public class ChatListener implements Listener, EventExecutor {
                 String chatName = jsonElement.getAsJsonPrimitive().getAsString();
                 Chat chat = chatManager.getChat(chatName);
                 if (chat != null) {
-                    if (chat.isAllowed(player)) {
+                    if (chat.isWriteAllowed(player)) {
                         currentChat = chat;
                     }
                 }
@@ -611,7 +619,7 @@ public class ChatListener implements Listener, EventExecutor {
         }
 
         for (Chat chat : this.chatManager.getChats()) {
-            if (chat.isAllowed(player)) {
+            if (chat.isWriteAllowed(player)) {
                 if (chat.getSymbol().isEmpty()) {
                     if (currentChat == null) {
                         currentChat = chat;

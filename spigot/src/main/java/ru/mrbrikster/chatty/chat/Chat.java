@@ -2,9 +2,12 @@ package ru.mrbrikster.chatty.chat;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
@@ -22,42 +25,36 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+@Builder
+@AllArgsConstructor
+@Getter
 public class Chat implements ru.mrbrikster.chatty.api.chats.Chat {
 
     private static final String CHAT_COOLDOWN_METADATA_KEY = "chatty.cooldown.chat.%s";
 
-    @Getter private final String name;
-    @Getter private final boolean enable;
-    @Getter private final String format;
-    @Getter private final int range;
-    @Getter private final String symbol;
-    @Getter private final boolean permission;
-    @Getter private final long cooldown;
-    @Getter private final int money;
-    @Getter private final String command;
-    @Getter private final List<String> aliases;
+    @NotNull private final String name;
+    private final boolean enable;
+    @NotNull private final String format;
+    private final int range;
+    @NotNull private final String symbol;
+    private final boolean permissionRequired;
+    private final long cooldown;
+    private final int money;
+    @Nullable private final String command;
+    @Nullable private final List<String> aliases;
 
-    @Getter @Setter private BukkitCommand bukkitCommand;
+    @Nullable private final Sound sound;
 
-    public Chat(String name, boolean enable, String format, int range,
-                String symbol, boolean permission, long cooldown, int money,
-                String command, List<String> aliases) {
-        this.name = name;
-        this.enable = enable;
-        this.format = format;
-        this.range = range;
-        this.symbol = symbol == null ? "" : symbol;
-        this.permission = permission;
-        this.cooldown = cooldown * 1000;
-        this.money = money;
-        this.command = command;
-        this.aliases = aliases;
-    }
+    private final boolean spyEnabled;
 
-    public boolean isAllowed(Player player) {
-        return !isPermission()
-                || player.hasPermission(String.format("chatty.chat.%s", getName()))
-                || player.hasPermission(String.format("chatty.chat.%s.write", getName()));
+    private final boolean capsModerationEnabled;
+    private final boolean swearModerationEnabled;
+    private final boolean advertisementModerationEnabled;
+
+    @Setter private BukkitCommand bukkitCommand;
+
+    public boolean isWriteAllowed(Player player) {
+        return !isPermissionRequired() || player.hasPermission(String.format("chatty.chat.%s.write", getName()));
     }
 
     void setCooldown(Player player) {
@@ -71,13 +68,13 @@ public class Chat implements ru.mrbrikster.chatty.api.chats.Chat {
         if (metadataValues.isEmpty())
             return -1;
 
-        long cooldown = (metadataValues.get(0).asLong() + this.cooldown - System.currentTimeMillis()) / 1000;
+        long cooldown = (metadataValues.get(0).asLong() + (this.cooldown * 1000) - System.currentTimeMillis()) / 1000;
         return cooldown > 0 ? cooldown : -1;
     }
 
     @Override
     public boolean isPermissionRequired() {
-        return permission;
+        return permissionRequired;
     }
 
     @Override
@@ -116,9 +113,9 @@ public class Chat implements ru.mrbrikster.chatty.api.chats.Chat {
         }
 
         players.removeIf(recipient ->
-                !(recipient.equals(player) || !permission
-                        || recipient.hasPermission("chatty.chat." + name + ".see")
-                        || recipient.hasPermission("chatty.chat." + name))
+                !(recipient.equals(player)
+                        || !isPermissionRequired()
+                        || recipient.hasPermission("chatty.chat." + name + ".see"))
         );
 
         return players;

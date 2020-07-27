@@ -36,7 +36,7 @@ public class ChatCommand extends BukkitCommand {
                 Chat chat = chatManager.getChat(chatName);
 
                 if (chat != null) {
-                    if (!chat.isPermission()
+                    if (!chat.isPermissionRequired()
                             || sender.hasPermission(String.format("chatty.chat.%s", chat.getName()))
                             || sender.hasPermission(String.format("chatty.chat.%s.write", chat.getName()))) {
                         jsonStorage.setProperty((Player) sender, "chat", new JsonPrimitive(chat.getName()));
