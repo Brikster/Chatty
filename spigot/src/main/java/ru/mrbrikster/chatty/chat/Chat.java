@@ -18,7 +18,6 @@ import ru.mrbrikster.chatty.util.TextUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -84,46 +83,45 @@ public class Chat implements ru.mrbrikster.chatty.api.chats.Chat {
     @Override
     @NotNull
     public Collection<? extends Player> getRecipients(@Nullable Player player) {
-        List<Player> players = new ArrayList<>(Reflection.getOnlinePlayers());
+        return filterRecipients(player, new ArrayList<>(Reflection.getOnlinePlayers()));
+    }
 
+    @Override
+    @NotNull
+    public Collection<? extends Player> filterRecipients(@Nullable Player player, @NotNull Collection<? extends Player> players) {
         if (range > -2) {
             if (player == null) {
-                return Collections.emptySet();
+                players.clear();
+                return players;
             }
 
             players.removeIf(onlinePlayer -> !onlinePlayer.getWorld().equals(player.getWorld()));
         }
 
-        return players.stream()
-                .filter(recipient -> {
-                    if (player == null) {
-                        return true;
-                    }
+        if(player != null) {
+            players.removeIf(recipient -> {
+                JsonElement jsonElement = Chatty.instance().storage().getProperty(recipient, "ignore").orElseGet(JsonArray::new);
 
-                    JsonElement jsonElement = Chatty.instance().storage().getProperty(recipient, "ignore").orElseGet(JsonArray::new);
-
-                    if (!jsonElement.isJsonArray())
-                        jsonElement = new JsonArray();
-
+                if (jsonElement.isJsonArray()) {
                     for (JsonElement ignoreJsonElement : jsonElement.getAsJsonArray()) {
                         if (player.getName().equalsIgnoreCase(ignoreJsonElement.getAsString())) {
-                            return false;
+                            return true;
                         }
                     }
+                }
 
-                    return true;
-                })
-                .filter(recipient -> {
-                    if (player == null) {
-                        return true;
-                    }
+                return false;
+            });
+            players.removeIf(recipient -> !Ranges.isApplicable(recipient, player, range));
+        }
 
-                    return Ranges.isApplicable(recipient, player, range);
-                })
-                .filter(recipient ->
-                        (recipient.equals(player) || !permission
-                                || recipient.hasPermission("chatty.chat." + name + ".see")
-                                || recipient.hasPermission("chatty.chat." + name))).collect(Collectors.toList());
+        players.removeIf(recipient ->
+                !(recipient.equals(player) || !permission
+                        || recipient.hasPermission("chatty.chat." + name + ".see")
+                        || recipient.hasPermission("chatty.chat." + name))
+        );
+
+        return players;
     }
 
     @Override
