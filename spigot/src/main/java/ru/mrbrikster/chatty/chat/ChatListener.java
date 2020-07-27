@@ -613,7 +613,7 @@ public class ChatListener implements Listener, EventExecutor {
                         currentChat = chat;
                     }
                 } else if (message.startsWith(chat.getSymbol())) {
-                    if (currentChat != chat) {
+                    if (!chat.equals(currentChat)) {
                         message = message.substring(chat.getSymbol().length());
                     }
 
