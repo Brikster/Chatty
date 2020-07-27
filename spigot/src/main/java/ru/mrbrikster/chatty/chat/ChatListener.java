@@ -36,7 +36,11 @@ import ru.mrbrikster.chatty.util.Pair;
 import ru.mrbrikster.chatty.util.Sound;
 import ru.mrbrikster.chatty.util.TextUtil;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -70,10 +74,10 @@ public class ChatListener implements Listener, EventExecutor {
     private final ModerationManager moderationManager;
     private final JsonStorage jsonStorage;
     private final PrefixAndSuffixManager prefixAndSuffixManager;
-    
-    private final IdentityHashMap<Player, Pair<Chat, List<Player>>> pendingSpyMessages;
-    private final IdentityHashMap<Player, List<String>> pendingSwears;
-    private final IdentityHashMap<Player, Chat> pendingJsonMessages;
+
+    private final Map<Player, Pair<Chat, List<Player>>> pendingSpyMessages;
+    private final Map<Player, List<String>> pendingSwears;
+    private final Map<Player, Chat> pendingJsonMessages;
 
     public ChatListener(Configuration configuration,
                         ChatManager chatManager,
@@ -89,7 +93,7 @@ public class ChatListener implements Listener, EventExecutor {
         this.pendingSpyMessages = new IdentityHashMap<>();
         this.pendingSwears = new IdentityHashMap<>();
         this.pendingJsonMessages = new IdentityHashMap<>();
-        
+
         this.prefixAndSuffixManager = new PrefixAndSuffixManager(dependencyManager, jsonStorage);
     }
 
@@ -163,8 +167,12 @@ public class ChatListener implements Listener, EventExecutor {
 
         event.setFormat(format);
 
-        event.getRecipients().clear();
-        event.getRecipients().addAll(chat.getRecipients(player));
+        if(configuration.getNode("general.respect-old-recipients").getAsBoolean(true)) {
+            chat.filterRecipients(player, event.getRecipients());
+        } else {
+            event.getRecipients().clear();
+            event.getRecipients().addAll(chat.getRecipients(player));
+        }
 
         if (event.getRecipients().size() <= 1) {
             String noRecipients = Chatty.instance().messages().get("no-recipients", null);
@@ -300,8 +308,8 @@ public class ChatListener implements Listener, EventExecutor {
                 Reflection.getOnlinePlayers().stream().
                         filter(spy ->
                                 (spy.hasPermission("chatty.spy." + pair.getA().getName()))
-                                    && jsonStorage.getProperty(spy, "spy-mode").orElse(new JsonPrimitive(true)).getAsBoolean()
-                                    && !pair.getB().contains(spy))
+                                        && jsonStorage.getProperty(spy, "spy-mode").orElse(new JsonPrimitive(true)).getAsBoolean()
+                                        && !pair.getB().contains(spy))
                         .forEach(spy -> spy.sendMessage(spyInfo));
             }
         }
@@ -512,8 +520,8 @@ public class ChatListener implements Listener, EventExecutor {
             } else event.setJoinMessage(TextUtil.stylish(
                     applyPlaceholders(event.getPlayer(),
                             joinMessage.replace("{prefix}", prefixAndSuffixManager.getPrefix(event.getPlayer()))
-                                .replace("{suffix}", prefixAndSuffixManager.getSuffix(event.getPlayer()))
-                                .replace("{player}", event.getPlayer().getDisplayName()))));
+                                    .replace("{suffix}", prefixAndSuffixManager.getSuffix(event.getPlayer()))
+                                    .replace("{player}", event.getPlayer().getDisplayName()))));
         }
 
         if (hasPermission) {

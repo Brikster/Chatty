@@ -94,6 +94,16 @@ public interface Chat {
     Collection<? extends Player> getRecipients(@Nullable Player player);
 
     /**
+     * Filters collection of online players chat can see message from this chat
+     *
+     * @param player player who sends a message. Can be null only if chat chat range <= -2
+     * @param players collection of players to filter from
+     * @return edited collection of chat recipients
+     */
+    @NotNull
+    Collection<? extends Player> filterRecipients(@Nullable Player player, @NotNull Collection<? extends Player> players);
+
+    /**
      * This method let you send any message to the chat participants (without {@link Chat#getFormat()})
      * Message will be processed with {@link ru.mrbrikster.chatty.util.TextUtil#stylish(String)}
      *
