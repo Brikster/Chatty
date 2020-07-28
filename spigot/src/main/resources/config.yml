@@ -355,6 +355,10 @@ notifications:
         # Default: true
         permission: false
 
+        # Show messages in random order.
+        # Default: false
+        random: true
+
   # ActionBar notifications.
   # It's static notifications,
   # which changes the message with interval.
@@ -381,6 +385,10 @@ notifications:
     # Default: true
     permission: false
 
+    # Show messages in random order.
+    # Default: false
+    random: true
+
   # Title notifications.
   title:
     # On/off title notifications.
@@ -405,6 +413,10 @@ notifications:
         # Permission for seeing notification.
         # Default: true
         permission: false
+
+        # Show messages in random order.
+        # Default: false
+        random: false
 
   # Advancements (Achievements) notifications.
   advancements:
@@ -431,6 +443,10 @@ notifications:
         # Permission for seeing notification.
         # Default: true
         permission: false
+
+        # Show messages in random order.
+        # Default: false
+        random: false
 
 # * MODERATION
 #
@@ -560,6 +576,10 @@ miscellaneous:
 
       # Set to '' if you want to make it hidden.
       message: '&8> &e{prefix}{player}{suffix} &ejoined the server.'
+
+      # First join message.
+      # Set to '' if you don't want to see special message for the first join.
+      first-message: '&8> &6This is the first time {prefix}{player}{suffix} &6joined the server!'
 
       # Plays sound to all, when player joins.
       # Remove the line if not needed.

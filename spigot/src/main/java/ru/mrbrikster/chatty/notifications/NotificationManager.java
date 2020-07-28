@@ -8,14 +8,10 @@ import java.util.List;
 
 public class NotificationManager {
 
-    private final List<ChatNotification> chatNotifications
-            = new ArrayList<>();
-    private final List<ActionBarNotification> actionBarNotifications
-            = new ArrayList<>();
-    private final List<TitleNotification>  titleNotifications
-            = new ArrayList<>();
-    private final List<AdvancementsNotification> advancementsNotifications
-            = new ArrayList<>();
+    private final List<ChatNotification> chatNotifications = new ArrayList<>();
+    private final List<TitleNotification> titleNotifications = new ArrayList<>();
+    private final List<ActionBarNotification> actionBarNotifications = new ArrayList<>();
+    private final List<AdvancementsNotification> advancementsNotifications = new ArrayList<>();
     private final Configuration configuration;
 
     public NotificationManager(Configuration configuration) {
@@ -39,7 +35,8 @@ public class NotificationManager {
                     notification.getNode("time").getAsInt(60),
                     notification.getNode("prefix").getAsString(""),
                     notification.getNode("messages").getAsStringList(),
-                    notification.getNode("permission").getAsBoolean(true)
+                    notification.getNode("permission").getAsBoolean(true),
+                    notification.getNode("random").getAsBoolean(false)
             )).forEach(this.chatNotifications::add);
         }
 
@@ -49,7 +46,8 @@ public class NotificationManager {
                             actionBarNotificationsNode.getNode("time").getAsInt(60),
                             actionBarNotificationsNode.getNode("prefix").getAsString(""),
                             actionBarNotificationsNode.getNode("messages").getAsStringList(),
-                            actionBarNotificationsNode.getNode("permission").getAsBoolean(true)
+                            actionBarNotificationsNode.getNode("permission").getAsBoolean(true),
+                            actionBarNotificationsNode.getNode("random").getAsBoolean(false)
                     )
             );
         }
@@ -59,7 +57,8 @@ public class NotificationManager {
                     notification.getName(),
                     notification.getNode("time").getAsInt(60),
                     notification.getNode("messages").getAsStringList(),
-                    notification.getNode("permission").getAsBoolean(true)
+                    notification.getNode("permission").getAsBoolean(true),
+                    notification.getNode("random").getAsBoolean(false)
             )).forEach(this.titleNotifications::add);
         }
 
@@ -68,7 +67,8 @@ public class NotificationManager {
                     notification.getName(),
                     notification.getNode("time").getAsInt(60),
                     notification.getNode("messages").getAsMapList(),
-                    notification.getNode("permission").getAsBoolean(true)
+                    notification.getNode("permission").getAsBoolean(true),
+                    notification.getNode("random").getAsBoolean(false)
             )).forEach(this.advancementsNotifications::add);
         }
     }
