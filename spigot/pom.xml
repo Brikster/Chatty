@@ -97,6 +97,8 @@
         <dependency>
             <groupId>com.github.Brikster</groupId>
             <artifactId>BasePlugin</artifactId>
+            <version>${baseplugin.version}</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.jetbrains</groupId>
