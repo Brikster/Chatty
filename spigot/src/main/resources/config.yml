@@ -561,6 +561,10 @@ miscellaneous:
       # Set to '' if you want to make it hidden.
       message: '&8> &e{prefix}{player}{suffix} &ejoined the server.'
 
+      # First join message.
+      # Set to '' if you don't want to see special message for the first join.
+      first-message: '&8> &6This is the first time {prefix}{player}{suffix} &6joined the server!'
+
       # Plays sound to all, when player joins.
       # Remove the line if not needed.
       sound: ORB_PICKUP

@@ -511,9 +511,14 @@ public class ChatListener implements Listener, EventExecutor {
             return;
         }
 
-        String joinMessage = configuration
-                .getNode("miscellaneous.vanilla.join.message")
-                .getAsString(null);
+        String joinMessage;
+        if(!event.getPlayer().hasPlayedBefore() || (joinMessage = configuration
+                .getNode("miscellaneous.vanilla.join.first-message")
+                .getAsString("")).isEmpty()) {
+            joinMessage = configuration
+                    .getNode("miscellaneous.vanilla.join.message")
+                    .getAsString(null);
+        }
 
         boolean hasPermission = !configuration.getNode("miscellaneous.vanilla.join.permission").getAsBoolean(true)
                 || event.getPlayer().hasPermission("chatty.misc.joinmessage");
