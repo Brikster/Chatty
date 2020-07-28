@@ -512,7 +512,7 @@ public class ChatListener implements Listener, EventExecutor {
         }
 
         String joinMessage;
-        if(!event.getPlayer().hasPlayedBefore() || (joinMessage = configuration
+        if(event.getPlayer().hasPlayedBefore() || (joinMessage = configuration
                 .getNode("miscellaneous.vanilla.join.first-message")
                 .getAsString("")).isEmpty()) {
             joinMessage = configuration
