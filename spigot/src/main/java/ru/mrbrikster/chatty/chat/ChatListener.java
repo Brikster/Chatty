@@ -28,10 +28,7 @@ import ru.mrbrikster.chatty.dependencies.VaultHook;
 import ru.mrbrikster.chatty.json.FormattedMessage;
 import ru.mrbrikster.chatty.json.JsonMessagePart;
 import ru.mrbrikster.chatty.json.LegacyMessagePart;
-import ru.mrbrikster.chatty.moderation.AdvertisementModerationMethod;
-import ru.mrbrikster.chatty.moderation.CapsModerationMethod;
-import ru.mrbrikster.chatty.moderation.ModerationManager;
-import ru.mrbrikster.chatty.moderation.SwearModerationMethod;
+import ru.mrbrikster.chatty.moderation.*;
 import ru.mrbrikster.chatty.reflection.Reflection;
 import ru.mrbrikster.chatty.util.Pair;
 import ru.mrbrikster.chatty.util.Sound;
@@ -97,6 +94,10 @@ public class ChatListener implements Listener, EventExecutor {
     @Override
     public void execute(@NotNull Listener listener, @NotNull Event event) {
         if (listener == this && event instanceof AsyncPlayerChatEvent) {
+            if (((AsyncPlayerChatEvent) event).isCancelled()) {
+                return;
+            }
+
             this.onChat((AsyncPlayerChatEvent) event);
         }
     }
@@ -123,16 +124,7 @@ public class ChatListener implements Listener, EventExecutor {
             return;
         }
 
-        boolean hasCooldown = chat.getCooldown() == -1 || player.hasPermission("chatty.cooldown") ||
-                player.hasPermission("chatty.cooldown." + chat.getName());
-        long cooldown = hasCooldown ? -1 : chat.getCooldown(player);
-
-        if (cooldown != -1) {
-            player.sendMessage(Chatty.instance().messages().get("cooldown")
-                    .replace("{cooldown}", String.valueOf(cooldown)));
-            event.setCancelled(true);
-            return;
-        }
+        if (hasActiveCooldown(event, player, chat)) return;
 
         if (chat.getMoney() > 0 && dependencyManager.getVault() != null) {
             VaultHook vaultHook = dependencyManager.getVault();
@@ -179,91 +171,8 @@ public class ChatListener implements Listener, EventExecutor {
             }
         }
 
-        if (!hasCooldown) {
-            chat.setCooldown(player);
-        }
-
-        boolean cancelledByModeration = false;
-
         StringBuilder logPrefixBuilder = new StringBuilder();
-        if (chat.isSwearModerationEnabled() && moderationManager.isSwearModerationEnabled()) {
-            SwearModerationMethod swearMethod = moderationManager.getSwearMethod(message);
-            if (!player.hasPermission("chatty.moderation.swear")) {
-                if (swearMethod.isBlocked()) {
-                    message = swearMethod.getEditedMessage();
-                    if (swearMethod.isUseBlock()) {
-                        if (configuration.getNode("general.completely-cancel").getAsBoolean(false))
-                            cancelledByModeration = true;
-                        else {
-                            event.getRecipients().clear();
-                            event.getRecipients().add(player);
-                        }
-
-                        logPrefixBuilder.append("[SWEAR] ");
-                    }
-
-                    String swearFound = Chatty.instance().messages().get("swear-found", null);
-
-                    if (swearFound != null)
-                        Bukkit.getScheduler().runTaskLaterAsynchronously(Chatty.instance(), () -> player.sendMessage(swearFound), 5L);
-                }
-
-                if (configuration.getNode("json.enable").getAsBoolean(false)
-                        && configuration.getNode("json.swears.enable").getAsBoolean(false)) {
-                    pendingSwears.put(player, swearMethod.getWords());
-                }
-            }
-        }
-
-        if (chat.isCapsModerationEnabled() && this.moderationManager.isCapsModerationEnabled()) {
-            CapsModerationMethod capsMethod = this.moderationManager.getCapsMethod(message);
-            if (!player.hasPermission("chatty.moderation.caps")) {
-                if (capsMethod.isBlocked()) {
-
-                    message = capsMethod.getEditedMessage();
-                    if (capsMethod.isUseBlock()) {
-                        if (configuration.getNode("general.completely-cancel").getAsBoolean(false))
-                            cancelledByModeration = true;
-                        else {
-                            event.getRecipients().clear();
-                            event.getRecipients().add(player);
-                        }
-
-                        logPrefixBuilder.append("[CAPS] ");
-                    }
-
-                    String capsFound = Chatty.instance().messages().get("caps-found", null);
-
-                    if (capsFound != null)
-                        Bukkit.getScheduler().runTaskLaterAsynchronously(Chatty.instance(), () -> player.sendMessage(capsFound), 5L);
-                }
-            }
-        }
-
-        if (chat.isAdvertisementModerationEnabled() && this.moderationManager.isAdvertisementModerationEnabled()) {
-            AdvertisementModerationMethod advertisementMethod = this.moderationManager.getAdvertisementMethod(message);
-            if (!player.hasPermission("chatty.moderation.advertisement")) {
-                if (advertisementMethod.isBlocked()) {
-                    message = advertisementMethod.getEditedMessage();
-
-                    if (advertisementMethod.isUseBlock()) {
-                        if (configuration.getNode("general.completely-cancel").getAsBoolean(false))
-                            cancelledByModeration = true;
-                        else {
-                            event.getRecipients().clear();
-                            event.getRecipients().add(player);
-                        }
-
-                        logPrefixBuilder.append("[ADS] ");
-                    }
-
-                    String adsFound = Chatty.instance().messages().get("advertisement-found", null);
-
-                    if (adsFound != null)
-                        Bukkit.getScheduler().runTaskLaterAsynchronously(Chatty.instance(), () -> player.sendMessage(adsFound), 5L);
-                }
-            }
-        }
+        message = checkModerationMethods(event, player, chat, message, logPrefixBuilder);
 
         event.setMessage(message);
 
@@ -271,9 +180,7 @@ public class ChatListener implements Listener, EventExecutor {
             this.chatManager.getLogger().write(player, message, logPrefixBuilder.toString());
         }
 
-        if (cancelledByModeration) {
-            event.setCancelled(true);
-        } else {
+        if (!event.isCancelled()) {
             if (json) {
                 pendindMessages.put(player, chat);
             } else {
@@ -287,6 +194,77 @@ public class ChatListener implements Listener, EventExecutor {
 
         ChattyMessageEvent chattyMessageEvent = new ChattyMessageEvent(player, chat, message);
         Bukkit.getPluginManager().callEvent(chattyMessageEvent);
+    }
+
+    private boolean hasActiveCooldown(AsyncPlayerChatEvent event, Player player, Chat chat) {
+        boolean bypassCooldown = chat.getCooldown() == -1 || player.hasPermission("chatty.cooldown." + chat.getName());
+        long cooldown = bypassCooldown ? -1 : chat.getCooldown(player);
+
+        if (cooldown != -1) {
+            player.sendMessage(Chatty.instance().messages().get("cooldown")
+                    .replace("{cooldown}", String.valueOf(cooldown)));
+            event.setCancelled(true);
+            return true;
+        }
+
+        if (!bypassCooldown) {
+            chat.setCooldown(player);
+        }
+
+        return false;
+    }
+
+    private String checkModerationMethods(AsyncPlayerChatEvent event, Player player, Chat chat, String message, StringBuilder logPrefixBuilder) {
+        if (chat.isSwearModerationEnabled() && moderationManager.isSwearModerationEnabled()) {
+            SwearModerationMethod swearMethod = moderationManager.getSwearMethod(message);
+            if (!player.hasPermission("chatty.moderation.swear")) {
+                message = handleModerationMethod(event, player, message, logPrefixBuilder, swearMethod);
+
+                if (configuration.getNode("json.enable").getAsBoolean(false)
+                        && configuration.getNode("json.swears.enable").getAsBoolean(false)) {
+                    pendingSwears.put(player, swearMethod.getWords());
+                }
+            }
+        }
+
+        if (chat.isCapsModerationEnabled() && this.moderationManager.isCapsModerationEnabled()) {
+            CapsModerationMethod capsMethod = this.moderationManager.getCapsMethod(message);
+            if (!player.hasPermission("chatty.moderation.caps")) {
+                message = handleModerationMethod(event, player, message, logPrefixBuilder, capsMethod);
+            }
+        }
+
+        if (chat.isAdvertisementModerationEnabled() && this.moderationManager.isAdvertisementModerationEnabled()) {
+            AdvertisementModerationMethod advertisementMethod = this.moderationManager.getAdvertisementMethod(message);
+            if (!player.hasPermission("chatty.moderation.advertisement")) {
+                message = handleModerationMethod(event, player, message, logPrefixBuilder, advertisementMethod);
+            }
+        }
+        return message;
+    }
+
+    private String handleModerationMethod(AsyncPlayerChatEvent event, Player player, String message,
+                                          StringBuilder logPrefixBuilder, ModerationMethod method) {
+        if (method.isBlocked()) {
+            message = method.getEditedMessage();
+            if (method.isUseBlock()) {
+                if (configuration.getNode("general.completely-cancel").getAsBoolean(false))
+                    event.setCancelled(true);
+                else {
+                    event.getRecipients().clear();
+                    event.getRecipients().add(player);
+                }
+
+                logPrefixBuilder.append("[").append(method.getLogPrefix()).append("] ");
+            }
+
+            String warningMessage = Chatty.instance().messages().get(method.getWarningMessageKey(), null);
+
+            if (warningMessage != null)
+                Bukkit.getScheduler().runTaskLaterAsynchronously(Chatty.instance(), () -> player.sendMessage(warningMessage), 5L);
+        }
+
+        return message;
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -528,7 +506,7 @@ public class ChatListener implements Listener, EventExecutor {
         }
 
         String joinMessage;
-        if(event.getPlayer().hasPlayedBefore() || (joinMessage = configuration
+        if (event.getPlayer().hasPlayedBefore() || (joinMessage = configuration
                 .getNode("miscellaneous.vanilla.join.first-message")
                 .getAsString("")).isEmpty()) {
             joinMessage = configuration

@@ -137,6 +137,16 @@ public class SwearModerationMethod extends ModerationMethod {
         return !getEditedMessage().equals(message);
     }
 
+    @Override
+    public String getLogPrefix() {
+        return "SWEARS";
+    }
+
+    @Override
+    public String getWarningMessageKey() {
+        return "swear-found";
+    }
+
     private int[] getWord(String message, int start, int end) {
         int wordStart = 0;
         int wordEnd = message.length();

@@ -38,7 +38,7 @@ public abstract class Notification {
     public abstract void run();
 
     public int nextMessage() {
-        if(random) {
+        if (random) {
             currentMessage = RANDOM.nextInt(size);
         } else if (size <= ++currentMessage) {
             currentMessage = 0;

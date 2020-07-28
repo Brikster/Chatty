@@ -17,7 +17,6 @@ import ru.mrbrikster.chatty.util.TextUtil;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 public class AdvancementsNotification extends Notification {
 
@@ -67,7 +66,7 @@ public class AdvancementsNotification extends Notification {
             this.icon = icon;
             this.javaPlugin = javaPlugin;
 
-            this.id = new NamespacedKey(javaPlugin, "chatty" + new Random().nextInt(1000000) + 1);
+            this.id = new NamespacedKey(javaPlugin, "chatty" + (RANDOM.nextInt(1000000) + 1));
         }
 
         void show(Player player) {

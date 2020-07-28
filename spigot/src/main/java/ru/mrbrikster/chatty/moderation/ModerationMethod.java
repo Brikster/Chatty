@@ -12,4 +12,10 @@ public abstract class ModerationMethod {
 
     public abstract boolean isBlocked();
 
+    public abstract boolean isUseBlock();
+
+    public abstract String getLogPrefix();
+
+    public abstract String getWarningMessageKey();
+
 }

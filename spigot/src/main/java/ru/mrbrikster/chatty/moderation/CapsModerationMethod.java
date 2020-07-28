@@ -27,6 +27,16 @@ public class CapsModerationMethod extends ModerationMethod {
         return message.length() >= length && getPercent() >= percent;
     }
 
+    @Override
+    public String getLogPrefix() {
+        return "CAPS";
+    }
+
+    @Override
+    public String getWarningMessageKey() {
+        return "caps-found";
+    }
+
     private double getPercent() {
         int codePoint, length = 0, capsLength = 0;
         for (char c : message.toCharArray()) {

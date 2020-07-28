@@ -67,6 +67,16 @@ public class AdvertisementModerationMethod extends ModerationMethod {
         return this.result;
     }
 
+    @Override
+    public String getLogPrefix() {
+        return "ADVERTISEMENT";
+    }
+
+    @Override
+    public String getWarningMessageKey() {
+        return "advertisement-found";
+    }
+
     private boolean match(Pattern pattern, Function<String, String> modifyFunction) {
         Matcher matcher = pattern.matcher(this.editedMessage);
 
