@@ -19,8 +19,8 @@ public class ActionBarNotification extends Notification {
     private final BukkitTask updateTask;
     private int currentMessage;
 
-    ActionBarNotification(int delay, String prefix, List<String> messages, boolean permission) {
-        super(0.5, permission);
+    ActionBarNotification(int delay, String prefix, List<String> messages, boolean permission, boolean random) {
+        super(0.5, permission, messages.size(), random);
 
         this.prefix = prefix;
         this.messages = messages;
@@ -36,9 +36,7 @@ public class ActionBarNotification extends Notification {
 
         Chatty.instance().debugger().debug("Update ActionBarNotification message.");
 
-        if (messages.size() <= ++currentMessage) {
-            currentMessage = 0;
-        }
+        currentMessage = nextMessage();
     }
 
     @Override

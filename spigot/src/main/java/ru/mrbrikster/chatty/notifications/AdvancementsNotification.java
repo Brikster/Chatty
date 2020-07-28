@@ -24,16 +24,16 @@ public class AdvancementsNotification extends Notification {
     private static final String PERMISSION_NODE = NOTIFICATION_PERMISSION_NODE + "advancements.%s";
     private final List<Map<?, ?>> messages;
     private final String name;
-    private int currentMessage = -1;
 
-    AdvancementsNotification(String name, double delay, List<Map<?, ?>> messages, boolean permission) {
-        super(delay, permission);
+    AdvancementsNotification(String name, double delay, List<Map<?, ?>> messages, boolean permission, boolean random) {
+        super(delay, permission, messages.size(), random);
 
         this.name = name;
         this.messages = messages;
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void run() {
         if (messages.isEmpty()) {
             return;
@@ -41,12 +41,7 @@ public class AdvancementsNotification extends Notification {
 
         Chatty.instance().debugger().debug("Run \"%s\" AdvancementsNotification.", name);
 
-        if (currentMessage == -1 || messages.size() <= ++currentMessage) {
-            currentMessage = 0;
-        }
-
-        @SuppressWarnings("all")
-        AdvancementMessage advancementMessage = new AdvancementMessage((Map<String, String>) messages.get(currentMessage));
+        AdvancementMessage advancementMessage = new AdvancementMessage((Map<String, String>) messages.get(nextMessage()));
         Reflection.getOnlinePlayers().stream().filter(player -> !isPermission() || player.hasPermission(String.format(PERMISSION_NODE, name)))
                 .forEach(advancementMessage::show);
     }
@@ -86,7 +81,7 @@ public class AdvancementsNotification extends Notification {
             }, 20);
         }
 
-        @SuppressWarnings("all")
+        @SuppressWarnings("deprecation")
         private void register() {
             try {
                 Bukkit.getUnsafe().loadAdvancement(id, this.json());
@@ -94,7 +89,7 @@ public class AdvancementsNotification extends Notification {
             }
         }
 
-        @SuppressWarnings("all")
+        @SuppressWarnings("deprecation")
         private void unregister() {
             Bukkit.getUnsafe().removeAdvancement(id);
         }

@@ -20,10 +20,8 @@ public class ChatNotification extends Notification {
     private final String name;
     private final List<List<Pair<String, Boolean>>> messages = new ArrayList<>();
 
-    private int currentMessage = -1;
-
-    ChatNotification(String name, int delay, String prefix, List<String> messages, boolean permission) {
-        super(delay, permission);
+    ChatNotification(String name, int delay, String prefix, List<String> messages, boolean permission, boolean random) {
+        super(delay, permission, messages.size(), random);
 
         this.name = name;
         this.messages.clear();
@@ -57,11 +55,7 @@ public class ChatNotification extends Notification {
 
         Chatty.instance().debugger().debug("Run \"%s\" ChatNotification.", name);
 
-        if (currentMessage == -1 || messages.size() <= ++currentMessage) {
-            currentMessage = 0;
-        }
-
-        List<Pair<String, Boolean>> lines = messages.get(currentMessage);
+        List<Pair<String, Boolean>> lines = messages.get(nextMessage());
 
         PlaceholderAPIHook placeholderAPIHook = Chatty.instance().dependencies().getPlaceholderApi();
         Reflection.getOnlinePlayers().stream().filter(player -> !isPermission() || player.hasPermission(String.format(PERMISSION_NODE, name)))

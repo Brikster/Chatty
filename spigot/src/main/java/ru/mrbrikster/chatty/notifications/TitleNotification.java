@@ -14,10 +14,8 @@ public class TitleNotification extends Notification {
     private final String name;
     private final List<String> messages;
 
-    private int currentMessage = -1;
-
-    TitleNotification(String name, int delay, List<String> messages, boolean permission) {
-        super(delay, permission);
+    TitleNotification(String name, int delay, List<String> messages, boolean permission, boolean random) {
+        super(delay, permission, messages.size(), random);
 
         this.name = name;
         this.messages = messages.stream()
@@ -34,11 +32,7 @@ public class TitleNotification extends Notification {
 
         Chatty.instance().debugger().debug("Run \"%s\" TitleNotification.", name);
 
-        if (currentMessage == -1 || messages.size() <= ++currentMessage) {
-            currentMessage = 0;
-        }
-
-        String[] message = messages.get(currentMessage).split("(\n)|(\\\\n)", 2);
+        String[] message = messages.get(nextMessage()).split("(\n)|(\\\\n)", 2);
 
         Title title = new Title(message[0], message.length == 2 ? message[1] : "", 20, 40, 20);
         Reflection.getOnlinePlayers().stream().filter(player -> !isPermission() || player.hasPermission(String.format(PERMISSION_NODE, name))).forEach(title::send);
