@@ -55,15 +55,15 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
         String[] split = params.split("_");
         switch (split[0].toLowerCase(Locale.ENGLISH)) {
             case "cooldown": {
-                if(split.length > 2) {
-                    player = Bukkit.getPlayerExact(split[2]);
-                }
-                if(player == null) {
-                    return "-1";
-                }
                 if(split.length > 1) {
                     Chat chat = chatManager.getChat(split[1]);
                     if(chat == null) {
+                        return "-1";
+                    }
+                    if(split.length > 2) {
+                        player = Bukkit.getPlayerExact(split[2]);
+                    }
+                    if(player == null) {
                         return "-1";
                     }
                     return Long.toString(Math.max(0, chat.getCooldown(player)));
