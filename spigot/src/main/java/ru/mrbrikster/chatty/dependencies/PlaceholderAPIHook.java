@@ -54,7 +54,10 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
             return "Chatty!";
         }
         switch (split[0].toLowerCase(Locale.ENGLISH)) {
-            case "cooldown":
+            case "cooldown": {
+                if(split.length > 2) {
+                    player = Bukkit.getPlayerExact(split[2]);
+                }
                 if(player == null) {
                     return "-1";
                 }
@@ -64,20 +67,26 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
                         return "-1";
                     }
                     return Long.toString(Math.max(0, chat.getCooldown(player)));
-                } else {
-                    return Long.toString(Math.max(0, chatManager.getChats().get(0).getCooldown(player)));
                 }
+                return "-1";
+            }
 
-            case "current":
+            case "current": {
+                if(split.length > 2) {
+                    player = Bukkit.getPlayerExact(split[2]);
+                }
                 if(player == null) {
                     return "null";
-                } else {
-                    Chat chat = chatManager.getCurrentChat(player);
-                    return chat == null ? "no" : chat.getName();
                 }
+                Chat chat = chatManager.getCurrentChat(player);
+                return chat == null ? "no" : chat.getName();
+            }
 
             case "onlinein":
-                Chat chat = split.length > 1 ? chatManager.getChat(split[1]) : chatManager.getChats().get(0);
+                if(split.length < 2) {
+                    return "-1";
+                }
+                Chat chat = chatManager.getChat(split[1]);
                 if(chat == null) {
                     return "-1";
                 }
