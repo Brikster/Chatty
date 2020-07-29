@@ -49,10 +49,10 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
 
     @Override
     public String onPlaceholderRequest(Player player, String params) {
-        String[] split = params.split("_");
-        if(split.length == 0) {
+        if(params.isEmpty()) {
             return "Chatty!";
         }
+        String[] split = params.split("_");
         switch (split[0].toLowerCase(Locale.ENGLISH)) {
             case "cooldown": {
                 if(split.length > 2) {
