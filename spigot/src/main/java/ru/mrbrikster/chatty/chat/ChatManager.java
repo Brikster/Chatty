@@ -58,10 +58,8 @@ public class ChatManager {
             if (jsonElement.isJsonPrimitive()) {
                 String chatName = jsonElement.getAsJsonPrimitive().getAsString();
                 Chat chat = getChat(chatName);
-                if (chat != null) {
-                    if (chat.isWriteAllowed(player)) {
-                        return chat;
-                    }
+                if (chat != null && chat.isWriteAllowed(player)) {
+                    return chat;
                 }
             }
         }
