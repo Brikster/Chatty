@@ -82,7 +82,7 @@ public final class Chatty extends BukkitBasePlugin {
         ModerationManager moderationManager = new ModerationManager(this, configuration);
         this.jsonStorage = new JsonStorage(configuration, this);
         this.chatManager = new ChatManager(configuration, jsonStorage);
-        this.dependencyManager = new DependencyManager(configuration, jsonStorage, this);
+        this.dependencyManager = new DependencyManager(configuration, jsonStorage, chatManager, this);
 
         this.messages = new Messages(this, configuration);
         this.debugger = new Debugger(this, configuration);

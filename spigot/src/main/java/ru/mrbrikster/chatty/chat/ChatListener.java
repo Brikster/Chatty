@@ -1,7 +1,6 @@
 package ru.mrbrikster.chatty.chat;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -601,21 +600,7 @@ public class ChatListener implements Listener, EventExecutor {
     }
 
     private Pair<Chat, String> getChat(final Player player, String message) {
-        Chat currentChat = null;
-
-        Optional<JsonElement> optional = jsonStorage.getProperty(player, "chat");
-        if (optional.isPresent()) {
-            JsonElement jsonElement = optional.get();
-            if (jsonElement.isJsonPrimitive()) {
-                String chatName = jsonElement.getAsJsonPrimitive().getAsString();
-                Chat chat = chatManager.getChat(chatName);
-                if (chat != null) {
-                    if (chat.isWriteAllowed(player)) {
-                        currentChat = chat;
-                    }
-                }
-            }
-        }
+        Chat currentChat = this.chatManager.getCurrentChat(player);
 
         for (Chat chat : this.chatManager.getChats()) {
             if (chat.isWriteAllowed(player)) {

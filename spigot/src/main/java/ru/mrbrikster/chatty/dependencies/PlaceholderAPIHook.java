@@ -2,10 +2,12 @@ package ru.mrbrikster.chatty.dependencies;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import ru.mrbrikster.chatty.Chatty;
 import ru.mrbrikster.chatty.chat.Chat;
 import ru.mrbrikster.chatty.chat.ChatManager;
+import ru.mrbrikster.chatty.reflection.Reflection;
 
 import java.util.List;
 import java.util.Locale;
@@ -13,8 +15,8 @@ import java.util.Locale;
 public class PlaceholderAPIHook extends PlaceholderExpansion {
     private final ChatManager chatManager;
 
-    public PlaceholderAPIHook() {
-        this.chatManager = Chatty.instance().chat();
+    public PlaceholderAPIHook(ChatManager chatManager) {
+        this.chatManager = chatManager;
     }
 
     public String setPlaceholders(Player player, String message) {
@@ -66,19 +68,24 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
                     return Long.toString(Math.max(0, chatManager.getChats().get(0).getCooldown(player)));
                 }
 
-            case "access":
+            case "current":
                 if(player == null) {
+                    return "null";
+                } else {
+                    Chat chat = chatManager.getCurrentChat(player);
+                    return chat == null ? "no" : chat.getName();
+                }
+
+            case "onlinein":
+                Chat chat = split.length > 1 ? chatManager.getChat(split[1]) : chatManager.getChats().get(0);
+                if(chat == null) {
                     return "-1";
                 }
-                if(split.length > 1) {
-                    Chat chat = chatManager.getChat(split[1]);
-                    if(chat == null) {
-                        return "false";
-                    }
-                    return Boolean.toString(chat.isWriteAllowed(player));
-                } else {
-                    return Boolean.toString(chatManager.getChats().get(0).isWriteAllowed(player));
+                int i = 0;
+                for(Player pl : Reflection.getOnlinePlayers()) {
+                    if(chat.isWriteAllowed(pl)) i++;
                 }
+                return Integer.toString(i);
 
             default:
                 return null;
