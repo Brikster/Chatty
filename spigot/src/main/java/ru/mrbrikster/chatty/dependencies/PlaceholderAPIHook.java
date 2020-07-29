@@ -72,8 +72,8 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
             }
 
             case "current": {
-                if(split.length > 2) {
-                    player = Bukkit.getPlayerExact(split[2]);
+                if(split.length > 1) {
+                    player = Bukkit.getPlayerExact(split[1]);
                 }
                 if(player == null) {
                     return "null";
