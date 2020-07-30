@@ -3,8 +3,8 @@ package ru.mrbrikster.chatty.chat;
 import com.google.gson.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
 import ru.mrbrikster.baseplugin.config.Configuration;
+import ru.mrbrikster.chatty.Chatty;
 
 import java.io.*;
 import java.util.Optional;
@@ -17,10 +17,9 @@ public class JsonStorage {
     private final File storageFile;
     private final Configuration configuration;
 
-    public JsonStorage(Configuration configuration,
-                       JavaPlugin javaPlugin) {
-        this.configuration = configuration;
-        this.storageFile = new File(javaPlugin.getDataFolder(), "storage.json");
+    public JsonStorage(Chatty chatty) {
+        this.configuration = chatty.getExact(Configuration.class);
+        this.storageFile = new File(chatty.getDataFolder(), "storage.json");
 
         if (!storageFile.exists()) {
             try {

@@ -29,16 +29,12 @@ public class CommandManager {
     private PrefixCommand prefixCommand;
     private SuffixCommand suffixCommand;
 
-    public CommandManager(Configuration configuration,
-                          ChatManager chatManager,
-                          DependencyManager dependencyManager,
-                          JsonStorage jsonStorage,
-                          ModerationManager moderationManager) {
-        this.configuration = configuration;
-        this.chatManager = chatManager;
-        this.dependencyManager = dependencyManager;
-        this.jsonStorage = jsonStorage;
-        this.moderationManager = moderationManager;
+    public CommandManager(Chatty chatty) {
+        this.configuration = chatty.getExact(Configuration.class);
+        this.chatManager = chatty.getExact(ChatManager.class);
+        this.dependencyManager = chatty.getExact(DependencyManager.class);
+        this.jsonStorage = chatty.getExact(JsonStorage.class);
+        this.moderationManager = chatty.getExact(ModerationManager.class);
 
         this.init();
 
@@ -63,7 +59,7 @@ public class CommandManager {
         }
 
         if (configuration.getNode("pm.commands.msg.enable").getAsBoolean(false)) {
-            this.msgCommand = new MsgCommand(configuration, dependencyManager, jsonStorage, moderationManager);
+            this.msgCommand = new MsgCommand(configuration, jsonStorage, moderationManager);
             this.msgCommand.register(Chatty.instance());
         }
 
@@ -73,7 +69,7 @@ public class CommandManager {
         }
 
         if (configuration.getNode("pm.commands.reply.enable").getAsBoolean(false)) {
-            this.replyCommand = new ReplyCommand(configuration, dependencyManager, jsonStorage, moderationManager);
+            this.replyCommand = new ReplyCommand(configuration, jsonStorage, moderationManager);
             this.replyCommand.register(Chatty.instance());
         }
 

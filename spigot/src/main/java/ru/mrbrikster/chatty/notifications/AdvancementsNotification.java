@@ -12,6 +12,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import ru.mrbrikster.chatty.Chatty;
 import ru.mrbrikster.chatty.reflection.Reflection;
+import ru.mrbrikster.chatty.util.Debugger;
 import ru.mrbrikster.chatty.util.TextUtil;
 
 import java.util.HashMap;
@@ -38,7 +39,7 @@ public class AdvancementsNotification extends Notification {
             return;
         }
 
-        Chatty.instance().debugger().debug("Run \"%s\" AdvancementsNotification.", name);
+        Chatty.instance().getExact(Debugger.class).debug("Run \"%s\" AdvancementsNotification.", name);
 
         AdvancementMessage advancementMessage = new AdvancementMessage((Map<String, String>) messages.get(nextMessage()));
         Reflection.getOnlinePlayers().stream().filter(player -> !isPermission() || player.hasPermission(String.format(PERMISSION_NODE, name)))

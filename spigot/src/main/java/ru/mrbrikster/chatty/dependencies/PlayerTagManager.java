@@ -2,18 +2,19 @@ package ru.mrbrikster.chatty.dependencies;
 
 import com.google.gson.JsonElement;
 import org.bukkit.entity.Player;
+import ru.mrbrikster.chatty.Chatty;
 import ru.mrbrikster.chatty.chat.JsonStorage;
 
 import java.util.Optional;
 
-public class PrefixAndSuffixManager {
+public class PlayerTagManager {
 
     private final DependencyManager dependencyManager;
     private final JsonStorage jsonStorage;
 
-    public PrefixAndSuffixManager(DependencyManager dependencyManager, JsonStorage jsonStorage) {
-        this.dependencyManager = dependencyManager;
-        this.jsonStorage = jsonStorage;
+    public PlayerTagManager(Chatty chatty) {
+        this.dependencyManager = chatty.getExact(DependencyManager.class);
+        this.jsonStorage = chatty.getExact(JsonStorage.class);
     }
 
     public String getPrefix(Player player) {

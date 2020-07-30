@@ -4,6 +4,7 @@ import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
 import ru.mrbrikster.baseplugin.config.Configuration;
 import ru.mrbrikster.baseplugin.config.ConfigurationNode;
+import ru.mrbrikster.chatty.Chatty;
 
 public class ModerationManager {
 
@@ -13,9 +14,9 @@ public class ModerationManager {
     @Getter private boolean advertisementModerationEnabled;
     @Getter private boolean swearModerationEnabled;
 
-    public ModerationManager(JavaPlugin javaPlugin, Configuration configuration) {
-        this.javaPlugin = javaPlugin;
-        this.configuration = configuration;
+    public ModerationManager(Chatty chatty) {
+        this.javaPlugin = chatty;
+        this.configuration = chatty.getExact(Configuration.class);
 
         init();
         configuration.onReload(config -> reload());

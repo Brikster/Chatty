@@ -9,8 +9,7 @@ import ru.mrbrikster.baseplugin.commands.BukkitCommand;
 import ru.mrbrikster.baseplugin.config.Configuration;
 import ru.mrbrikster.chatty.Chatty;
 import ru.mrbrikster.chatty.chat.JsonStorage;
-import ru.mrbrikster.chatty.dependencies.DependencyManager;
-import ru.mrbrikster.chatty.dependencies.PrefixAndSuffixManager;
+import ru.mrbrikster.chatty.dependencies.PlayerTagManager;
 import ru.mrbrikster.chatty.moderation.AdvertisementModerationMethod;
 import ru.mrbrikster.chatty.moderation.ModerationManager;
 import ru.mrbrikster.chatty.moderation.SwearModerationMethod;
@@ -24,12 +23,11 @@ public class MsgCommand extends BukkitCommand {
     private final Configuration configuration;
     private final JsonStorage jsonStorage;
 
-    private final PrefixAndSuffixManager prefixAndSuffixManager;
+    private final PlayerTagManager playerTagManager;
     private final ModerationManager moderationManager;
 
     public MsgCommand(
             Configuration configuration,
-            DependencyManager dependencyManager,
             JsonStorage jsonStorage,
             ModerationManager moderationManager) {
         super("msg", ArrayWrapper.toArray(configuration.getNode("pm.commands.msg.aliases").getAsStringList(), String.class));
@@ -37,7 +35,7 @@ public class MsgCommand extends BukkitCommand {
         this.configuration = configuration;
         this.jsonStorage = jsonStorage;
 
-        this.prefixAndSuffixManager = new PrefixAndSuffixManager(dependencyManager, jsonStorage);
+        this.playerTagManager = new PlayerTagManager(Chatty.instance());
         this.moderationManager = moderationManager;
     }
 
@@ -79,8 +77,8 @@ public class MsgCommand extends BukkitCommand {
         String recipientPrefix, recipientSuffix;
         if (recipient instanceof Player) {
             recipientName = ((Player) recipient).getDisplayName();
-            recipientPrefix = prefixAndSuffixManager.getPrefix((Player) recipient);
-            recipientSuffix = prefixAndSuffixManager.getSuffix((Player) recipient);
+            recipientPrefix = playerTagManager.getPrefix((Player) recipient);
+            recipientSuffix = playerTagManager.getSuffix((Player) recipient);
             jsonStorage.setProperty((Player) recipient, "last-pm-interlocutor", new JsonPrimitive(sender.getName()));
         } else {
             recipientName = recipient.getName();
@@ -92,8 +90,8 @@ public class MsgCommand extends BukkitCommand {
         String senderName, senderPrefix, senderSuffix;
         if (sender instanceof Player) {
             senderName = ((Player) sender).getDisplayName();
-            senderPrefix = prefixAndSuffixManager.getPrefix((Player) sender);
-            senderSuffix = prefixAndSuffixManager.getSuffix((Player) sender);
+            senderPrefix = playerTagManager.getPrefix((Player) sender);
+            senderSuffix = playerTagManager.getSuffix((Player) sender);
             jsonStorage.setProperty((Player) sender, "last-pm-interlocutor", new JsonPrimitive(recipientName));
 
             if (moderationManager.isSwearModerationEnabled()) {
