@@ -3,8 +3,10 @@ package ru.mrbrikster.chatty.notifications;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
 import ru.mrbrikster.chatty.Chatty;
+import ru.mrbrikster.chatty.dependencies.DependencyManager;
 import ru.mrbrikster.chatty.dependencies.PlaceholderAPIHook;
 import ru.mrbrikster.chatty.reflection.Reflection;
+import ru.mrbrikster.chatty.util.Debugger;
 import ru.mrbrikster.chatty.util.TextUtil;
 import ru.mrbrikster.chatty.util.textapi.ActionBar;
 
@@ -34,7 +36,7 @@ public class ActionBarNotification extends Notification {
             return;
         }
 
-        Chatty.instance().debugger().debug("Update ActionBarNotification message.");
+        Chatty.instance().getExact(Debugger.class).debug("Update ActionBarNotification message.");
 
         currentMessage = nextMessage();
     }
@@ -53,11 +55,11 @@ public class ActionBarNotification extends Notification {
             return;
         }
 
-        Chatty.instance().debugger().debug("Run ActionBarNotification.");
+        Chatty.instance().getExact(Debugger.class).debug("Run ActionBarNotification.");
 
         String message = TextUtil.stylish(prefix + messages.get(currentMessage));
 
-        PlaceholderAPIHook placeholderAPIHook = Chatty.instance().dependencies().getPlaceholderApi();
+        PlaceholderAPIHook placeholderAPIHook = Chatty.instance().getExact(DependencyManager.class).getPlaceholderApi();
         Reflection.getOnlinePlayers().stream().filter(player -> !isPermission() || player.hasPermission(PERMISSION_NODE))
                 .forEach(player -> new ActionBar(placeholderAPIHook != null ? placeholderAPIHook.setPlaceholders(player, message) : message).send(player));
     }

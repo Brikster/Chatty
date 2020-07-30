@@ -4,7 +4,7 @@ import org.apache.commons.io.FileUtils;
 import org.bukkit.configuration.file.YamlConfiguration;
 import ru.mrbrikster.baseplugin.config.BukkitConfiguration;
 import ru.mrbrikster.baseplugin.config.Configuration;
-import ru.mrbrikster.baseplugin.plugin.BukkitBasePlugin;
+import ru.mrbrikster.chatty.Chatty;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,15 +19,15 @@ public class Messages {
     private final Configuration localeConfiguration;
     private final Configuration inJarConfiguration;
 
-    public Messages(BukkitBasePlugin bukkitBasePlugin, Configuration configuration) {
-        File localeDir = new File(bukkitBasePlugin.getDataFolder(), "locale");
+    public Messages(Chatty chatty) {
+        File localeDir = new File(chatty.getDataFolder(), "locale");
 
-        String localeName = configuration.getNode("general.locale")
+        String localeName = chatty.getExact(Configuration.class).getNode("general.locale")
                 .getAsString("en");
 
         if (!localeDir.exists()) {
             if (!localeDir.mkdir()) {
-                bukkitBasePlugin.getLogger().warning("Cannot create \"locale\" directory");
+                chatty.getLogger().warning("Cannot create \"locale\" directory");
             }
         }
 
@@ -36,7 +36,7 @@ public class Messages {
             URL localeFileUrl = getClass().getResource("/locale/" + localeName + ".yml");
 
             if (localeFileUrl == null) {
-                bukkitBasePlugin.getLogger().warning("Locale " + '"' + localeName + '"' + " not found. Using \"en\" locale.");
+                chatty.getLogger().warning("Locale " + '"' + localeName + '"' + " not found. Using \"en\" locale.");
 
                 File enLocaleFile = new File(localeDir, "en.yml");
 
@@ -58,8 +58,8 @@ public class Messages {
             }
         }
 
-        this.localeConfiguration = bukkitBasePlugin.getConfiguration("locale/" + localeName + ".yml");
-        this.inJarConfiguration = new BukkitConfiguration(YamlConfiguration.loadConfiguration(new InputStreamReader(bukkitBasePlugin.getClass().getResourceAsStream("/locale/en.yml"))));
+        this.localeConfiguration = chatty.getConfiguration("locale/" + localeName + ".yml");
+        this.inJarConfiguration = new BukkitConfiguration(YamlConfiguration.loadConfiguration(new InputStreamReader(chatty.getClass().getResourceAsStream("/locale/en.yml"))));
     }
 
     public String get(String key) {

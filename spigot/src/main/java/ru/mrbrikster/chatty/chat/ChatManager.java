@@ -31,9 +31,9 @@ public class ChatManager {
     private final Configuration configuration;
     private final JsonStorage jsonStorage;
 
-    public ChatManager(Configuration configuration, JsonStorage jsonStorage) {
-        this.configuration = configuration;
-        this.jsonStorage = jsonStorage;
+    public ChatManager(Chatty chatty) {
+        this.configuration = chatty.getExact(Configuration.class);
+        this.jsonStorage = chatty.getExact(JsonStorage.class);
         this.logger = new Logger();
 
         init();

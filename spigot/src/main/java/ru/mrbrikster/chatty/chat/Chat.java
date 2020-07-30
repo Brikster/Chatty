@@ -97,7 +97,8 @@ public class Chat implements ru.mrbrikster.chatty.api.chats.Chat {
 
         if (player != null) {
             players.removeIf(recipient -> {
-                JsonElement jsonElement = Chatty.instance().storage().getProperty(recipient, "ignore").orElseGet(JsonArray::new);
+                JsonElement jsonElement = Chatty.instance().getExact(JsonStorage.class)
+                        .getProperty(recipient, "ignore").orElseGet(JsonArray::new);
 
                 if (jsonElement.isJsonArray()) {
                     for (JsonElement ignoreJsonElement : jsonElement.getAsJsonArray()) {

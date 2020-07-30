@@ -2,6 +2,7 @@ package ru.mrbrikster.chatty.notifications;
 
 import ru.mrbrikster.chatty.Chatty;
 import ru.mrbrikster.chatty.reflection.Reflection;
+import ru.mrbrikster.chatty.util.Debugger;
 import ru.mrbrikster.chatty.util.TextUtil;
 import ru.mrbrikster.chatty.util.textapi.Title;
 
@@ -30,7 +31,7 @@ public class TitleNotification extends Notification {
             return;
         }
 
-        Chatty.instance().debugger().debug("Run \"%s\" TitleNotification.", name);
+        Chatty.instance().getExact(Debugger.class).debug("Run \"%s\" TitleNotification.", name);
 
         String[] message = messages.get(nextMessage()).split("(\n)|(\\\\n)", 2);
 

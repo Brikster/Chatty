@@ -9,10 +9,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.EventExecutor;
 import org.jetbrains.annotations.NotNull;
 import ru.mrbrikster.baseplugin.config.Configuration;
@@ -22,7 +19,7 @@ import ru.mrbrikster.chatty.api.events.ChattyMessageEvent;
 import ru.mrbrikster.chatty.bungee.BungeeBroadcaster;
 import ru.mrbrikster.chatty.dependencies.DependencyManager;
 import ru.mrbrikster.chatty.dependencies.PlaceholderAPIHook;
-import ru.mrbrikster.chatty.dependencies.PrefixAndSuffixManager;
+import ru.mrbrikster.chatty.dependencies.PlayerTagManager;
 import ru.mrbrikster.chatty.dependencies.VaultHook;
 import ru.mrbrikster.chatty.json.FormattedMessage;
 import ru.mrbrikster.chatty.json.JsonMessagePart;
@@ -66,28 +63,23 @@ public class ChatListener implements Listener, EventExecutor {
     private final Configuration configuration;
     private final ModerationManager moderationManager;
     private final JsonStorage jsonStorage;
-    private final PrefixAndSuffixManager prefixAndSuffixManager;
+    private final PlayerTagManager playerTagManager;
 
     private final Map<Player, Pair<Chat, List<Player>>> pendingSpyMessages;
     private final Map<Player, List<String>> pendingSwears;
-    private final Map<Player, Chat> pendindMessages;
+    private final Map<Player, Chat> pendingMessages;
 
-    public ChatListener(Configuration configuration,
-                        ChatManager chatManager,
-                        DependencyManager dependencyManager,
-                        ModerationManager moderationManager,
-                        JsonStorage jsonStorage) {
-        this.configuration = configuration;
-        this.chatManager = chatManager;
-        this.dependencyManager = dependencyManager;
-        this.moderationManager = moderationManager;
-        this.jsonStorage = jsonStorage;
+    public ChatListener(Chatty chatty) {
+        this.configuration = chatty.getExact(Configuration.class);
+        this.chatManager = chatty.getExact(ChatManager.class);
+        this.dependencyManager = chatty.getExact(DependencyManager.class);
+        this.moderationManager = chatty.getExact(ModerationManager.class);
+        this.jsonStorage = chatty.getExact(JsonStorage.class);
+        this.playerTagManager = chatty.getExact(PlayerTagManager.class);
 
         this.pendingSpyMessages = new IdentityHashMap<>();
         this.pendingSwears = new IdentityHashMap<>();
-        this.pendindMessages = new IdentityHashMap<>();
-
-        this.prefixAndSuffixManager = new PrefixAndSuffixManager(dependencyManager, jsonStorage);
+        this.pendingMessages = new IdentityHashMap<>();
     }
 
     @Override
@@ -140,8 +132,8 @@ public class ChatListener implements Listener, EventExecutor {
 
         format = TextUtil.fixMultilineFormatting(format);
 
-        format = format.replace("{prefix}", prefixAndSuffixManager.getPrefix(player));
-        format = format.replace("{suffix}", prefixAndSuffixManager.getSuffix(player));
+        format = format.replace("{prefix}", playerTagManager.getPrefix(player));
+        format = format.replace("{suffix}", playerTagManager.getSuffix(player));
 
         if (dependencyManager.getPlaceholderApi() != null) {
             format = dependencyManager.getPlaceholderApi().setPlaceholders(player, format);
@@ -180,9 +172,9 @@ public class ChatListener implements Listener, EventExecutor {
         }
 
         if (!event.isCancelled()) {
-            if (json) {
-                pendindMessages.put(player, chat);
-            } else {
+            pendingMessages.put(player, chat);
+
+            if (!json) {
                 if (configuration.getNode("general.bungeecord").getAsBoolean(false) && chat.getRange() <= -3) {
                     BungeeBroadcaster.broadcast(event.getPlayer(), chat.getName(), String.format(event.getFormat(), player.getName(), message), false);
                 }
@@ -296,7 +288,12 @@ public class ChatListener implements Listener, EventExecutor {
      */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onChatMonitor(AsyncPlayerChatEvent event) {
-        Chat chat = pendindMessages.remove(event.getPlayer());
+        Chat chat = pendingMessages.remove(event.getPlayer());
+
+        if (chat == null) {
+            // Seems to event was uncancelled by another plugin
+            return;
+        }
 
         if (configuration.getNode("json.enable").getAsBoolean(false)) {
             performJsonMessage(event, chat);
@@ -328,8 +325,8 @@ public class ChatListener implements Listener, EventExecutor {
         List<String> tooltip = configuration.getNode("json.tooltip").getAsStringList()
                 .stream().map(line -> ChatColor.translateAlternateColorCodes('&',
                         line.replace("{player}", player.getName())
-                                .replace("{prefix}", prefixAndSuffixManager.getPrefix(player))
-                                .replace("{suffix}", prefixAndSuffixManager.getSuffix(player))
+                                .replace("{prefix}", playerTagManager.getPrefix(player))
+                                .replace("{suffix}", playerTagManager.getSuffix(player))
                 )).collect(Collectors.toList());
 
         if (placeholderAPI != null)
@@ -437,8 +434,8 @@ public class ChatListener implements Listener, EventExecutor {
                 mentionTooltip = mentionTooltip.stream().map(line ->
                         ChatColor.translateAlternateColorCodes('&',
                                 line.replace("{player}", mentionedPlayer.getDisplayName())
-                                        .replace("{prefix}", prefixAndSuffixManager.getPrefix(mentionedPlayer))
-                                        .replace("{suffix}", prefixAndSuffixManager.getSuffix(mentionedPlayer))
+                                        .replace("{prefix}", playerTagManager.getPrefix(mentionedPlayer))
+                                        .replace("{suffix}", playerTagManager.getSuffix(mentionedPlayer))
                         )).collect(Collectors.toList());
 
                 if (placeholderAPI != null) {
@@ -480,8 +477,8 @@ public class ChatListener implements Listener, EventExecutor {
         replacementTooltip = replacementTooltip.stream().map(line ->
                 ChatColor.translateAlternateColorCodes('&',
                         line.replace("{player}", player.getDisplayName())
-                                .replace("{prefix}", prefixAndSuffixManager.getPrefix(player))
-                                .replace("{suffix}", prefixAndSuffixManager.getSuffix(player))
+                                .replace("{prefix}", playerTagManager.getPrefix(player))
+                                .replace("{suffix}", playerTagManager.getSuffix(player))
                 )).collect(Collectors.toList());
 
         if (placeholderAPI != null)
@@ -496,107 +493,6 @@ public class ChatListener implements Listener, EventExecutor {
                 .suggest(stringVariablesFunction.apply(replacementSuggestCommand))
                 .link(stringVariablesFunction.apply(replacementLink))
                 .tooltip(replacementTooltip));
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onJoin(PlayerJoinEvent event) {
-        if (!configuration.getNode("miscellaneous.vanilla.join.enable").getAsBoolean(false)) {
-            return;
-        }
-
-        String joinMessage;
-        if (event.getPlayer().hasPlayedBefore() || (joinMessage = configuration
-                .getNode("miscellaneous.vanilla.join.first-message")
-                .getAsString("")).isEmpty()) {
-            joinMessage = configuration
-                    .getNode("miscellaneous.vanilla.join.message")
-                    .getAsString(null);
-        }
-
-        boolean hasPermission = !configuration.getNode("miscellaneous.vanilla.join.permission").getAsBoolean(true)
-                || event.getPlayer().hasPermission("chatty.misc.joinmessage");
-
-        if (joinMessage != null) {
-            if (joinMessage.isEmpty() || !hasPermission) {
-                event.setJoinMessage(null);
-            } else event.setJoinMessage(TextUtil.stylish(
-                    applyPlaceholders(event.getPlayer(),
-                            joinMessage.replace("{prefix}", prefixAndSuffixManager.getPrefix(event.getPlayer()))
-                                    .replace("{suffix}", prefixAndSuffixManager.getSuffix(event.getPlayer()))
-                                    .replace("{player}", event.getPlayer().getDisplayName()))));
-        }
-
-        if (hasPermission) {
-            String soundName = configuration.getNode("miscellaneous.vanilla.join.sound").getAsString(null);
-            if (soundName != null) {
-                org.bukkit.Sound sound = Sound.byName(soundName);
-                Bukkit.getOnlinePlayers().forEach(player -> player.playSound(player.getLocation(), sound, 1L, 1L));
-            }
-        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onQuit(PlayerQuitEvent event) {
-        if (!configuration.getNode("miscellaneous.vanilla.quit.enable").getAsBoolean(false)) {
-            return;
-        }
-
-        String quitMessage = configuration
-                .getNode("miscellaneous.vanilla.quit.message")
-                .getAsString(null);
-
-        boolean hasPermission = !configuration.getNode("miscellaneous.vanilla.quit.permission").getAsBoolean(true)
-                || event.getPlayer().hasPermission("chatty.misc.quitmessage");
-
-        if (quitMessage != null) {
-            if (quitMessage.isEmpty() || !hasPermission) {
-                event.setQuitMessage(null);
-            } else event.setQuitMessage(TextUtil.stylish(
-                    applyPlaceholders(event.getPlayer(),
-                            quitMessage.replace("{prefix}", prefixAndSuffixManager.getPrefix(event.getPlayer()))
-                                    .replace("{suffix}", prefixAndSuffixManager.getSuffix(event.getPlayer()))
-                                    .replace("{player}", event.getPlayer().getDisplayName()))));
-        }
-
-        if (hasPermission) {
-            String soundName = configuration.getNode("miscellaneous.vanilla.quit.sound").getAsString(null);
-            if (soundName != null) {
-                org.bukkit.Sound sound = Sound.byName(soundName);
-                Bukkit.getOnlinePlayers().forEach(player -> player.playSound(player.getLocation(), sound, 1L, 1L));
-            }
-        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onPlayerDeath(PlayerDeathEvent event) {
-        if (!configuration.getNode("miscellaneous.vanilla.death.enable").getAsBoolean(false)) {
-            return;
-        }
-
-        String deathMessage = configuration
-                .getNode("miscellaneous.vanilla.death.message")
-                .getAsString(null);
-
-        boolean hasPermission = !configuration.getNode("miscellaneous.vanilla.death.permission").getAsBoolean(true)
-                || event.getEntity().hasPermission("chatty.misc.deathmessage");
-
-        if (deathMessage != null) {
-            if (deathMessage.isEmpty() || !hasPermission) {
-                event.setDeathMessage(null);
-            } else event.setDeathMessage(TextUtil.stylish(
-                    applyPlaceholders(event.getEntity(),
-                            deathMessage.replace("{prefix}", prefixAndSuffixManager.getPrefix(event.getEntity()))
-                                    .replace("{suffix}", prefixAndSuffixManager.getSuffix(event.getEntity()))
-                                    .replace("{player}", event.getEntity().getDisplayName()))));
-        }
-
-        if (hasPermission) {
-            String soundName = configuration.getNode("miscellaneous.vanilla.death.sound").getAsString(null);
-            if (soundName != null) {
-                org.bukkit.Sound sound = Sound.byName(soundName);
-                Bukkit.getOnlinePlayers().forEach(player -> player.playSound(player.getLocation(), sound, 1L, 1L));
-            }
-        }
     }
 
     private Pair<Chat, String> getChat(final Player player, String message) {
@@ -657,8 +553,8 @@ public class ChatListener implements Listener, EventExecutor {
             if (string == null) return null;
 
             string = string.replace("{player}", player.getDisplayName());
-            string = string.replace("{prefix}", prefixAndSuffixManager.getPrefix(player));
-            string = string.replace("{suffix}", prefixAndSuffixManager.getSuffix(player));
+            string = string.replace("{prefix}", playerTagManager.getPrefix(player));
+            string = string.replace("{suffix}", playerTagManager.getSuffix(player));
 
             return ChatColor.stripColor(applyPlaceholders(player, string));
         };

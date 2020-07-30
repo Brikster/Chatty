@@ -10,8 +10,7 @@ import ru.mrbrikster.baseplugin.commands.BukkitCommand;
 import ru.mrbrikster.baseplugin.config.Configuration;
 import ru.mrbrikster.chatty.Chatty;
 import ru.mrbrikster.chatty.chat.JsonStorage;
-import ru.mrbrikster.chatty.dependencies.DependencyManager;
-import ru.mrbrikster.chatty.dependencies.PrefixAndSuffixManager;
+import ru.mrbrikster.chatty.dependencies.PlayerTagManager;
 import ru.mrbrikster.chatty.moderation.AdvertisementModerationMethod;
 import ru.mrbrikster.chatty.moderation.ModerationManager;
 import ru.mrbrikster.chatty.moderation.SwearModerationMethod;
@@ -23,12 +22,11 @@ public class ReplyCommand extends BukkitCommand {
 
     private final Configuration configuration;
     private final JsonStorage jsonStorage;
-    private final PrefixAndSuffixManager prefixAndSuffixManager;
+    private final PlayerTagManager playerTagManager;
     private final ModerationManager moderationManager;
 
     public ReplyCommand(
             Configuration configuration,
-            DependencyManager dependencyManager,
             JsonStorage jsonStorage,
             ModerationManager moderationManager) {
         super("reply", ArrayWrapper.toArray(configuration.getNode("pm.commands.reply.aliases").getAsStringList(), String.class));
@@ -36,7 +34,7 @@ public class ReplyCommand extends BukkitCommand {
         this.configuration = configuration;
         this.jsonStorage = jsonStorage;
 
-        this.prefixAndSuffixManager = new PrefixAndSuffixManager(dependencyManager, jsonStorage);
+        this.playerTagManager = new PlayerTagManager(Chatty.instance());
         this.moderationManager = moderationManager;
     }
 
@@ -80,8 +78,8 @@ public class ReplyCommand extends BukkitCommand {
             Player recipientPlayer = ((Player) recipient);
 
             recipientName = recipientPlayer.getDisplayName();
-            recipientPrefix = prefixAndSuffixManager.getPrefix(recipientPlayer);
-            recipientSuffix = prefixAndSuffixManager.getSuffix(recipientPlayer);
+            recipientPrefix = playerTagManager.getPrefix(recipientPlayer);
+            recipientSuffix = playerTagManager.getSuffix(recipientPlayer);
             jsonStorage.setProperty(recipientPlayer, "last-pm-interlocutor", new JsonPrimitive(sender.getName()));
         } else {
             recipientName = recipient.getName();
@@ -90,8 +88,8 @@ public class ReplyCommand extends BukkitCommand {
         }
 
         String senderName = ((Player) sender).getDisplayName();
-        String senderPrefix = prefixAndSuffixManager.getPrefix((Player) sender);
-        String senderSuffix = prefixAndSuffixManager.getSuffix((Player) sender);
+        String senderPrefix = playerTagManager.getPrefix((Player) sender);
+        String senderSuffix = playerTagManager.getSuffix((Player) sender);
         jsonStorage.setProperty((Player) sender, "last-pm-interlocutor", new JsonPrimitive(recipientName));
 
         boolean cancelledByModeration = false;
