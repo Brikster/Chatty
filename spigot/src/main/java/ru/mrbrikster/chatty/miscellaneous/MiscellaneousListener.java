@@ -35,10 +35,19 @@ public class MiscellaneousListener implements Listener {
 
         String joinMessage;
         if (event.getPlayer().hasPlayedBefore() || (joinMessage = configuration
-                .getNode("miscellaneous.vanilla.join.first-message")
-                .getAsString("")).isEmpty()) {
+                .getNode("miscellaneous.vanilla.join.first.message")
+                .getAsString(null)) == null) {
             joinMessage = configuration
                     .getNode("miscellaneous.vanilla.join.message")
+                    .getAsString(null);
+        }
+
+        String soundName;
+        if (event.getPlayer().hasPlayedBefore() || (soundName = configuration
+                .getNode("miscellaneous.vanilla.join.first.sound")
+                .getAsString(null)) == null) {
+            soundName = configuration
+                    .getNode("miscellaneous.vanilla.join.sound")
                     .getAsString(null);
         }
 
@@ -56,7 +65,6 @@ public class MiscellaneousListener implements Listener {
         }
 
         if (hasPermission) {
-            String soundName = configuration.getNode("miscellaneous.vanilla.join.sound").getAsString(null);
             if (soundName != null) {
                 org.bukkit.Sound sound = Sound.byName(soundName);
                 Bukkit.getOnlinePlayers().forEach(player -> player.playSound(player.getLocation(), sound, 1L, 1L));
