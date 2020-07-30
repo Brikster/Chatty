@@ -4,6 +4,7 @@ import me.clip.placeholderapi.PlaceholderAPI;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import ru.mrbrikster.chatty.Chatty;
 import ru.mrbrikster.chatty.chat.Chat;
 import ru.mrbrikster.chatty.chat.ChatManager;
 import ru.mrbrikster.chatty.reflection.Reflection;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Locale;
 
 public class PlaceholderAPIHook extends PlaceholderExpansion {
+
     private final ChatManager chatManager;
 
     public PlaceholderAPIHook(ChatManager chatManager) {
@@ -43,60 +45,77 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
 
     @Override
     public String getVersion() {
-        return "1.0";
+        return Chatty.instance().getDescription().getVersion();
     }
 
     @Override
     public String onPlaceholderRequest(Player player, String params) {
-        if(params.isEmpty()) {
-            return "Chatty!";
+        if (params.isEmpty()) {
+            return "Chatty is awesome";
         }
+
         String[] split = params.split("_");
         switch (split[0].toLowerCase(Locale.ENGLISH)) {
             case "cooldown": {
-                if(split.length > 1) {
+                if (split.length > 1) {
+                    // To support player names with underscore
+                    split = params.split("_", 3);
+
                     Chat chat = chatManager.getChat(split[1]);
-                    if(chat == null) {
+                    if (chat == null) {
                         return "-1";
                     }
-                    if(split.length > 2) {
+
+                    if (split.length > 2) {
                         player = Bukkit.getPlayerExact(split[2]);
                     }
-                    if(player == null) {
+
+                    if (player == null) {
                         return "-1";
                     }
+
                     return Long.toString(Math.max(0, chat.getCooldown(player)));
                 }
+
                 return "-1";
             }
 
             case "current": {
-                if(split.length > 1) {
+                split = params.split("_", 2);
+
+                if (split.length > 1) {
                     player = Bukkit.getPlayerExact(split[1]);
                 }
-                if(player == null) {
+
+                if (player == null) {
                     return "null";
                 }
+
                 Chat chat = chatManager.getCurrentChat(player);
                 return chat == null ? "no" : chat.getName();
             }
 
-            case "onlinein":
-                if(split.length < 2) {
+            case "online": {
+                if (split.length < 2) {
                     return "-1";
                 }
+
                 Chat chat = chatManager.getChat(split[1]);
-                if(chat == null) {
+                if (chat == null) {
                     return "-1";
                 }
+
                 int i = 0;
-                for(Player pl : Reflection.getOnlinePlayers()) {
-                    if(chat.isWriteAllowed(pl)) i++;
+                for (Player onlinePlayer : Reflection.getOnlinePlayers()) {
+                    if (chat.isWriteAllowed(onlinePlayer)) i++;
                 }
+
                 return Integer.toString(i);
+            }
 
             default:
                 return null;
         }
     }
+
 }

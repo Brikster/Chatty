@@ -1,41 +1,32 @@
 package ru.mrbrikster.chatty.commands.pm;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
 import net.amoebaman.util.ArrayWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import ru.mrbrikster.baseplugin.commands.BukkitCommand;
 import ru.mrbrikster.baseplugin.config.Configuration;
 import ru.mrbrikster.chatty.Chatty;
-import ru.mrbrikster.chatty.chat.JsonStorage;
-import ru.mrbrikster.chatty.dependencies.PlayerTagManager;
-import ru.mrbrikster.chatty.moderation.AdvertisementModerationMethod;
-import ru.mrbrikster.chatty.moderation.ModerationManager;
-import ru.mrbrikster.chatty.moderation.SwearModerationMethod;
-import ru.mrbrikster.chatty.util.TextUtil;
 
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.stream.Collectors;
 
-public class ReplyCommand extends BukkitCommand {
+public class ReplyCommand extends PrivateMessageCommand {
 
-    private final Configuration configuration;
-    private final JsonStorage jsonStorage;
-    private final PlayerTagManager playerTagManager;
-    private final ModerationManager moderationManager;
+    public ReplyCommand(Chatty chatty) {
+        super(chatty, "r",
+                ArrayWrapper.toArray(chatty.getExact(Configuration.class).getNode("pm.commands.reply.aliases").getAsStringList()
+                        .stream().map(alias -> {
+                            if (alias.equalsIgnoreCase("r")) {
+                                chatty.getLogger().log(Level.WARNING, "Please, rename \"r\" alias to \"reply\" in reply command configuration. " +
+                                        "This change was made due to EssentialsX with default command name \"r\" instead of \"reply\"");
 
-    public ReplyCommand(
-            Configuration configuration,
-            JsonStorage jsonStorage,
-            ModerationManager moderationManager) {
-        super("reply", ArrayWrapper.toArray(configuration.getNode("pm.commands.reply.aliases").getAsStringList(), String.class));
+                                return "reply";
+                            }
 
-        this.configuration = configuration;
-        this.jsonStorage = jsonStorage;
-
-        this.playerTagManager = new PlayerTagManager(Chatty.instance());
-        this.moderationManager = moderationManager;
+                            return alias;
+                        }).collect(Collectors.toList()), String.class));
     }
 
     @Override
@@ -73,102 +64,7 @@ public class ReplyCommand extends BukkitCommand {
             return;
         }
 
-        String recipientName, recipientPrefix, recipientSuffix;
-        if (recipient instanceof Player) {
-            Player recipientPlayer = ((Player) recipient);
-
-            recipientName = recipientPlayer.getDisplayName();
-            recipientPrefix = playerTagManager.getPrefix(recipientPlayer);
-            recipientSuffix = playerTagManager.getSuffix(recipientPlayer);
-            jsonStorage.setProperty(recipientPlayer, "last-pm-interlocutor", new JsonPrimitive(sender.getName()));
-        } else {
-            recipientName = recipient.getName();
-            recipientPrefix = "";
-            recipientSuffix = "";
-        }
-
-        String senderName = ((Player) sender).getDisplayName();
-        String senderPrefix = playerTagManager.getPrefix((Player) sender);
-        String senderSuffix = playerTagManager.getSuffix((Player) sender);
-        jsonStorage.setProperty((Player) sender, "last-pm-interlocutor", new JsonPrimitive(recipientName));
-
-        boolean cancelledByModeration = false;
-        if (moderationManager.isSwearModerationEnabled()) {
-            SwearModerationMethod swearMethod = moderationManager.getSwearMethod(message);
-            if (!sender.hasPermission("chatty.moderation.swear")) {
-                if (swearMethod.isBlocked()) {
-                    message = swearMethod.getEditedMessage();
-
-                    if (swearMethod.isUseBlock()) {
-                        cancelledByModeration = true;
-                    } else {
-                        message = swearMethod.getEditedMessage();
-                    }
-
-                    String swearFound = Chatty.instance().messages().get("swear-found", null);
-
-                    if (swearFound != null)
-                        Bukkit.getScheduler().runTaskLaterAsynchronously(Chatty.instance(),
-                                () -> sender.sendMessage(swearFound), 5L);
-                }
-            }
-        }
-
-        if (this.moderationManager.isAdvertisementModerationEnabled()) {
-            AdvertisementModerationMethod advertisementMethod = this.moderationManager.getAdvertisementMethod(message);
-            if (!sender.hasPermission("chatty.moderation.advertisement")) {
-                if (advertisementMethod.isBlocked()) {
-                    message = advertisementMethod.getEditedMessage();
-
-                    if (advertisementMethod.isUseBlock()) {
-                        cancelledByModeration = true;
-                    } else {
-                        message = advertisementMethod.getEditedMessage();
-                    }
-
-                    String adsFound = Chatty.instance().messages().get("advertisement-found", null);
-
-                    if (adsFound != null)
-                        Bukkit.getScheduler().runTaskLaterAsynchronously(Chatty.instance(),
-                                () -> sender.sendMessage(adsFound), 5L);
-                }
-            }
-        }
-
-        if (cancelledByModeration) {
-            return;
-        }
-
-        if (!jsonStorage.isIgnore(recipient, sender)) {
-            recipient.sendMessage(TextUtil.stylish(configuration.getNode("pm.format.recipient")
-                    .getAsString("&7{sender-prefix}{sender-name} &6-> &7{recipient-prefix}{recipient-name}: &f{message}")
-                            .replace("{sender-prefix}", senderPrefix)
-                            .replace("{sender-suffix}", senderSuffix)
-                            .replace("{sender-name}", senderName)
-                            .replace("{recipient-name}", recipientName)
-                            .replace("{recipient-prefix}", recipientPrefix)
-                            .replace("{recipient-suffix}", recipientSuffix))
-                            .replace("{message}", message)
-            );
-        }
-
-        String senderFormat;
-        sender.sendMessage(senderFormat = TextUtil.stylish(configuration.getNode("pm.format.sender")
-                .getAsString("&7{sender-prefix}{sender-name} &6-> &7{recipient-prefix}{recipient-name}: &f{message}")
-                        .replace("{sender-prefix}", senderPrefix)
-                        .replace("{sender-suffix}", senderSuffix)
-                        .replace("{sender-name}", senderName)
-                        .replace("{recipient-name}", recipientName)
-                        .replace("{recipient-prefix}", recipientPrefix)
-                        .replace("{recipient-suffix}", recipientSuffix))
-                        .replace("{message}", message)
-        );
-
-        MsgCommand.sendMessageToSpy(sender, recipient,
-                recipientPrefix, recipientName, recipientSuffix,
-                senderPrefix, senderName, senderSuffix,
-                senderFormat, message,
-                jsonStorage, configuration);
+        handlePrivateMessage(sender, recipient, message);
     }
 
 }

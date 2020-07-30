@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 public class ChatManager {
 
@@ -30,6 +31,8 @@ public class ChatManager {
     @Getter private final Logger logger;
     private final Configuration configuration;
     private final JsonStorage jsonStorage;
+
+    private static final Pattern CHAT_NAME_PATTERN = Pattern.compile("^[a-zа-я0-9]{1,32}$");
 
     public ChatManager(Chatty chatty) {
         this.configuration = chatty.getExact(Configuration.class);
@@ -68,37 +71,41 @@ public class ChatManager {
 
     private void init() {
         configuration.getNode("chats").getChildNodes().stream().map(chatNode -> {
-                    ChatBuilder builder = Chat.builder()
-                            .name(chatNode.getName())
-                            .enable(chatNode.getNode("enable").getAsBoolean(false))
-                            .format(chatNode.getNode("format").getAsString("§7{player}§8: §f{message}"))
-                            .range(chatNode.getNode("range").getAsInt(-1))
-                            .symbol(chatNode.getNode("symbol").getAsString(""))
-                            .permissionRequired(chatNode.getNode("permission").getAsBoolean(true))
-                            .cooldown(chatNode.getNode("cooldown").getAsLong(-1))
-                            .money(chatNode.getNode("money").getAsInt(0));
+            ChatBuilder builder = Chat.builder()
+                    .name(chatNode.getName().toLowerCase())
+                    .enable(chatNode.getNode("enable").getAsBoolean(false))
+                    .format(chatNode.getNode("format").getAsString("§7{player}§8: §f{message}"))
+                    .range(chatNode.getNode("range").getAsInt(-1))
+                    .symbol(chatNode.getNode("symbol").getAsString(""))
+                    .permissionRequired(chatNode.getNode("permission").getAsBoolean(true))
+                    .cooldown(chatNode.getNode("cooldown").getAsLong(-1))
+                    .money(chatNode.getNode("money").getAsInt(0));
 
-                    String chatCommand = chatNode.getNode("command").getAsString(null);
-                    if (chatCommand != null) {
-                        builder.command(chatCommand)
-                                .aliases(chatNode.getNode("aliases").getAsStringList());
-                    }
+            String chatCommand = chatNode.getNode("command").getAsString(null);
+            if (chatCommand != null) {
+                builder.command(chatCommand)
+                        .aliases(chatNode.getNode("aliases").getAsStringList());
+            }
 
-                    String soundName = chatNode.getNode("sound").getAsString(null);
+            String soundName = chatNode.getNode("sound").getAsString(null);
 
-                    if (soundName != null) {
-                        builder.sound(Sound.byName(soundName));
-                    }
+            if (soundName != null) {
+                builder.sound(Sound.byName(soundName));
+            }
 
-                    ConfigurationNode moderationNode = chatNode.getNode("moderation");
-                    builder.capsModerationEnabled(moderationNode.getNode("caps").getAsBoolean(true))
-                            .swearModerationEnabled(moderationNode.getNode("swear").getAsBoolean(true))
-                            .advertisementModerationEnabled(moderationNode.getNode("advertisement").getAsBoolean(true));
+            ConfigurationNode moderationNode = chatNode.getNode("moderation");
+            builder.capsModerationEnabled(moderationNode.getNode("caps").getAsBoolean(true))
+                    .swearModerationEnabled(moderationNode.getNode("swear").getAsBoolean(true))
+                    .advertisementModerationEnabled(moderationNode.getNode("advertisement").getAsBoolean(true));
 
-                    builder.spyEnabled(chatNode.getNode("spy").getAsBoolean(true));
+            builder.spyEnabled(chatNode.getNode("spy").getAsBoolean(true));
 
-                    return builder.build();
-                }).filter(Chat::isEnable).forEach(this.chats::add);
+            return builder.build();
+        }).filter(Chat::isEnable).peek(chat -> {
+            if (!CHAT_NAME_PATTERN.matcher(chat.getName()).matches()) {
+                throw new IllegalArgumentException("Chat name can contain only Latin and Cyrillic characters and numbers");
+            }
+        }).forEach(this.chats::add);
 
         for (Chat chat : this.chats) {
             if (chat.getCommand() != null) {

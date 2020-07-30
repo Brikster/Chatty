@@ -140,14 +140,16 @@ pm:
       # Permission: chatty.command.msg
       enable: true
       # Aliases for "/msg" command.
-      aliases: ['message', 'pm', 'm', 'w']
+      aliases: ['message', 'pm', 'm', 'whisper', 'w', 'tell', 't']
 
+    # To keep compatibility with EssentialsX
+    # main name of command is "/r".
     reply:
-      # Enables "/reply" command.
+      # Enables "/r" command.
       # Permission: chatty.command.reply
       enable: true
-      # Aliases for "/reply" command.
-      aliases: ['r']
+      # Aliases for "/r" command.
+      aliases: ['reply']
 
     ignore:
       # Enables "/ignore" command.
