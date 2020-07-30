@@ -1,5 +1,6 @@
 package ru.mrbrikster.chatty.chat;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import lombok.Getter;
 import net.amoebaman.util.ArrayWrapper;
@@ -21,6 +22,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Optional;
 
 public class ChatManager {
 
@@ -46,6 +48,21 @@ public class ChatManager {
             }
         }
 
+        return null;
+    }
+
+    public Chat getCurrentChat(Player player) {
+        Optional<JsonElement> optional = jsonStorage.getProperty(player, "chat");
+        if (optional.isPresent()) {
+            JsonElement jsonElement = optional.get();
+            if (jsonElement.isJsonPrimitive()) {
+                String chatName = jsonElement.getAsJsonPrimitive().getAsString();
+                Chat chat = getChat(chatName);
+                if (chat != null && chat.isWriteAllowed(player)) {
+                    return chat;
+                }
+            }
+        }
         return null;
     }
 

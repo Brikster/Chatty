@@ -48,6 +48,10 @@ public final class Chatty extends BukkitBasePlugin {
         return Chatty.api;
     }
 
+    public ChatManager chat() {
+        return this.chatManager;
+    }
+
     public Messages messages() {
         return getExact(Messages.class);
     }
