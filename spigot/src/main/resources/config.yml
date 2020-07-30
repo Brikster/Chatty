@@ -40,6 +40,11 @@ general:
   # Default: true
   keep-old-recipients: true
 
+  # Hides vanished players from recipients (and sends "no-recipients" message when all recipients are vanished)
+  # Supports EssentialsX, SuperVanish, PremiumVanish, VanishNoPacket etc.
+  # Default: false
+  hide-vanished-recipients: true
+
   # Storage player data mode.
   # true - data will store by UUIDs.
   # false - data will store by nicknames.
@@ -124,7 +129,13 @@ pm:
 
   # Allows console to messaging players
   # and messaging players to console.
+  # Default: false
   allow-console: false
+
+  # Allows to PM players, that in vanish
+  # Supports EssentialsX, SuperVanish, PremiumVanish, VanishNoPacket etc.
+  # Default: true
+  allow-pm-vanished: false
 
   # Format of messages
   #

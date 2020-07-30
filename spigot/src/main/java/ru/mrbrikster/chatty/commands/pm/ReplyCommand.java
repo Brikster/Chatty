@@ -7,6 +7,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import ru.mrbrikster.baseplugin.config.Configuration;
 import ru.mrbrikster.chatty.Chatty;
+import ru.mrbrikster.chatty.util.PlayerUtil;
 
 import java.util.Optional;
 import java.util.logging.Level;
@@ -60,6 +61,13 @@ public class ReplyCommand extends PrivateMessageCommand {
                 ? Bukkit.getConsoleSender() : Bukkit.getPlayer(optionalRecipient.get());
 
         if (recipient == null) {
+            sender.sendMessage(Chatty.instance().messages().get("reply-command.target-not-found"));
+            return;
+        }
+
+        if (recipient instanceof Player
+                && !configuration.getNode("pm.allow-pm-vanished").getAsBoolean(true)
+                && PlayerUtil.isVanished((Player) recipient)) {
             sender.sendMessage(Chatty.instance().messages().get("reply-command.target-not-found"));
             return;
         }

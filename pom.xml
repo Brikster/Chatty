@@ -95,5 +95,9 @@
             <id>rednite-repo</id>
             <url>https://nexus.rednite.ru/repository/rednite-public/</url>
         </repository>
+        <repository>
+            <id>essentialsx-repo</id>
+            <url>https://ci.ender.zone/plugin/repository/everything/</url>
+        </repository>
     </repositories>
 </project>

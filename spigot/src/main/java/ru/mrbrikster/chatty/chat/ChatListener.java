@@ -27,10 +27,14 @@ import ru.mrbrikster.chatty.json.LegacyMessagePart;
 import ru.mrbrikster.chatty.moderation.*;
 import ru.mrbrikster.chatty.reflection.Reflection;
 import ru.mrbrikster.chatty.util.Pair;
+import ru.mrbrikster.chatty.util.PlayerUtil;
 import ru.mrbrikster.chatty.util.Sound;
 import ru.mrbrikster.chatty.util.TextUtil;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -154,7 +158,14 @@ public class ChatListener implements Listener, EventExecutor {
             event.getRecipients().addAll(chat.getRecipients(player));
         }
 
-        if (event.getRecipients().size() <= 1) {
+        long recipientsCount = 0;
+        if (configuration.getNode("general.hide-vanished-recipients").getAsBoolean(false)) {
+            recipientsCount = event.getRecipients().stream().filter(recipient -> !PlayerUtil.isVanished(recipient)).count();
+        } else {
+            recipientsCount = event.getRecipients().size();
+        }
+
+        if (recipientsCount <= 1) {
             String noRecipients = Chatty.instance().messages().get("no-recipients", null);
 
             if (noRecipients != null && chat.getRange() > -3) {
