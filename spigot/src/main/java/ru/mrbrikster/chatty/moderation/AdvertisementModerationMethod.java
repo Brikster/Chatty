@@ -29,9 +29,9 @@ public class AdvertisementModerationMethod extends ModifyingSubstringsModeration
         this.whitelist = configurationNode.getNode("whitelist")
                 .getAsStringList().stream().map(String::toLowerCase).collect(Collectors.toList());
         this.ipPattern = Pattern.compile(configurationNode.getNode("patterns.ip")
-                .getAsString("(?:\\d{1,3}[.,\\-:;\\/()=?}+ ]{1,4}){3}\\d{1,3}"));
+                .getAsString("\\b((\\d{1,2}|2(5[0-5]|[0-4]\\d))[._,-)(]+){3}(\\d{1,2}|2(5[0-5]|[0-4]\\d))(:\\d{2,8})?"));
         this.webPattern = Pattern.compile(configurationNode.getNode("patterns.web")
-                .getAsString("[-a-zA-Zа-яА-Я0-9@:%_\\+.~#?&//=]{2,256}\\.[a-z]{2,4}\\b(\\/[-a-zA-Zа-яА-Я0-9@:%_\\+~#?&//=]*)?"));
+                .getAsString("\\b(https?:\\/\\/)?[\\w\\.а-яА-Я-]+\\.([a-z]{2,4}|[рР][фФ]|[уУ][кК][рР])\\b(:\\d{2,5})?(\\/\\S+)?"));
         this.replacement = TextUtil.stylish(configurationNode.getNode("replacement").getAsString("<ads>"));
         this.useBlock = configurationNode.getNode("block").getAsBoolean(true);
     }
