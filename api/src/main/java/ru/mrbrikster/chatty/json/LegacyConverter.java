@@ -32,7 +32,7 @@ public class LegacyConverter {
             url = false;
         }
 
-        String hex = "";
+        StringBuilder hex = new StringBuilder();
         boolean checkingForHex = false;
         boolean lastCharSection = false;
 
@@ -40,14 +40,14 @@ public class LegacyConverter {
             if (c == '§') {
                 if (lastCharSection && checkingForHex) {
                     checkingForHex = false;
-                    hex = "";
+                    hex = new StringBuilder();
                 }
 
                 lastCharSection = true;
                 continue;
             } else if (checkingForHex) {
                 lastCharSection = false;
-                hex = hex + c;
+                hex.append(c);
             }
 
             if (hex.length() == 6) {
@@ -56,7 +56,7 @@ public class LegacyConverter {
                     this.color = ChatColor.of("#" + hex);
                 } catch (Exception ignored) {}
                 checkingForHex = false;
-                hex = "";
+                hex = new StringBuilder();
                 continue;
             } else if (checkingForHex) {
                 continue;
@@ -80,6 +80,8 @@ public class LegacyConverter {
                     this.color = color;
 
                     continue;
+                } else {
+                    builder.append("§");
                 }
             }
 

@@ -18,6 +18,8 @@ import ru.mrbrikster.chatty.util.TextUtil;
 
 public abstract class PrivateMessageCommand extends BukkitCommand {
 
+    private static final String MODERATION_COLOR_SYMBOL = "§z";
+
     protected final Configuration configuration;
     protected final JsonStorage jsonStorage;
 
@@ -59,7 +61,7 @@ public abstract class PrivateMessageCommand extends BukkitCommand {
             jsonStorage.setProperty((Player) sender, "last-pm-interlocutor", new JsonPrimitive(recipientName));
 
             if (moderationManager.isSwearModerationEnabled()) {
-                SwearModerationMethod swearMethod = moderationManager.getSwearMethod(message);
+                SwearModerationMethod swearMethod = moderationManager.getSwearMethod(message, MODERATION_COLOR_SYMBOL);
                 if (!sender.hasPermission("chatty.moderation.swear")) {
                     if (swearMethod.isBlocked()) {
                         message = swearMethod.getEditedMessage();
@@ -80,7 +82,7 @@ public abstract class PrivateMessageCommand extends BukkitCommand {
             }
 
             if (this.moderationManager.isAdvertisementModerationEnabled()) {
-                AdvertisementModerationMethod advertisementMethod = this.moderationManager.getAdvertisementMethod(message);
+                AdvertisementModerationMethod advertisementMethod = this.moderationManager.getAdvertisementMethod(message, MODERATION_COLOR_SYMBOL);
                 if (!sender.hasPermission("chatty.moderation.advertisement")) {
                     if (advertisementMethod.isBlocked()) {
                         message = advertisementMethod.getEditedMessage();
@@ -107,15 +109,10 @@ public abstract class PrivateMessageCommand extends BukkitCommand {
 
         String senderFormat;
         if (!jsonStorage.isIgnore(recipient, sender)) {
-            String recipientFormat = TextUtil.stylish(configuration.getNode("pm.format.recipient")
-                    .getAsString("&7{sender-prefix}{sender-name} &6-> &7{recipient-prefix}{recipient-name}: &f{message}")
-                    .replace("{sender-prefix}", senderPrefix)
-                    .replace("{sender-suffix}", senderSuffix)
-                    .replace("{sender-name}", senderName)
-                    .replace("{recipient-name}", recipientName)
-                    .replace("{recipient-prefix}", recipientPrefix)
-                    .replace("{recipient-suffix}", recipientSuffix))
-                    .replace("{message}", message);
+            String recipientFormat = createFormat(configuration.getNode("pm.format.recipient")
+                        .getAsString("&7{sender-prefix}{sender-name} &6-> &7{recipient-prefix}{recipient-name}: &f{message}"),
+                    message, recipientName, recipientPrefix, recipientSuffix,
+                    senderName, senderPrefix, senderSuffix);
 
             if (!(recipient instanceof Player)) {
                 recipientFormat = TextUtil.stripHex(recipientFormat);
@@ -124,15 +121,10 @@ public abstract class PrivateMessageCommand extends BukkitCommand {
             recipient.sendMessage(recipientFormat);
         }
 
-        senderFormat = TextUtil.stylish(configuration.getNode("pm.format.sender")
-                .getAsString("&7{sender-prefix}{sender-name} &6-> &7{recipient-prefix}{recipient-name}: &f{message}")
-                .replace("{sender-prefix}", senderPrefix)
-                .replace("{sender-suffix}", senderSuffix)
-                .replace("{sender-name}", senderName)
-                .replace("{recipient-name}", recipientName)
-                .replace("{recipient-prefix}", recipientPrefix)
-                .replace("{recipient-suffix}", recipientSuffix))
-                .replace("{message}", message);
+        senderFormat = createFormat(configuration.getNode("pm.format.sender")
+                        .getAsString("&7{sender-prefix}{sender-name} &6-> &7{recipient-prefix}{recipient-name}: &f{message}"),
+                message, recipientName, recipientPrefix, recipientSuffix,
+                senderName, senderPrefix, senderSuffix);
 
         if (!(sender instanceof Player)) {
             TextUtil.stripHex(senderFormat);
@@ -140,22 +132,44 @@ public abstract class PrivateMessageCommand extends BukkitCommand {
 
         sender.sendMessage(senderFormat);
 
-        String stylishedSpyMessage = TextUtil.stylish(configuration.getNode("spy.format.pm")
-                .getAsString("&6[Spy] &r{format}")
+        if (configuration.getNode("spy.enable").getAsBoolean(false)) {
+            String stylishedSpyMessage = createFormat(configuration.getNode("spy.format.pm")
+                            .getAsString("&6[Spy] &r{format}"),
+                    message, recipientName, recipientPrefix, recipientSuffix,
+                    senderName, senderPrefix, senderSuffix)
+                    .replace("{format}", senderFormat);
+
+            Reflection.getOnlinePlayers().stream()
+                    .filter(spyPlayer -> !spyPlayer.equals(sender) && !spyPlayer.equals(recipient))
+                    .filter(spyPlayer -> spyPlayer.hasPermission("chatty.spy") || spyPlayer.hasPermission("chatty.spy.pm"))
+                    .filter(spyPlayer -> jsonStorage.getProperty(spyPlayer, "spy-mode").orElse(new JsonPrimitive(true)).getAsBoolean())
+                    .forEach(spyPlayer -> spyPlayer.sendMessage(stylishedSpyMessage));
+        }
+    }
+
+    @NotNull
+    private String createFormat(String format, @NotNull String message,
+                                String recipientName, String recipientPrefix, String recipientSuffix,
+                                String senderName, String senderPrefix, String senderSuffix) {
+        format = TextUtil.stylish(format
                 .replace("{sender-prefix}", senderPrefix)
                 .replace("{sender-suffix}", senderSuffix)
                 .replace("{sender-name}", senderName)
                 .replace("{recipient-name}", recipientName)
                 .replace("{recipient-prefix}", recipientPrefix)
-                .replace("{recipient-suffix}", recipientSuffix))
-                .replace("{message}", message)
-                .replace("{format}", senderFormat);
+                .replace("{recipient-suffix}", recipientSuffix));
 
-        Reflection.getOnlinePlayers().stream()
-                .filter(spyPlayer -> !spyPlayer.equals(sender) && !spyPlayer.equals(recipient))
-                .filter(spyPlayer -> spyPlayer.hasPermission("chatty.spy") || spyPlayer.hasPermission("chatty.spy.pm"))
-                .filter(spyPlayer -> jsonStorage.getProperty(spyPlayer, "spy-mode").orElse(new JsonPrimitive(true)).getAsBoolean())
-                .forEach(spyPlayer -> spyPlayer.sendMessage(stylishedSpyMessage));
+        return format.replace("{message}", message.replace(MODERATION_COLOR_SYMBOL, getLastColors(format)));
+    }
+
+    private String getLastColors(String format) {
+        int messageIndex = format.lastIndexOf("{message}");
+
+        if (messageIndex == -1) {
+            return format;
+        }
+
+        return TextUtil.getLastColors(TextUtil.stylish(format.substring(0, messageIndex)));
     }
 
 }
