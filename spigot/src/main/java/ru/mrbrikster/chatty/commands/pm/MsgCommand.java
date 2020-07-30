@@ -6,7 +6,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import ru.mrbrikster.baseplugin.config.Configuration;
 import ru.mrbrikster.chatty.Chatty;
-import ru.mrbrikster.chatty.util.PlayerUtil;
 
 import java.util.Arrays;
 
@@ -19,7 +18,8 @@ public class MsgCommand extends PrivateMessageCommand {
 
     @Override
     public void handle(CommandSender sender, String label, String[] args) {
-        if (!(sender instanceof Player) && !configuration.getNode("pm.allow-console").getAsBoolean(false)) {
+        boolean isPlayer = sender instanceof Player;
+        if (!isPlayer && !configuration.getNode("pm.allow-console").getAsBoolean(false)) {
             sender.sendMessage(Chatty.instance().messages().get("only-for-players"));
             return;
         }
@@ -52,9 +52,9 @@ public class MsgCommand extends PrivateMessageCommand {
             return;
         }
 
-        if (recipient instanceof Player
+        if (recipient instanceof Player && isPlayer
                 && !configuration.getNode("pm.allow-pm-vanished").getAsBoolean(true)
-                && PlayerUtil.isVanished((Player) recipient)) {
+                && ((Player) sender).canSee((Player) recipient)) {
             sender.sendMessage(Chatty.instance().messages().get("msg-command.player-not-found"));
             return;
         }
