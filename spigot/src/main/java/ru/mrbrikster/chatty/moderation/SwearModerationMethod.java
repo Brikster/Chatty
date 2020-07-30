@@ -11,9 +11,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class SwearModerationMethod extends ModifyingSubstringsModerationMethod {
 
@@ -21,6 +21,7 @@ public class SwearModerationMethod extends ModifyingSubstringsModerationMethod {
     private final List<String> words;
     @Getter private final boolean useBlock;
 
+    private static final int PATTERN_FLAGS = Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE;
     private static Pattern swearsPattern;
     private static List<Pattern> swearsWhitelist = new ArrayList<>();
     private static File swearsDirectory;
@@ -67,16 +68,11 @@ public class SwearModerationMethod extends ModifyingSubstringsModerationMethod {
                 if (swear.isEmpty())
                     continue;
 
-                if (pattern.length() == 0) {
-                    pattern.append(swear);
-                } else {
-                    pattern.append("|").append(swear);
-                }
+                pattern.append("|").append(swear);
             }
 
-            SwearModerationMethod.swearsPattern = Pattern.compile(pattern.toString(), Pattern.CASE_INSENSITIVE);
-            SwearModerationMethod.swearsWhitelist = Files.readLines(whitelistFile, StandardCharsets.UTF_8).stream().map(whitelistPattern
-                    -> Pattern.compile(whitelistPattern.toLowerCase(), Pattern.CASE_INSENSITIVE)).collect(Collectors.toList());
+            SwearModerationMethod.swearsPattern = Pattern.compile(pattern.substring(1), PATTERN_FLAGS);
+            Files.readLines(whitelistFile, StandardCharsets.UTF_8).forEach(SwearModerationMethod::addWhitelistWord);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -86,8 +82,8 @@ public class SwearModerationMethod extends ModifyingSubstringsModerationMethod {
         return whitelistFile;
     }
 
-    public static void addWord(Pattern pattern) {
-        swearsWhitelist.add(pattern);
+    public static void addWhitelistWord(String word) {
+        swearsWhitelist.add(Pattern.compile(word.toLowerCase(Locale.ENGLISH), PATTERN_FLAGS));
     }
 
     public List<String> getWords() {

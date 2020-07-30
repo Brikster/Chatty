@@ -8,7 +8,6 @@ import ru.mrbrikster.chatty.moderation.SwearModerationMethod;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.regex.Pattern;
 
 public class SwearsCommand extends BukkitCommand {
 
@@ -29,7 +28,7 @@ public class SwearsCommand extends BukkitCommand {
                     e.printStackTrace();
                 }
 
-                SwearModerationMethod.addWord(Pattern.compile(word, Pattern.CASE_INSENSITIVE));
+                SwearModerationMethod.addWhitelistWord(word);
 
                 sender.sendMessage(Chatty.instance().messages().get("swears-command.add-word").replace("{word}", word));
             } else sender.sendMessage(Chatty.instance().messages().get("swears-command.usage")
