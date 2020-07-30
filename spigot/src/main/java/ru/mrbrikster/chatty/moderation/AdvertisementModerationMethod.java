@@ -10,7 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class AdvertisementModerationMethod extends ModerationMethod {
+public class AdvertisementModerationMethod extends ModifyingSubstringsModerationMethod {
 
     private String editedMessage;
     private boolean checked = false, result = false;
@@ -23,8 +23,8 @@ public class AdvertisementModerationMethod extends ModerationMethod {
     @Getter private final String replacement;
     @Getter private final boolean useBlock;
 
-    AdvertisementModerationMethod(ConfigurationNode configurationNode, String message) {
-        super(message);
+    AdvertisementModerationMethod(ConfigurationNode configurationNode, String message, String lastFormatColors) {
+        super(message, lastFormatColors);
 
         this.whitelist = configurationNode.getNode("whitelist")
                 .getAsStringList().stream().map(String::toLowerCase).collect(Collectors.toList());
@@ -96,7 +96,11 @@ public class AdvertisementModerationMethod extends ModerationMethod {
                 builder.append(this.editedMessage, matcher.start(), matcher.end());
             } else {
                 containsAds = true;
-                builder.append(this.replacement);
+
+                String lastColors = TextUtil.getLastColors(message.substring(0, matcher.start()));
+                if (lastColors.isEmpty()) lastColors = lastFormatColors;
+
+                builder.append(this.replacement).append(lastColors);
             }
         }
 

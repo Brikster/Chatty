@@ -15,7 +15,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class SwearModerationMethod extends ModerationMethod {
+public class SwearModerationMethod extends ModifyingSubstringsModerationMethod {
 
     private final String replacement;
     private final List<String> words;
@@ -28,8 +28,8 @@ public class SwearModerationMethod extends ModerationMethod {
     private static File whitelistFile;
     private String editedMessage;
 
-    SwearModerationMethod(ConfigurationNode configurationNode, String message) {
-        super(message);
+    SwearModerationMethod(ConfigurationNode configurationNode, String message, String lastFormatColors) {
+        super(message, lastFormatColors);
 
         this.replacement = TextUtil.stylish(configurationNode.getNode("replacement").getAsString("<swear>"));
         this.words = new ArrayList<>();
@@ -117,6 +117,9 @@ public class SwearModerationMethod extends ModerationMethod {
 
             String swear = message.substring(previousWordStart = wordStartAndEndArray[0], previousWordEnd = wordStartAndEndArray[1]);
 
+            String lastColors = TextUtil.getLastColors(message.substring(0, previousWordStart));
+            if (lastColors.isEmpty()) lastColors = lastFormatColors;
+
             boolean whitelisted = false;
             for (Pattern pattern : swearsWhitelist) {
                 if (pattern.matcher(swear).matches())
@@ -125,7 +128,7 @@ public class SwearModerationMethod extends ModerationMethod {
 
             if (!whitelisted) {
                 words.add(swear);
-                editedMessage = editedMessage.replaceAll(Pattern.quote(swear), replacement);
+                editedMessage = editedMessage.replaceAll(Pattern.quote(swear), replacement + lastColors);
             }
         }
 

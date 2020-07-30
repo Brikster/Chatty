@@ -48,12 +48,12 @@ public class ModerationManager {
         return new CapsModerationMethod(configuration.getNode("moderation.caps"), message);
     }
 
-    public AdvertisementModerationMethod getAdvertisementMethod(String message) {
-        return new AdvertisementModerationMethod(configuration.getNode("moderation.advertisement"), message);
+    public AdvertisementModerationMethod getAdvertisementMethod(String message, String lastFormatColors) {
+        return new AdvertisementModerationMethod(configuration.getNode("moderation.advertisement"), message, lastFormatColors);
     }
 
-    public SwearModerationMethod getSwearMethod(String message) {
-        return new SwearModerationMethod(configuration.getNode("moderation.swear"), message);
+    public SwearModerationMethod getSwearMethod(String message, String lastFormatColors) {
+        return new SwearModerationMethod(configuration.getNode("moderation.swear"), message, lastFormatColors);
     }
 
 }

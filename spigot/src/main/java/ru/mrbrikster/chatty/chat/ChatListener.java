@@ -174,7 +174,7 @@ public class ChatListener implements Listener, EventExecutor {
         }
 
         StringBuilder logPrefixBuilder = new StringBuilder();
-        message = checkModerationMethods(event, player, chat, message, logPrefixBuilder);
+        message = checkModerationMethods(event, player, chat, message, logPrefixBuilder, TextUtil.getLastColors(format));
 
         event.setMessage(message);
 
@@ -216,9 +216,9 @@ public class ChatListener implements Listener, EventExecutor {
         return false;
     }
 
-    private String checkModerationMethods(AsyncPlayerChatEvent event, Player player, Chat chat, String message, StringBuilder logPrefixBuilder) {
+    private String checkModerationMethods(AsyncPlayerChatEvent event, Player player, Chat chat, String message, StringBuilder logPrefixBuilder, String lastFormatColors) {
         if (chat.isSwearModerationEnabled() && moderationManager.isSwearModerationEnabled()) {
-            SwearModerationMethod swearMethod = moderationManager.getSwearMethod(message);
+            SwearModerationMethod swearMethod = moderationManager.getSwearMethod(message, lastFormatColors);
             if (!player.hasPermission("chatty.moderation.swear")) {
                 message = handleModerationMethod(event, player, message, logPrefixBuilder, swearMethod);
 
@@ -237,7 +237,7 @@ public class ChatListener implements Listener, EventExecutor {
         }
 
         if (chat.isAdvertisementModerationEnabled() && this.moderationManager.isAdvertisementModerationEnabled()) {
-            AdvertisementModerationMethod advertisementMethod = this.moderationManager.getAdvertisementMethod(message);
+            AdvertisementModerationMethod advertisementMethod = this.moderationManager.getAdvertisementMethod(message, lastFormatColors);
             if (!player.hasPermission("chatty.moderation.advertisement")) {
                 message = handleModerationMethod(event, player, message, logPrefixBuilder, advertisementMethod);
             }
