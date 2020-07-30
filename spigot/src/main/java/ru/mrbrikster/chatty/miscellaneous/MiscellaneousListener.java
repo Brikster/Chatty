@@ -35,7 +35,7 @@ public class MiscellaneousListener implements Listener {
 
         String joinMessage;
         if (event.getPlayer().hasPlayedBefore() || (joinMessage = configuration
-                .getNode("miscellaneous.vanilla.join.first.message")
+                .getNode("miscellaneous.vanilla.join.first-join.message")
                 .getAsString(null)) == null) {
             joinMessage = configuration
                     .getNode("miscellaneous.vanilla.join.message")
@@ -44,7 +44,7 @@ public class MiscellaneousListener implements Listener {
 
         String soundName;
         if (event.getPlayer().hasPlayedBefore() || (soundName = configuration
-                .getNode("miscellaneous.vanilla.join.first.sound")
+                .getNode("miscellaneous.vanilla.join.first-join.sound")
                 .getAsString(null)) == null) {
             soundName = configuration
                     .getNode("miscellaneous.vanilla.join.sound")
