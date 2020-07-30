@@ -27,7 +27,6 @@ import ru.mrbrikster.chatty.json.LegacyMessagePart;
 import ru.mrbrikster.chatty.moderation.*;
 import ru.mrbrikster.chatty.reflection.Reflection;
 import ru.mrbrikster.chatty.util.Pair;
-import ru.mrbrikster.chatty.util.PlayerUtil;
 import ru.mrbrikster.chatty.util.Sound;
 import ru.mrbrikster.chatty.util.TextUtil;
 
@@ -158,9 +157,9 @@ public class ChatListener implements Listener, EventExecutor {
             event.getRecipients().addAll(chat.getRecipients(player));
         }
 
-        long recipientsCount = 0;
+        long recipientsCount;
         if (configuration.getNode("general.hide-vanished-recipients").getAsBoolean(false)) {
-            recipientsCount = event.getRecipients().stream().filter(recipient -> !PlayerUtil.isVanished(recipient)).count();
+            recipientsCount = event.getRecipients().stream().filter(recipient -> !player.canSee(recipient)).count();
         } else {
             recipientsCount = event.getRecipients().size();
         }
