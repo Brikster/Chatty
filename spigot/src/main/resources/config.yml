@@ -64,18 +64,20 @@ general:
 # chatty.chat.<chat>.see - permission for seeing messages.
 #
 # Chat has the following options:
-# *enable*      - on/off chat.
-# *format*      - chat format string.
-# *range*       - chat range. -1 to world-wide chat, -2 to server-wide, -3 to BungeeCord-wide chat.
-# *symbol*      - character from which message should begin.
-# *cooldown*    - message cooldown in seconds (bypass permission - chatty.cooldown.<chat>).
-# *money*       - message price (depends on Vault).
-# *permission*  - check permissions for this chat? Default: true.
-# *command*     - Command that is used to switch to chat to use it by default if symbol is not specified. Default: empty.
+# *enable*       - on/off chat.
+# *display-name* - name of chat, displaying in placeholders and locale messages. Default: regular name of chat.
+# *format*       - chat format string.
+# *range*        - chat range. -1 to world-wide chat, -2 to server-wide, -3 to BungeeCord-wide chat.
+# *symbol*       - character from which message should begin.
+# *cooldown*     - message cooldown in seconds (bypass permission - chatty.cooldown.<chat>).
+# *money*        - message price (depends on Vault).
+# *permission*   - check permissions for this chat? Default: true.
+# *command*      - Command that is used to switch to chat to use it by default if symbol is not specified. Default: empty.
 # *aliases*      - Aliases for command. Default: empty.
 chats:
   local:
     enable: true
+    display-name: 'Local'
     format: '&e[&6Local&e] &r{prefix}{player}{suffix}&8: &f{message}'
     range: 100
     cooldown: -1
@@ -84,6 +86,7 @@ chats:
 
   global:
     enable: true
+    display-name: 'Global'
     format: '&e[&aGlobal&e] &r{prefix}{player}{suffix}&8: &f{message}'
     range: -1
     symbol: '!'
@@ -587,7 +590,7 @@ miscellaneous:
       # Default: true
       permission: false
 
-      # Specified arameters for the first join
+      # Specified parameters for the first join
       first-join:
         # First join message.
         # Set to '' if you don't want to see special message for the first join.

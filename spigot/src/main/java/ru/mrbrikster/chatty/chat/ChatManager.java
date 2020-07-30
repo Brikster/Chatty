@@ -32,7 +32,7 @@ public class ChatManager {
     private final Configuration configuration;
     private final JsonStorage jsonStorage;
 
-    private static final Pattern CHAT_NAME_PATTERN = Pattern.compile("^[a-zа-я0-9]{1,32}$");
+    private static final Pattern CHAT_NAME_PATTERN = Pattern.compile("^[a-z0-9]{1,32}$");
 
     public ChatManager(Chatty chatty) {
         this.configuration = chatty.getExact(Configuration.class);
@@ -73,6 +73,7 @@ public class ChatManager {
         configuration.getNode("chats").getChildNodes().stream().map(chatNode -> {
             ChatBuilder builder = Chat.builder()
                     .name(chatNode.getName().toLowerCase())
+                    .displayName(chatNode.getNode("display-name").getAsString(chatNode.getName().toLowerCase()))
                     .enable(chatNode.getNode("enable").getAsBoolean(false))
                     .format(chatNode.getNode("format").getAsString("§7{player}§8: §f{message}"))
                     .range(chatNode.getNode("range").getAsInt(-1))
@@ -103,7 +104,7 @@ public class ChatManager {
             return builder.build();
         }).filter(Chat::isEnable).peek(chat -> {
             if (!CHAT_NAME_PATTERN.matcher(chat.getName()).matches()) {
-                throw new IllegalArgumentException("Chat name can contain only Latin and Cyrillic characters and numbers");
+                throw new IllegalArgumentException("Chat name can contain only Latin characters and numbers");
             }
         }).forEach(this.chats::add);
 
@@ -121,7 +122,7 @@ public class ChatManager {
 
                             if (chat.isWriteAllowed((Player) sender)) {
                                 jsonStorage.setProperty((Player) sender, "chat", new JsonPrimitive(chat.getName()));
-                                sender.sendMessage(Chatty.instance().messages().get("chat-command.chat-switched").replace("{chat}", chat.getName()));
+                                sender.sendMessage(Chatty.instance().messages().get("chat-command.chat-switched").replace("{chat}", chat.getDisplayName()));
                             } else {
                                 sender.sendMessage(Chatty.instance().messages().get("chat-command.no-chat-permission"));
                             }

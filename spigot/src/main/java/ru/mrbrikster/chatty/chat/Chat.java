@@ -33,6 +33,7 @@ public class Chat implements ru.mrbrikster.chatty.api.chats.Chat {
     private static final String CHAT_COOLDOWN_METADATA_KEY = "chatty.cooldown.chat.%s";
 
     @NotNull private final String name;
+    @NotNull private final String displayName;
     private final boolean enable;
     @NotNull private final String format;
     private final int range;

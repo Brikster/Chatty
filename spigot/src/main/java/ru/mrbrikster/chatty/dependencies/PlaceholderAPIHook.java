@@ -92,7 +92,7 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
                 }
 
                 Chat chat = chatManager.getCurrentChat(player);
-                return chat == null ? "no" : chat.getName();
+                return chat == null ? "no" : chat.getDisplayName();
             }
 
             case "online": {

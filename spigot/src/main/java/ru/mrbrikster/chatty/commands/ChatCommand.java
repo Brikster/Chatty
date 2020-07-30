@@ -40,7 +40,7 @@ public class ChatCommand extends BukkitCommand {
                             || sender.hasPermission(String.format("chatty.chat.%s", chat.getName()))
                             || sender.hasPermission(String.format("chatty.chat.%s.write", chat.getName()))) {
                         jsonStorage.setProperty((Player) sender, "chat", new JsonPrimitive(chat.getName()));
-                        sender.sendMessage(Chatty.instance().messages().get("chat-command.chat-switched").replace("{chat}", chat.getName()));
+                        sender.sendMessage(Chatty.instance().messages().get("chat-command.chat-switched").replace("{chat}", chat.getDisplayName()));
                     } else {
                         sender.sendMessage(Chatty.instance().messages().get("chat-command.no-chat-permission"));
                     }
