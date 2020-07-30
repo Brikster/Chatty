@@ -4,18 +4,17 @@ import lombok.Getter;
 import ru.mrbrikster.baseplugin.config.ConfigurationNode;
 import ru.mrbrikster.chatty.util.TextUtil;
 
-import java.util.List;
-import java.util.function.Function;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class AdvertisementModerationMethod extends ModifyingSubstringsModerationMethod {
 
     private String editedMessage;
     private boolean checked = false, result = false;
 
-    private final List<String> whitelist;
+    private final Set<String> whitelist;
 
     private final Pattern ipPattern;
     private final Pattern webPattern;
@@ -26,8 +25,7 @@ public class AdvertisementModerationMethod extends ModifyingSubstringsModeration
     AdvertisementModerationMethod(ConfigurationNode configurationNode, String message, String lastFormatColors) {
         super(message, lastFormatColors);
 
-        this.whitelist = configurationNode.getNode("whitelist")
-                .getAsStringList().stream().map(String::toLowerCase).collect(Collectors.toList());
+        this.whitelist = new HashSet<>(configurationNode.getNode("whitelist").getAsStringList());
         this.ipPattern = Pattern.compile(configurationNode.getNode("patterns.ip")
                 .getAsString("\\b((\\d{1,2}|2(5[0-5]|[0-4]\\d))[._,-)(]+){3}(\\d{1,2}|2(5[0-5]|[0-4]\\d))(:\\d{2,8})?"));
         this.webPattern = Pattern.compile(configurationNode.getNode("patterns.web")
@@ -55,12 +53,7 @@ public class AdvertisementModerationMethod extends ModifyingSubstringsModeration
             this.editedMessage = this.message;
         }
 
-        this.result = match(ipPattern, string -> string);
-        this.result = match(webPattern, string -> string
-                .replaceAll(Pattern.quote("www."), "")
-                .replaceAll(Pattern.quote("http://"), "")
-                .replaceAll(Pattern.quote("https://"), "")
-        ) || this.result;
+        this.result = match(ipPattern) | match(webPattern) || this.result;
 
         this.checked = true;
 
@@ -77,7 +70,7 @@ public class AdvertisementModerationMethod extends ModifyingSubstringsModeration
         return "advertisement-found";
     }
 
-    private boolean match(Pattern pattern, Function<String, String> modifyFunction) {
+    private boolean match(Pattern pattern) {
         Matcher matcher = pattern.matcher(this.editedMessage);
 
         int prevIndex = 0;
@@ -90,9 +83,7 @@ public class AdvertisementModerationMethod extends ModifyingSubstringsModeration
             builder.append(this.editedMessage, prevIndex, matcher.start());
             prevIndex = matcher.end();
 
-            String ad = modifyFunction.apply(group.trim().toLowerCase());
-
-            if (this.whitelist.contains(ad)) {
+            if (this.whitelist.contains(group.trim())) {
                 builder.append(this.editedMessage, matcher.start(), matcher.end());
             } else {
                 containsAds = true;
