@@ -20,14 +20,14 @@ public class SwearModerationMethod extends ModifyingSubstringsModerationMethod {
     private static final int PATTERN_FLAGS = Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE;
 
     private final String replacement;
-    private final List<String> words;
+    @Getter private final List<String> words;
     @Getter private final boolean useBlock;
 
     private static Pattern swearsPattern;
     private static List<Pattern> swearsWhitelist = new ArrayList<>();
     private static File swearsDirectory;
     private static File swearsFile;
-    private static File whitelistFile;
+    @Getter private static File whitelistFile;
     private String editedMessage;
 
     SwearModerationMethod(ConfigurationNode configurationNode, String message, String lastFormatColors) {
@@ -79,16 +79,8 @@ public class SwearModerationMethod extends ModifyingSubstringsModerationMethod {
         }
     }
 
-    public static File getWhitelistFile() {
-        return whitelistFile;
-    }
-
     public static void addWhitelistWord(String word) {
         swearsWhitelist.add(Pattern.compile(word.toLowerCase(Locale.ENGLISH), PATTERN_FLAGS));
-    }
-
-    public List<String> getWords() {
-        return words;
     }
 
     @Override
