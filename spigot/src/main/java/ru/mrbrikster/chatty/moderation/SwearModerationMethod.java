@@ -79,10 +79,12 @@ public class SwearModerationMethod extends ModifyingSubstringsModerationMethod {
         }
     }
 
-    public static void addWhitelistWord(String word) {
+    public static boolean addWhitelistWord(String word) {
         if(!word.isEmpty()) {
             swearsWhitelist.add(Pattern.compile(word.toLowerCase(Locale.ENGLISH), PATTERN_FLAGS));
+            return true;
         }
+        return false;
     }
 
     @Override

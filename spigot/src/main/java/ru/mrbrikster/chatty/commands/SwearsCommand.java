@@ -22,13 +22,13 @@ public class SwearsCommand extends BukkitCommand {
                     && args[0].equalsIgnoreCase("add")) {
                 String word = args[1];
 
-                try {
-                    Files.append("\n" + word, SwearModerationMethod.getWhitelistFile(), StandardCharsets.UTF_8);
-                } catch (IOException e) {
-                    e.printStackTrace();
+                if (SwearModerationMethod.addWhitelistWord(word)) {
+                    try {
+                        Files.append("\n" + word, SwearModerationMethod.getWhitelistFile(), StandardCharsets.UTF_8);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
-
-                SwearModerationMethod.addWhitelistWord(word);
 
                 sender.sendMessage(Chatty.instance().messages().get("swears-command.add-word").replace("{word}", word));
             } else sender.sendMessage(Chatty.instance().messages().get("swears-command.usage")
