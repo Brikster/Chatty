@@ -11,6 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class AdvertisementModerationMethod extends ModifyingSubstringsModerationMethod {
+
     private static final String IP =
             "\\b((\\d{1,2}|2(5[0-5]|[0-4]\\d))[._,-)(]+){3}(\\d{1,2}|2(5[0-5]|[0-4]\\d))(:\\d{2,8})?";
     private static final String WEB =
@@ -33,12 +34,13 @@ public class AdvertisementModerationMethod extends ModifyingSubstringsModeration
         super(message, lastFormatColors);
 
         this.whitelist = new HashSet<>(configurationNode.getNode("whitelist").getAsStringList());
-        this.ipPattern = Pattern.compile(configurationNode.getNode("patterns.ip")
-                .getAsString("\\b((\\d{1,2}|2(5[0-5]|[0-4]\\d))[._,-)(]+){3}(\\d{1,2}|2(5[0-5]|[0-4]\\d))(:\\d{2,8})?"));
-        this.webPattern = Pattern.compile(configurationNode.getNode("patterns.web")
-                .getAsString("\\b(https?:\\/\\/)?[\\w\\.а-яА-Я-]+\\.([a-z]{2,4}|[рР][фФ]|[уУ][кК][рР])\\b(:\\d{2,5})?(\\/\\S+)?"));
-        this.replacement = TextUtil.stylish(configurationNode.getNode("replacement").getAsString("<ads>"));
         this.useBlock = configurationNode.getNode("block").getAsBoolean(true);
+        this.replacement = TextUtil.stylish(configurationNode.getNode("replacement").getAsString("<ads>"));
+
+        String ipString = configurationNode.getNode("patterns.ip").getAsString(IP);
+        String webString = configurationNode.getNode("patterns.web").getAsString(WEB);
+        this.ipPattern = cachedIp.get(ipString, () -> Pattern.compile(ipString));
+        this.webPattern = cachedWeb.get(webString, () -> Pattern.compile(webString));
     }
 
     @Override

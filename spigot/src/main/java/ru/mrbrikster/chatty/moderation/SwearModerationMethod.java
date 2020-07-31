@@ -17,11 +17,12 @@ import java.util.regex.Pattern;
 
 public class SwearModerationMethod extends ModifyingSubstringsModerationMethod {
 
+    private static final int PATTERN_FLAGS = Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE;
+
     private final String replacement;
     private final List<String> words;
     @Getter private final boolean useBlock;
 
-    private static final int PATTERN_FLAGS = Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE;
     private static Pattern swearsPattern;
     private static List<Pattern> swearsWhitelist = new ArrayList<>();
     private static File swearsDirectory;
