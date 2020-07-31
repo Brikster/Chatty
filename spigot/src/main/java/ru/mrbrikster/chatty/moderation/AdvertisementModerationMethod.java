@@ -15,7 +15,7 @@ public class AdvertisementModerationMethod extends ModifyingSubstringsModeration
     private static final String IP =
             "\\b((\\d{1,2}|2(5[0-5]|[0-4]\\d))[._,-)(]+){3}(\\d{1,2}|2(5[0-5]|[0-4]\\d))(:\\d{2,8})?";
     private static final String WEB =
-            "\\b(https?:\\/\\/)?[\\w\\.а-яА-Я-]+\\.([a-z]{2,4}|[рР][фФ]|[уУ][кК][рР])\\b(:\\d{2,5})?(\\/\\S+)?";
+            "(?i)\\b(https?:\\/\\/)?[\\w\\.а-яА-Я-]+\\.([a-z]{2,4}|[рР][фФ]|[уУ][кК][рР])\\b(:\\d{2,5})?(\\/\\S+)?";
     private static final CachedObject<String, Pattern> cachedIp = new CachedObject<>(IP, Pattern.compile(IP));
     private static final CachedObject<String, Pattern> cachedWeb = new CachedObject<>(WEB, Pattern.compile(WEB));
 
