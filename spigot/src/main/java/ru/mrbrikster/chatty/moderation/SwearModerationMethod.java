@@ -72,7 +72,7 @@ public class SwearModerationMethod extends ModifyingSubstringsModerationMethod {
                 pattern.append("|").append(swear);
             }
 
-            SwearModerationMethod.swearsPattern = Pattern.compile(pattern.substring(1), PATTERN_FLAGS);
+            SwearModerationMethod.swearsPattern = Pattern.compile(pattern.length() > 1 ? pattern.substring(1) : "a^", PATTERN_FLAGS);
             Files.readLines(whitelistFile, StandardCharsets.UTF_8).forEach(SwearModerationMethod::addWhitelistWord);
         } catch (IOException e) {
             e.printStackTrace();
@@ -80,7 +80,9 @@ public class SwearModerationMethod extends ModifyingSubstringsModerationMethod {
     }
 
     public static void addWhitelistWord(String word) {
-        swearsWhitelist.add(Pattern.compile(word.toLowerCase(Locale.ENGLISH), PATTERN_FLAGS));
+        if(!word.isEmpty()) {
+            swearsWhitelist.add(Pattern.compile(word.toLowerCase(Locale.ENGLISH), PATTERN_FLAGS));
+        }
     }
 
     @Override
