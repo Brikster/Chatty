@@ -2,6 +2,7 @@ package ru.mrbrikster.chatty.moderation;
 
 import lombok.Getter;
 import ru.mrbrikster.baseplugin.config.ConfigurationNode;
+import ru.mrbrikster.chatty.util.CachedObject;
 import ru.mrbrikster.chatty.util.TextUtil;
 
 import java.util.HashSet;
@@ -10,6 +11,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class AdvertisementModerationMethod extends ModifyingSubstringsModerationMethod {
+    private static final String IP =
+            "\\b((\\d{1,2}|2(5[0-5]|[0-4]\\d))[._,-)(]+){3}(\\d{1,2}|2(5[0-5]|[0-4]\\d))(:\\d{2,8})?";
+    private static final String WEB =
+            "\\b(https?:\\/\\/)?[\\w\\.а-яА-Я-]+\\.([a-z]{2,4}|[рР][фФ]|[уУ][кК][рР])\\b(:\\d{2,5})?(\\/\\S+)?";
+    private static final CachedObject<String, Pattern> cachedIp = new CachedObject<>(IP, Pattern.compile(IP));
+    private static final CachedObject<String, Pattern> cachedWeb = new CachedObject<>(WEB, Pattern.compile(WEB));
 
     private String editedMessage;
     private boolean checked = false, result = false;
