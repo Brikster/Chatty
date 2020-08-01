@@ -491,8 +491,8 @@ moderation:
 
     # Regular expressions for IP-addresses and websites.
     patterns:
-      ip: '\b((\d{1,2}|2(5[0-5]|[0-4]\d))[._,-)(]+){3}(\d{1,2}|2(5[0-5]|[0-4]\d))(:\d{2,8})?'
-      web: '(?i)\b(https?:\/\/)?[\w\.а-яА-Я-]+\.([a-z]{2,4}|[рР][фФ]|[уУ][кК][рР])\b(:\d{2,5})?(\/\S+)?'
+      ip: '\b((\d{1,2}|2(5[0-5]|[0-4]\d))[._,)(-]+){3}(\d{1,2}|2(5[0-5]|[0-4]\d))(:\d{2,7})?'
+      web: '(?i)\b(https?:\/\/)?[\w\.а-яА-Я-]+\.([a-z]{2,4}|[рР][фФ]|[уУ][кК][рР])\b(:\d{2,7})?(\/\S+)?'
 
     # On/off advertisement message blocking.
     # When false, advertisement will be replaced.
