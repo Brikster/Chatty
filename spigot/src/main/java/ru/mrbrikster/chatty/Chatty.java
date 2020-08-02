@@ -97,10 +97,10 @@ public final class Chatty extends BukkitBasePlugin {
         register(ModerationManager.class, new ModerationManager(this));
         register(JsonStorage.class, new JsonStorage(this));
 
-        register(PlayerTagManager.class, new PlayerTagManager(this));
         register(ChatManager.class, new ChatManager(this));
 
         register(DependencyManager.class, new DependencyManager(this));
+        register(PlayerTagManager.class, new PlayerTagManager(this));
 
         register(Messages.class, new Messages(this));
         register(Debugger.class, new Debugger(this));
