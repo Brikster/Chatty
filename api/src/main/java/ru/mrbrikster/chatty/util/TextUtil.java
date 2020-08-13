@@ -18,13 +18,13 @@ public class TextUtil {
 
     private final Pattern HEX_COLORS_PATTERN = Pattern.compile("\\{#([a-fA-F0-9]{6})}");
     private final Pattern HEX_GRADIENT_PATTERN = Pattern.compile("\\{#([a-fA-F0-9]{6})(:#([a-fA-F0-9]{6}))+( )([^{}])*(})");
-    private final Pattern HEX_SPIGOT_PATTERN = Pattern.compile("(?i)§[0-9A-FK-ORX]((?i)§[0-9A-F]){6}");
+    private final Pattern HEX_SPIGOT_PATTERN = Pattern.compile("§[xX](§[a-fA-F0-9]){6}");
 
-    private final List<ChatColor> FORMAT_COLORS = Arrays.asList(ChatColor.MAGIC, ChatColor.UNDERLINE, ChatColor.STRIKETHROUGH, ChatColor.BOLD, ChatColor.ITALIC, ChatColor.RESET);
+    private final List<ChatColor> FORMAT_COLORS = Arrays.asList(ChatColor.BOLD, ChatColor.ITALIC, ChatColor.UNDERLINE, ChatColor.MAGIC, ChatColor.STRIKETHROUGH, ChatColor.RESET);
 
     public boolean isColor(ChatColor color) {
         for (ChatColor formatColor : FORMAT_COLORS) {
-            if (formatColor.equals(color)) {
+            if (formatColor == color) {
                 return false;
             }
         }

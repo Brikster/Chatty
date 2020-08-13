@@ -2,20 +2,27 @@ package ru.mrbrikster.chatty.moderation;
 
 import lombok.Getter;
 import ru.mrbrikster.baseplugin.config.ConfigurationNode;
+import ru.mrbrikster.chatty.util.CachedObject;
 import ru.mrbrikster.chatty.util.TextUtil;
 
-import java.util.List;
-import java.util.function.Function;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class AdvertisementModerationMethod extends ModifyingSubstringsModerationMethod {
+
+    private static final String IP =
+            "\\b((\\d{1,2}|2(5[0-5]|[0-4]\\d))[._,)(-]+){3}(\\d{1,2}|2(5[0-5]|[0-4]\\d))(:\\d{2,7})?";
+    private static final String WEB =
+            "(?i)\\b(https?:\\/\\/)?[\\w\\.а-яА-Я-]+\\.([a-z]{2,4}|[рР][фФ]|[уУ][кК][рР])\\b(:\\d{2,7})?(\\/\\S+)?";
+    private static final CachedObject<String, Pattern> cachedIp = new CachedObject<>(IP, Pattern.compile(IP));
+    private static final CachedObject<String, Pattern> cachedWeb = new CachedObject<>(WEB, Pattern.compile(WEB));
 
     private String editedMessage;
     private boolean checked = false, result = false;
 
-    private final List<String> whitelist;
+    private final Set<String> whitelist;
 
     private final Pattern ipPattern;
     private final Pattern webPattern;
@@ -26,14 +33,14 @@ public class AdvertisementModerationMethod extends ModifyingSubstringsModeration
     AdvertisementModerationMethod(ConfigurationNode configurationNode, String message, String lastFormatColors) {
         super(message, lastFormatColors);
 
-        this.whitelist = configurationNode.getNode("whitelist")
-                .getAsStringList().stream().map(String::toLowerCase).collect(Collectors.toList());
-        this.ipPattern = Pattern.compile(configurationNode.getNode("patterns.ip")
-                .getAsString("(?:\\d{1,3}[.,\\-:;\\/()=?}+ ]{1,4}){3}\\d{1,3}"));
-        this.webPattern = Pattern.compile(configurationNode.getNode("patterns.web")
-                .getAsString("[-a-zA-Zа-яА-Я0-9@:%_\\+.~#?&//=]{2,256}\\.[a-z]{2,4}\\b(\\/[-a-zA-Zа-яА-Я0-9@:%_\\+~#?&//=]*)?"));
-        this.replacement = TextUtil.stylish(configurationNode.getNode("replacement").getAsString("<ads>"));
+        this.whitelist = new HashSet<>(configurationNode.getNode("whitelist").getAsStringList());
         this.useBlock = configurationNode.getNode("block").getAsBoolean(true);
+        this.replacement = TextUtil.stylish(configurationNode.getNode("replacement").getAsString("<ads>"));
+
+        String ipString = configurationNode.getNode("patterns.ip").getAsString(IP);
+        String webString = configurationNode.getNode("patterns.web").getAsString(WEB);
+        this.ipPattern = cachedIp.get(ipString, () -> Pattern.compile(ipString));
+        this.webPattern = cachedWeb.get(webString, () -> Pattern.compile(webString));
     }
 
     @Override
@@ -55,12 +62,7 @@ public class AdvertisementModerationMethod extends ModifyingSubstringsModeration
             this.editedMessage = this.message;
         }
 
-        this.result = match(ipPattern, string -> string);
-        this.result = match(webPattern, string -> string
-                .replaceAll(Pattern.quote("www."), "")
-                .replaceAll(Pattern.quote("http://"), "")
-                .replaceAll(Pattern.quote("https://"), "")
-        ) || this.result;
+        this.result = match(ipPattern) | match(webPattern) || this.result;
 
         this.checked = true;
 
@@ -77,7 +79,7 @@ public class AdvertisementModerationMethod extends ModifyingSubstringsModeration
         return "advertisement-found";
     }
 
-    private boolean match(Pattern pattern, Function<String, String> modifyFunction) {
+    private boolean match(Pattern pattern) {
         Matcher matcher = pattern.matcher(this.editedMessage);
 
         int prevIndex = 0;
@@ -90,9 +92,7 @@ public class AdvertisementModerationMethod extends ModifyingSubstringsModeration
             builder.append(this.editedMessage, prevIndex, matcher.start());
             prevIndex = matcher.end();
 
-            String ad = modifyFunction.apply(group.trim().toLowerCase());
-
-            if (this.whitelist.contains(ad)) {
+            if (this.whitelist.contains(group.trim())) {
                 builder.append(this.editedMessage, matcher.start(), matcher.end());
             } else {
                 containsAds = true;
