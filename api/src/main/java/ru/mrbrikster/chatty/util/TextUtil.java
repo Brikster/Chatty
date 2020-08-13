@@ -139,7 +139,7 @@ public class TextUtil {
             Class<?> clsChatMessageType = ServerPackage.MINECRAFT.getClass("ChatMessageType");
             Object entityPlayer = player.getClass().getMethod("getHandle").invoke(player);
             Object playerConnection = entityPlayer.getClass().getField("playerConnection").get(entityPlayer);
-            Object chatBaseComponent = ServerPackage.MINECRAFT.getClass("IChatBaseComponent$ChatSerializer").getMethod("jsonToComponent", String.class).invoke(null, json);
+            Object chatBaseComponent = ServerPackage.MINECRAFT.getClass("IChatBaseComponent$ChatSerializer").getMethod("a", String.class).invoke(null, json);
             Object chatMessageType = clsChatMessageType.getMethod("valueOf", String.class).invoke(null, "CHAT");
             Object packetPlayOutChat;
             try {
