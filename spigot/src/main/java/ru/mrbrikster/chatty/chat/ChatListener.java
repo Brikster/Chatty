@@ -341,7 +341,7 @@ public class ChatListener implements Listener, EventExecutor {
 
         FormattedMessage formattedMessage = new FormattedMessage(format);
         formattedMessage.replace("{player}",
-                new JsonMessagePart(player.getDisplayName())
+                new JsonMessagePart(player.getName())
                         .command(stringVariablesFunction.apply(command))
                         .suggest(stringVariablesFunction.apply(suggestCommand))
                         .link(stringVariablesFunction.apply(link))
