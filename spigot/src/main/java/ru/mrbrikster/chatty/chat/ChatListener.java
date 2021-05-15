@@ -272,6 +272,8 @@ public class ChatListener implements Listener, EventExecutor {
     public void onSpyMessage(AsyncPlayerChatEvent event) {
         Pair<Chat, List<Player>> pair = pendingSpyMessages.remove(event.getPlayer());
 
+        if (pair == null) return;
+
         if (pair.getA().isSpyEnabled()
                 && configuration.getNode("spy.enable").getAsBoolean(false)
                 && !event.isCancelled()) {
