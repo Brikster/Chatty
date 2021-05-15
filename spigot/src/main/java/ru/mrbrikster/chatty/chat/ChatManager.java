@@ -1,7 +1,7 @@
 package ru.mrbrikster.chatty.chat;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
-import lombok.Getter;
 import net.amoebaman.util.ArrayWrapper;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -12,6 +12,8 @@ import ru.mrbrikster.chatty.Chatty;
 import ru.mrbrikster.chatty.chat.Chat.ChatBuilder;
 import ru.mrbrikster.chatty.util.Sound;
 
+import lombok.Getter;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -21,9 +23,12 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Optional;
+import java.util.regex.Pattern;
 
 public class ChatManager {
 
+    private static final Pattern CHAT_NAME_PATTERN = Pattern.compile("^[a-z0-9]{1,32}$");
     @Getter private final List<Chat> chats = new ArrayList<>();
     @Getter private final Logger logger;
     private final Configuration configuration;
@@ -49,39 +54,59 @@ public class ChatManager {
         return null;
     }
 
+    public Chat getCurrentChat(Player player) {
+        Optional<JsonElement> optional = jsonStorage.getProperty(player, "chat");
+        if (optional.isPresent()) {
+            JsonElement jsonElement = optional.get();
+            if (jsonElement.isJsonPrimitive()) {
+                String chatName = jsonElement.getAsJsonPrimitive().getAsString();
+                Chat chat = getChat(chatName);
+                if (chat != null && chat.isWriteAllowed(player)) {
+                    return chat;
+                }
+            }
+        }
+        return null;
+    }
+
     private void init() {
         configuration.getNode("chats").getChildNodes().stream().map(chatNode -> {
-                    ChatBuilder builder = Chat.builder()
-                            .name(chatNode.getName())
-                            .enable(chatNode.getNode("enable").getAsBoolean(false))
-                            .format(chatNode.getNode("format").getAsString("§7{player}§8: §f{message}"))
-                            .range(chatNode.getNode("range").getAsInt(-1))
-                            .symbol(chatNode.getNode("symbol").getAsString(""))
-                            .permissionRequired(chatNode.getNode("permission").getAsBoolean(true))
-                            .cooldown(chatNode.getNode("cooldown").getAsLong(-1))
-                            .money(chatNode.getNode("money").getAsInt(0));
+            ChatBuilder builder = Chat.builder()
+                    .name(chatNode.getName().toLowerCase())
+                    .displayName(chatNode.getNode("display-name").getAsString(chatNode.getName().toLowerCase()))
+                    .enable(chatNode.getNode("enable").getAsBoolean(false))
+                    .format(chatNode.getNode("format").getAsString("§7{player}§8: §f{message}"))
+                    .range(chatNode.getNode("range").getAsInt(-1))
+                    .symbol(chatNode.getNode("symbol").getAsString(""))
+                    .permissionRequired(chatNode.getNode("permission").getAsBoolean(true))
+                    .cooldown(chatNode.getNode("cooldown").getAsLong(-1))
+                    .money(chatNode.getNode("money").getAsInt(0));
 
-                    String chatCommand = chatNode.getNode("command").getAsString(null);
-                    if (chatCommand != null) {
-                        builder.command(chatCommand)
-                                .aliases(chatNode.getNode("aliases").getAsStringList());
-                    }
+            String chatCommand = chatNode.getNode("command").getAsString(null);
+            if (chatCommand != null) {
+                builder.command(chatCommand)
+                        .aliases(chatNode.getNode("aliases").getAsStringList());
+            }
 
-                    String soundName = chatNode.getNode("sound").getAsString(null);
+            String soundName = chatNode.getNode("sound").getAsString(null);
 
-                    if (soundName != null) {
-                        builder.sound(Sound.byName(soundName));
-                    }
+            if (soundName != null) {
+                builder.sound(Sound.byName(soundName));
+            }
 
-                    ConfigurationNode moderationNode = chatNode.getNode("moderation");
-                    builder.capsModerationEnabled(moderationNode.getNode("caps").getAsBoolean(true))
-                            .swearModerationEnabled(moderationNode.getNode("swear").getAsBoolean(true))
-                            .advertisementModerationEnabled(moderationNode.getNode("advertisement").getAsBoolean(true));
+            ConfigurationNode moderationNode = chatNode.getNode("moderation");
+            builder.capsModerationEnabled(moderationNode.getNode("caps").getAsBoolean(true))
+                    .swearModerationEnabled(moderationNode.getNode("swear").getAsBoolean(true))
+                    .advertisementModerationEnabled(moderationNode.getNode("advertisement").getAsBoolean(true));
 
-                    builder.spyEnabled(chatNode.getNode("spy").getAsBoolean(true));
+            builder.spyEnabled(chatNode.getNode("spy").getAsBoolean(true));
 
-                    return builder.build();
-                }).filter(Chat::isEnable).forEach(this.chats::add);
+            return builder.build();
+        }).filter(Chat::isEnable).peek(chat -> {
+            if (!CHAT_NAME_PATTERN.matcher(chat.getName()).matches()) {
+                throw new IllegalArgumentException("Chat name can contain only Latin characters and numbers");
+            }
+        }).forEach(this.chats::add);
 
         for (Chat chat : this.chats) {
             if (chat.getCommand() != null) {
@@ -97,7 +122,7 @@ public class ChatManager {
 
                             if (chat.isWriteAllowed((Player) sender)) {
                                 jsonStorage.setProperty((Player) sender, "chat", new JsonPrimitive(chat.getName()));
-                                sender.sendMessage(Chatty.instance().messages().get("chat-command.chat-switched").replace("{chat}", chat.getName()));
+                                sender.sendMessage(Chatty.instance().messages().get("chat-command.chat-switched").replace("{chat}", chat.getDisplayName()));
                             } else {
                                 sender.sendMessage(Chatty.instance().messages().get("chat-command.no-chat-permission"));
                             }
@@ -148,6 +173,7 @@ public class ChatManager {
                 bufferedWriter.write(line);
                 bufferedWriter.newLine();
             } catch (IOException ignored) {
+
             } finally {
                 try {
                     if (bufferedWriter != null) {
@@ -159,4 +185,5 @@ public class ChatManager {
         }
 
     }
+
 }

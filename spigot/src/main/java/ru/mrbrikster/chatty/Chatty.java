@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import ru.mrbrikster.baseplugin.config.Configuration;
 import ru.mrbrikster.baseplugin.plugin.BukkitBasePlugin;
 import ru.mrbrikster.chatty.api.ChattyApi;
+import ru.mrbrikster.chatty.api.ChattyApi.ChattyApiHolder;
 import ru.mrbrikster.chatty.api.ChattyApiImplementation;
 import ru.mrbrikster.chatty.bungee.BungeeCordListener;
 import ru.mrbrikster.chatty.chat.Chat;
@@ -30,10 +31,9 @@ import java.util.stream.Collectors;
 
 public final class Chatty extends BukkitBasePlugin {
 
-    private final Map<Class<?>, Object> dependenciesMap = new HashMap<>();
-
     private static Chatty instance;
     private static ChattyApi api;
+    private final Map<Class<?>, Object> dependenciesMap = new HashMap<>();
     private Configuration configuration;
 
     public static Chatty instance() {
@@ -42,6 +42,7 @@ public final class Chatty extends BukkitBasePlugin {
 
     /**
      * Returns API object for interacting with Chatty
+     *
      * @return API object
      */
     public ChattyApi api() {
@@ -138,6 +139,7 @@ public final class Chatty extends BukkitBasePlugin {
         }
 
         Chatty.api = new ChattyApiImplementation(getExact(ChatManager.class).getChats().stream().filter(Chat::isEnable).collect(Collectors.toSet()));
+        ChattyApiHolder.setApi(api);
 
         runMetrics();
     }

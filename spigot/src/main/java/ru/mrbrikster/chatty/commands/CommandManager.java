@@ -59,18 +59,18 @@ public class CommandManager {
         }
 
         if (configuration.getNode("pm.commands.msg.enable").getAsBoolean(false)) {
-            this.msgCommand = new MsgCommand(configuration, jsonStorage, moderationManager);
+            this.msgCommand = new MsgCommand(Chatty.instance());
             this.msgCommand.register(Chatty.instance());
+        }
+
+        if (configuration.getNode("pm.commands.reply.enable").getAsBoolean(false)) {
+            this.replyCommand = new ReplyCommand(Chatty.instance());
+            this.replyCommand.register(Chatty.instance());
         }
 
         if (configuration.getNode("pm.commands.ignore.enable").getAsBoolean(false)) {
             this.ignoreCommand = new IgnoreCommand(configuration, jsonStorage);
             this.ignoreCommand.register(Chatty.instance());
-        }
-
-        if (configuration.getNode("pm.commands.reply.enable").getAsBoolean(false)) {
-            this.replyCommand = new ReplyCommand(configuration, jsonStorage, moderationManager);
-            this.replyCommand.register(Chatty.instance());
         }
 
         if (configuration.getNode("moderation.swear.enable").getAsBoolean(false)) {

@@ -1,47 +1,25 @@
 package ru.mrbrikster.chatty.commands.pm;
 
-import com.google.gson.JsonPrimitive;
 import net.amoebaman.util.ArrayWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import ru.mrbrikster.baseplugin.commands.BukkitCommand;
 import ru.mrbrikster.baseplugin.config.Configuration;
 import ru.mrbrikster.chatty.Chatty;
-import ru.mrbrikster.chatty.chat.JsonStorage;
-import ru.mrbrikster.chatty.dependencies.PlayerTagManager;
-import ru.mrbrikster.chatty.moderation.AdvertisementModerationMethod;
-import ru.mrbrikster.chatty.moderation.ModerationManager;
-import ru.mrbrikster.chatty.moderation.SwearModerationMethod;
-import ru.mrbrikster.chatty.reflection.Reflection;
-import ru.mrbrikster.chatty.util.TextUtil;
 
 import java.util.Arrays;
 
-public class MsgCommand extends BukkitCommand {
+public class MsgCommand extends PrivateMessageCommand {
 
-    private final Configuration configuration;
-    private final JsonStorage jsonStorage;
-
-    private final PlayerTagManager playerTagManager;
-    private final ModerationManager moderationManager;
-
-    public MsgCommand(
-            Configuration configuration,
-            JsonStorage jsonStorage,
-            ModerationManager moderationManager) {
-        super("msg", ArrayWrapper.toArray(configuration.getNode("pm.commands.msg.aliases").getAsStringList(), String.class));
-
-        this.configuration = configuration;
-        this.jsonStorage = jsonStorage;
-
-        this.playerTagManager = new PlayerTagManager(Chatty.instance());
-        this.moderationManager = moderationManager;
+    public MsgCommand(Chatty chatty) {
+        super(chatty, "msg", ArrayWrapper.toArray(chatty.getExact(Configuration.class)
+                .getNode("pm.commands.msg.aliases").getAsStringList(), String.class));
     }
 
     @Override
     public void handle(CommandSender sender, String label, String[] args) {
-        if (!(sender instanceof Player) && !configuration.getNode("pm.allow-console").getAsBoolean(false)) {
+        boolean isPlayer = sender instanceof Player;
+        if (!isPlayer && !configuration.getNode("pm.allow-console").getAsBoolean(false)) {
             sender.sendMessage(Chatty.instance().messages().get("only-for-players"));
             return;
         }
@@ -53,7 +31,7 @@ public class MsgCommand extends BukkitCommand {
 
         if (args.length < 2) {
             sender.sendMessage(Chatty.instance().messages().get("msg-command.usage")
-                .replace("{label}", label));
+                    .replace("{label}", label));
             return;
         }
 
@@ -74,128 +52,14 @@ public class MsgCommand extends BukkitCommand {
             return;
         }
 
-        String recipientPrefix, recipientSuffix;
-        if (recipient instanceof Player) {
-            recipientName = ((Player) recipient).getDisplayName();
-            recipientPrefix = playerTagManager.getPrefix((Player) recipient);
-            recipientSuffix = playerTagManager.getSuffix((Player) recipient);
-            jsonStorage.setProperty((Player) recipient, "last-pm-interlocutor", new JsonPrimitive(sender.getName()));
-        } else {
-            recipientName = recipient.getName();
-            recipientPrefix = "";
-            recipientSuffix = "";
-        }
-
-        boolean cancelledByModeration = false;
-        String senderName, senderPrefix, senderSuffix;
-        if (sender instanceof Player) {
-            senderName = ((Player) sender).getDisplayName();
-            senderPrefix = playerTagManager.getPrefix((Player) sender);
-            senderSuffix = playerTagManager.getSuffix((Player) sender);
-            jsonStorage.setProperty((Player) sender, "last-pm-interlocutor", new JsonPrimitive(recipientName));
-
-            if (moderationManager.isSwearModerationEnabled()) {
-                SwearModerationMethod swearMethod = moderationManager.getSwearMethod(message);
-                if (!sender.hasPermission("chatty.moderation.swear")) {
-                    if (swearMethod.isBlocked()) {
-                        message = swearMethod.getEditedMessage();
-
-                        if (swearMethod.isUseBlock()) {
-                           cancelledByModeration = true;
-                        } else {
-                            message = swearMethod.getEditedMessage();
-                        }
-
-                        String swearFound = Chatty.instance().messages().get("swear-found", null);
-
-                        if (swearFound != null)
-                            Bukkit.getScheduler().runTaskLaterAsynchronously(Chatty.instance(),
-                                    () -> sender.sendMessage(swearFound), 5L);
-                    }
-                }
-            }
-
-            if (this.moderationManager.isAdvertisementModerationEnabled()) {
-                AdvertisementModerationMethod advertisementMethod = this.moderationManager.getAdvertisementMethod(message);
-                if (!sender.hasPermission("chatty.moderation.advertisement")) {
-                    if (advertisementMethod.isBlocked()) {
-                        message = advertisementMethod.getEditedMessage();
-
-                        if (advertisementMethod.isUseBlock()) {
-                            cancelledByModeration = true;
-                        } else {
-                            message = advertisementMethod.getEditedMessage();
-                        }
-
-                        String adsFound = Chatty.instance().messages().get("advertisement-found", null);
-
-                        if (adsFound != null)
-                            Bukkit.getScheduler().runTaskLaterAsynchronously(Chatty.instance(),
-                                    () -> sender.sendMessage(adsFound), 5L);
-                    }
-                }
-            }
-        } else {
-            senderName = sender.getName();
-            senderPrefix = "";
-            senderSuffix = "";
-        }
-
-        if (cancelledByModeration) {
+        if (recipient instanceof Player && isPlayer
+                && !configuration.getNode("pm.allow-pm-vanished").getAsBoolean(true)
+                && ((Player) sender).canSee((Player) recipient)) {
+            sender.sendMessage(Chatty.instance().messages().get("msg-command.player-not-found"));
             return;
         }
 
-        String senderFormat;
-        if (!jsonStorage.isIgnore(recipient, sender)) {
-            recipient.sendMessage(TextUtil.stylish(configuration.getNode("pm.format.recipient")
-                    .getAsString("&7{sender-prefix}{sender-name} &6-> &7{recipient-prefix}{recipient-name}: &f{message}")
-                    .replace("{sender-prefix}", senderPrefix)
-                    .replace("{sender-suffix}", senderSuffix)
-                    .replace("{sender-name}", senderName)
-                    .replace("{recipient-name}", recipientName)
-                    .replace("{recipient-prefix}", recipientPrefix)
-                    .replace("{recipient-suffix}", recipientSuffix))
-                    .replace("{message}", message));
-        }
-
-        sender.sendMessage(senderFormat = TextUtil.stylish(configuration.getNode("pm.format.sender")
-                .getAsString("&7{sender-prefix}{sender-name} &6-> &7{recipient-prefix}{recipient-name}: &f{message}")
-                .replace("{sender-prefix}", senderPrefix)
-                .replace("{sender-suffix}", senderSuffix)
-                .replace("{sender-name}", senderName)
-                .replace("{recipient-name}", recipientName)
-                .replace("{recipient-prefix}", recipientPrefix)
-                .replace("{recipient-suffix}", recipientSuffix))
-                .replace("{message}", message));
-
-        MsgCommand.sendMessageToSpy(sender, recipient,
-                recipientPrefix, recipientName, recipientSuffix,
-                senderPrefix, senderName, senderSuffix,
-                senderFormat, message,
-                jsonStorage, configuration);
-    }
-
-    static void sendMessageToSpy(CommandSender sender, CommandSender recipient,
-                                 String recipientPrefix, String recipientName, String recipientSuffix,
-                                 String senderPrefix, String senderName, String senderSuffix,
-                                 String senderFormat, String message,
-                                 JsonStorage jsonStorage, Configuration configuration) {
-        Reflection.getOnlinePlayers().stream()
-                .filter(spyPlayer -> !spyPlayer.equals(sender) && !spyPlayer.equals(recipient))
-                .filter(spyPlayer -> spyPlayer.hasPermission("chatty.spy") || spyPlayer.hasPermission("chatty.spy.pm"))
-                .filter(spyPlayer -> jsonStorage.getProperty(spyPlayer, "spy-mode").orElse(new JsonPrimitive(true)).getAsBoolean())
-                .forEach(spyPlayer -> spyPlayer.sendMessage(
-                        TextUtil.stylish(configuration.getNode("spy.format.pm")
-                                .getAsString("&6[Spy] &r{format}")
-                                .replace("{sender-prefix}", senderPrefix)
-                                .replace("{sender-suffix}", senderSuffix)
-                                .replace("{sender-name}", senderName)
-                                .replace("{recipient-name}", recipientName)
-                                .replace("{recipient-prefix}", recipientPrefix)
-                                .replace("{recipient-suffix}", recipientSuffix))
-                                .replace("{message}", message)
-                                .replace("{format}", senderFormat)
-                ));
+        handlePrivateMessage(sender, recipient, message);
     }
 
 }

@@ -2,10 +2,6 @@ package ru.mrbrikster.chatty.chat;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -18,6 +14,11 @@ import ru.mrbrikster.chatty.Chatty;
 import ru.mrbrikster.chatty.json.FormattedMessage;
 import ru.mrbrikster.chatty.reflection.Reflection;
 import ru.mrbrikster.chatty.util.TextUtil;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,6 +34,7 @@ public class Chat implements ru.mrbrikster.chatty.api.chats.Chat {
     private static final String CHAT_COOLDOWN_METADATA_KEY = "chatty.cooldown.chat.%s";
 
     @NotNull private final String name;
+    @NotNull private final String displayName;
     private final boolean enable;
     @NotNull private final String format;
     private final int range;
@@ -62,7 +64,7 @@ public class Chat implements ru.mrbrikster.chatty.api.chats.Chat {
                 new FixedMetadataValue(Chatty.instance(), System.currentTimeMillis()));
     }
 
-    long getCooldown(Player player) {
+    public long getCooldown(Player player) {
         List<MetadataValue> metadataValues = player.getMetadata(String.format(CHAT_COOLDOWN_METADATA_KEY, name));
 
         if (metadataValues.isEmpty())

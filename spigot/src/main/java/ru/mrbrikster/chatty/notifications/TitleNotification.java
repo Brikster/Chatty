@@ -1,6 +1,7 @@
 package ru.mrbrikster.chatty.notifications;
 
 import ru.mrbrikster.chatty.Chatty;
+import ru.mrbrikster.chatty.dependencies.DependencyManager;
 import ru.mrbrikster.chatty.reflection.Reflection;
 import ru.mrbrikster.chatty.util.Debugger;
 import ru.mrbrikster.chatty.util.TextUtil;
@@ -35,8 +36,27 @@ public class TitleNotification extends Notification {
 
         String[] message = messages.get(nextMessage()).split("(\n)|(\\\\n)", 2);
 
-        Title title = new Title(message[0], message.length == 2 ? message[1] : "", 20, 40, 20);
-        Reflection.getOnlinePlayers().stream().filter(player -> !isPermission() || player.hasPermission(String.format(PERMISSION_NODE, name))).forEach(title::send);
+        DependencyManager dependencyManager = Chatty.instance().getExact(DependencyManager.class);
+
+        Reflection.getOnlinePlayers()
+                .stream()
+                .filter(player -> !isPermission() || player.hasPermission(String.format(PERMISSION_NODE, name)))
+                .forEach(onlinePlayer -> {
+
+                    String[] playerMessage = message.clone();
+
+                    if (dependencyManager.getPlaceholderApi() != null) {
+                        for (int i = 0; i < message.length; i++) {
+                            playerMessage[i] = dependencyManager.getPlaceholderApi().setPlaceholders(onlinePlayer, playerMessage[i]);
+                        }
+                    }
+
+                    Title title = new Title(playerMessage[0], playerMessage.length == 2
+                            ? playerMessage[1]
+                            : "", 20, 40, 20);
+
+                    title.send(onlinePlayer);
+                });
     }
 
 }

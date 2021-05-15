@@ -14,7 +14,9 @@ import java.util.function.Function;
 
 public class Messages {
 
-    private static final Function<String, String> COLORIZE = (string) -> string == null ? null : TextUtil.stylish(string);
+    private static final Function<String, String> COLORIZE = (string) -> string == null
+            ? null
+            : TextUtil.stylish(string);
 
     private final Configuration localeConfiguration;
     private final Configuration inJarConfiguration;
@@ -67,7 +69,9 @@ public class Messages {
     }
 
     public String get(String key, String def) {
-        return TextUtil.stylish(localeConfiguration == null ? def : localeConfiguration.getNode("messages." + key).getAsString(def));
+        return TextUtil.stylish(localeConfiguration == null
+                ? def
+                : localeConfiguration.getNode("messages." + key).getAsString(def));
     }
 
 }

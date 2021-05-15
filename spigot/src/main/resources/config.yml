@@ -40,6 +40,11 @@ general:
   # Default: true
   keep-old-recipients: true
 
+  # Hides vanished players from recipients (and sends "no-recipients" message when all recipients are vanished)
+  # Supports EssentialsX, SuperVanish, PremiumVanish, VanishNoPacket etc.
+  # Default: false
+  hide-vanished-recipients: true
+
   # Storage player data mode.
   # true - data will store by UUIDs.
   # false - data will store by nicknames.
@@ -64,32 +69,35 @@ general:
 # chatty.chat.<chat>.see - permission for seeing messages.
 #
 # Chat has the following options:
-# *enable*      - on/off chat.
-# *format*      - chat format string.
-# *range*       - chat range. -1 to world-wide chat, -2 to server-wide, -3 to BungeeCord-wide chat.
-# *symbol*      - character from which message should begin.
-# *cooldown*    - message cooldown in seconds (bypass permission - chatty.cooldown.<chat>).
-# *money*       - message price (depends on Vault).
-# *permission*  - check permissions for this chat? Default: true.
-# *command*     - Command that is used to switch to chat to use it by default if symbol is not specified. Default: empty.
+# *enable*       - on/off chat.
+# *display-name* - name of chat, displaying in placeholders and locale messages. Default: regular name of chat.
+# *format*       - chat format string.
+# *range*        - chat range. -1 to world-wide chat, -2 to server-wide, -3 to BungeeCord-wide chat.
+# *symbol*       - character from which message should begin.
+# *cooldown*     - message cooldown in seconds (bypass permission - chatty.cooldown.<chat>).
+# *money*        - message price (depends on Vault).
+# *permission*   - check permissions for this chat? Default: true.
+# *command*      - Command that is used to switch to chat to use it by default if symbol is not specified. Default: empty.
 # *aliases*      - Aliases for command. Default: empty.
 chats:
   local:
     enable: true
+    display-name: 'Local'
     format: '&e[&6Local&e] &r{prefix}{player}{suffix}&8: &f{message}'
     range: 100
     cooldown: -1
     command: 'localchat'
-    aliases: ['lchat']
+    aliases: [ 'lchat' ]
 
   global:
     enable: true
+    display-name: 'Global'
     format: '&e[&aGlobal&e] &r{prefix}{player}{suffix}&8: &f{message}'
     range: -1
     symbol: '!'
     cooldown: -1
     command: 'globalchat'
-    aliases: ['gchat']
+    aliases: [ 'gchat' ]
 
   # Example chat with multiline format
   notify:
@@ -121,7 +129,13 @@ pm:
 
   # Allows console to messaging players
   # and messaging players to console.
+  # Default: false
   allow-console: false
+
+  # Allows to PM players, that in vanish
+  # Supports EssentialsX, SuperVanish, PremiumVanish, VanishNoPacket etc.
+  # Default: true
+  allow-pm-vanished: false
 
   # Format of messages
   #
@@ -140,21 +154,23 @@ pm:
       # Permission: chatty.command.msg
       enable: true
       # Aliases for "/msg" command.
-      aliases: ['message', 'pm', 'm', 'w']
+      aliases: [ 'message', 'pm', 'm', 'whisper', 'w', 'tell', 't' ]
 
+    # To keep compatibility with EssentialsX
+    # main name of command is "/r".
     reply:
-      # Enables "/reply" command.
+      # Enables "/r" command.
       # Permission: chatty.command.reply
       enable: true
-      # Aliases for "/reply" command.
-      aliases: ['r']
+      # Aliases for "/r" command.
+      aliases: [ 'reply' ]
 
     ignore:
       # Enables "/ignore" command.
       # Permission: chatty.command.ignore
       enable: true
       # Aliases for "/ignore" command.
-      aliases: []
+      aliases: [ ]
 
 # * SPY
 #
@@ -475,8 +491,8 @@ moderation:
 
     # Regular expressions for IP-addresses and websites.
     patterns:
-      ip: '(?:\d{1,3}[.,-:;\/()=?}+ ]{1,4}){3}\d{1,3}'
-      web: '[-a-zA-Zа-яА-Я0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Zа-яА-Я0-9@:%_\+~#?&//=]*)?'
+      ip: '\b((\d{1,2}|2(5[0-5]|[0-4]\d))[._,)(-]+){3}(\d{1,2}|2(5[0-5]|[0-4]\d))(:\d{2,7})?'
+      web: '(?i)\b(https?:\/\/)?[\w\.а-яА-Я-]+\.([a-z]{2,4}|[рР][фФ]|[уУ][кК][рР])\b(:\d{2,7})?(\/\S+)?'
 
     # On/off advertisement message blocking.
     # When false, advertisement will be replaced.
@@ -515,7 +531,7 @@ miscellaneous:
     # Permission: chatty.command.chat
     chat:
       enable: true
-      aliases: ['chats', 'switchchat']
+      aliases: [ 'chats', 'switchchat' ]
 
     # Clear chat for yourself: /clearchat
     # Permission: chatty.command.clearchat
@@ -524,7 +540,7 @@ miscellaneous:
     # Permission: chatty.command.clearchat.all
     clearchat:
       enable: true
-      aliases: ['chatclear']
+      aliases: [ 'chatclear' ]
 
     # Change chat (and NametagEdit, if enabled) prefix
     # /prefix <player> <prefix>
@@ -585,7 +601,7 @@ miscellaneous:
       # Default: true
       permission: false
 
-      # Specified arameters for the first join
+      # Specified parameters for the first join
       first-join:
         # First join message.
         # Set to '' if you don't want to see special message for the first join.
@@ -593,6 +609,7 @@ miscellaneous:
         # Plays sound to all, when player joins.
         # Remove the line if not needed.
         sound: ORB_PICKUP
+
     quit:
       enable: true
 
@@ -606,6 +623,7 @@ miscellaneous:
       # Permission: chatty.misc.quitmessage
       # Default: true
       permission: false
+
     death:
       enable: true
 

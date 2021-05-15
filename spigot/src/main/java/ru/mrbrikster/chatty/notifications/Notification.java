@@ -1,10 +1,11 @@
 package ru.mrbrikster.chatty.notifications;
 
-import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
 import ru.mrbrikster.chatty.Chatty;
 import ru.mrbrikster.chatty.util.Debugger;
+
+import lombok.Getter;
 
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;

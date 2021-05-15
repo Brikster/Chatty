@@ -81,7 +81,9 @@ public class IgnoreCommand extends BukkitCommand {
 
         if (jsonElement.getAsJsonArray().contains(new JsonPrimitive(ignoreTarget.toLowerCase()))) {
             sender.sendMessage(Chatty.instance().messages().get("ignore-command.remove-ignore")
-                    .replace("{label}", label).replace("{player}", ignoreTargetPlayer == null ? ignoreTarget : ignoreTargetPlayer.getName()));
+                    .replace("{label}", label).replace("{player}", ignoreTargetPlayer == null
+                            ? ignoreTarget
+                            : ignoreTargetPlayer.getName()));
             ((JsonArray) jsonElement).remove(new JsonPrimitive(ignoreTarget.toLowerCase()));
         } else {
             if (ignoreTargetPlayer == null) {

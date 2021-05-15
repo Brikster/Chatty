@@ -1,35 +1,36 @@
 package ru.mrbrikster.chatty.moderation;
 
 import com.google.common.io.Files;
-import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
 import ru.mrbrikster.baseplugin.config.ConfigurationNode;
 import ru.mrbrikster.chatty.util.TextUtil;
+
+import lombok.Getter;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
-public class SwearModerationMethod extends ModerationMethod {
+public class SwearModerationMethod extends ModifyingSubstringsModerationMethod {
 
-    private final String replacement;
-    private final List<String> words;
-    @Getter private final boolean useBlock;
-
+    private static final int PATTERN_FLAGS = Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE;
     private static Pattern swearsPattern;
     private static List<Pattern> swearsWhitelist = new ArrayList<>();
     private static File swearsDirectory;
     private static File swearsFile;
-    private static File whitelistFile;
+    @Getter private static File whitelistFile;
+    private final String replacement;
+    @Getter private final List<String> words;
+    @Getter private final boolean useBlock;
     private String editedMessage;
 
-    SwearModerationMethod(ConfigurationNode configurationNode, String message) {
-        super(message);
+    SwearModerationMethod(ConfigurationNode configurationNode, String message, String lastFormatColors) {
+        super(message, lastFormatColors);
 
         this.replacement = TextUtil.stylish(configurationNode.getNode("replacement").getAsString("<swear>"));
         this.words = new ArrayList<>();
@@ -67,31 +68,24 @@ public class SwearModerationMethod extends ModerationMethod {
                 if (swear.isEmpty())
                     continue;
 
-                if (pattern.length() == 0) {
-                    pattern.append(swear);
-                } else {
-                    pattern.append("|").append(swear);
-                }
+                pattern.append("|").append(swear);
             }
 
-            SwearModerationMethod.swearsPattern = Pattern.compile(pattern.toString(), Pattern.CASE_INSENSITIVE);
-            SwearModerationMethod.swearsWhitelist = Files.readLines(whitelistFile, StandardCharsets.UTF_8).stream().map(whitelistPattern
-                    -> Pattern.compile(whitelistPattern.toLowerCase(), Pattern.CASE_INSENSITIVE)).collect(Collectors.toList());
+            SwearModerationMethod.swearsPattern = Pattern.compile(pattern.length() > 1
+                    ? pattern.substring(1)
+                    : "a^", PATTERN_FLAGS);
+            Files.readLines(whitelistFile, StandardCharsets.UTF_8).forEach(SwearModerationMethod::addWhitelistWord);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public static File getWhitelistFile() {
-        return whitelistFile;
-    }
-
-    public static void addWord(Pattern pattern) {
-        swearsWhitelist.add(pattern);
-    }
-
-    public List<String> getWords() {
-        return words;
+    public static boolean addWhitelistWord(String word) {
+        if (!word.isEmpty()) {
+            swearsWhitelist.add(Pattern.compile(word.toLowerCase(Locale.ENGLISH), PATTERN_FLAGS));
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -117,6 +111,9 @@ public class SwearModerationMethod extends ModerationMethod {
 
             String swear = message.substring(previousWordStart = wordStartAndEndArray[0], previousWordEnd = wordStartAndEndArray[1]);
 
+            String lastColors = TextUtil.getLastColors(message.substring(0, previousWordStart));
+            if (lastColors.isEmpty()) lastColors = lastFormatColors;
+
             boolean whitelisted = false;
             for (Pattern pattern : swearsWhitelist) {
                 if (pattern.matcher(swear).matches())
@@ -125,7 +122,7 @@ public class SwearModerationMethod extends ModerationMethod {
 
             if (!whitelisted) {
                 words.add(swear);
-                editedMessage = editedMessage.replaceAll(Pattern.quote(swear), replacement);
+                editedMessage = editedMessage.replaceAll(Pattern.quote(swear), replacement + lastColors);
             }
         }
 
