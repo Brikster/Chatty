@@ -205,18 +205,6 @@ public enum Sound {
         this.versionDependentNames = versionDependentNames;
     }
 
-    public org.bukkit.Sound bukkitSound() {
-        if (cached != null) return cached;
-        for (String name : versionDependentNames) {
-            try {
-                return cached = org.bukkit.Sound.valueOf(name);
-            } catch (IllegalArgumentException ignore2) {
-            }
-        }
-
-        throw new IllegalArgumentException("Found no valid sound name for " + this.name());
-    }
-
     public static org.bukkit.Sound byName(@NotNull String name) {
         for (Sound value : Sound.values()) {
             for (String versionDependentName : value.versionDependentNames) {
@@ -227,6 +215,18 @@ public enum Sound {
         }
 
         throw new IllegalArgumentException("Found no valid sound name for " + name);
+    }
+
+    public org.bukkit.Sound bukkitSound() {
+        if (cached != null) return cached;
+        for (String name : versionDependentNames) {
+            try {
+                return cached = org.bukkit.Sound.valueOf(name);
+            } catch (IllegalArgumentException ignore2) {
+            }
+        }
+
+        throw new IllegalArgumentException("Found no valid sound name for " + this.name());
     }
 
 }

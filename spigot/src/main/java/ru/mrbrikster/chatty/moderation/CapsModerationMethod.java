@@ -1,7 +1,8 @@
 package ru.mrbrikster.chatty.moderation;
 
-import lombok.Getter;
 import ru.mrbrikster.baseplugin.config.ConfigurationNode;
+
+import lombok.Getter;
 
 public class CapsModerationMethod extends ModerationMethod {
 

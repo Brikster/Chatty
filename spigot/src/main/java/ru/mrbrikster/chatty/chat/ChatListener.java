@@ -279,7 +279,7 @@ public class ChatListener implements Listener, EventExecutor {
                     .getAsString("&6[Spy] &r{format}")
                     .replace("{format}", String.format(
                             event.getFormat(),
-                            event.getPlayer().getName(),
+                            event.getPlayer().getDisplayName(),
                             event.getMessage())));
 
             Reflection.getOnlinePlayers().stream().
@@ -294,6 +294,7 @@ public class ChatListener implements Listener, EventExecutor {
     /**
      * Method handles AsyncPlayerChatEvent with MONITOR priority
      * It let the other plugins handle the event then cancel it
+     *
      * @param event AsyncPlayerChatEvent object
      */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -308,7 +309,7 @@ public class ChatListener implements Listener, EventExecutor {
         if (configuration.getNode("json.enable").getAsBoolean(false)) {
             performJsonMessage(event, chat);
         } else {
-            String format = String.format(event.getFormat(), event.getPlayer().getName(), event.getMessage());
+            String format = String.format(event.getFormat(), event.getPlayer().getDisplayName(), event.getMessage());
             String strippedHexFormat = TextUtil.stripHex(format);
 
             if (!strippedHexFormat.equals(format)) {
@@ -334,7 +335,7 @@ public class ChatListener implements Listener, EventExecutor {
         PlaceholderAPIHook placeholderAPI = dependencyManager.getPlaceholderApi();
         List<String> tooltip = configuration.getNode("json.tooltip").getAsStringList()
                 .stream().map(line -> ChatColor.translateAlternateColorCodes('&',
-                        line.replace("{player}", player.getName())
+                        line.replace("{player}", player.getDisplayName())
                                 .replace("{prefix}", playerTagManager.getPrefix(player))
                                 .replace("{suffix}", playerTagManager.getSuffix(player))
                 )).collect(Collectors.toList());
@@ -378,7 +379,7 @@ public class ChatListener implements Listener, EventExecutor {
         event.setFormat(formattedMessage.toReadableText().replace("%", "%%"));
         event.getRecipients().clear();
 
-        format = String.format(event.getFormat(), event.getPlayer().getName(), event.getMessage());
+        format = String.format(event.getFormat(), event.getPlayer().getDisplayName(), event.getMessage());
         String strippedHexFormat = TextUtil.stripHex(format);
 
         if (!strippedHexFormat.equals(format)) {
@@ -549,9 +550,9 @@ public class ChatListener implements Listener, EventExecutor {
     private String unstylish(String string) {
         char[] b = string.toCharArray();
         for (int i = 0; i < b.length - 1; i++) {
-            if (b[i] == '\u00A7' && "0123456789AaBbCcDdEeFfKkLlMmNnOoRr".indexOf(b[i+1]) > -1) {
+            if (b[i] == '\u00A7' && "0123456789AaBbCcDdEeFfKkLlMmNnOoRr".indexOf(b[i + 1]) > -1) {
                 b[i] = '&';
-                b[i+1] = Character.toLowerCase(b[i+1]);
+                b[i + 1] = Character.toLowerCase(b[i + 1]);
             }
         }
 

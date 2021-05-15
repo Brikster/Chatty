@@ -1,10 +1,11 @@
 package ru.mrbrikster.chatty.moderation;
 
 import com.google.common.io.Files;
-import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
 import ru.mrbrikster.baseplugin.config.ConfigurationNode;
 import ru.mrbrikster.chatty.util.TextUtil;
+
+import lombok.Getter;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,16 +19,14 @@ import java.util.regex.Pattern;
 public class SwearModerationMethod extends ModifyingSubstringsModerationMethod {
 
     private static final int PATTERN_FLAGS = Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE;
-
-    private final String replacement;
-    @Getter private final List<String> words;
-    @Getter private final boolean useBlock;
-
     private static Pattern swearsPattern;
     private static List<Pattern> swearsWhitelist = new ArrayList<>();
     private static File swearsDirectory;
     private static File swearsFile;
     @Getter private static File whitelistFile;
+    private final String replacement;
+    @Getter private final List<String> words;
+    @Getter private final boolean useBlock;
     private String editedMessage;
 
     SwearModerationMethod(ConfigurationNode configurationNode, String message, String lastFormatColors) {
@@ -72,7 +71,9 @@ public class SwearModerationMethod extends ModifyingSubstringsModerationMethod {
                 pattern.append("|").append(swear);
             }
 
-            SwearModerationMethod.swearsPattern = Pattern.compile(pattern.length() > 1 ? pattern.substring(1) : "a^", PATTERN_FLAGS);
+            SwearModerationMethod.swearsPattern = Pattern.compile(pattern.length() > 1
+                    ? pattern.substring(1)
+                    : "a^", PATTERN_FLAGS);
             Files.readLines(whitelistFile, StandardCharsets.UTF_8).forEach(SwearModerationMethod::addWhitelistWord);
         } catch (IOException e) {
             e.printStackTrace();
@@ -80,7 +81,7 @@ public class SwearModerationMethod extends ModifyingSubstringsModerationMethod {
     }
 
     public static boolean addWhitelistWord(String word) {
-        if(!word.isEmpty()) {
+        if (!word.isEmpty()) {
             swearsWhitelist.add(Pattern.compile(word.toLowerCase(Locale.ENGLISH), PATTERN_FLAGS));
             return true;
         }

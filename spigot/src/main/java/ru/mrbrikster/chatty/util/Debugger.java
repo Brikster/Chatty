@@ -9,7 +9,7 @@ public class Debugger {
     private boolean debug;
 
     public Debugger(Chatty chatty) {
-        Configuration configuration =chatty.getExact(Configuration.class);
+        Configuration configuration = chatty.getExact(Configuration.class);
 
         this.chatty = chatty;
         this.debug = configuration.getNode("general.debug").getAsBoolean(false);

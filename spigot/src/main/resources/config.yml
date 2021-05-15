@@ -87,7 +87,7 @@ chats:
     range: 100
     cooldown: -1
     command: 'localchat'
-    aliases: ['lchat']
+    aliases: [ 'lchat' ]
 
   global:
     enable: true
@@ -97,7 +97,7 @@ chats:
     symbol: '!'
     cooldown: -1
     command: 'globalchat'
-    aliases: ['gchat']
+    aliases: [ 'gchat' ]
 
   # Example chat with multiline format
   notify:
@@ -154,7 +154,7 @@ pm:
       # Permission: chatty.command.msg
       enable: true
       # Aliases for "/msg" command.
-      aliases: ['message', 'pm', 'm', 'whisper', 'w', 'tell', 't']
+      aliases: [ 'message', 'pm', 'm', 'whisper', 'w', 'tell', 't' ]
 
     # To keep compatibility with EssentialsX
     # main name of command is "/r".
@@ -163,14 +163,14 @@ pm:
       # Permission: chatty.command.reply
       enable: true
       # Aliases for "/r" command.
-      aliases: ['reply']
+      aliases: [ 'reply' ]
 
     ignore:
       # Enables "/ignore" command.
       # Permission: chatty.command.ignore
       enable: true
       # Aliases for "/ignore" command.
-      aliases: []
+      aliases: [ ]
 
 # * SPY
 #
@@ -531,7 +531,7 @@ miscellaneous:
     # Permission: chatty.command.chat
     chat:
       enable: true
-      aliases: ['chats', 'switchchat']
+      aliases: [ 'chats', 'switchchat' ]
 
     # Clear chat for yourself: /clearchat
     # Permission: chatty.command.clearchat
@@ -540,7 +540,7 @@ miscellaneous:
     # Permission: chatty.command.clearchat.all
     clearchat:
       enable: true
-      aliases: ['chatclear']
+      aliases: [ 'chatclear' ]
 
     # Change chat (and NametagEdit, if enabled) prefix
     # /prefix <player> <prefix>
@@ -609,6 +609,7 @@ miscellaneous:
         # Plays sound to all, when player joins.
         # Remove the line if not needed.
         sound: ORB_PICKUP
+
     quit:
       enable: true
 
@@ -622,6 +623,7 @@ miscellaneous:
       # Permission: chatty.misc.quitmessage
       # Default: true
       permission: false
+
     death:
       enable: true
 

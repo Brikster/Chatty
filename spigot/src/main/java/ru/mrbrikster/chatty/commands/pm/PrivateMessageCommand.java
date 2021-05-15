@@ -110,7 +110,7 @@ public abstract class PrivateMessageCommand extends BukkitCommand {
         String senderFormat;
         if (!jsonStorage.isIgnore(recipient, sender)) {
             String recipientFormat = createFormat(configuration.getNode("pm.format.recipient")
-                        .getAsString("&7{sender-prefix}{sender-name} &6-> &7{recipient-prefix}{recipient-name}: &f{message}"),
+                            .getAsString("&7{sender-prefix}{sender-name} &6-> &7{recipient-prefix}{recipient-name}: &f{message}"),
                     message, recipientName, recipientPrefix, recipientSuffix,
                     senderName, senderPrefix, senderSuffix);
 

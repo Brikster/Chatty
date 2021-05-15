@@ -10,6 +10,7 @@ import org.bukkit.advancement.AdvancementProgress;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 import ru.mrbrikster.chatty.Chatty;
 import ru.mrbrikster.chatty.reflection.Reflection;
 import ru.mrbrikster.chatty.util.Debugger;
@@ -48,12 +49,13 @@ public class AdvancementsNotification extends Notification {
 
     private static class AdvancementMessage implements ConfigurationSerializable {
 
+        private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+
         private final NamespacedKey id;
         private final String icon;
         private final String header;
         private final String footer;
         private final JavaPlugin javaPlugin;
-        private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
         private AdvancementMessage(Map<String, String> list) {
             this(list.getOrDefault("header", "Header"),
@@ -140,7 +142,7 @@ public class AdvancementsNotification extends Notification {
         }
 
         @Override
-        public Map<String, Object> serialize() {
+        public @NotNull Map<String, Object> serialize() {
             Map<String, Object> map = new HashMap<>();
 
             map.put("icon", icon);

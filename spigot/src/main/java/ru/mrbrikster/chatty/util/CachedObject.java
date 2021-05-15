@@ -6,6 +6,7 @@ import java.util.function.Supplier;
 
 @AllArgsConstructor
 public class CachedObject<K, V> {
+
     private K key;
     private V value;
 
@@ -13,8 +14,10 @@ public class CachedObject<K, V> {
         if (this.key.equals(key)) {
             return value;
         }
+
         this.key = key;
         this.value = supplier.get();
         return value;
     }
+
 }

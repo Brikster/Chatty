@@ -1,10 +1,11 @@
 package ru.mrbrikster.chatty.dependencies;
 
-import lombok.Getter;
 import ru.mrbrikster.baseplugin.config.Configuration;
 import ru.mrbrikster.chatty.Chatty;
 import ru.mrbrikster.chatty.chat.ChatManager;
 import ru.mrbrikster.chatty.chat.JsonStorage;
+
+import lombok.Getter;
 
 import java.util.logging.Level;
 

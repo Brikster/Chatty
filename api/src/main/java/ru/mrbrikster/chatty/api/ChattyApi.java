@@ -3,6 +3,9 @@ package ru.mrbrikster.chatty.api;
 import org.jetbrains.annotations.NotNull;
 import ru.mrbrikster.chatty.api.chats.Chat;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.Collection;
 import java.util.Optional;
 
@@ -22,5 +25,13 @@ public interface ChattyApi {
      */
     @NotNull
     Optional<Chat> getChat(String name);
+
+    static ChattyApi get() {
+        return ChattyApiHolder.getApi();
+    }
+
+    class ChattyApiHolder {
+        private static @Getter @Setter ChattyApi api;
+    }
 
 }

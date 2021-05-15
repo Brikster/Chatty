@@ -2,7 +2,6 @@ package ru.mrbrikster.chatty.chat;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
-import lombok.Getter;
 import net.amoebaman.util.ArrayWrapper;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -12,6 +11,8 @@ import ru.mrbrikster.baseplugin.config.ConfigurationNode;
 import ru.mrbrikster.chatty.Chatty;
 import ru.mrbrikster.chatty.chat.Chat.ChatBuilder;
 import ru.mrbrikster.chatty.util.Sound;
+
+import lombok.Getter;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -27,12 +28,11 @@ import java.util.regex.Pattern;
 
 public class ChatManager {
 
+    private static final Pattern CHAT_NAME_PATTERN = Pattern.compile("^[a-z0-9]{1,32}$");
     @Getter private final List<Chat> chats = new ArrayList<>();
     @Getter private final Logger logger;
     private final Configuration configuration;
     private final JsonStorage jsonStorage;
-
-    private static final Pattern CHAT_NAME_PATTERN = Pattern.compile("^[a-z0-9]{1,32}$");
 
     public ChatManager(Chatty chatty) {
         this.configuration = chatty.getExact(Configuration.class);
@@ -173,6 +173,7 @@ public class ChatManager {
                 bufferedWriter.write(line);
                 bufferedWriter.newLine();
             } catch (IOException ignored) {
+
             } finally {
                 try {
                     if (bufferedWriter != null) {
@@ -184,4 +185,5 @@ public class ChatManager {
         }
 
     }
+
 }

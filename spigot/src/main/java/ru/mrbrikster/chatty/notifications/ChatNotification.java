@@ -5,7 +5,6 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import ru.mrbrikster.chatty.Chatty;
 import ru.mrbrikster.chatty.dependencies.DependencyManager;
-import ru.mrbrikster.chatty.dependencies.PlaceholderAPIHook;
 import ru.mrbrikster.chatty.reflection.Reflection;
 import ru.mrbrikster.chatty.util.Debugger;
 import ru.mrbrikster.chatty.util.Pair;
@@ -61,11 +60,12 @@ public class ChatNotification extends Notification {
 
         List<Pair<String, Boolean>> lines = messages.get(nextMessage());
 
-        PlaceholderAPIHook placeholderAPIHook = Chatty.instance().getExact(DependencyManager.class).getPlaceholderApi();
+        DependencyManager dependencyManager = Chatty.instance().getExact(DependencyManager.class);
         Reflection.getOnlinePlayers().stream().filter(player -> !isPermission() || player.hasPermission(String.format(PERMISSION_NODE, name)))
                 .forEach(player -> lines.forEach(line -> {
-                    String formattedLine = placeholderAPIHook != null
-                            ? placeholderAPIHook.setPlaceholders(player, line.getA()) : line.getA();
+                    String formattedLine = dependencyManager.getPlaceholderApi() != null
+                            ? dependencyManager.getPlaceholderApi().setPlaceholders(player, line.getA())
+                            : line.getA();
 
                     if (line.getB()) {
                         TextUtil.sendJson(player, formattedLine);

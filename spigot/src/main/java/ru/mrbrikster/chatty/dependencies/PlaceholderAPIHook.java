@@ -29,11 +29,6 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
     }
 
     @Override
-    public boolean persist() {
-        return true;
-    }
-
-    @Override
     public String getIdentifier() {
         return "chatty";
     }
@@ -46,6 +41,11 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
     @Override
     public String getVersion() {
         return Chatty.instance().getDescription().getVersion();
+    }
+
+    @Override
+    public boolean persist() {
+        return true;
     }
 
     @Override

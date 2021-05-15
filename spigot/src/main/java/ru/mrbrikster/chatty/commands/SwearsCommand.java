@@ -35,4 +35,5 @@ public class SwearsCommand extends BukkitCommand {
                     .replace("{label}", label));
         } else sender.sendMessage(Chatty.instance().messages().get("no-permission"));
     }
+
 }
