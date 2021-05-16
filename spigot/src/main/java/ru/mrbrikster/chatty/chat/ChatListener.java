@@ -159,7 +159,7 @@ public class ChatListener implements Listener, EventExecutor {
 
         long recipientsCount;
         if (configuration.getNode("general.hide-vanished-recipients").getAsBoolean(false)) {
-            recipientsCount = event.getRecipients().stream().filter(recipient -> !player.canSee(recipient)).count();
+            recipientsCount = event.getRecipients().stream().filter(player::canSee).count();
         } else {
             recipientsCount = event.getRecipients().size();
         }
@@ -336,7 +336,7 @@ public class ChatListener implements Listener, EventExecutor {
 
         PlaceholderAPIHook placeholderAPI = dependencyManager.getPlaceholderApi();
         List<String> tooltip = configuration.getNode("json.tooltip").getAsStringList()
-                .stream().map(line -> ChatColor.translateAlternateColorCodes('&',
+                .stream().map(line -> TextUtil.stylish(
                         line.replace("{player}", player.getDisplayName())
                                 .replace("{prefix}", playerTagManager.getPrefix(player))
                                 .replace("{suffix}", playerTagManager.getSuffix(player))
@@ -445,7 +445,7 @@ public class ChatListener implements Listener, EventExecutor {
 
                 List<String> mentionTooltip = configuration.getNode("json.mentions.tooltip").getAsStringList();
                 mentionTooltip = mentionTooltip.stream().map(line ->
-                        ChatColor.translateAlternateColorCodes('&',
+                        TextUtil.stylish(
                                 line.replace("{player}", mentionedPlayer.getDisplayName())
                                         .replace("{prefix}", playerTagManager.getPrefix(mentionedPlayer))
                                         .replace("{suffix}", playerTagManager.getSuffix(mentionedPlayer))
@@ -488,7 +488,7 @@ public class ChatListener implements Listener, EventExecutor {
         List<String> replacementTooltip = replacement.getNode("tooltip").getAsStringList();
 
         replacementTooltip = replacementTooltip.stream().map(line ->
-                ChatColor.translateAlternateColorCodes('&',
+                TextUtil.stylish(
                         line.replace("{player}", player.getDisplayName())
                                 .replace("{prefix}", playerTagManager.getPrefix(player))
                                 .replace("{suffix}", playerTagManager.getSuffix(player))

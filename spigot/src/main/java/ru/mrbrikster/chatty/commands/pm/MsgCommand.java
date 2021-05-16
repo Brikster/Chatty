@@ -54,7 +54,7 @@ public class MsgCommand extends PrivateMessageCommand {
 
         if (recipient instanceof Player && isPlayer
                 && !configuration.getNode("pm.allow-pm-vanished").getAsBoolean(true)
-                && ((Player) sender).canSee((Player) recipient)) {
+                && !((Player) sender).canSee((Player) recipient)) {
             sender.sendMessage(Chatty.instance().messages().get("msg-command.player-not-found"));
             return;
         }

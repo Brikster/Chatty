@@ -3,6 +3,7 @@ package ru.mrbrikster.chatty.json;
 import ru.mrbrikster.chatty.json.fanciful.FancyMessage;
 import ru.mrbrikster.chatty.util.TextUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class JsonMessagePart implements MessagePart {
@@ -10,7 +11,7 @@ public class JsonMessagePart implements MessagePart {
     private final String text;
     private String command;
     private String suggest;
-    private List<String> tooltip;
+    private List<FancyMessage> tooltip;
     private String link;
 
     public JsonMessagePart(String text) {
@@ -30,7 +31,14 @@ public class JsonMessagePart implements MessagePart {
     }
 
     public JsonMessagePart tooltip(List<String> tooltip) {
-        this.tooltip = tooltip;
+        if (!tooltip.isEmpty()) {
+            List<FancyMessage> lines = new ArrayList<>();
+
+            for (String line : tooltip)
+                lines.add(new FormattedMessage(line).toFancyMessage());
+
+            this.tooltip = lines;
+        }
 
         return this;
     }
@@ -55,9 +63,8 @@ public class JsonMessagePart implements MessagePart {
             if (link != null)
                 fancyMessage.link(link);
 
-            if (tooltip != null
-                    && !tooltip.isEmpty())
-                fancyMessage.tooltip(tooltip);
+            if (tooltip != null)
+                fancyMessage.formattedTooltip(tooltip);
         });
 
         return fancyMessage;
