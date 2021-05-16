@@ -16,24 +16,26 @@ public class FormattedMessage {
 
     private List<MessagePart> messageParts = new ArrayList<>();
 
+    public FormattedMessage() {}
+
     public FormattedMessage(String text) {
         this.messageParts.add(new LegacyMessagePart(text));
     }
 
     public FormattedMessage send(Player player) {
-        buildFancyMessage().send(player);
+        toFancyMessage().send(player);
 
         return this;
     }
 
     public FormattedMessage send(Collection<? extends Player> players) {
-        buildFancyMessage().send(players);
+        toFancyMessage().send(players);
 
         return this;
     }
 
     public void sendConsole() {
-        Bukkit.getConsoleSender().sendMessage(ChatColor.stripColor(buildFancyMessage().toOldMessageFormat()));
+        Bukkit.getConsoleSender().sendMessage(ChatColor.stripColor(toFancyMessage().toOldMessageFormat()));
     }
 
     public FormattedMessage append(FormattedMessage formattedMessage) {
@@ -151,10 +153,10 @@ public class FormattedMessage {
     */
 
     public String getLastColors() {
-        return buildFancyMessage().getLastColors();
+        return toFancyMessage().getLastColors();
     }
 
-    private FancyMessage buildFancyMessage() {
+    public FancyMessage toFancyMessage() {
         FancyMessage fancyMessage = new FancyMessage("");
 
         for (MessagePart messagePart : messageParts) {
@@ -169,11 +171,11 @@ public class FormattedMessage {
     }
 
     public String toReadableText() {
-        return buildFancyMessage().toOldMessageFormat();
+        return toFancyMessage().toOldMessageFormat();
     }
 
     public String toJSONString() {
-        return buildFancyMessage().toJSONString();
+        return toFancyMessage().toJSONString();
     }
 
 }

@@ -56,7 +56,11 @@ public class Chat implements ru.mrbrikster.chatty.api.chats.Chat {
     @Setter private BukkitCommand bukkitCommand;
 
     public boolean isWriteAllowed(Player player) {
-        return !isPermissionRequired() || player.hasPermission(String.format("chatty.chat.%s.write", getName()));
+        return !isPermissionRequired()
+                // Не убирать (!)
+                || player.hasPermission(String.format("chatty.chat.%s", getName()))
+                || player.hasPermission(String.format("chatty.chat.%s.write", getName())
+        );
     }
 
     void setCooldown(Player player) {
@@ -118,6 +122,8 @@ public class Chat implements ru.mrbrikster.chatty.api.chats.Chat {
         players.removeIf(recipient ->
                 !(recipient.equals(player)
                         || !isPermissionRequired()
+                        // Не убирать (!)
+                        || recipient.hasPermission("chatty.chat." + name)
                         || recipient.hasPermission("chatty.chat." + name + ".see"))
         );
 

@@ -66,7 +66,7 @@ public class ReplyCommand extends PrivateMessageCommand {
 
         if (recipient instanceof Player
                 && !configuration.getNode("pm.allow-pm-vanished").getAsBoolean(true)
-                && ((Player) sender).canSee((Player) recipient)) {
+                && !((Player) sender).canSee((Player) recipient)) {
             sender.sendMessage(Chatty.instance().messages().get("reply-command.target-not-found"));
             return;
         }
