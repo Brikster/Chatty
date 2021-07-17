@@ -57,9 +57,7 @@ public class NMSUtil {
         for (String name : names) {
             try {
                 return clazz.getField(name);
-            } catch (NoSuchFieldException e) {
-                e.printStackTrace();
-            }
+            } catch (NoSuchFieldException ignored) {}
         }
 
         throw new IllegalStateException();
