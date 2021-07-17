@@ -21,8 +21,13 @@ public class ChattyMessageEvent extends Event {
         this.message = message;
     }
 
+    public static HandlerList getHandlerList() {
+        return HANDLER_LIST;
+    }
+
     /**
      * Returns the player that sends a message
+     *
      * @return player that sends a message
      */
     @NotNull
@@ -32,6 +37,7 @@ public class ChattyMessageEvent extends Event {
 
     /**
      * Returns the chat to which message sends
+     *
      * @return chat to which message sends
      */
     @NotNull
@@ -41,6 +47,7 @@ public class ChattyMessageEvent extends Event {
 
     /**
      * Returns the message typed by player
+     *
      * @return message typed by player
      */
     @NotNull
@@ -51,10 +58,6 @@ public class ChattyMessageEvent extends Event {
     @Override
     @NotNull
     public HandlerList getHandlers() {
-        return HANDLER_LIST;
-    }
-
-    public static HandlerList getHandlerList() {
         return HANDLER_LIST;
     }
 

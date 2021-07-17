@@ -1,15 +1,13 @@
 package ru.mrbrikster.chatty.util;
 
-import lombok.experimental.UtilityClass;
 import net.md_5.bungee.api.ChatColor;
-import org.bukkit.entity.Player;
 import ru.mrbrikster.chatty.json.LegacyConverter;
-import ru.mrbrikster.chatty.util.textapi.ServerPackage;
+
+import lombok.experimental.UtilityClass;
 
 import java.awt.*;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,6 +36,7 @@ public class TextUtil {
 
     /**
      * Removes spigot hex-codes from string
+     *
      * @param str string to strip hex
      * @return stripped string
      */
@@ -52,6 +51,7 @@ public class TextUtil {
 
     /**
      * Finds simple and gradient hex patterns in string and converts it to Spigot format
+     *
      * @param text string to stylish
      * @return stylished string
      */
@@ -128,30 +128,6 @@ public class TextUtil {
 
     public String getLastColors(String text) {
         return new LegacyConverter(text).toFancyMessage().getLastColors();
-    }
-
-    /**
-     * Sends json-formatted message to player
-     */
-    public void sendJson(Player player, String json) {
-        try {
-            Class<?> clsIChatBaseComponent = ServerPackage.MINECRAFT.getClass("IChatBaseComponent");
-            Class<?> clsChatMessageType = ServerPackage.MINECRAFT.getClass("ChatMessageType");
-            Object entityPlayer = player.getClass().getMethod("getHandle").invoke(player);
-            Object playerConnection = entityPlayer.getClass().getField("playerConnection").get(entityPlayer);
-            Object chatBaseComponent = ServerPackage.MINECRAFT.getClass("IChatBaseComponent$ChatSerializer").getMethod("a", String.class).invoke(null, json);
-            Object chatMessageType = clsChatMessageType.getMethod("valueOf", String.class).invoke(null, "CHAT");
-            Object packetPlayOutChat;
-            try {
-                packetPlayOutChat = ServerPackage.MINECRAFT.getClass("PacketPlayOutChat").getConstructor(clsIChatBaseComponent, clsChatMessageType).newInstance(chatBaseComponent, chatMessageType);
-            } catch (Throwable t) {
-                // New constructor for v1_16
-                packetPlayOutChat = ServerPackage.MINECRAFT.getClass("PacketPlayOutChat").getConstructor(clsIChatBaseComponent, clsChatMessageType, UUID.class).newInstance(chatBaseComponent, chatMessageType, null);
-            }
-            playerConnection.getClass().getMethod("sendPacket", ServerPackage.MINECRAFT.getClass("Packet")).invoke(playerConnection, packetPlayOutChat);
-        } catch (Throwable e) {
-            throw new RuntimeException("Json components is not supported by Chatty on your server version (" + ServerPackage.getServerVersion() + ")", e);
-        }
     }
 
     private Color calculateGradientColor(int x, int parts, Color from, Color to) {

@@ -21,6 +21,7 @@ public class BungeeBroadcaster {
 
         ByteArrayDataOutput messageStream = ByteStreams.newDataOutput();
         messageStream.writeUTF(chat);
+        messageStream.writeUTF(BungeeCordListener.SERVER_UUID.toString());
         messageStream.writeUTF(message);
         messageStream.writeBoolean(json);
 

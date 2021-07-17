@@ -3,24 +3,26 @@
 # Chatty (Bukkit plugin)
 
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/Brikster/Chatty)](https://github.com/Brikster/Chatty/releases/latest)
-[![GitHub All Releases](https://img.shields.io/github/downloads/Brikster/Chatty/total)](https://github.com/Brikster/Chatty/releases) 
+[![GitHub All Releases](https://img.shields.io/github/downloads/Brikster/Chatty/total)](https://github.com/Brikster/Chatty/releases)
 [![Build Status](https://travis-ci.org/Brikster/Chatty.svg?branch=master)](https://travis-ci.org/Brikster/Chatty)
 [![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/Brikster/Chatty)](https://github.com/Brikster/Chatty/archive/master.zip)
 [![JitPack](https://jitpack.io/v/Brikster/Chatty.svg)](https://jitpack.io/#Brikster/Chatty)
-[![License](https://img.shields.io/github/license/Brikster/Chatty.svg)](https://github.com/Brikster/Chatty/blob/master/LICENSE) 
-[![Issues](https://img.shields.io/github/issues-raw/Brikster/Chatty.svg?logo=github&logoColor=white)](https://github.com/Brikster/Chatty/issues) 
+[![License](https://img.shields.io/github/license/Brikster/Chatty.svg)](https://github.com/Brikster/Chatty/blob/master/LICENSE)
+[![Issues](https://img.shields.io/github/issues-raw/Brikster/Chatty.svg?logo=github&logoColor=white)](https://github.com/Brikster/Chatty/issues)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/8463f0bb652842d4a5676ce4fd54f65c)](https://www.codacy.com/manual/Brikster/Chatty?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=MrBrikster/Chatty&amp;utm_campaign=Badge_Grade)
 
-Chatty is the unique Bukkit-plugin, that supports all modern Bukkit-servers, such as Thermos, Cauldron, Spigot, PaperSpigot e t.c. This plugin doesn't have any non-switchable options. It's simple, stable and lightweight.
+Chatty is the unique Bukkit-plugin, that supports all modern Bukkit-servers, such as Thermos, Cauldron, Spigot,
+PaperSpigot e t.c. This plugin doesn't have any non-switchable options. It's simple, stable and lightweight.
 
--   Chats, such as local and global chats. Also you can add another chat.
--   Chats separation by permission. For example, if you have permission "chatty.chat.local", but have "chatty.chat.global", your message will sent at global chat.
--   Spy-mode permission. Players with "chatty.spy" permission can see all messages from all chats.
--   Vault API support.
--   Advancements announcements system.
--   Cooldowns for chats.
--   Auto-messages system.
--   Private messages system.
+- Chats, such as local and global chats. Also you can add another chat.
+- Chats separation by permission. For example, if you have permission "chatty.chat.local", but have "chatty.chat.global"
+  , your message will sent at global chat.
+- Spy-mode permission. Players with "chatty.spy" permission can see all messages from all chats.
+- Vault API support.
+- Advancements announcements system.
+- Cooldowns for chats.
+- Auto-messages system.
+- Private messages system.
 
 ## Permissions
 
@@ -57,27 +59,28 @@ Chatty is the unique Bukkit-plugin, that supports all modern Bukkit-servers, suc
 | New 1.16+ hex color codes                | -      | +      |
 
 ## Hex color codes and gradient
-<i>Warning: Early versions of Spigot/PaperSpigot may not be supported.
-Use only latest builds to correct work of Chatty 1.16 features</i>
 
-Chatty supports new 1.16+ color codes.
-To add a new color code in your chat format, you need use the following pattern:
-    
+<i>Warning: Early versions of Spigot/PaperSpigot may not be supported. Use only latest builds to correct work of Chatty
+1.16 features</i>
+
+Chatty supports new 1.16+ color codes. To add a new color code in your chat format, you need use the following pattern:
+
     {#12ABCD}text
-    
+
 {#12ABCD} is hex code. You also can combine it with style codes:
 
     {#ffffff}&ltext
-    
+
 ### Gradient
+
 You can create various multi-color gradient strings with this pattern:
 
     {#ffffff:#0039a6:#d52b1e This is awesome tricolor gradient}
-    
+
 Number of hex codes is unlimited:
 
     {#d818c4:#ae6be6:#0f7584:#7983a7:#a793ba:#34344b This is multicolor gradient}
-   
+
 ![In-game gradient example](https://i.imgur.com/Z1iXJm8.png)
 
 ## Configuration
@@ -110,9 +113,9 @@ Chatty uses Apache Maven to handle dependencies & building.
 
 ### Requirements
 
--   Java 8 JDK or newer
--   Apache Maven
--   Git
+- Java 8 JDK or newer
+- Apache Maven
+- Git
 
 ### Compiling from source
 

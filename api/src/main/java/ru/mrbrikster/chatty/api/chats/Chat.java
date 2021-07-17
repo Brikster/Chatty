@@ -1,49 +1,21 @@
 package ru.mrbrikster.chatty.api.chats;
 
-import lombok.experimental.UtilityClass;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.mrbrikster.chatty.json.FormattedMessage;
 
+import lombok.experimental.UtilityClass;
+
 import java.util.Collection;
 import java.util.function.Predicate;
 
 public interface Chat {
 
-    @UtilityClass
-    class Ranges {
-        public final int MULTI_SERVER = -3;
-        public final int CROSS_WORLD = -2;
-        public final int SINGLE_WORLD = -1;
-
-        /**
-         * Checks if range is applicable to messaging between two players
-         * @return whether range is applicable or not
-         */
-        public boolean isApplicable(@NotNull Player firstPlayer, @NotNull Player secondPlayer, int range) {
-            if (range == CROSS_WORLD || range == MULTI_SERVER) {
-                return true;
-            }
-
-            World firstPlayerWorld = firstPlayer.getWorld();
-            World secondPlayerWorld = secondPlayer.getWorld();
-            if (range == SINGLE_WORLD) {
-                return firstPlayerWorld.equals(secondPlayerWorld);
-            }
-
-            if (range >= 0) {
-                return firstPlayerWorld.equals(secondPlayerWorld)
-                        && firstPlayer.getLocation().distanceSquared(secondPlayer.getLocation()) <= (range * range);
-            } else {
-                return false;
-            }
-        }
-    }
-
     /**
      * Name of chat from plugin configuration
+     *
      * @return name of chat
      */
     @NotNull
@@ -54,7 +26,7 @@ public interface Chat {
      * 1) {player} - player nickname
      * 2) {prefix}, {suffix} - prefix and suffix of player
      * 3) %<placeholder>% - various placeholders from PlaceholderAPI
-     *
+     * <p>
      * Also chat format supports own color formats (1.16+):
      * {#hexhex}text - for plain hex-colored strings
      * {#hexhex:#hexhex:#hexhex... text} - for gradient-colored strings
@@ -71,15 +43,15 @@ public interface Chat {
      * -1 is for global single-world chats
      * 0 and higher for ranged local-chats
      *
-     * @see Ranges#isApplicable(Player, Player, int)
-     *
      * @return range value for this chat
+     * @see Ranges#isApplicable(Player, Player, int)
      */
     int getRange();
 
     /**
      * Permission requiring can be disable in configuration
      * If permission is enable, player must has "chatty.chat.<chat>" permission to use it
+     *
      * @return whether permission required or not
      */
     boolean isPermissionRequired();
@@ -87,7 +59,7 @@ public interface Chat {
     /**
      * Creates collection of online players chat can see message from this chat
      *
-     * @param player player who sends a message. Can be null only if chat chat range <= -2
+     * @param player player who sends a message
      * @return collection of chat recipients
      */
     @NotNull
@@ -96,7 +68,7 @@ public interface Chat {
     /**
      * Filters collection of online players chat can see message from this chat
      *
-     * @param player player who sends a message. Can be null only if chat chat range <= -2
+     * @param player  player who sends a message
      * @param players collection of players to filter
      * @return edited collection of chat recipients
      */
@@ -106,7 +78,7 @@ public interface Chat {
     /**
      * This method let you send any message to the chat participants (without {@link Chat#getFormat()})
      * Message will be processed with {@link ru.mrbrikster.chatty.util.TextUtil#stylish(String)}
-     *
+     * <p>
      * Messages supports Chatty stylish formats (1.16+):
      * {#hexhex}text - for plain hex-colored strings
      * {#hexhex:#hexhex:#hexhex... text} - for gradient-colored strings
@@ -120,13 +92,12 @@ public interface Chat {
     /**
      * This method let you send any message to the chat participants (without {@link Chat#getFormat()})
      * Message will be processed with {@link ru.mrbrikster.chatty.util.TextUtil#stylish(String)}
-     *
+     * <p>
      * Messages supports Chatty stylish formats (1.16+):
      * {#hexhex}text - for plain hex-colored strings
      * {#hexhex:#hexhex:#hexhex... text} - for gradient-colored strings
      *
-     *
-     * @param message message to send
+     * @param message         message to send
      * @param playerPredicate predicate for message recipient
      */
     void sendMessage(String message, Predicate<Player> playerPredicate);
@@ -148,8 +119,41 @@ public interface Chat {
      * make hover tooltips, clickable links etc.
      *
      * @param formattedMessage message to send
-     * @param playerPredicate predicate for message recipient
+     * @param playerPredicate  predicate for message recipient
      */
     void sendFormattedMessage(FormattedMessage formattedMessage, Predicate<Player> playerPredicate);
+
+    @UtilityClass
+    class Ranges {
+
+        public final int MULTI_SERVER = -3;
+        public final int CROSS_WORLD = -2;
+        public final int SINGLE_WORLD = -1;
+
+        /**
+         * Checks if range is applicable to messaging between two players
+         *
+         * @return whether range is applicable or not
+         */
+        public boolean isApplicable(@NotNull Player firstPlayer, @NotNull Player secondPlayer, int range) {
+            if (range == CROSS_WORLD || range == MULTI_SERVER) {
+                return true;
+            }
+
+            World firstPlayerWorld = firstPlayer.getWorld();
+            World secondPlayerWorld = secondPlayer.getWorld();
+            if (range == SINGLE_WORLD) {
+                return firstPlayerWorld.equals(secondPlayerWorld);
+            }
+
+            if (range >= 0) {
+                return firstPlayerWorld.equals(secondPlayerWorld)
+                        && firstPlayer.getLocation().distanceSquared(secondPlayer.getLocation()) <= (range * range);
+            } else {
+                return false;
+            }
+        }
+
+    }
 
 }

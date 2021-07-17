@@ -23,41 +23,6 @@ import static net.md_5.bungee.api.ChatColor.MAGIC;
 @SuppressWarnings("all")
 public final class MessagePart implements JsonRepresentedObject, ConfigurationSerializable, Cloneable {
 
-    ChatColor color = ChatColor.WHITE;
-    ArrayList<ChatColor> styles = new ArrayList<ChatColor>();
-    String clickActionName = null, clickActionData = null, hoverActionName = null;
-    JsonRepresentedObject hoverActionData = null;
-    public TextualComponent text = null;
-    String insertionData = null;
-    ArrayList<JsonRepresentedObject> translationReplacements = new ArrayList<JsonRepresentedObject>();
-
-    MessagePart(final TextualComponent text) {
-        this.text = text;
-    }
-
-    MessagePart() {
-        this.text = null;
-    }
-
-    boolean hasText() {
-        return text != null;
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public MessagePart clone() throws CloneNotSupportedException {
-        MessagePart obj = (MessagePart) super.clone();
-        obj.styles = (ArrayList<ChatColor>) styles.clone();
-        if (hoverActionData instanceof JsonString) {
-            obj.hoverActionData = new JsonString(((JsonString) hoverActionData).getValue());
-        } else if (hoverActionData instanceof FancyMessage) {
-            obj.hoverActionData = ((FancyMessage) hoverActionData).clone();
-        }
-        obj.translationReplacements = (ArrayList<JsonRepresentedObject>) translationReplacements.clone();
-        return obj;
-
-    }
-
     static final BiMap<ChatColor, String> stylesToNames;
 
     static {
@@ -79,6 +44,59 @@ public final class MessagePart implements JsonRepresentedObject, ConfigurationSe
             builder.put(style, styleName);
         }
         stylesToNames = builder.build();
+    }
+
+    static {
+        ConfigurationSerialization.registerClass(MessagePart.class);
+    }
+
+    public TextualComponent text = null;
+    ChatColor color = ChatColor.WHITE;
+    ArrayList<ChatColor> styles = new ArrayList<ChatColor>();
+    String clickActionName = null, clickActionData = null, hoverActionName = null;
+    JsonRepresentedObject hoverActionData = null;
+    String insertionData = null;
+    ArrayList<JsonRepresentedObject> translationReplacements = new ArrayList<JsonRepresentedObject>();
+
+    MessagePart(final TextualComponent text) {
+        this.text = text;
+    }
+
+    MessagePart() {
+        this.text = null;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static MessagePart deserialize(Map<String, Object> serialized) {
+        MessagePart part = new MessagePart((TextualComponent) serialized.get("text"));
+        part.styles = (ArrayList<ChatColor>) serialized.get("styles");
+        part.color = ChatColor.of(serialized.get("color").toString());
+        part.hoverActionName = (String) serialized.get("hoverActionName");
+        part.hoverActionData = (JsonRepresentedObject) serialized.get("hoverActionData");
+        part.clickActionName = (String) serialized.get("clickActionName");
+        part.clickActionData = (String) serialized.get("clickActionData");
+        part.insertionData = (String) serialized.get("insertion");
+        part.translationReplacements = (ArrayList<JsonRepresentedObject>) serialized.get("translationReplacements");
+        return part;
+    }
+
+    boolean hasText() {
+        return text != null;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public MessagePart clone() throws CloneNotSupportedException {
+        MessagePart obj = (MessagePart) super.clone();
+        obj.styles = (ArrayList<ChatColor>) styles.clone();
+        if (hoverActionData instanceof JsonString) {
+            obj.hoverActionData = new JsonString(((JsonString) hoverActionData).getValue());
+        } else if (hoverActionData instanceof FancyMessage) {
+            obj.hoverActionData = ((FancyMessage) hoverActionData).clone();
+        }
+        obj.translationReplacements = (ArrayList<JsonRepresentedObject>) translationReplacements.clone();
+        return obj;
+
     }
 
     public void writeJson(JsonWriter json) {
@@ -133,24 +151,6 @@ public final class MessagePart implements JsonRepresentedObject, ConfigurationSe
         map.put("insertion", insertionData);
         map.put("translationReplacements", translationReplacements);
         return map;
-    }
-
-    @SuppressWarnings("unchecked")
-    public static MessagePart deserialize(Map<String, Object> serialized) {
-        MessagePart part = new MessagePart((TextualComponent) serialized.get("text"));
-        part.styles = (ArrayList<ChatColor>) serialized.get("styles");
-        part.color = ChatColor.of(serialized.get("color").toString());
-        part.hoverActionName = (String) serialized.get("hoverActionName");
-        part.hoverActionData = (JsonRepresentedObject) serialized.get("hoverActionData");
-        part.clickActionName = (String) serialized.get("clickActionName");
-        part.clickActionData = (String) serialized.get("clickActionData");
-        part.insertionData = (String) serialized.get("insertion");
-        part.translationReplacements = (ArrayList<JsonRepresentedObject>) serialized.get("translationReplacements");
-        return part;
-    }
-
-    static {
-        ConfigurationSerialization.registerClass(MessagePart.class);
     }
 
 }

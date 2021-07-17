@@ -92,12 +92,7 @@ public class Chat implements ru.mrbrikster.chatty.api.chats.Chat {
     @Override
     @NotNull
     public Collection<? extends Player> filterRecipients(@Nullable Player player, @NotNull Collection<? extends Player> players) {
-        if (range > -2) {
-            if (player == null) {
-                players.clear();
-                return players;
-            }
-
+        if (range > -2 && player != null) {
             players.removeIf(onlinePlayer -> !onlinePlayer.getWorld().equals(player.getWorld()));
         }
 
@@ -116,13 +111,14 @@ public class Chat implements ru.mrbrikster.chatty.api.chats.Chat {
 
                 return false;
             });
+
             players.removeIf(recipient -> !Ranges.isApplicable(recipient, player, range));
         }
 
         players.removeIf(recipient ->
                 !(recipient.equals(player)
                         || !isPermissionRequired()
-                        // Не убирать (!)
+                        // Don't remove!
                         || recipient.hasPermission("chatty.chat." + name)
                         || recipient.hasPermission("chatty.chat." + name + ".see"))
         );

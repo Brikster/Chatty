@@ -103,11 +103,12 @@ chats:
   notify:
     enable: true
     format: |
-      &7====================================================================
+
+      &7==========================================
         &c{player}&8: &7{message}
-      &7====================================================================
+      &7==========================================
     range: -3
-    symbol: '@'
+    symbol: '$'
     cooldown: -1
 
     # Plays sound for all chat recipients
@@ -248,6 +249,10 @@ json:
     # Plays sound to player, that was mentioned.
     # Remove the line if not needed.
     sound: CLICK
+
+    # Allows to mention vanished players
+    # Default: true
+    allow-vanished: false
 
     # Command or text that executes (by player) when you click on the mention.
     #
@@ -423,7 +428,7 @@ notifications:
         messages:
           - |
             &cThe server is using Chatty!
-            &eOur address: 127.0.0.1'
+            &eOur address: 127.0.0.1
           - '&aThe server is using Chatty!'
 
         # Permission for seeing notification.

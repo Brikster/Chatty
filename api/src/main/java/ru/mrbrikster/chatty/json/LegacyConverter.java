@@ -91,6 +91,10 @@ public class LegacyConverter {
         finalizeSection();
     }
 
+    static List<ru.mrbrikster.chatty.json.fanciful.MessagePart> getMessageParts(String message) {
+        return new LegacyConverter(message).toMessageParts();
+    }
+
     private boolean processFormatCodeContains(char c) {
         switch (c) {
             case 'k':
@@ -144,10 +148,6 @@ public class LegacyConverter {
 
     public List<MessagePart> toMessageParts() {
         return fancyMessage.getMessageParts();
-    }
-
-    static List<ru.mrbrikster.chatty.json.fanciful.MessagePart> getMessageParts(String message) {
-        return new LegacyConverter(message).toMessageParts();
     }
 
 }

@@ -9,6 +9,7 @@ import ru.mrbrikster.chatty.reflection.Reflection;
 import ru.mrbrikster.chatty.util.Debugger;
 import ru.mrbrikster.chatty.util.Pair;
 import ru.mrbrikster.chatty.util.TextUtil;
+import ru.mrbrikster.chatty.util.textapi.NMSUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,7 +69,7 @@ public class ChatNotification extends Notification {
                             : line.getA();
 
                     if (line.getB()) {
-                        TextUtil.sendJson(player, formattedLine);
+                        NMSUtil.sendChatPacket(player, "CHAT", formattedLine);
                     } else {
                         player.sendMessage(formattedLine);
                     }

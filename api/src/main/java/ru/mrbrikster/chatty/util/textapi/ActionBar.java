@@ -22,8 +22,6 @@ import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.util.UUID;
-
 /**
  * Represents a message displayed above the hotbar.
  *
@@ -84,25 +82,7 @@ public class ActionBar {
      * @param player The player to send the message to.
      */
     public void send(Player player) {
-        Preconditions.checkNotNull(player);
-        try {
-            Class<?> clsIChatBaseComponent = ServerPackage.MINECRAFT.getClass("IChatBaseComponent");
-            Class<?> clsChatMessageType = ServerPackage.MINECRAFT.getClass("ChatMessageType");
-            Object entityPlayer = player.getClass().getMethod("getHandle").invoke(player);
-            Object playerConnection = entityPlayer.getClass().getField("playerConnection").get(entityPlayer);
-            Object chatBaseComponent = ServerPackage.MINECRAFT.getClass("IChatBaseComponent$ChatSerializer").getMethod("a", String.class).invoke(null, json.toString());
-            Object chatMessageType = clsChatMessageType.getMethod("valueOf", String.class).invoke(null, "GAME_INFO");
-            Object packetPlayOutChat;
-            try {
-                packetPlayOutChat = ServerPackage.MINECRAFT.getClass("PacketPlayOutChat").getConstructor(clsIChatBaseComponent, clsChatMessageType).newInstance(chatBaseComponent, chatMessageType);
-            } catch (Throwable t) {
-                // New constructor for v1_16
-                packetPlayOutChat = ServerPackage.MINECRAFT.getClass("PacketPlayOutChat").getConstructor(clsIChatBaseComponent, clsChatMessageType, UUID.class).newInstance(chatBaseComponent, chatMessageType, null);
-            }
-            playerConnection.getClass().getMethod("sendPacket", ServerPackage.MINECRAFT.getClass("Packet")).invoke(playerConnection, packetPlayOutChat);
-        } catch (Throwable e) {
-            throw new RuntimeException("ActionBar is not supported by Chatty on your server version (" + ServerPackage.getServerVersion() + ")", e);
-        }
+        NMSUtil.sendChatPacket(player, "GAME_INFO", json.toString());
     }
 
     /**

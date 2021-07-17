@@ -73,6 +73,7 @@ public class FormattedMessage {
     /**
      * EXPERIMENTAL
      * Rewritten function, that supports multiple parts and should be more stable and effective
+     *
      * @return this instance of FormattedMessage
      */
     public FormattedMessage replace(Pattern pattern, List<MessagePart> parts) {

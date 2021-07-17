@@ -14,9 +14,12 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class BungeeCordListener implements PluginMessageListener {
+
+    public final static UUID SERVER_UUID = UUID.randomUUID();
 
     private final ChatManager chatManager;
 
@@ -47,6 +50,10 @@ public class BungeeCordListener implements PluginMessageListener {
 
             try {
                 chatName = inputStream.readUTF();
+
+                UUID uuid = UUID.fromString(inputStream.readUTF());
+                if (uuid.equals(SERVER_UUID)) return;
+
                 text = inputStream.readUTF();
                 json = inputStream.readBoolean();
             } catch (IOException e) {

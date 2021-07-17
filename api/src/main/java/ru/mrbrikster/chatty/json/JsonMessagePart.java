@@ -69,4 +69,5 @@ public class JsonMessagePart implements MessagePart {
 
         return fancyMessage;
     }
+
 }

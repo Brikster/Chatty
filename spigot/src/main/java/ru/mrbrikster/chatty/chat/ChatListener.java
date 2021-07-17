@@ -18,7 +18,6 @@ import ru.mrbrikster.chatty.Chatty;
 import ru.mrbrikster.chatty.api.events.ChattyMessageEvent;
 import ru.mrbrikster.chatty.bungee.BungeeBroadcaster;
 import ru.mrbrikster.chatty.dependencies.DependencyManager;
-import ru.mrbrikster.chatty.dependencies.PlaceholderAPIHook;
 import ru.mrbrikster.chatty.dependencies.PlayerTagManager;
 import ru.mrbrikster.chatty.dependencies.VaultHook;
 import ru.mrbrikster.chatty.json.FormattedMessage;
@@ -308,6 +307,14 @@ public class ChatListener implements Listener, EventExecutor {
             return;
         }
 
+        if (chat.getSound() != null) {
+            for (Player recipient : event.getRecipients()) {
+                if (!recipient.equals(event.getPlayer())) {
+                    recipient.playSound(recipient.getLocation(), chat.getSound(), 1L, 1L);
+                }
+            }
+        }
+
         if (configuration.getNode("json.enable").getAsBoolean(false)) {
             performJsonMessage(event, chat);
         } else {
@@ -320,21 +327,12 @@ public class ChatListener implements Listener, EventExecutor {
                 event.setFormat(strippedHexFormat);
             }
         }
-
-        if (chat.getSound() != null) {
-            for (Player recipient : event.getRecipients()) {
-                if (!recipient.equals(event.getPlayer())) {
-                    recipient.playSound(recipient.getLocation(), chat.getSound(), 1L, 1L);
-                }
-            }
-        }
     }
 
     private void performJsonMessage(AsyncPlayerChatEvent event, Chat chat) {
         Player player = event.getPlayer();
         String format = unstylish(String.format(event.getFormat(), "{player}", "{message}"));
 
-        PlaceholderAPIHook placeholderAPI = dependencyManager.getPlaceholderApi();
         List<String> tooltip = configuration.getNode("json.tooltip").getAsStringList()
                 .stream().map(line -> TextUtil.stylish(
                         line.replace("{player}", player.getDisplayName())
@@ -342,8 +340,8 @@ public class ChatListener implements Listener, EventExecutor {
                                 .replace("{suffix}", playerTagManager.getSuffix(player))
                 )).collect(Collectors.toList());
 
-        if (placeholderAPI != null)
-            tooltip = placeholderAPI.setPlaceholders(player, tooltip);
+        if (dependencyManager.getPlaceholderApi() != null)
+            tooltip = dependencyManager.getPlaceholderApi().setPlaceholders(player, tooltip);
 
         String command = configuration.getNode("json.command").getAsString(null);
         String suggestCommand = configuration.getNode("json.suggest").getAsString(null);
@@ -360,10 +358,10 @@ public class ChatListener implements Listener, EventExecutor {
                         .tooltip(tooltip));
 
         configuration.getNode("json.replacements").getChildNodes().forEach(replacement ->
-                applyReplacement(player, placeholderAPI, formattedMessage, replacement));
+                applyReplacement(player, formattedMessage, replacement));
 
         if (configuration.getNode("json.mentions.enable").getAsBoolean(false) && player.hasPermission("chatty.mentions")) {
-            applyMentions(event, placeholderAPI, formattedMessage);
+            applyMentions(event, formattedMessage);
         } else {
             formattedMessage.replace("{message}", new LegacyMessagePart(event.getMessage(), false));
         }
@@ -424,7 +422,7 @@ public class ChatListener implements Listener, EventExecutor {
         }
     }
 
-    private void applyMentions(AsyncPlayerChatEvent event, PlaceholderAPIHook placeholderAPI, FormattedMessage formattedMessage) {
+    private void applyMentions(AsyncPlayerChatEvent event, FormattedMessage formattedMessage) {
         String link;
         String suggestCommand;
         String command;
@@ -441,6 +439,11 @@ public class ChatListener implements Listener, EventExecutor {
                     continue;
                 }
 
+                if (!event.getPlayer().canSee(mentionedPlayer)
+                        && !configuration.getNode("json.mentions.allow-vanished").getAsBoolean(true)) {
+                    continue;
+                }
+
                 Function<String, String> mentionedPlayerVariablesFunc = createVariablesFunction(mentionedPlayer);
 
                 List<String> mentionTooltip = configuration.getNode("json.mentions.tooltip").getAsStringList();
@@ -451,8 +454,8 @@ public class ChatListener implements Listener, EventExecutor {
                                         .replace("{suffix}", playerTagManager.getSuffix(mentionedPlayer))
                         )).collect(Collectors.toList());
 
-                if (placeholderAPI != null) {
-                    mentionTooltip = placeholderAPI.setPlaceholders(mentionedPlayer, mentionTooltip);
+                if (dependencyManager.getPlaceholderApi() != null) {
+                    mentionTooltip = dependencyManager.getPlaceholderApi().setPlaceholders(mentionedPlayer, mentionTooltip);
                 }
 
                 link = mentionedPlayerVariablesFunc.apply(configuration.getNode("json.mentions.link").getAsString(null));
@@ -480,7 +483,7 @@ public class ChatListener implements Listener, EventExecutor {
         formattedMessage.replace("{message}", messageWithMention);
     }
 
-    private void applyReplacement(Player player, PlaceholderAPIHook placeholderAPI, FormattedMessage formattedMessage, ConfigurationNode replacement) {
+    private void applyReplacement(Player player, FormattedMessage formattedMessage, ConfigurationNode replacement) {
         Function<String, String> stringVariablesFunction = createVariablesFunction(player);
         String replacementName = replacement.getNode("original").getAsString(replacement.getName());
 
@@ -494,8 +497,8 @@ public class ChatListener implements Listener, EventExecutor {
                                 .replace("{suffix}", playerTagManager.getSuffix(player))
                 )).collect(Collectors.toList());
 
-        if (placeholderAPI != null)
-            replacementTooltip = placeholderAPI.setPlaceholders(player, replacementTooltip);
+        if (dependencyManager.getPlaceholderApi() != null)
+            replacementTooltip = dependencyManager.getPlaceholderApi().setPlaceholders(player, replacementTooltip);
 
         String replacementCommand = replacement.getNode("command").getAsString(null);
         String replacementSuggestCommand = replacement.getNode("suggest").getAsString(null);

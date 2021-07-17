@@ -17,7 +17,6 @@
  */
 package ru.mrbrikster.chatty.util.textapi;
 
-import com.google.common.base.Preconditions;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.bukkit.Bukkit;
@@ -80,32 +79,66 @@ public class Title {
      * @param player The player to send the title to.
      */
     public void send(Player player) {
-        Preconditions.checkNotNull(player);
         try {
             Object entityPlayer = player.getClass().getMethod("getHandle").invoke(player);
-            Object playerConnection = entityPlayer.getClass().getField("playerConnection").get(entityPlayer);
-            // NMS Classes
-            Class<?> clsPacketPlayOutTitle = ServerPackage.MINECRAFT.getClass("PacketPlayOutTitle");
-            Class<?> clsPacket = ServerPackage.MINECRAFT.getClass("Packet");
-            Class<?> clsIChatBaseComponent = ServerPackage.MINECRAFT.getClass("IChatBaseComponent");
-            Class<?> clsChatSerializer = ServerPackage.MINECRAFT.getClass("IChatBaseComponent$ChatSerializer");
-            Class<?> clsEnumTitleAction = ServerPackage.MINECRAFT.getClass("PacketPlayOutTitle$EnumTitleAction");
-            Object timesPacket = clsPacketPlayOutTitle.getConstructor(int.class, int.class, int.class).newInstance(fadeIn, stay, fadeOut);
-            playerConnection.getClass().getMethod("sendPacket", clsPacket).invoke(playerConnection, timesPacket);
-            // Play the title packet
-            if (title != null) {
-                Object titleComponent = clsChatSerializer.getMethod("a", String.class).invoke(null, title.toString());
-                Object titlePacket = clsPacketPlayOutTitle.getConstructor(clsEnumTitleAction, clsIChatBaseComponent).newInstance(clsEnumTitleAction.getField("TITLE").get(null), titleComponent);
-                playerConnection.getClass().getMethod("sendPacket", clsPacket).invoke(playerConnection, titlePacket);
-            }
-            // Play the subtitle packet
-            if (subtitle != null) {
-                Object subtitleComponent = clsChatSerializer.getMethod("a", String.class).invoke(null, subtitle.toString());
-                Object subtitlePacket = clsPacketPlayOutTitle.getConstructor(clsEnumTitleAction, clsIChatBaseComponent).newInstance(clsEnumTitleAction.getField("SUBTITLE").get(null), subtitleComponent);
-                playerConnection.getClass().getMethod("sendPacket", clsPacket).invoke(playerConnection, subtitlePacket);
+            Object playerConnection = NMSUtil.resolveField(entityPlayer.getClass(), "b", "playerConnection").get(entityPlayer);
+
+            Class<?> clsPacket = NMSUtil.getClass("Packet");
+            Class<?> clsIChatBaseComponent = NMSUtil.getClass("IChatBaseComponent");
+            Class<?> clsChatSerializer = NMSUtil.getClass("IChatBaseComponent$ChatSerializer");
+
+            Object titleComponent = null;
+            if (title != null)
+                titleComponent = clsChatSerializer.getMethod("a", String.class).invoke(null, title.toString());
+
+            Object subtitleComponent = null;
+            if (subtitle != null)
+                subtitleComponent = clsChatSerializer.getMethod("a", String.class).invoke(null, subtitle.toString());
+
+            Class<?> clsSetTitlePacket = NMSUtil.getClass("ClientboundSetTitleTextPacket");
+            if (clsSetTitlePacket == null) {
+                // Legacy titles code
+
+                Class<?> clsPacketPlayOutTitle = NMSUtil.getClass("PacketPlayOutTitle");
+                Class<?> clsEnumTitleAction = NMSUtil.getClass("PacketPlayOutTitle$EnumTitleAction");
+                Object timesPacket = clsPacketPlayOutTitle.getConstructor(int.class, int.class, int.class).newInstance(fadeIn, stay, fadeOut);
+                playerConnection.getClass().getMethod("sendPacket", clsPacket).invoke(playerConnection, timesPacket);
+
+                // Play title packet
+                if (title != null) {
+                    Object titlePacket = clsPacketPlayOutTitle.getConstructor(clsEnumTitleAction, clsIChatBaseComponent).newInstance(clsEnumTitleAction.getField("TITLE").get(null), titleComponent);
+                    playerConnection.getClass().getMethod("sendPacket", clsPacket).invoke(playerConnection, titlePacket);
+                }
+
+                // Play subtitle packet
+                if (subtitle != null) {
+                    Object subtitlePacket = clsPacketPlayOutTitle.getConstructor(clsEnumTitleAction, clsIChatBaseComponent).newInstance(clsEnumTitleAction.getField("SUBTITLE").get(null), subtitleComponent);
+                    playerConnection.getClass().getMethod("sendPacket", clsPacket).invoke(playerConnection, subtitlePacket);
+                }
+            } else {
+                // New titles code
+
+                Class<?> clsSetSubtitlePacket = NMSUtil.getClass("ClientboundSetSubtitleTextPacket");
+                Class<?> clsSetAnimationPacket = NMSUtil.getClass("ClientboundSetTitlesAnimationPacket");
+
+                // Play animation packet
+                Object animationPacket = clsSetAnimationPacket.getConstructor(int.class, int.class, int.class).newInstance(fadeIn, stay, fadeOut);
+                playerConnection.getClass().getMethod("sendPacket", clsPacket).invoke(playerConnection, animationPacket);
+
+                // Play title packet
+                if (title != null) {
+                    Object titlePacket = clsSetTitlePacket.getConstructor(clsIChatBaseComponent).newInstance(titleComponent);
+                    playerConnection.getClass().getMethod("sendPacket", clsPacket).invoke(playerConnection, titlePacket);
+                }
+
+                // Play subtitle packet
+                if (subtitle != null) {
+                    Object subtitlePacket = clsSetSubtitlePacket.getConstructor(clsIChatBaseComponent).newInstance(subtitleComponent);
+                    playerConnection.getClass().getMethod("sendPacket", clsPacket).invoke(playerConnection, subtitlePacket);
+                }
             }
         } catch (Throwable e) {
-            throw new RuntimeException("Titles are not supported by Chatty on your server version (" + ServerPackage.getServerVersion() + ")", e);
+            throw new RuntimeException("Titles are not supported by Chatty on your server version (" + NMSUtil.ServerPackage.getServerVersion() + ")", e);
         }
     }
 
