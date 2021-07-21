@@ -1,10 +1,7 @@
 package ru.mrbrikster.chatty.json.fanciful;
 
 import com.google.common.collect.Iterables;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import com.google.gson.stream.JsonWriter;
 import net.amoebaman.util.ArrayWrapper;
 import net.md_5.bungee.api.ChatColor;
@@ -17,6 +14,7 @@ import ru.mrbrikster.chatty.util.TextUtil;
 import ru.mrbrikster.chatty.util.textapi.NMSUtil;
 
 import lombok.Getter;
+import lombok.SneakyThrows;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -39,6 +37,9 @@ import static ru.mrbrikster.chatty.json.fanciful.TextualComponent.rawText;
 public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<MessagePart>, ConfigurationSerializable {
 
     private static JsonParser _stringParser = new JsonParser();
+    private static final Gson GSON = new GsonBuilder()
+            .disableHtmlEscaping()
+            .create();
 
     static {
         ConfigurationSerialization.registerClass(FancyMessage.class);
@@ -544,12 +545,14 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
      *
      * @return The JSON string representing this object.
      */
+    @SneakyThrows
     public String toJSONString() {
         if (!dirty && jsonString != null) {
             return jsonString;
         }
         StringWriter string = new StringWriter();
-        JsonWriter json = new JsonWriter(string);
+        JsonWriter json = GSON.newJsonWriter(string);
+        json.setHtmlSafe(false);
         try {
             writeJson(json);
             json.close();
