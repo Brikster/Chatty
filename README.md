@@ -103,7 +103,7 @@ Plugin will work even with this simple config:
 
 Project provides particular Maven module with API classes.
 
-You can get access to plugin API with <b>((Chatty) Bukkit.getPlugin("Chatty")).api()</b> method.
+You can get access to plugin API with <b>ChattyApi.get()</b> method.
 
 Now plugin has only one event in API: <b>ChattyMessageEvent</b>, that calls when any player messages the chat.
 
