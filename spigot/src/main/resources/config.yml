@@ -455,10 +455,10 @@ notifications:
         # List of messages.
         messages:
           - icon: 'minecraft:diamond'
-            header: '&bChatty v.${project.version}'
+            header: '&bChatty'
             footer: '&fThank you for using!'
           - icon: 'minecraft:gold_ingot'
-            header: '&eChatty v.${project.version}'
+            header: '&eChatty'
             footer: '&fThank you for using!'
 
         # Permission for seeing notification.
