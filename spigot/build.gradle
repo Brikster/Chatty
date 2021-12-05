@@ -8,8 +8,9 @@ plugins {
 tasks {
     shadowJar {
         archiveFileName = 'Chatty.jar'
-        relocate 'pro.mcstudio.flasklib', "${rootProject.group}.${rootProject.name}.shaded.flasklib"
+        relocate 'ru.mrbrikster.baseplugin', "${rootProject.group}.${rootProject.name}.shaded.baseplugin"
         relocate 'org.bstats', "${rootProject.group}.${rootProject.name}.shaded.metrics"
+        relocate 'com.google.gson', "${rootProject.group}.${rootProject.name}.shaded.gson"
     }
 
     build {
