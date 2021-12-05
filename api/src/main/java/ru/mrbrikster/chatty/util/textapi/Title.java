@@ -23,6 +23,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import ru.mrbrikster.chatty.json.FormattedMessage;
 
+import java.lang.reflect.Method;
+
 /**
  * Represents a title that appears at the center of the screen.
  *
@@ -95,6 +97,14 @@ public class Title {
             if (subtitle != null)
                 subtitleComponent = clsChatSerializer.getMethod("a", String.class).invoke(null, subtitle.toString());
 
+            Method sendPacketMethod;
+            try {
+                sendPacketMethod = playerConnection.getClass().getMethod("sendPacket", clsPacket);
+            } catch (Exception ignored) {
+                // 1.18+
+                sendPacketMethod = playerConnection.getClass().getMethod("a", clsPacket);
+            }
+
             Class<?> clsSetTitlePacket = NMSUtil.getClass("ClientboundSetTitleTextPacket");
             if (clsSetTitlePacket == null) {
                 // Legacy titles code
@@ -102,18 +112,18 @@ public class Title {
                 Class<?> clsPacketPlayOutTitle = NMSUtil.getClass("PacketPlayOutTitle");
                 Class<?> clsEnumTitleAction = NMSUtil.getClass("PacketPlayOutTitle$EnumTitleAction");
                 Object timesPacket = clsPacketPlayOutTitle.getConstructor(int.class, int.class, int.class).newInstance(fadeIn, stay, fadeOut);
-                playerConnection.getClass().getMethod("sendPacket", clsPacket).invoke(playerConnection, timesPacket);
+                sendPacketMethod.invoke(playerConnection, timesPacket);
 
                 // Play title packet
                 if (title != null) {
                     Object titlePacket = clsPacketPlayOutTitle.getConstructor(clsEnumTitleAction, clsIChatBaseComponent).newInstance(clsEnumTitleAction.getField("TITLE").get(null), titleComponent);
-                    playerConnection.getClass().getMethod("sendPacket", clsPacket).invoke(playerConnection, titlePacket);
+                    sendPacketMethod.invoke(playerConnection, titlePacket);
                 }
 
                 // Play subtitle packet
                 if (subtitle != null) {
                     Object subtitlePacket = clsPacketPlayOutTitle.getConstructor(clsEnumTitleAction, clsIChatBaseComponent).newInstance(clsEnumTitleAction.getField("SUBTITLE").get(null), subtitleComponent);
-                    playerConnection.getClass().getMethod("sendPacket", clsPacket).invoke(playerConnection, subtitlePacket);
+                    sendPacketMethod.invoke(playerConnection, subtitlePacket);
                 }
             } else {
                 // New titles code
@@ -123,18 +133,18 @@ public class Title {
 
                 // Play animation packet
                 Object animationPacket = clsSetAnimationPacket.getConstructor(int.class, int.class, int.class).newInstance(fadeIn, stay, fadeOut);
-                playerConnection.getClass().getMethod("sendPacket", clsPacket).invoke(playerConnection, animationPacket);
+                sendPacketMethod.invoke(playerConnection, animationPacket);
 
                 // Play title packet
                 if (title != null) {
                     Object titlePacket = clsSetTitlePacket.getConstructor(clsIChatBaseComponent).newInstance(titleComponent);
-                    playerConnection.getClass().getMethod("sendPacket", clsPacket).invoke(playerConnection, titlePacket);
+                    sendPacketMethod.invoke(playerConnection, titlePacket);
                 }
 
                 // Play subtitle packet
                 if (subtitle != null) {
                     Object subtitlePacket = clsSetSubtitlePacket.getConstructor(clsIChatBaseComponent).newInstance(subtitleComponent);
-                    playerConnection.getClass().getMethod("sendPacket", clsPacket).invoke(playerConnection, subtitlePacket);
+                    sendPacketMethod.invoke(playerConnection, subtitlePacket);
                 }
             }
         } catch (Throwable e) {
