@@ -7,9 +7,7 @@
 [![Build Status](https://travis-ci.org/Brikster/Chatty.svg?branch=master)](https://travis-ci.org/Brikster/Chatty)
 [![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/Brikster/Chatty)](https://github.com/Brikster/Chatty/archive/master.zip)
 [![JitPack](https://jitpack.io/v/Brikster/Chatty.svg)](https://jitpack.io/#Brikster/Chatty)
-[![License](https://img.shields.io/github/license/Brikster/Chatty.svg)](https://github.com/Brikster/Chatty/blob/master/LICENSE)
-[![Issues](https://img.shields.io/github/issues-raw/Brikster/Chatty.svg?logo=github&logoColor=white)](https://github.com/Brikster/Chatty/issues)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/8463f0bb652842d4a5676ce4fd54f65c)](https://www.codacy.com/manual/Brikster/Chatty?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=MrBrikster/Chatty&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/815bf25f21da4c81b9e26bd1159df072)](https://www.codacy.com/gh/Brikster/Chatty/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Brikster/Chatty&amp;utm_campaign=Badge_Grade)
 
 Chatty is the unique Bukkit-plugin, that supports all modern Bukkit-servers, such as Thermos, Cauldron, Spigot,
 PaperSpigot e t.c. This plugin doesn't have any non-switchable options. It's simple, stable and lightweight.
@@ -103,7 +101,7 @@ Plugin will work even with this simple config:
 
 Project provides particular Maven module with API classes.
 
-You can get access to plugin API with <b>((Chatty) Bukkit.getPlugin("Chatty")).api()</b> method.
+You can get access to plugin API with <b>ChattyApi.get()</b> method.
 
 Now plugin has only one event in API: <b>ChattyMessageEvent</b>, that calls when any player messages the chat.
 
