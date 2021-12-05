@@ -107,12 +107,11 @@ Now plugin has only one event in API: <b>ChattyMessageEvent</b>, that calls when
 
 ## Building
 
-Chatty uses Apache Maven to handle dependencies & building.
+Chatty uses Gradle to handle dependencies & building.
 
 ### Requirements
 
 - Java 8 JDK or newer
-- Apache Maven
 - Git
 
 ### Compiling from source
@@ -120,7 +119,7 @@ Chatty uses Apache Maven to handle dependencies & building.
 ```shell script
 git clone https://github.com/Brikster/Chatty.git
 cd Chatty/
-./mvn clean package
+./gradlew build
 ```
 
 You can find the output jar in `/target` directory.
