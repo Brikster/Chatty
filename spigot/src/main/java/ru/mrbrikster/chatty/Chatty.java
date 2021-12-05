@@ -1,6 +1,7 @@
 package ru.mrbrikster.chatty;
 
 import org.bstats.bukkit.Metrics;
+import org.bstats.charts.SimplePie;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.jetbrains.annotations.NotNull;
@@ -158,56 +159,56 @@ public final class Chatty extends BukkitBasePlugin {
     private void runMetrics() {
         if (configuration.getNode("general.metrics").getAsBoolean(true)) {
             Metrics metrics = new Metrics(this, 3466);
-            metrics.addCustomChart(new Metrics.SimplePie("language",
+            metrics.addCustomChart(new SimplePie("language",
                     () -> configuration.getNode("general.locale").getAsString("en")));
 
-            metrics.addCustomChart(new Metrics.SimplePie("json",
+            metrics.addCustomChart(new SimplePie("json",
                     () -> String.valueOf(configuration.getNode("json.enable").getAsBoolean(false))));
 
-            metrics.addCustomChart(new Metrics.SimplePie("private_messaging",
+            metrics.addCustomChart(new SimplePie("private_messaging",
                     () -> String.valueOf(configuration.getNode("pm.enable").getAsBoolean(false))));
 
-            metrics.addCustomChart(new Metrics.SimplePie("spy",
+            metrics.addCustomChart(new SimplePie("spy",
                     () -> String.valueOf(configuration.getNode("spy.enable").getAsBoolean(false))));
 
-            metrics.addCustomChart(new Metrics.SimplePie("chat_notifications",
+            metrics.addCustomChart(new SimplePie("chat_notifications",
                     () -> String.valueOf(configuration.getNode("notifications.chat.enable").getAsBoolean(false))));
 
-            metrics.addCustomChart(new Metrics.SimplePie("actionbar_notifications",
+            metrics.addCustomChart(new SimplePie("actionbar_notifications",
                     () -> String.valueOf(configuration.getNode("notifications.actionbar.enable").getAsBoolean(false))));
 
-            metrics.addCustomChart(new Metrics.SimplePie("advancements_notifications",
+            metrics.addCustomChart(new SimplePie("advancements_notifications",
                     () -> String.valueOf(configuration.getNode("notifications.advancements.enable").getAsBoolean(false))));
 
-            metrics.addCustomChart(new Metrics.SimplePie("caps_moderation_method",
+            metrics.addCustomChart(new SimplePie("caps_moderation_method",
                     () -> String.valueOf(configuration.getNode("moderation.caps.enable").getAsBoolean(false))));
 
-            metrics.addCustomChart(new Metrics.SimplePie("adv_moderation_method",
+            metrics.addCustomChart(new SimplePie("adv_moderation_method",
                     () -> String.valueOf(configuration.getNode("moderation.advertisement.enable").getAsBoolean(false))));
 
-            metrics.addCustomChart(new Metrics.SimplePie("swear_moderation_method",
+            metrics.addCustomChart(new SimplePie("swear_moderation_method",
                     () -> String.valueOf(configuration.getNode("moderation.swear.enable").getAsBoolean(false))));
 
-            metrics.addCustomChart(new Metrics.SimplePie("miscellaneous_auto_nte",
+            metrics.addCustomChart(new SimplePie("miscellaneous_auto_nte",
                     () -> String.valueOf(configuration.getNode("miscellaneous.commands.prefix.auto-nte").getAsBoolean(false)
                             || configuration.getNode("miscellaneous.commands.suffix.auto-nte").getAsBoolean(false))));
 
-            metrics.addCustomChart(new Metrics.SimplePie("miscellaneous_join_msg",
+            metrics.addCustomChart(new SimplePie("miscellaneous_join_msg",
                     () -> String.valueOf(configuration.getNode("miscellaneous.vanilla.join.enable").getAsBoolean(false))));
 
-            metrics.addCustomChart(new Metrics.SimplePie("miscellaneous_quit_msg",
+            metrics.addCustomChart(new SimplePie("miscellaneous_quit_msg",
                     () -> String.valueOf(configuration.getNode("miscellaneous.vanilla.quit.enable").getAsBoolean(false))));
 
-            metrics.addCustomChart(new Metrics.SimplePie("miscellaneous_death_msg",
+            metrics.addCustomChart(new SimplePie("miscellaneous_death_msg",
                     () -> String.valueOf(configuration.getNode("miscellaneous.vanilla.death.enable").getAsBoolean(false))));
 
-            metrics.addCustomChart(new Metrics.SimplePie("uuid",
+            metrics.addCustomChart(new SimplePie("uuid",
                     () -> String.valueOf(configuration.getNode("general.uuid").getAsBoolean(false))));
 
-            metrics.addCustomChart(new Metrics.SimplePie("bungeecord",
+            metrics.addCustomChart(new SimplePie("bungeecord",
                     () -> String.valueOf(configuration.getNode("general.bungeecord").getAsBoolean(false))));
 
-            metrics.addCustomChart(new Metrics.SimplePie("debug",
+            metrics.addCustomChart(new SimplePie("debug",
                     () -> String.valueOf(configuration.getNode("general.debug").getAsBoolean(false))));
         }
     }

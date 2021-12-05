@@ -1,0 +1,41 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
+plugins {
+    id 'com.github.johnrengelman.shadow' version '6.1.0'
+    id 'xyz.jpenilla.run-paper' version '1.0.5'
+}
+
+tasks {
+    shadowJar {
+        archiveFileName = 'Chatty.jar'
+        relocate 'pro.mcstudio.flasklib', "${rootProject.group}.${rootProject.name}.shaded.flasklib"
+        relocate 'org.bstats', "${rootProject.group}.${rootProject.name}.shaded.metrics"
+    }
+
+    build {
+        dependsOn(shadowJar)
+    }
+
+    runServer {
+        minecraftVersion('1.18')
+    }
+}
+
+processResources {
+    from(sourceSets.main.resources.srcDirs) {
+        filter ReplaceTokens, tokens: [version: version]
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    }
+}
+
+dependencies {
+    api project(':api')
+    api 'com.github.Brikster:BasePlugin:v1.8'
+    api 'com.google.code.gson:gson:2.8.5'
+    api 'org.bstats:bstats-bukkit:2.2.1'
+
+    compileOnly 'net.milkbowl.vault:VaultAPI:1.7'
+    compileOnly 'me.clip:placeholderapi:2.10.6'
+    compileOnly 'commons-io:commons-io:2.7'
+    compileOnly 'com.nametagedit:nametagedit:4.1.0'
+}

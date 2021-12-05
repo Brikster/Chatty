@@ -1,5 +1,5 @@
 name: Chatty
-version: ${project.version}
+version: @version@
 main: ru.mrbrikster.chatty.Chatty
 authors: [ MrBrikster ]
 

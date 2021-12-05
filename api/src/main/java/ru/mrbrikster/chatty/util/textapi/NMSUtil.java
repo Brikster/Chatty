@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import lombok.experimental.UtilityClass;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -93,8 +94,15 @@ public class NMSUtil {
                 throw new IllegalStateException();
             }
 
-            playerConnection.getClass().getMethod("sendPacket", NMS_CLASSES.get("Packet"))
-                    .invoke(playerConnection, packetPlayOutChat);
+            Method sendPacketMethod;
+            try {
+                sendPacketMethod = playerConnection.getClass().getMethod("sendPacket", NMS_CLASSES.get("Packet"));
+            } catch (Exception ignored) {
+                // 1.18+
+                sendPacketMethod = playerConnection.getClass().getMethod("a", NMS_CLASSES.get("Packet"));
+            }
+
+            sendPacketMethod.invoke(playerConnection, packetPlayOutChat);
         } catch (Throwable e) {
             throw new RuntimeException("NMS features is not supported by Chatty on your server version (" + ServerPackage.getServerVersion() + ")", e);
         }
