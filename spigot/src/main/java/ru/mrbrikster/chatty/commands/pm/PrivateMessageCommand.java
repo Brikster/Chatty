@@ -15,6 +15,7 @@ import ru.mrbrikster.chatty.moderation.ModerationManager;
 import ru.mrbrikster.chatty.moderation.SwearModerationMethod;
 import ru.mrbrikster.chatty.reflection.Reflection;
 import ru.mrbrikster.chatty.util.TextUtil;
+import ru.mrbrikster.chatty.util.Sound;
 
 public abstract class PrivateMessageCommand extends BukkitCommand {
 
@@ -119,6 +120,12 @@ public abstract class PrivateMessageCommand extends BukkitCommand {
             }
 
             recipient.sendMessage(recipientFormat);
+            
+            String soundName = configuration.getNode("pm.sound").getAsString(null);
+                if (soundName != null) {
+                    org.bukkit.Sound sound = Sound.byName(soundName);
+                    recipient.playSound(recipient.getLocation(), sound, 1L, 1L);
+                }
         }
 
         senderFormat = createFormat(configuration.getNode("pm.format.sender")
