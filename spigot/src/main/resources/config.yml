@@ -138,6 +138,9 @@ pm:
   # Default: true
   allow-pm-vanished: false
 
+  # Plays sound for recipient
+  sound: BLOCK_NOTE_BLOCK_XYLOPHONE
+
   # Format of messages
   #
   # Variables:
