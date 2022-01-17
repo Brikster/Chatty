@@ -192,8 +192,10 @@ public class ChatListener implements Listener, EventExecutor {
 
         pendingSpyMessages.put(player, Pair.of(chat, new ArrayList<>(event.getRecipients())));
 
-        ChattyMessageEvent chattyMessageEvent = new ChattyMessageEvent(player, chat, message);
-        Bukkit.getPluginManager().callEvent(chattyMessageEvent);
+        Bukkit.getScheduler().runTaskAsynchronously(Chatty.instance(), () -> {
+            ChattyMessageEvent chattyMessageEvent = new ChattyMessageEvent(player, chat, event.getMessage());
+            Bukkit.getPluginManager().callEvent(chattyMessageEvent);
+        });
     }
 
     private boolean hasActiveCooldown(AsyncPlayerChatEvent event, Player player, Chat chat) {
