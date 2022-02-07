@@ -6,6 +6,7 @@ plugins {
 tasks {
     shadowJar {
         archiveFileName = 'Chatty.jar'
+        destinationDirectory.set(new File(rootProject.projectDir.getAbsolutePath() + "/build/libs"))
         relocate 'ru.mrbrikster.baseplugin', "${rootProject.group}.${rootProject.name}.shaded.baseplugin"
         relocate 'org.bstats', "${rootProject.group}.${rootProject.name}.shaded.metrics"
         relocate 'com.google.gson', "${rootProject.group}.${rootProject.name}.shaded.gson"

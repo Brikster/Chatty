@@ -121,7 +121,7 @@ cd Chatty/
 ./gradlew build
 ```
 
-You can find the output jar in `/target` directory.
+You can find the output jar in `/build/libs` directory.
 
 ## Credits
 
