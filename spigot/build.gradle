@@ -39,5 +39,5 @@ dependencies {
     compileOnly 'net.milkbowl.vault:VaultAPI:1.7'
     compileOnly 'me.clip:placeholderapi:2.10.6'
     compileOnly 'commons-io:commons-io:2.7'
-    compileOnly 'com.nametagedit:nametagedit:4.1.0'
+    compileOnly 'com.nametagedit:nametagedit:4.4.16'
 }
