@@ -99,3 +99,9 @@ hs_err_pid*
 .settings
 .classpath
 .factorypath
+
+# Gradle
+build/
+.gradle/
+
+!gradle-wrapper.jar
