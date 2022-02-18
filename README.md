@@ -1,4 +1,4 @@
-![alt text](https://i.imgur.com/8D5JcGn.png "Chatty")
+![alt text](https://i.imgur.com/9eNE5WJ.png "Chatty")
 
 # Chatty (Bukkit plugin)
 
