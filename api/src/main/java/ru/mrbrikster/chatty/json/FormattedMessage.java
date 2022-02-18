@@ -5,10 +5,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import ru.mrbrikster.chatty.json.fanciful.FancyMessage;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,14 +19,8 @@ public class FormattedMessage {
         this.messageParts.add(new LegacyMessagePart(text));
     }
 
-    public FormattedMessage send(Player player) {
-        toFancyMessage().send(player);
-
-        return this;
-    }
-
-    public FormattedMessage send(Collection<? extends Player> players) {
-        toFancyMessage().send(players);
+    public FormattedMessage send(Collection<? extends Player> players, UUID sender) {
+        toFancyMessage().send(players, sender);
 
         return this;
     }

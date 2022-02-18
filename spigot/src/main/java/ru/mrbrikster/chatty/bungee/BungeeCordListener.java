@@ -79,9 +79,9 @@ public class BungeeCordListener implements PluginMessageListener {
                     return !chat.isPermissionRequired()
                             || recipient.hasPermission("chatty.chat." + chat.getName() + ".see")
                             || recipient.hasPermission("chatty.chat." + chat.getName());
-                }).collect(Collectors.toList()));
+                }).collect(Collectors.toList()), null);
 
-                fancyMessage.send(Bukkit.getConsoleSender());
+                fancyMessage.send(Bukkit.getConsoleSender(), null);
             } else {
                 Reflection.getOnlinePlayers().stream().filter(recipient -> {
                     return !chat.isPermissionRequired()

@@ -64,7 +64,7 @@ public class NMSUtil {
         throw new IllegalStateException();
     }
 
-    public void sendChatPacket(Player player, String type, String text) {
+    public void sendChatPacket(Player player, String type, String text, UUID sender) {
         try {
             Class<?> clsIChatBaseComponent = NMS_CLASSES.get("IChatBaseComponent");
             Class<?> clsChatMessageType = NMS_CLASSES.get("ChatMessageType");
@@ -86,7 +86,7 @@ public class NMSUtil {
             if (packetPlayOutChat == null) {
                 try {
                     packetPlayOutChat = packetPlayOutChatClass.getConstructor(clsIChatBaseComponent, clsChatMessageType, UUID.class)
-                            .newInstance(chatBaseComponent, chatMessageType, null);
+                            .newInstance(chatBaseComponent, chatMessageType, sender);
                 } catch (Throwable ignored) {}
             }
 

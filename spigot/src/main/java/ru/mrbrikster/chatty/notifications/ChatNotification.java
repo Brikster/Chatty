@@ -69,7 +69,7 @@ public class ChatNotification extends Notification {
                             : line.getA();
 
                     if (line.getB()) {
-                        NMSUtil.sendChatPacket(player, "CHAT", formattedLine);
+                        NMSUtil.sendChatPacket(player, "CHAT", formattedLine, null);
                     } else {
                         player.sendMessage(formattedLine);
                     }

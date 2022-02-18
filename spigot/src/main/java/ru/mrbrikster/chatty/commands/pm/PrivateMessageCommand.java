@@ -10,6 +10,7 @@ import ru.mrbrikster.baseplugin.config.Configuration;
 import ru.mrbrikster.chatty.Chatty;
 import ru.mrbrikster.chatty.chat.JsonStorage;
 import ru.mrbrikster.chatty.dependencies.PlayerTagManager;
+import ru.mrbrikster.chatty.json.fanciful.FancyMessage;
 import ru.mrbrikster.chatty.moderation.AdvertisementModerationMethod;
 import ru.mrbrikster.chatty.moderation.ModerationManager;
 import ru.mrbrikster.chatty.moderation.SwearModerationMethod;
@@ -116,9 +117,11 @@ public abstract class PrivateMessageCommand extends BukkitCommand {
 
             if (!(recipient instanceof Player)) {
                 recipientFormat = TextUtil.stripHex(recipientFormat);
+                recipient.sendMessage(recipientFormat);
+            } else {
+                new FancyMessage(recipientFormat)
+                        .send(recipient, sender instanceof Player ? ((Player) sender).getUniqueId() : null);
             }
-
-            recipient.sendMessage(recipientFormat);
         }
 
         senderFormat = createFormat(configuration.getNode("pm.format.sender")

@@ -82,7 +82,7 @@ public class ActionBar {
      * @param player The player to send the message to.
      */
     public void send(Player player) {
-        NMSUtil.sendChatPacket(player, "GAME_INFO", json.toString());
+        NMSUtil.sendChatPacket(player, "GAME_INFO", json.toString(), null);
     }
 
     /**
