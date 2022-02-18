@@ -6,6 +6,7 @@ import ru.mrbrikster.chatty.json.LegacyConverter;
 import lombok.experimental.UtilityClass;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -93,13 +94,38 @@ public class TextUtil {
                 lastColorLength = chars.length % (colorLength * (colors.length - 1)) + colorLength;
             }
 
+            List<ChatColor> currentStyles = new ArrayList<>();
             for (int i = 0; i < (colors.length - 1); i++) {
                 int currentColorLength = ((i == colors.length - 2) ? lastColorLength : colorLength);
                 for (int j = 0; j < currentColorLength; j++) {
                     Color color = calculateGradientColor(j + 1, currentColorLength, colors[i], colors[i + 1]);
                     ChatColor chatColor = ChatColor.of(color);
 
-                    gradientBuilder.append(chatColor.toString()).append(chars[colorLength * i + j]);
+                    int charIndex = colorLength * i + j;
+                    if (charIndex + 1 < chars.length) {
+                        if (chars[charIndex] == '&' || chars[charIndex] == '§') {
+                            if (chars[charIndex + 1] == 'r') {
+                                currentStyles.clear();
+                                j++;
+                                continue;
+                            }
+
+                            ChatColor style = ChatColor.getByChar(chars[charIndex + 1]);
+                            if (style != null) {
+                                currentStyles.add(style);
+                                j++;
+                                continue;
+                            }
+                        }
+                    }
+
+                    StringBuilder builder = gradientBuilder.append(chatColor.toString());
+
+                    for (ChatColor currentStyle : currentStyles) {
+                        builder.append(currentStyle.toString());
+                    }
+
+                    builder.append(chars[charIndex]);
                 }
             }
 

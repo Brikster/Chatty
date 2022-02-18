@@ -137,7 +137,7 @@ public class Chat implements ru.mrbrikster.chatty.api.chats.Chat {
 
     @Override
     public void sendFormattedMessage(FormattedMessage formattedMessage, Predicate<Player> playerPredicate) {
-        formattedMessage.send(getRecipients(null).stream().filter(playerPredicate).collect(Collectors.toSet()));
+        formattedMessage.send(getRecipients(null).stream().filter(playerPredicate).collect(Collectors.toSet()), null);
         formattedMessage.sendConsole();
     }
 

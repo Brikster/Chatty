@@ -10,6 +10,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 
 @SuppressWarnings("all")
 public class Reflection {
@@ -40,9 +41,9 @@ public class Reflection {
             Object onlinePlayers = getOnlinePlayersMethod.invoke();
             if (onlinePlayers instanceof Collection) {
                 return (Collection<? extends Player>) onlinePlayers;
-            } else return Arrays.asList((Player[]) onlinePlayers);
+            } else return Collections.unmodifiableCollection(Arrays.asList((Player[]) onlinePlayers));
         } catch (Throwable e) {
-            return Bukkit.getOnlinePlayers();
+            return Collections.unmodifiableCollection(Bukkit.getOnlinePlayers());
         }
     }
 

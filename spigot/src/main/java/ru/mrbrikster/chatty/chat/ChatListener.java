@@ -375,7 +375,7 @@ public class ChatListener implements Listener, EventExecutor {
         if (configuration.getNode("json.swears.enable").getAsBoolean(false)) {
             applyJsonSwears(event, formattedMessage);
         } else {
-            formattedMessage.send(event.getRecipients());
+            formattedMessage.send(event.getRecipients(), event.getPlayer().getUniqueId());
         }
 
         event.setFormat(formattedMessage.toReadableText().replace("%", "%%"));
@@ -394,7 +394,7 @@ public class ChatListener implements Listener, EventExecutor {
         List<String> swears = pendingSwears.remove(event.getPlayer());
 
         if (swears == null) {
-            formattedMessage.send(event.getRecipients());
+            formattedMessage.send(event.getRecipients(), event.getPlayer().getUniqueId());
         } else {
             List<Player> canSeeSwears = new ArrayList<>();
             List<Player> cannotSeeSwears = new ArrayList<>();
@@ -407,7 +407,7 @@ public class ChatListener implements Listener, EventExecutor {
                 }
             });
 
-            formattedMessage.send(cannotSeeSwears);
+            formattedMessage.send(cannotSeeSwears, event.getPlayer().getUniqueId());
 
             List<String> swearTooltip = configuration.getNode("json.swears.tooltip").getAsStringList()
                     .stream().map(TextUtil::stylish).collect(Collectors.toList());
@@ -420,7 +420,7 @@ public class ChatListener implements Listener, EventExecutor {
                                     .collect(Collectors.toList()))
                             .suggest(suggest != null ? suggest.replace("{word}", swear) : null)));
 
-            formattedMessage.send(canSeeSwears);
+            formattedMessage.send(canSeeSwears, event.getPlayer().getUniqueId());
         }
     }
 

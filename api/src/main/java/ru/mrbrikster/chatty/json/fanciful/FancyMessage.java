@@ -569,17 +569,17 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
      *
      * @param player The player who will receive the message.
      */
-    public void send(Player player) {
-        send(player, toJSONString());
+    public void send(Player player, UUID sender) {
+        send(player, toJSONString(), sender);
     }
 
-    private void send(CommandSender sender, String jsonString) {
+    private void send(CommandSender sender, String jsonString, UUID from) {
         if (!(sender instanceof Player)) {
             sender.sendMessage(toOldMessageFormat());
             return;
         }
 
-        NMSUtil.sendChatPacket((Player) sender, "CHAT", jsonString);
+        NMSUtil.sendChatPacket((Player) sender, "CHAT", jsonString, from);
     }
 
     /**
@@ -590,8 +590,8 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
      * @param sender The command sender who will receive the message.
      * @see #toOldMessageFormat()
      */
-    public void send(CommandSender sender) {
-        send(sender, toJSONString());
+    public void send(CommandSender sender, UUID from) {
+        send(sender, toJSONString(), from);
     }
 
     /**
@@ -600,11 +600,11 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
      * @param senders The command senders who will receive the message.
      * @see #send(CommandSender)
      */
-    public void send(final Iterable<? extends CommandSender> senders) {
+    public void send(final Iterable<? extends CommandSender> senders, UUID from) {
         String string = toJSONString();
 
         for (final CommandSender sender : senders) {
-            send(sender, string);
+            send(sender, string, from);
         }
     }
 
