@@ -18,6 +18,7 @@ general:
   # en - English.
   # ru - Russian.
   # de - German.
+  # zh_CN - Simplified Chinese
   locale: en
 
   # Chat listener priority.
