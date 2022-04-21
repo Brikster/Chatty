@@ -3,9 +3,9 @@ package ru.mrbrikster.chatty.notifications;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
+import org.bukkit.Bukkit;
 import ru.mrbrikster.chatty.Chatty;
 import ru.mrbrikster.chatty.dependencies.DependencyManager;
-import ru.mrbrikster.chatty.reflection.Reflection;
 import ru.mrbrikster.chatty.util.Debugger;
 import ru.mrbrikster.chatty.util.Pair;
 import ru.mrbrikster.chatty.util.TextUtil;
@@ -62,7 +62,7 @@ public class ChatNotification extends Notification {
         List<Pair<String, Boolean>> lines = messages.get(nextMessage());
 
         DependencyManager dependencyManager = Chatty.instance().getExact(DependencyManager.class);
-        Reflection.getOnlinePlayers().stream().filter(player -> !isPermission() || player.hasPermission(String.format(PERMISSION_NODE, name)))
+        Bukkit.getOnlinePlayers().stream().filter(player -> !isPermission() || player.hasPermission(String.format(PERMISSION_NODE, name)))
                 .forEach(player -> lines.forEach(line -> {
                     String formattedLine = dependencyManager.getPlaceholderApi() != null
                             ? dependencyManager.getPlaceholderApi().setPlaceholders(player, line.getA())

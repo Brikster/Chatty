@@ -1,8 +1,8 @@
 package ru.mrbrikster.chatty.notifications;
 
+import org.bukkit.Bukkit;
 import ru.mrbrikster.chatty.Chatty;
 import ru.mrbrikster.chatty.dependencies.DependencyManager;
-import ru.mrbrikster.chatty.reflection.Reflection;
 import ru.mrbrikster.chatty.util.Debugger;
 import ru.mrbrikster.chatty.util.TextUtil;
 import ru.mrbrikster.chatty.util.textapi.Title;
@@ -38,7 +38,7 @@ public class TitleNotification extends Notification {
 
         DependencyManager dependencyManager = Chatty.instance().getExact(DependencyManager.class);
 
-        Reflection.getOnlinePlayers()
+        Bukkit.getOnlinePlayers()
                 .stream()
                 .filter(player -> !isPermission() || player.hasPermission(String.format(PERMISSION_NODE, name)))
                 .forEach(onlinePlayer -> {

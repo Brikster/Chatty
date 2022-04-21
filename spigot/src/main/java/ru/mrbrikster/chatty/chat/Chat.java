@@ -12,7 +12,6 @@ import org.jetbrains.annotations.Nullable;
 import ru.mrbrikster.baseplugin.commands.BukkitCommand;
 import ru.mrbrikster.chatty.Chatty;
 import ru.mrbrikster.chatty.json.FormattedMessage;
-import ru.mrbrikster.chatty.reflection.Reflection;
 import ru.mrbrikster.chatty.util.TextUtil;
 
 import lombok.AllArgsConstructor;
@@ -86,7 +85,7 @@ public class Chat implements ru.mrbrikster.chatty.api.chats.Chat {
     @Override
     @NotNull
     public Collection<? extends Player> getRecipients(@Nullable Player player) {
-        return filterRecipients(player, new ArrayList<>(Reflection.getOnlinePlayers()));
+        return filterRecipients(player, new ArrayList<>(Bukkit.getOnlinePlayers()));
     }
 
     @Override

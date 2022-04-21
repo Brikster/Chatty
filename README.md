@@ -41,11 +41,10 @@ PaperSpigot e t.c. This plugin doesn't have any non-switchable options. It's sim
 ## Comparison with ChatEx
 
 | Feature                                  | ChatEx | Chatty |
-| ---------------------------------------- | ------ | ------ |
+|------------------------------------------| ------ | ------ |
 | Vault support                            | +      | +      |
 | Advertisement protection                 | +      | +      |
 | PlaceholderAPI support                   | +      | +      |
-| Old versions support (1.5.2+)            | -      | +      |
 | BungeeCord support                       | -      | +      |
 | Replacement of AutoMessage               | -      | +      |
 | Advancements and ActionBar notifications | -      | +      |

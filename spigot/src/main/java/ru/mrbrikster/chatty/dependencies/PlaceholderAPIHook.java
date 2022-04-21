@@ -7,7 +7,6 @@ import org.bukkit.entity.Player;
 import ru.mrbrikster.chatty.Chatty;
 import ru.mrbrikster.chatty.chat.Chat;
 import ru.mrbrikster.chatty.chat.ChatManager;
-import ru.mrbrikster.chatty.reflection.Reflection;
 
 import java.util.List;
 import java.util.Locale;
@@ -106,7 +105,7 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
                 }
 
                 int i = 0;
-                for (Player onlinePlayer : Reflection.getOnlinePlayers()) {
+                for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
                     if (chat.isWriteAllowed(onlinePlayer)) i++;
                 }
 

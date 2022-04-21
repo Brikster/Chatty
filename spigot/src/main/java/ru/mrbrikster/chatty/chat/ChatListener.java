@@ -24,7 +24,6 @@ import ru.mrbrikster.chatty.json.FormattedMessage;
 import ru.mrbrikster.chatty.json.JsonMessagePart;
 import ru.mrbrikster.chatty.json.LegacyMessagePart;
 import ru.mrbrikster.chatty.moderation.*;
-import ru.mrbrikster.chatty.reflection.Reflection;
 import ru.mrbrikster.chatty.util.Pair;
 import ru.mrbrikster.chatty.util.Sound;
 import ru.mrbrikster.chatty.util.TextUtil;
@@ -285,8 +284,8 @@ public class ChatListener implements Listener, EventExecutor {
                             event.getPlayer().getDisplayName(),
                             event.getMessage())));
 
-            Reflection.getOnlinePlayers().stream().
-                    filter(spy ->
+            Bukkit.getOnlinePlayers().stream()
+                    .filter(spy ->
                             (spy.hasPermission("chatty.spy." + pair.getA().getName()))
                                     && jsonStorage.getProperty(spy, "spy-mode").orElse(new JsonPrimitive(true)).getAsBoolean()
                                     && !pair.getB().contains(spy))

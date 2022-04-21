@@ -8,7 +8,6 @@ import org.bukkit.plugin.messaging.PluginMessageListener;
 import ru.mrbrikster.chatty.chat.Chat;
 import ru.mrbrikster.chatty.chat.ChatManager;
 import ru.mrbrikster.chatty.json.fanciful.FancyMessage;
-import ru.mrbrikster.chatty.reflection.Reflection;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -75,7 +74,7 @@ public class BungeeCordListener implements PluginMessageListener {
 
             if (json) {
                 FancyMessage fancyMessage = FancyMessage.deserialize(text);
-                fancyMessage.send(Reflection.getOnlinePlayers().stream().filter(recipient -> {
+                fancyMessage.send(Bukkit.getOnlinePlayers().stream().filter(recipient -> {
                     return !chat.isPermissionRequired()
                             || recipient.hasPermission("chatty.chat." + chat.getName() + ".see")
                             || recipient.hasPermission("chatty.chat." + chat.getName());
@@ -83,7 +82,7 @@ public class BungeeCordListener implements PluginMessageListener {
 
                 fancyMessage.send(Bukkit.getConsoleSender(), null);
             } else {
-                Reflection.getOnlinePlayers().stream().filter(recipient -> {
+                Bukkit.getOnlinePlayers().stream().filter(recipient -> {
                     return !chat.isPermissionRequired()
                             || recipient.hasPermission("chatty.chat." + chat.getName() + ".see")
                             || recipient.hasPermission("chatty.chat." + chat.getName());

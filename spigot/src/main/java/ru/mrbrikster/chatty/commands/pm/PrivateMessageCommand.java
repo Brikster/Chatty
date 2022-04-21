@@ -14,7 +14,6 @@ import ru.mrbrikster.chatty.json.fanciful.FancyMessage;
 import ru.mrbrikster.chatty.moderation.AdvertisementModerationMethod;
 import ru.mrbrikster.chatty.moderation.ModerationManager;
 import ru.mrbrikster.chatty.moderation.SwearModerationMethod;
-import ru.mrbrikster.chatty.reflection.Reflection;
 import ru.mrbrikster.chatty.util.TextUtil;
 
 public abstract class PrivateMessageCommand extends BukkitCommand {
@@ -142,7 +141,7 @@ public abstract class PrivateMessageCommand extends BukkitCommand {
                     senderName, senderPrefix, senderSuffix)
                     .replace("{format}", senderFormat);
 
-            Reflection.getOnlinePlayers().stream()
+            Bukkit.getOnlinePlayers().stream()
                     .filter(spyPlayer -> !spyPlayer.equals(sender) && !spyPlayer.equals(recipient))
                     .filter(spyPlayer -> spyPlayer.hasPermission("chatty.spy") || spyPlayer.hasPermission("chatty.spy.pm"))
                     .filter(spyPlayer -> jsonStorage.getProperty(spyPlayer, "spy-mode").orElse(new JsonPrimitive(true)).getAsBoolean())

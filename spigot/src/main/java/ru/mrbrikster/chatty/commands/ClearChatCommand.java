@@ -1,12 +1,12 @@
 package ru.mrbrikster.chatty.commands;
 
 import net.amoebaman.util.ArrayWrapper;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import ru.mrbrikster.baseplugin.commands.BukkitCommand;
 import ru.mrbrikster.baseplugin.config.Configuration;
 import ru.mrbrikster.chatty.Chatty;
-import ru.mrbrikster.chatty.reflection.Reflection;
 
 public class ClearChatCommand extends BukkitCommand {
 
@@ -32,7 +32,7 @@ public class ClearChatCommand extends BukkitCommand {
                     if (sender.hasPermission("chatty.command.clearchat.all")) {
                         String chatClearedMessage = Chatty.instance().messages().get("clearchat-command.clear-chat-for-all").replace("{player}", sender.getName());
 
-                        Reflection.getOnlinePlayers().forEach(player -> {
+                        Bukkit.getOnlinePlayers().forEach(player -> {
                             for (int i = 0; i < 100; i++) {
                                 player.sendMessage(" ");
                             }
