@@ -43,13 +43,22 @@ public class MiscellaneousListener implements Listener {
         }
 
         String soundName;
+        double soundVolume;
+        double soundPitch;
         if (event.getPlayer().hasPlayedBefore() || (soundName = configuration
                 .getNode("miscellaneous.vanilla.join.first-join.sound")
                 .getAsString(null)) == null) {
             soundName = configuration
                     .getNode("miscellaneous.vanilla.join.sound")
                     .getAsString(null);
+            soundVolume = (double) configuration.getNode("miscellaneous.vanilla.join.sound-volume").get(1d);
+            soundPitch = (double) configuration.getNode("miscellaneous.vanilla.join.sound-pitch").get(1d);
+        } else {
+            soundVolume = (double) configuration.getNode("miscellaneous.vanilla.first-join.sound-volume").get(1d);
+            soundPitch = (double) configuration.getNode("miscellaneous.vanilla.first-join.sound-pitch").get(1d);
         }
+
+        System.out.println(soundVolume + " " + soundPitch);
 
         boolean hasPermission = !configuration.getNode("miscellaneous.vanilla.join.permission").getAsBoolean(true)
                 || event.getPlayer().hasPermission("chatty.misc.joinmessage");
@@ -67,7 +76,7 @@ public class MiscellaneousListener implements Listener {
         if (hasPermission) {
             if (soundName != null) {
                 org.bukkit.Sound sound = Sound.byName(soundName);
-                Bukkit.getOnlinePlayers().forEach(player -> player.playSound(player.getLocation(), sound, 1L, 1L));
+                Bukkit.getOnlinePlayers().forEach(player -> player.playSound(player.getLocation(), sound, (float) soundVolume, (float) soundPitch));
             }
         }
     }
@@ -99,7 +108,9 @@ public class MiscellaneousListener implements Listener {
             String soundName = configuration.getNode("miscellaneous.vanilla.quit.sound").getAsString(null);
             if (soundName != null) {
                 org.bukkit.Sound sound = Sound.byName(soundName);
-                Bukkit.getOnlinePlayers().forEach(player -> player.playSound(player.getLocation(), sound, 1L, 1L));
+                double soundVolume = (double) configuration.getNode("miscellaneous.vanilla.quit.sound-volume").get(1d);
+                double soundPitch = (double) configuration.getNode("miscellaneous.vanilla.quit.sound-pitch").get(1d);
+                Bukkit.getOnlinePlayers().forEach(player -> player.playSound(player.getLocation(), sound, (float) soundVolume, (float) soundPitch));
             }
         }
     }
@@ -131,7 +142,9 @@ public class MiscellaneousListener implements Listener {
             String soundName = configuration.getNode("miscellaneous.vanilla.death.sound").getAsString(null);
             if (soundName != null) {
                 org.bukkit.Sound sound = Sound.byName(soundName);
-                Bukkit.getOnlinePlayers().forEach(player -> player.playSound(player.getLocation(), sound, 1L, 1L));
+                double soundVolume = (double) configuration.getNode("miscellaneous.vanilla.death.sound-volume").get(1d);
+                double soundPitch = (double) configuration.getNode("miscellaneous.vanilla.death.sound-pitch").get(1d);
+                Bukkit.getOnlinePlayers().forEach(player -> player.playSound(player.getLocation(), sound, (float) soundVolume, (float) soundPitch));
             }
         }
     }

@@ -19,6 +19,10 @@ public class FormattedMessage {
         this.messageParts.add(new LegacyMessagePart(text));
     }
 
+    public FormattedMessage(String text, boolean colorize) {
+        this.messageParts.add(new LegacyMessagePart(text, colorize));
+    }
+
     public FormattedMessage send(Collection<? extends Player> players, UUID sender) {
         toFancyMessage().send(players, sender);
 

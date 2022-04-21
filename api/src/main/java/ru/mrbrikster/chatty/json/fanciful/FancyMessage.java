@@ -124,7 +124,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
                         component.styles.add(MessagePart.stylesToNames.inverse().get(entry.getKey()));
                     }
                 } else if (entry.getKey().equals("color")) {
-                    component.color = ChatColor.valueOf(entry.getValue().getAsString().toUpperCase());
+                    component.color = TextUtil.parseChatColor(entry.getValue().getAsString().toUpperCase());
                 } else if (entry.getKey().equals("clickEvent")) {
                     JsonObject object = entry.getValue().getAsJsonObject();
                     component.clickActionName = object.get("action").getAsString();

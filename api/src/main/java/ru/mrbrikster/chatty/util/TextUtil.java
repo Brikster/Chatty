@@ -1,5 +1,6 @@
 package ru.mrbrikster.chatty.util;
 
+import com.google.common.base.Preconditions;
 import net.md_5.bungee.api.ChatColor;
 import ru.mrbrikster.chatty.json.LegacyConverter;
 
@@ -20,6 +21,15 @@ public class TextUtil {
     private final Pattern HEX_SPIGOT_PATTERN = Pattern.compile("§[xX](§[a-fA-F0-9]){6}");
 
     private final List<ChatColor> FORMAT_COLORS = Arrays.asList(ChatColor.BOLD, ChatColor.ITALIC, ChatColor.UNDERLINE, ChatColor.MAGIC, ChatColor.STRIKETHROUGH, ChatColor.RESET);
+
+    public ChatColor parseChatColor(String string) {
+        Preconditions.checkArgument(string != null, "string cannot be null");
+        if (string.startsWith("#") && string.length() == 7) {
+            return ChatColor.of(string);
+        }
+
+        return ChatColor.valueOf(string);
+    }
 
     public boolean isColor(ChatColor color) {
         for (ChatColor formatColor : FORMAT_COLORS) {

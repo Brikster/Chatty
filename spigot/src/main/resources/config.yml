@@ -250,6 +250,10 @@ json:
     # Remove the line if not needed.
     sound: CLICK
 
+    # Sound volume and pitch parameters
+    sound-volume: 1.0
+    sound-pitch: 1.0
+
     # Allows to mention vanished players
     # Default: true
     allow-vanished: false
@@ -602,6 +606,10 @@ miscellaneous:
       # Remove the line if not needed.
       sound: ORB_PICKUP
 
+      # Sound volume and pitch parameters
+      sound-volume: 1.0
+      sound-pitch: 1.0
+
       # Permission: chatty.misc.joinmessage
       # Default: true
       permission: false
@@ -615,6 +623,10 @@ miscellaneous:
         # Remove the line if not needed.
         sound: ORB_PICKUP
 
+        # Sound volume and pitch parameters
+        sound-volume: 1.0
+        sound-pitch: 1.0
+
     quit:
       enable: true
 
@@ -624,6 +636,10 @@ miscellaneous:
       # Plays sound to all, when player quits.
       # Remove the line if not needed.
       sound: ORB_PICKUP
+
+      # Sound volume and pitch parameters
+      sound-volume: 1.0
+      sound-pitch: 1.0
 
       # Permission: chatty.misc.quitmessage
       # Default: true
@@ -638,6 +654,10 @@ miscellaneous:
       # Plays sound to all, when player dies.
       # Remove the line if not required.
       sound: BAT_DEATH
+
+      # Sound volume and pitch parameters
+      sound-volume: 1.0
+      sound-pitch: 1.0
 
       # Permission: chatty.misc.deathmessage
       # Default: true

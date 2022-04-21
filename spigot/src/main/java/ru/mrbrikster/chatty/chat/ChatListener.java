@@ -428,7 +428,7 @@ public class ChatListener implements Listener, EventExecutor {
         String link;
         String suggestCommand;
         String command;
-        FormattedMessage messageWithMention = new FormattedMessage(event.getMessage());
+        FormattedMessage messageWithMention = new FormattedMessage(event.getMessage(), false);
         Matcher matcher = MENTION_PATTERN.matcher(event.getMessage());
 
         while (matcher.find()) {
@@ -475,7 +475,9 @@ public class ChatListener implements Listener, EventExecutor {
                 String soundName = configuration.getNode("json.mentions.sound").getAsString(null);
                 if (soundName != null) {
                     org.bukkit.Sound sound = Sound.byName(soundName);
-                    mentionedPlayer.playSound(mentionedPlayer.getLocation(), sound, 1L, 1L);
+                    double soundVolume = (double) configuration.getNode("json.mentions.sound-volume").get(1d);
+                    double soundPitch = (double) configuration.getNode("json.mentions.sound-pitch").get(1d);
+                    mentionedPlayer.playSound(mentionedPlayer.getLocation(), sound, (float) soundVolume, (float) soundPitch);
                 }
 
                 event.getRecipients().add(mentionedPlayer);
