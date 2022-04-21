@@ -14,6 +14,7 @@ import ru.mrbrikster.chatty.json.fanciful.FancyMessage;
 import ru.mrbrikster.chatty.moderation.AdvertisementModerationMethod;
 import ru.mrbrikster.chatty.moderation.ModerationManager;
 import ru.mrbrikster.chatty.moderation.SwearModerationMethod;
+import ru.mrbrikster.chatty.util.Sound;
 import ru.mrbrikster.chatty.util.TextUtil;
 
 public abstract class PrivateMessageCommand extends BukkitCommand {
@@ -120,6 +121,14 @@ public abstract class PrivateMessageCommand extends BukkitCommand {
             } else {
                 new FancyMessage(recipientFormat)
                         .send(recipient, sender instanceof Player ? ((Player) sender).getUniqueId() : null);
+
+                String soundName = configuration.getNode("pm.sound").getAsString(null);
+                if (soundName != null) {
+                    org.bukkit.Sound sound = Sound.byName(soundName);
+                    double soundVolume = (double) configuration.getNode("pm.sound-volume").get(1d);
+                    double soundPitch = (double) configuration.getNode("pm.sound-pitch").get(1d);
+                    ((Player) recipient).playSound(((Player) recipient).getLocation(), sound, (float) soundVolume, (float) soundPitch);
+                }
             }
         }
 
