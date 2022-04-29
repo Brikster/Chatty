@@ -58,7 +58,6 @@ public class MiscellaneousListener implements Listener {
             soundPitch = (double) configuration.getNode("miscellaneous.vanilla.first-join.sound-pitch").get(1d);
         }
 
-        System.out.println(soundVolume + " " + soundPitch);
 
         boolean hasPermission = !configuration.getNode("miscellaneous.vanilla.join.permission").getAsBoolean(true)
                 || event.getPlayer().hasPermission("chatty.misc.joinmessage");
