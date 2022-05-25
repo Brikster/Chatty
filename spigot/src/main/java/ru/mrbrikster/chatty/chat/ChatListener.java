@@ -325,7 +325,7 @@ public class ChatListener implements Listener, EventExecutor {
             if (!strippedHexFormat.equals(format)) {
                 event.getRecipients().forEach(player -> player.sendMessage(format));
                 event.getRecipients().clear();
-                event.setFormat(strippedHexFormat);
+                event.setFormat(strippedHexFormat.replace("%", "%%"));
             }
         }
     }
