@@ -119,7 +119,7 @@ public abstract class PrivateMessageCommand extends BukkitCommand {
                 recipient.sendMessage(recipientFormat);
             } else {
                 new FancyMessage(recipientFormat)
-                        .send(recipient, sender instanceof Player ? ((Player) sender).getUniqueId() : null);
+                        .send(recipient, sender instanceof Player ? ((Player) sender) : null);
             }
         }
 

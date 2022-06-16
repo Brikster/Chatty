@@ -23,7 +23,7 @@ public class FormattedMessage {
         this.messageParts.add(new LegacyMessagePart(text, colorize));
     }
 
-    public FormattedMessage send(Collection<? extends Player> players, UUID sender) {
+    public FormattedMessage send(Collection<? extends Player> players, Player sender) {
         toFancyMessage().send(players, sender);
 
         return this;
