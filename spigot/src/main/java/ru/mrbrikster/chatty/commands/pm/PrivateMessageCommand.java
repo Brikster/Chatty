@@ -10,7 +10,7 @@ import ru.mrbrikster.baseplugin.config.Configuration;
 import ru.mrbrikster.chatty.Chatty;
 import ru.mrbrikster.chatty.chat.JsonStorage;
 import ru.mrbrikster.chatty.dependencies.PlayerTagManager;
-import ru.mrbrikster.chatty.json.fanciful.FancyMessage;
+import ru.mrbrikster.chatty.json.FormattedMessage;
 import ru.mrbrikster.chatty.moderation.AdvertisementModerationMethod;
 import ru.mrbrikster.chatty.moderation.ModerationManager;
 import ru.mrbrikster.chatty.moderation.SwearModerationMethod;
@@ -119,8 +119,8 @@ public abstract class PrivateMessageCommand extends BukkitCommand {
                 recipientFormat = TextUtil.stripHex(recipientFormat);
                 recipient.sendMessage(recipientFormat);
             } else {
-                new FancyMessage(recipientFormat)
-                        .send(recipient, sender instanceof Player ? ((Player) sender) : null);
+                FormattedMessage formattedMessage = new FormattedMessage(recipientFormat);
+                formattedMessage.toFancyMessage().send((Player) recipient, (Player) sender);
 
                 String soundName = configuration.getNode("pm.sound").getAsString(null);
                 if (soundName != null) {
