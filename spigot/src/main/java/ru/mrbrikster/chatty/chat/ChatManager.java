@@ -3,13 +3,16 @@ package ru.mrbrikster.chatty.chat;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import net.amoebaman.util.ArrayWrapper;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import ru.mrbrikster.baseplugin.commands.BukkitCommand;
 import ru.mrbrikster.baseplugin.config.Configuration;
 import ru.mrbrikster.baseplugin.config.ConfigurationNode;
 import ru.mrbrikster.chatty.Chatty;
 import ru.mrbrikster.chatty.chat.Chat.ChatBuilder;
+import ru.mrbrikster.chatty.chat.event.ChattyAsyncPlayerChatEvent;
 import ru.mrbrikster.chatty.util.Sound;
 
 import lombok.Getter;
@@ -20,10 +23,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.regex.Pattern;
 
 public class ChatManager {
@@ -121,8 +121,27 @@ public class ChatManager {
                             }
 
                             if (chat.isWriteAllowed((Player) sender)) {
-                                jsonStorage.setProperty((Player) sender, "chat", new JsonPrimitive(chat.getName()));
-                                sender.sendMessage(Chatty.instance().messages().get("chat-command.chat-switched").replace("{chat}", chat.getDisplayName()));
+                                if (args.length == 0) {
+                                    jsonStorage.setProperty((Player) sender, "chat", new JsonPrimitive(chat.getName()));
+                                    sender.sendMessage(Chatty.instance().messages().get("chat-command.chat-switched").replace("{chat}", chat.getDisplayName()));
+                                } else {
+                                    Bukkit.getScheduler().runTaskAsynchronously(Chatty.instance(), () -> {
+                                        AsyncPlayerChatEvent event = new ChattyAsyncPlayerChatEvent(
+                                                (Player) sender,
+                                                String.join(" ", args),
+                                                chat);
+
+                                        Bukkit.getPluginManager().callEvent(event);
+
+                                        if (!event.isCancelled()) {
+                                            for (Player recipient : event.getRecipients()) {
+                                                recipient.sendMessage(String.format(event.getFormat(),
+                                                        event.getPlayer().getDisplayName(),
+                                                        event.getMessage()));
+                                            }
+                                        }
+                                    });
+                                }
                             } else {
                                 sender.sendMessage(Chatty.instance().messages().get("chat-command.no-chat-permission"));
                             }

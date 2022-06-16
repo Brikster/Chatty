@@ -17,6 +17,7 @@ import ru.mrbrikster.baseplugin.config.ConfigurationNode;
 import ru.mrbrikster.chatty.Chatty;
 import ru.mrbrikster.chatty.api.events.ChattyMessageEvent;
 import ru.mrbrikster.chatty.bungee.BungeeBroadcaster;
+import ru.mrbrikster.chatty.chat.event.ChattyAsyncPlayerChatEvent;
 import ru.mrbrikster.chatty.dependencies.DependencyManager;
 import ru.mrbrikster.chatty.dependencies.PlayerTagManager;
 import ru.mrbrikster.chatty.dependencies.VaultHook;
@@ -97,9 +98,17 @@ public class ChatListener implements Listener, EventExecutor {
     private void onChat(AsyncPlayerChatEvent event) {
         final Player player = event.getPlayer();
 
-        Pair<Chat, String> chatMessagePair = getChat(player, event.getMessage());
-        Chat chat = chatMessagePair.getA();
-        String message = chatMessagePair.getB();
+        Chat chat;
+        String message;
+
+        if (event instanceof ChattyAsyncPlayerChatEvent) {
+            chat = ((ChattyAsyncPlayerChatEvent) event).getChat();
+            message = event.getMessage();
+        } else {
+            Pair<Chat, String> chatMessagePair = getChat(player, event.getMessage());
+            chat = chatMessagePair.getA();
+            message = chatMessagePair.getB();
+        }
 
         if (chat == null) {
             event.setCancelled(true);
