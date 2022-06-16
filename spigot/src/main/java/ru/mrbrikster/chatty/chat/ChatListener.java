@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UnknownFormatConversionException;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -393,7 +394,12 @@ public class ChatListener implements Listener, EventExecutor {
         String strippedHexFormat = TextUtil.stripHex(format);
 
         if (!strippedHexFormat.equals(format)) {
-            event.setFormat(strippedHexFormat);
+            try {
+                event.setFormat(strippedHexFormat);
+            }
+            catch (UnknownFormatConversionException exception) {
+                //do nothing if strippedHexFormat is broken
+            }
         }
     }
 
