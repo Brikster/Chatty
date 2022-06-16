@@ -11,21 +11,21 @@ messages:
   not-enough-money: '&cYou need {money} money to send message in this chat.'
 
   clearchat-command:
-    usage: '&cUsing: /{label} [all]'
+    usage: '&cUsage: /{label} [all]'
     clear-chat-for-all: '&aChat cleared by {player}.'
     clear-chat-for-yourself: '&aChat cleared.'
 
   msg-command:
-    usage: '&cUsing: /{label} <player> <message>'
+    usage: '&cUsage: /{label} <player> <message>'
     player-not-found: '&cPlayer not found.'
     cannot-message-yourself: '&cYou cannot message yourself.'
 
   reply-command:
-    usage: '&cUsing: /{label} <message>'
+    usage: '&cUsage: /{label} <message>'
     target-not-found: '&cPlayer not found.'
 
   ignore-command:
-    usage: '&cUsing: /{label} <player>'
+    usage: '&cUsage: /{label} <player>'
     player-not-found: '&cPlayer not found.'
     ignore-list: '&eYou''re now ignoring: &6{players}.'
     ignore-list-delimiter: '&8, &6'
@@ -34,17 +34,17 @@ messages:
     cannot-ignore-yourself: '&cYou cannot ignore yourself.'
 
   swears-command:
-    usage: '&cUsing: /{label} add <word>'
+    usage: '&cUsage: /{label} add <word>'
     add-word: '&aYou added word {word} to whitelist.'
 
   chat-command:
-    usage: '&cUsing: /{label} <chat>'
+    usage: '&cUsage: /{label} <chat>'
     chat-not-found: '&cChat with this name was not found.'
     chat-switched: '&aYou have switched to chat "{chat}".'
     no-chat-permission: '&cYou don''have permission for this chat.'
 
   prefix-command:
-    usage: '&cUsing: /{label} <player> <<prefix>|clear>'
+    usage: '&cUsage: /{label} <player> <<prefix>|clear>'
     no-permissions-others: '&cYou don''t have permission to changing prefixes of other players.'
     player-not-found: '&cPlayer not found.'
     length-limit-min: '&cPrefix cannot be shorter than {limit} symbols.'
@@ -53,7 +53,7 @@ messages:
     prefix-set: '&aYou set prefix &r{prefix} &afor player {player}.'
 
   suffix-command:
-    usage: '&cUsing: /{label} <player> <<suffix>|clear>'
+    usage: '&cUsage: /{label} <player> <<suffix>|clear>'
     no-permissions-others: '&cYou don''t have permission to changing suffixes of other players.'
     player-not-found: '&cPlayer not found.'
     length-limit-min: '&cSuffix cannot be shorter than {limit} symbols.'
