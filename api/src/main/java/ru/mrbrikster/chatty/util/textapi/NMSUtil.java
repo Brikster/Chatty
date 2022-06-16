@@ -3,6 +3,7 @@ package ru.mrbrikster.chatty.util.textapi;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import lombok.experimental.UtilityClass;
 
@@ -73,7 +74,7 @@ public class NMSUtil {
         throw new IllegalStateException();
     }
 
-    public void sendChatPacket(Player player, String type, String text, Player sender) {
+    public void sendChatPacket(Player player, String type, String text, @Nullable Player sender) {
         try {
             Class<?> clsIChatBaseComponent = NMS_CLASSES.get("IChatBaseComponent");
             Object chatBaseComponent = NMS_CLASSES.get("IChatBaseComponent$ChatSerializer").getMethod("a", String.class).invoke(null, text);
@@ -136,15 +137,21 @@ public class NMSUtil {
                 Object playerChatMessage = clsPlayerChatMessage.getMethod("a", clsIChatBaseComponent)
                         .invoke(null, chatBaseComponent);
 
-                // ChatSender chatSender = new ChatSender(sender, senderName);
-                Object chatSender = clsChatSender.getConstructor(UUID.class, clsIChatBaseComponent)
-                        .newInstance(sender.getUniqueId(), senderName);
-
                 // EntityPlayer entityPlayer = ((CraftPlayer) player).getHandle();
                 Object entityPlayer = player.getClass().getMethod("getHandle").invoke(player);
-                // entityPlayer.a(playerChatMessage, chatSender, chatMessageType);
-                entityPlayer.getClass().getMethod("a", clsPlayerChatMessage, clsChatSender, chatMessageType.getClass())
-                        .invoke(entityPlayer, playerChatMessage, chatSender, chatMessageType);
+
+                if (sender == null) {
+                    // entityPlayer.a(chatBaseComponent, chatMessageType);
+                    entityPlayer.getClass().getMethod("a", clsIChatBaseComponent, chatMessageType.getClass())
+                            .invoke(entityPlayer, chatBaseComponent, chatMessageType);
+                } else {
+                    // ChatSender chatSender = new ChatSender(sender, senderName);
+                    Object chatSender = clsChatSender.getConstructor(UUID.class, clsIChatBaseComponent)
+                            .newInstance(sender.getUniqueId(), senderName);
+                    // entityPlayer.a(playerChatMessage, chatSender, chatMessageType);
+                    entityPlayer.getClass().getMethod("a", clsPlayerChatMessage, clsChatSender, chatMessageType.getClass())
+                            .invoke(entityPlayer, playerChatMessage, chatSender, chatMessageType);
+                }
             }
         } catch (Throwable e) {
             throw new RuntimeException("NMS features is not supported by Chatty on your server version (" + getServerVersion() + ")", e);
