@@ -1,6 +1,6 @@
 allprojects {
     group = 'ru.mrbrikster'
-    version = '2.19.8'
+    version = '2.19.9-SNAPSHOT'
 }
 
 subprojects {
@@ -25,6 +25,27 @@ subprojects {
         maven { url = "https://repo.extendedclip.com/content/repositories/placeholderapi/" }
         maven { url = "https://repo.codemc.org/repository/maven-public" }
         maven { url = "https://ci.nametagedit.com/plugin/repository/everything/"; allowInsecureProtocol = true }
+
+        maven {
+            url "https://gitlab.rednite.net/api/v4/projects/549/packages/maven"
+            name "shkolakola-public"
+
+            if (shkolakolaGitlabToken) {
+                credentials(HttpHeaderCredentials) {
+                    name = 'Private-Token'
+                    value = shkolakolaGitlabToken
+                }
+            } else {
+                credentials(HttpHeaderCredentials) {
+                    name = 'Job-Token'
+                    value = System.getenv("CI_JOB_TOKEN")
+                }
+            }
+
+            authentication {
+                create("header", HttpHeaderAuthentication)
+            }
+        }
     }
 
     dependencies {
@@ -33,6 +54,6 @@ subprojects {
         compileOnly 'org.projectlombok:lombok:1.18.22'
         annotationProcessor 'org.projectlombok:lombok:1.18.22'
 
-        compileOnly 'org.spigotmc:spigot-api:1.18-R0.1-SNAPSHOT'
+        compileOnly 'org.spigotmc:spigot-api:1.19-R0.1-SNAPSHOT'
     }
 }

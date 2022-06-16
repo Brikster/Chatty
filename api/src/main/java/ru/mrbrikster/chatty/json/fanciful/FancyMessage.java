@@ -569,11 +569,11 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
      *
      * @param player The player who will receive the message.
      */
-    public void send(Player player, UUID sender) {
+    public void send(Player player, Player sender) {
         send(player, toJSONString(), sender);
     }
 
-    private void send(CommandSender sender, String jsonString, UUID from) {
+    private void send(CommandSender sender, String jsonString, Player from) {
         if (!(sender instanceof Player)) {
             sender.sendMessage(toOldMessageFormat());
             return;
@@ -590,7 +590,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
      * @param sender The command sender who will receive the message.
      * @see #toOldMessageFormat()
      */
-    public void send(CommandSender sender, UUID from) {
+    public void send(CommandSender sender, Player from) {
         send(sender, toJSONString(), from);
     }
 
@@ -600,7 +600,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
      * @param senders The command senders who will receive the message.
      * @see #send(CommandSender)
      */
-    public void send(final Iterable<? extends CommandSender> senders, UUID from) {
+    public void send(final Iterable<? extends CommandSender> senders, Player from) {
         String string = toJSONString();
 
         for (final CommandSender sender : senders) {
