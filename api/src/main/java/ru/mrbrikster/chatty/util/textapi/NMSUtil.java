@@ -144,7 +144,7 @@ public class NMSUtil {
 
                 // ChatSender chatSender = new ChatSender(sender, senderName);
                 Object chatSender = clsChatSender.getConstructor(UUID.class, clsIChatBaseComponent)
-                        .newInstance(new UUID(0L, 0L), senderName);
+                        .newInstance(sender.getUniqueId(), senderName);
 
                 // EntityPlayer entityPlayer = ((CraftPlayer) player).getHandle();
                 Object entityPlayer = player.getClass().getMethod("getHandle").invoke(player);
