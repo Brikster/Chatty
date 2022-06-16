@@ -17,6 +17,7 @@ import ru.mrbrikster.baseplugin.config.ConfigurationNode;
 import ru.mrbrikster.chatty.Chatty;
 import ru.mrbrikster.chatty.api.events.ChattyMessageEvent;
 import ru.mrbrikster.chatty.bungee.BungeeBroadcaster;
+import ru.mrbrikster.chatty.chat.event.ChattyAsyncPlayerChatEvent;
 import ru.mrbrikster.chatty.dependencies.DependencyManager;
 import ru.mrbrikster.chatty.dependencies.PlayerTagManager;
 import ru.mrbrikster.chatty.dependencies.VaultHook;
@@ -32,6 +33,7 @@ import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UnknownFormatConversionException;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -97,9 +99,17 @@ public class ChatListener implements Listener, EventExecutor {
     private void onChat(AsyncPlayerChatEvent event) {
         final Player player = event.getPlayer();
 
-        Pair<Chat, String> chatMessagePair = getChat(player, event.getMessage());
-        Chat chat = chatMessagePair.getA();
-        String message = chatMessagePair.getB();
+        Chat chat;
+        String message;
+
+        if (event instanceof ChattyAsyncPlayerChatEvent) {
+            chat = ((ChattyAsyncPlayerChatEvent) event).getChat();
+            message = event.getMessage();
+        } else {
+            Pair<Chat, String> chatMessagePair = getChat(player, event.getMessage());
+            chat = chatMessagePair.getA();
+            message = chatMessagePair.getB();
+        }
 
         if (chat == null) {
             event.setCancelled(true);
@@ -384,7 +394,12 @@ public class ChatListener implements Listener, EventExecutor {
         String strippedHexFormat = TextUtil.stripHex(format);
 
         if (!strippedHexFormat.equals(format)) {
-            event.setFormat(strippedHexFormat);
+            try {
+                event.setFormat(strippedHexFormat);
+            }
+            catch (UnknownFormatConversionException exception) {
+                //do nothing if strippedHexFormat is broken
+            }
         }
     }
 

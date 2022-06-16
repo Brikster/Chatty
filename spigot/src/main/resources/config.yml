@@ -78,7 +78,7 @@ general:
 # *cooldown*     - message cooldown in seconds (bypass permission - chatty.cooldown.<chat>).
 # *money*        - message price (depends on Vault).
 # *permission*   - check permissions for this chat? Default: true.
-# *command*      - Command that is used to switch to chat to use it by default if symbol is not specified. Default: empty.
+# *command*      - Command that is used to switch chat to use it by default if symbol is not specified OR to write at chat: /<command> <message>. Default: empty.
 # *aliases*      - Aliases for command. Default: empty.
 chats:
   local:
