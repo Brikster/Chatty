@@ -5,7 +5,10 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import ru.mrbrikster.chatty.json.fanciful.FancyMessage;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
