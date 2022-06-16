@@ -150,6 +150,14 @@ pm:
     recipient: '&7{sender-prefix}{sender-name} &6-> &7{recipient-prefix}{recipient-name}: &f{message}'
     sender: '&7{sender-prefix}{sender-name} &6-> &7{recipient-prefix}{recipient-name}: &f{message}'
 
+  # Plays sound to recipient
+  # Remove the line if not needed.
+  sound: CLICK
+
+  # Sound volume and pitch parameters
+  sound-volume: 1.0
+  sound-pitch: 1.0
+
   commands:
     msg:
       # Enables "/msg" command.

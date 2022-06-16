@@ -111,14 +111,20 @@ public class JsonStorage {
     }
 
     public boolean isIgnore(CommandSender recipient, CommandSender sender) {
-        if (recipient instanceof Player) {
-            JsonElement jsonElement = getProperty((Player) recipient, "ignore").orElseGet(JsonArray::new);
+        if (sender != null) {
+                JsonElement jsonElement = Chatty.instance().getExact(JsonStorage.class)
+                        .getProperty((Player)recipient, "ignore").orElseGet(JsonArray::new);
 
-            if (!jsonElement.isJsonArray())
-                jsonElement = new JsonArray();
+                if (jsonElement.isJsonArray()) {
+                    for (JsonElement ignoreJsonElement : jsonElement.getAsJsonArray()) {
+                        if (sender.getName().equalsIgnoreCase(ignoreJsonElement.getAsString())) {
+                            return true;
+                        }
+                    }
+                }
 
-            return jsonElement.getAsJsonArray().contains(new JsonPrimitive(sender.getName()));
-        }
+                return false;
+            }
 
         return false;
     }
