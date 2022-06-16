@@ -1,17 +1,11 @@
 package ru.mrbrikster.chatty.util.textapi;
 
-import net.minecraft.network.chat.ChatMessageType;
-import net.minecraft.network.chat.ChatSender;
-import net.minecraft.network.chat.IChatBaseComponent;
-import net.minecraft.server.level.EntityPlayer;
 import org.bukkit.Bukkit;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import lombok.experimental.UtilityClass;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
