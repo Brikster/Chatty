@@ -4,7 +4,7 @@ main: ru.mrbrikster.chatty.Chatty
 authors: [ MrBrikster ]
 
 # This doesn't mean that plugin works only on 1.13+
-api-version: '1.13'
+api-version: '1.19'
 
 # Essentials needed only for overwriting existing private-messaging commands.
 loadbefore: [ Essentials ]
