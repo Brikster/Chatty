@@ -33,11 +33,10 @@ processResources {
 dependencies {
     api project(':api')
     api 'com.github.Brikster:BasePlugin:v1.8'
-    api 'com.google.code.gson:gson:2.8.9'
-    api 'org.bstats:bstats-bukkit:2.2.1'
+    api 'com.google.code.gson:gson:2.9.0'
+    api 'org.bstats:bstats-bukkit:3.0.0'
 
     compileOnly 'net.milkbowl.vault:VaultAPI:1.7'
     compileOnly 'me.clip:placeholderapi:2.10.6'
-    compileOnly 'commons-io:commons-io:2.7'
-    compileOnly 'com.nametagedit:nametagedit:4.4.16'
+    compileOnly 'commons-io:commons-io:2.11.0'
 }
