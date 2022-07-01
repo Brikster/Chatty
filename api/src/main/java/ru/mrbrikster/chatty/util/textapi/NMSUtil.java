@@ -20,17 +20,12 @@ public class NMSUtil {
     private static final HashMap<String, Class<?>> NMS_CLASSES = new HashMap<>();
 
     static {
-        NMS_CLASSES.put("IChatBaseComponent", resolveSuitableClass(MINECRAFT + ".IChatBaseComponent",
-                NETWORK + ".chat.IChatBaseComponent"));
-        NMS_CLASSES.put("ChatMessageType", resolveSuitableClass(MINECRAFT + ".ChatMessageType",
-                NETWORK + ".chat.ChatMessageType"));
-        NMS_CLASSES.put("IChatBaseComponent$ChatSerializer", resolveSuitableClass(MINECRAFT + ".IChatBaseComponent$ChatSerializer",
-                NETWORK + ".chat.IChatBaseComponent$ChatSerializer"));
+        NMS_CLASSES.put("IChatBaseComponent", resolveSuitableClass(MINECRAFT + ".IChatBaseComponent", NETWORK + ".chat.IChatBaseComponent", NETWORK + ".chat.IChatBaseComponent", "net.minecraft.util.IChatComponent"));
+        NMS_CLASSES.put("ChatMessageType", resolveSuitableClass(MINECRAFT + ".ChatMessageType", NETWORK + ".chat.ChatMessageType"));
+        NMS_CLASSES.put("IChatBaseComponent$ChatSerializer", resolveSuitableClass(MINECRAFT + ".IChatBaseComponent$ChatSerializer", NETWORK + ".chat.IChatBaseComponent$ChatSerializer", "net.minecraft.util.IChatComponent$Serializer"));
 
-        NMS_CLASSES.put("PacketPlayOutChat", resolveSuitableClass(MINECRAFT + ".PacketPlayOutChat",
-                NETWORK + ".protocol.game.PacketPlayOutChat"));
-        NMS_CLASSES.put("Packet", resolveSuitableClass(MINECRAFT + ".Packet",
-                NETWORK + ".protocol.Packet"));
+        NMS_CLASSES.put("PacketPlayOutChat", resolveSuitableClass(MINECRAFT + ".PacketPlayOutChat", NETWORK + ".protocol.game.PacketPlayOutChat", NETWORK + ".play.server.S02PacketChat"));
+        NMS_CLASSES.put("Packet", resolveSuitableClass(MINECRAFT + ".Packet", NETWORK + ".protocol.Packet", NETWORK + ".Packet"));
 
         // Legacy title packets
         NMS_CLASSES.put("PacketPlayOutTitle", resolveSuitableClass(MINECRAFT + ".PacketPlayOutTitle"));
@@ -57,7 +52,7 @@ public class NMSUtil {
         for (String path : paths) {
             try {
                 return Class.forName(path);
-            } catch (ClassNotFoundException ignored) {}
+            } catch (ClassNotFoundException | NullPointerException ignored) {}
         }
 
         return null;
@@ -77,7 +72,18 @@ public class NMSUtil {
     public void sendChatPacket(Player player, String type, String text, @Nullable Player sender) {
         try {
             Class<?> clsIChatBaseComponent = NMS_CLASSES.get("IChatBaseComponent");
-            Object chatBaseComponent = NMS_CLASSES.get("IChatBaseComponent$ChatSerializer").getMethod("a", String.class).invoke(null, text);
+
+            Object chatBaseComponent;
+            try {
+                chatBaseComponent = NMS_CLASSES.get("IChatBaseComponent$ChatSerializer").getMethod("a", String.class).invoke(null, text);
+            } catch (Throwable ignored) {
+                try {
+                    // 1.7.10 (Crucible)
+                    chatBaseComponent = NMS_CLASSES.get("IChatBaseComponent$ChatSerializer").getMethod("func_150699_a", String.class).invoke(null, text);
+                } catch (Throwable ignored1) {
+                    chatBaseComponent = null;
+                }
+            }
 
             Class<?> clsClientboundPlayerChatPacket = NMS_CLASSES.get("ClientboundPlayerChatPacket");
 
@@ -85,7 +91,7 @@ public class NMSUtil {
                 // < 1.19
                 Class<?> clsChatMessageType = NMS_CLASSES.get("ChatMessageType");
                 Object entityPlayer = player.getClass().getMethod("getHandle").invoke(player);
-                Object playerConnection = resolveField(entityPlayer.getClass(), "b", "playerConnection").get(entityPlayer);
+                Object playerConnection = resolveField(entityPlayer.getClass(), "b", "playerConnection", "field_71135_a").get(entityPlayer);
                 Object chatMessageType;
 
                 try {
@@ -128,8 +134,13 @@ public class NMSUtil {
                 try {
                     sendPacketMethod = playerConnection.getClass().getMethod("sendPacket", NMS_CLASSES.get("Packet"));
                 } catch (Exception ignored) {
-                    // 1.18+
-                    sendPacketMethod = playerConnection.getClass().getMethod("a", NMS_CLASSES.get("Packet"));
+                    try {
+                        // 1.18+
+                        sendPacketMethod = playerConnection.getClass().getMethod("a", NMS_CLASSES.get("Packet"));
+                    } catch (Exception ignored1) {
+                        // 1.7.10 (Crucible)
+                        sendPacketMethod = playerConnection.getClass().getMethod("func_147359_a", NMS_CLASSES.get("Packet"));
+                    }
                 }
 
                 sendPacketMethod.invoke(playerConnection, packetPlayOutChat);
@@ -174,7 +185,6 @@ public class NMSUtil {
     }
 
     public enum ServerPackage {
-
         MINECRAFT("net.minecraft.server." + getServerVersion()),
         NETWORK("net.minecraft.network");
 
