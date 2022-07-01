@@ -1,11 +1,10 @@
 package ru.mrbrikster.chatty.util.textapi;
 
+import lombok.experimental.UtilityClass;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import lombok.experimental.UtilityClass;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -52,7 +51,8 @@ public class NMSUtil {
         for (String path : paths) {
             try {
                 return Class.forName(path);
-            } catch (ClassNotFoundException | NullPointerException ignored) {}
+            } catch (ClassNotFoundException | NullPointerException ignored) {
+            }
         }
 
         return null;
@@ -63,7 +63,8 @@ public class NMSUtil {
         for (String name : names) {
             try {
                 return clazz.getField(name);
-            } catch (NoSuchFieldException ignored) {}
+            } catch (NoSuchFieldException ignored) {
+            }
         }
 
         throw new IllegalStateException();
@@ -107,7 +108,8 @@ public class NMSUtil {
                 if (chatMessageType == null) {
                     try {
                         packetPlayOutChat = packetPlayOutChatClass.getConstructor(clsIChatBaseComponent).newInstance(chatBaseComponent);
-                    } catch (Throwable ignored) {}
+                    } catch (Throwable ignored) {
+                    }
                 }
 
                 // Legacy versions (< 1.16)
@@ -115,7 +117,8 @@ public class NMSUtil {
                     try {
                         packetPlayOutChat = packetPlayOutChatClass.getConstructor(clsIChatBaseComponent, clsChatMessageType)
                                 .newInstance(chatBaseComponent, chatMessageType);
-                    } catch (Throwable ignored) {}
+                    } catch (Throwable ignored) {
+                    }
                 }
 
                 // New versions (>= 1.16)
@@ -123,7 +126,8 @@ public class NMSUtil {
                     try {
                         packetPlayOutChat = packetPlayOutChatClass.getConstructor(clsIChatBaseComponent, clsChatMessageType, UUID.class)
                                 .newInstance(chatBaseComponent, chatMessageType, sender.getUniqueId());
-                    } catch (Throwable ignored) {}
+                    } catch (Throwable ignored) {
+                    }
                 }
 
                 if (packetPlayOutChat == null) {
