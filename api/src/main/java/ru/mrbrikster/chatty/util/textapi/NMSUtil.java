@@ -19,12 +19,17 @@ public class NMSUtil {
     private static final HashMap<String, Class<?>> NMS_CLASSES = new HashMap<>();
 
     static {
-        NMS_CLASSES.put("IChatBaseComponent", resolveSuitableClass(MINECRAFT + ".IChatBaseComponent", NETWORK + ".chat.IChatBaseComponent", NETWORK + ".chat.IChatBaseComponent", "net.minecraft.util.IChatComponent"));
-        NMS_CLASSES.put("ChatMessageType", resolveSuitableClass(MINECRAFT + ".ChatMessageType", NETWORK + ".chat.ChatMessageType"));
-        NMS_CLASSES.put("IChatBaseComponent$ChatSerializer", resolveSuitableClass(MINECRAFT + ".IChatBaseComponent$ChatSerializer", NETWORK + ".chat.IChatBaseComponent$ChatSerializer", "net.minecraft.util.IChatComponent$Serializer"));
+        NMS_CLASSES.put("IChatBaseComponent", resolveSuitableClass(MINECRAFT + ".IChatBaseComponent",
+                NETWORK + ".chat.IChatBaseComponent", NETWORK + ".chat.IChatBaseComponent", "net.minecraft.util.IChatComponent"));
+        NMS_CLASSES.put("ChatMessageType", resolveSuitableClass(MINECRAFT + ".ChatMessageType",
+                NETWORK + ".chat.ChatMessageType"));
+        NMS_CLASSES.put("IChatBaseComponent$ChatSerializer", resolveSuitableClass(MINECRAFT + ".IChatBaseComponent$ChatSerializer",
+                NETWORK + ".chat.IChatBaseComponent$ChatSerializer", "net.minecraft.util.IChatComponent$Serializer"));
 
-        NMS_CLASSES.put("PacketPlayOutChat", resolveSuitableClass(MINECRAFT + ".PacketPlayOutChat", NETWORK + ".protocol.game.PacketPlayOutChat", NETWORK + ".play.server.S02PacketChat"));
-        NMS_CLASSES.put("Packet", resolveSuitableClass(MINECRAFT + ".Packet", NETWORK + ".protocol.Packet", NETWORK + ".Packet"));
+        NMS_CLASSES.put("PacketPlayOutChat", resolveSuitableClass(MINECRAFT + ".PacketPlayOutChat",
+                NETWORK + ".protocol.game.PacketPlayOutChat", NETWORK + ".play.server.S02PacketChat"));
+        NMS_CLASSES.put("Packet", resolveSuitableClass(MINECRAFT + ".Packet",
+                NETWORK + ".protocol.Packet", NETWORK + ".Packet"));
 
         // Legacy title packets
         NMS_CLASSES.put("PacketPlayOutTitle", resolveSuitableClass(MINECRAFT + ".PacketPlayOutTitle"));
