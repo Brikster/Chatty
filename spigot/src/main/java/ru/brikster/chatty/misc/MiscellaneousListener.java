@@ -1,10 +1,6 @@
 package ru.brikster.chatty.misc;
 
-import javax.inject.Inject;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextReplacementConfig;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -18,6 +14,8 @@ import ru.brikster.chatty.convert.component.ComponentConverter;
 import ru.brikster.chatty.prefix.PrefixProvider;
 import ru.brikster.chatty.util.Sound;
 import ru.mrbrikster.baseplugin.config.Configuration;
+
+import javax.inject.Inject;
 
 public class MiscellaneousListener implements Listener {
 

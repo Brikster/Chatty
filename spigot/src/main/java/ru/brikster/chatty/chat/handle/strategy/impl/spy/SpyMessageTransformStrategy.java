@@ -2,20 +2,26 @@ package ru.brikster.chatty.chat.handle.strategy.impl.spy;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 import ru.brikster.chatty.api.chat.handle.context.MessageContext;
-import ru.brikster.chatty.api.chat.handle.strategy.MessageHandleStrategy;
+import ru.brikster.chatty.api.chat.handle.strategy.MessageTransformStrategy;
 import ru.brikster.chatty.permission.spy.SpyPermission;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class SpyMessageHandleStrategy implements MessageHandleStrategy {
+public class SpyMessageTransformStrategy implements MessageTransformStrategy {
 
     @Override
-    public Result handle(MessageContext context) {
+    public @NotNull Result handle(MessageContext context) {
 
 
         return null;
+    }
+
+    @Override
+    public @NotNull Stage getStage() {
+        return Stage.EARLY;
     }
 
     private List<Player> collectSpies(String chatName) {
@@ -26,7 +32,7 @@ public class SpyMessageHandleStrategy implements MessageHandleStrategy {
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             if (player.hasPermission(generalSpyPermission)
-                || player.hasPermission(chatSpyPermission)) {
+                    || player.hasPermission(chatSpyPermission)) {
                 spies.add(player);
             }
         }

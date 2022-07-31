@@ -36,7 +36,27 @@ dependencies {
     api 'com.google.code.gson:gson:2.9.0'
     api 'org.bstats:bstats-bukkit:3.0.0'
 
+    implementation 'eu.okaeri:okaeri-configs-yaml-bukkit:4.0.6'
+    implementation 'eu.okaeri:okaeri-configs-serdes-commons:4.0.6'
+    implementation 'eu.okaeri:okaeri-configs-serdes-bukkit:4.0.6'
+
     compileOnly 'net.milkbowl.vault:VaultAPI:1.7'
     compileOnly 'me.clip:placeholderapi:2.10.6'
     compileOnly 'commons-io:commons-io:2.11.0'
 }
+
+def templateSource = file('src/main/templates')
+def templateDest = layout.buildDirectory.dir('generated/sources/templates')
+def generateTemplates = tasks.register('generateTemplates', Copy) { task ->
+    def props = [
+            'version': project.version
+    ]
+    task.inputs.properties props
+
+    task.from templateSource
+    task.into templateDest
+    task.expand props
+}
+
+sourceSets.main.java.srcDir(generateTemplates.map { it.outputs })
+project.idea.project.settings.taskTriggers.afterSync generateTemplates

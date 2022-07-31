@@ -1,23 +1,24 @@
 package ru.brikster.chatty.chat.handle.strategy.impl.moderation;
 
-import javax.inject.Inject;
+import org.jetbrains.annotations.NotNull;
 import ru.brikster.chatty.api.chat.handle.context.MessageContext;
-import ru.brikster.chatty.api.chat.handle.strategy.MessageHandleStrategy;
+import ru.brikster.chatty.api.chat.handle.strategy.MessageTransformStrategy;
 import ru.brikster.chatty.chat.handle.context.MessageContextImpl;
 import ru.brikster.chatty.chat.handle.strategy.result.ResultImpl;
 import ru.mrbrikster.baseplugin.config.Configuration;
 import ru.mrbrikster.baseplugin.config.ConfigurationNode;
 
-public class CapsModerationMessageHandleStrategy implements MessageHandleStrategy<String, String> {
+import javax.inject.Inject;
 
-    @Inject
-    private Configuration config;
+public class CapsModerationMessageTransformStrategy implements MessageTransformStrategy<String, String> {
 
     private final int percent;
     private final int length;
     private final boolean useBlock;
+    @Inject
+    private Configuration config;
 
-    public CapsModerationMessageHandleStrategy() {
+    public CapsModerationMessageTransformStrategy() {
         ConfigurationNode node = config.getNode("moderation.caps");
         this.useBlock = node.getNode("block").getAsBoolean(true);
         this.percent = node.getNode("percent").getAsInt(80);
@@ -25,7 +26,7 @@ public class CapsModerationMessageHandleStrategy implements MessageHandleStrateg
     }
 
     @Override
-    public Result<String> handle(MessageContext<String> context) {
+    public @NotNull Result<String> handle(MessageContext<String> context) {
         String message = context.getMessage();
 
         if (message.length() >= length
@@ -53,6 +54,11 @@ public class CapsModerationMessageHandleStrategy implements MessageHandleStrateg
         return ResultImpl.<String>builder()
                 .newContext(new MessageContextImpl<>(context))
                 .build();
+    }
+
+    @Override
+    public @NotNull Stage getStage() {
+        return Stage.EARLY;
     }
 
     private int calculatePercent(String message) {

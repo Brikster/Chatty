@@ -3,14 +3,14 @@ package ru.brikster.chatty.chat.handle.strategy.impl.vault;
 import net.milkbowl.vault.economy.Economy;
 import org.jetbrains.annotations.NotNull;
 import ru.brikster.chatty.api.chat.handle.context.MessageContext;
-import ru.brikster.chatty.api.chat.handle.strategy.MessageHandleStrategy;
+import ru.brikster.chatty.api.chat.handle.strategy.MessageTransformStrategy;
 import ru.brikster.chatty.chat.handle.context.MessageContextImpl;
 import ru.brikster.chatty.chat.handle.strategy.result.ResultImpl;
 
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class VaultEconomyMessageHandleStrategy implements MessageHandleStrategy<String, String> {
+public class VaultEconomyMessageTransformStrategy implements MessageTransformStrategy<String, String> {
 
     private final @NotNull Economy vaultEconomy;
     private final int cost;
@@ -27,7 +27,7 @@ public class VaultEconomyMessageHandleStrategy implements MessageHandleStrategy<
 //    }
 
     @Override
-    public Result<String> handle(MessageContext<String> context) {
+    public @NotNull Result<String> handle(MessageContext<String> context) {
         if (!vaultEconomy.has(context.getSender(), cost)) {
             // TODO send message no sufficient money
 
@@ -43,6 +43,11 @@ public class VaultEconomyMessageHandleStrategy implements MessageHandleStrategy<
                     .newContext(new MessageContextImpl<>(context))
                     .build();
         }
+    }
+
+    @Override
+    public @NotNull Stage getStage() {
+        return Stage.LATE;
     }
 
 }

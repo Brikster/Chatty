@@ -1,15 +1,12 @@
 package ru.brikster.chatty.chat.executor;
 
-import javax.inject.Inject;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.plugin.EventExecutor;
@@ -17,17 +14,23 @@ import org.jetbrains.annotations.NotNull;
 import ru.brikster.chatty.Chatty;
 import ru.brikster.chatty.api.chat.Chat;
 import ru.brikster.chatty.api.chat.handle.context.MessageContext;
-import ru.brikster.chatty.chat.ChatImpl;
 import ru.brikster.chatty.chat.construct.MessageConstructor;
 import ru.brikster.chatty.chat.handle.context.MessageContextImpl;
-import ru.brikster.chatty.chat.handle.strategy.impl.GeneralMessageHandleStrategy;
-import ru.brikster.chatty.chat.handle.strategy.impl.SimpleComponentStrategy;
-import ru.brikster.chatty.convert.component.ComponentConverter;
+import ru.brikster.chatty.chat.handle.strategy.general.EarlyMessageTransformStrategy;
+import ru.brikster.chatty.chat.handle.strategy.general.LateMessageTransformStrategy;
+import ru.brikster.chatty.chat.selection.ChatSelector;
+import ru.brikster.chatty.config.Configs;
+
+import javax.inject.Inject;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
 
 public class LegacyEventExecutor implements Listener, EventExecutor {
 
+    private final Deque<MessageContext<String>> pendingMessages = new ArrayDeque<>();
     @Inject
-    private ComponentConverter converter;
+    private ChatSelector selector;
     @Inject
     private MessageConstructor messageConstructor;
 
@@ -43,43 +46,65 @@ public class LegacyEventExecutor implements Listener, EventExecutor {
     }
 
     private void onChat(AsyncPlayerChatEvent event) {
-        Component format = converter.convert("&e<b><hover:show_text:'test'>{player}</hover>&8: <white>{message}");
+        Chat chat = selector.selectChat(event.getMessage(), $ ->
+                !$.isPermissionRequired()
+                        || $.hasSymbolWritePermission(event.getPlayer()));
 
-        Chat chat = new ChatImpl(
-                "test", "Тест",
-                format, "", null,
-                -3, false
-        );
-
-        chat.addStrategy(new SimpleComponentStrategy());
+        if (chat == null) {
+            BukkitAudiences.create(Chatty.get())
+                    .player(event.getPlayer())
+                    .sendMessage(Configs.MESSAGES.getChatNotFound());
+            event.setCancelled(true);
+            return;
+        }
 
         MessageContext<String> context = new MessageContextImpl<>(
                 event.isCancelled(),
-                format,
-                event.getRecipients(),
+                chat.getFormat(),
+                new ArrayList<>(event.getRecipients()),
                 event.getMessage(),
                 chat,
                 event.getPlayer()
         );
 
-        GeneralMessageHandleStrategy strategy = new GeneralMessageHandleStrategy();
-        MessageContext<Component> newContext = strategy.handle(context).getNewContext();
+        EarlyMessageTransformStrategy strategy = new EarlyMessageTransformStrategy();
+        MessageContext<String> newContext = strategy.handle(context).getNewContext();
 
-        event.setCancelled(true);
+        if (newContext.isCancelled()) {
+            event.setCancelled(true);
+        } else {
+            event.getRecipients().clear();
+            event.getRecipients().addAll(newContext.getRecipients());
+            event.setMessage(newContext.getMessage());
+            pendingMessages.add(newContext);
+        }
+    }
 
-        Component message = messageConstructor.construct(newContext).compact();
-;
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void handleFinishedEvent(AsyncPlayerChatEvent event) {
+        if (!pendingMessages.isEmpty()) {
+            MessageContext<String> context = pendingMessages.pop();
+            context.setRecipients(event.getRecipients());
+            context.setMessage(event.getMessage());
 
-        System.out.println(GsonComponentSerializer.gson().serialize(message));
+            LateMessageTransformStrategy strategy = new LateMessageTransformStrategy();
+            MessageContext<Component> newContext = strategy.handle(context).getNewContext();
 
-        BukkitAudiences.create(Chatty.get())
-                .filter(sender -> sender instanceof Player
-                        && newContext.getRecipients().contains(sender))
-                .sendMessage(message);
+            if (!newContext.isCancelled() && !event.isCancelled()) {
+                Component message = messageConstructor.construct(newContext).compact();
 
-        BukkitAudiences.create(Chatty.get())
-                .sender(Bukkit.getConsoleSender())
-                .sendMessage(message);
+                BukkitAudiences.create(Chatty.get())
+                        .filter(sender -> sender instanceof Player
+                                && newContext.getRecipients().contains(sender))
+                        .sendMessage(message);
+
+                BukkitAudiences.create(Chatty.get())
+                        .sender(Bukkit.getConsoleSender())
+                        .sendMessage(message);
+
+                event.setCancelled(true);
+            }
+        }
     }
 
 }

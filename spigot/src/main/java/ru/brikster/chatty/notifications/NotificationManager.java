@@ -1,9 +1,9 @@
 package ru.brikster.chatty.notifications;
 
-import javax.inject.Inject;
 import ru.mrbrikster.baseplugin.config.Configuration;
 import ru.mrbrikster.baseplugin.config.ConfigurationNode;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 

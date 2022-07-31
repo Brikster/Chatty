@@ -1,19 +1,19 @@
-package ru.brikster.chatty.chat.handle.strategy.impl;
+package ru.brikster.chatty.chat.handle.strategy.general;
 
-import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 import ru.brikster.chatty.api.chat.handle.context.MessageContext;
-import ru.brikster.chatty.api.chat.handle.strategy.MessageHandleStrategy;
+import ru.brikster.chatty.api.chat.handle.strategy.MessageTransformStrategy;
 import ru.brikster.chatty.chat.handle.context.MessageContextImpl;
 import ru.brikster.chatty.chat.handle.strategy.result.ResultImpl;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class GeneralMessageHandleStrategy implements MessageHandleStrategy<String, Component> {
+public abstract class GeneralMessageTransformStrategy<T> implements MessageTransformStrategy<String, T> {
 
     @Override
-    public Result<Component> handle(MessageContext<String> context) {
+    public @NotNull Result<T> handle(MessageContext<String> context) {
         MessageContext<?> newContext = new MessageContextImpl<>(context);
 
         List<Player> addedRecipients = new ArrayList<>();
@@ -24,9 +24,13 @@ public class GeneralMessageHandleStrategy implements MessageHandleStrategy<Strin
         boolean becameCancelled = false;
         boolean becameUncancelled = false;
 
-        for (MessageHandleStrategy<?, ?> strategy : context.getChat().getStrategies()) {
+        for (MessageTransformStrategy<?, ?> strategy : context.getChat().getStrategies()) {
+            if (strategy.getStage() != getStage()) {
+                continue;
+            }
+
             try {
-                Result<?> result = ((MessageHandleStrategy) strategy).handle(newContext);
+                Result<?> result = ((MessageTransformStrategy) strategy).handle(newContext);
 
                 newContext = result.getNewContext();
                 formatUpdated |= result.isFormatUpdated();
@@ -44,13 +48,13 @@ public class GeneralMessageHandleStrategy implements MessageHandleStrategy<Strin
             }
         }
 
-        if (!Component.class.isAssignableFrom(newContext.getMessage().getClass())) {
-            throw new IllegalArgumentException("Strategies chain should end with Component context");
+        if (!getStage().getFinalTransformClass().isAssignableFrom(newContext.getMessage().getClass())) {
+            throw new IllegalArgumentException("Strategies chain should end with string context");
         }
 
         return ResultImpl
-                .<Component>builder()
-                .newContext((MessageContext<Component>) newContext)
+                .<T>builder()
+                .newContext((MessageContext<T>) newContext)
                 .messageUpdated(messageUpdated)
                 .formatUpdated(formatUpdated)
                 .becameUncancelled(becameUncancelled)

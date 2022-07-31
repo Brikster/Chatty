@@ -1,6 +1,5 @@
 package ru.brikster.chatty.notifications;
 
-import javax.inject.Inject;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.title.Title;
@@ -8,18 +7,18 @@ import net.kyori.adventure.title.Title.Times;
 import ru.brikster.chatty.Chatty;
 import ru.brikster.chatty.convert.component.ComponentConverter;
 
+import javax.inject.Inject;
 import java.time.Duration;
 import java.util.List;
 
 public class TitleNotification extends Notification {
 
     private static final String PERMISSION_NODE = NOTIFICATION_PERMISSION_NODE + "title.%s";
-
-    @Inject
-    private ComponentConverter converter;
     private final String name;
     private final List<String> messages;
     private final Audience audience;
+    @Inject
+    private ComponentConverter converter;
 
     TitleNotification(String name, int delay, List<String> messages, boolean permission, boolean random) {
         super(delay, permission, messages.size(), random);

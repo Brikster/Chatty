@@ -1,6 +1,5 @@
 package ru.brikster.chatty.util;
 
-import javax.inject.Inject;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -8,6 +7,7 @@ import ru.brikster.chatty.Chatty;
 import ru.mrbrikster.baseplugin.config.BukkitConfiguration;
 import ru.mrbrikster.baseplugin.config.Configuration;
 
+import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -17,15 +17,13 @@ import java.util.function.Function;
 
 public class Messages {
 
-    @Inject
-    private Configuration config;
-
     private static final Function<String, String> COLORIZE = (string) -> string == null
             ? null
             : ChatColor.translateAlternateColorCodes('&', string);
-
     private final Configuration localeConfiguration;
     private final Configuration inJarConfiguration;
+    @Inject
+    private Configuration config;
 
     public Messages(Chatty chatty) {
         File localeDir = new File(chatty.getDataFolder(), "locale");

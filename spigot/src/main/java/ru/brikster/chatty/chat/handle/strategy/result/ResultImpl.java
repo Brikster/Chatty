@@ -3,7 +3,7 @@ package ru.brikster.chatty.chat.handle.strategy.result;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import ru.brikster.chatty.api.chat.handle.context.MessageContext;
-import ru.brikster.chatty.api.chat.handle.strategy.MessageHandleStrategy.Result;
+import ru.brikster.chatty.api.chat.handle.strategy.MessageTransformStrategy.Result;
 
 import lombok.AccessLevel;
 import lombok.Builder;

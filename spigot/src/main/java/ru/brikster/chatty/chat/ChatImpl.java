@@ -2,7 +2,6 @@ package ru.brikster.chatty.chat;
 
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -10,12 +9,11 @@ import org.jetbrains.annotations.Nullable;
 import ru.brikster.chatty.Chatty;
 import ru.brikster.chatty.api.chat.Chat;
 import ru.brikster.chatty.api.chat.command.ChatCommand;
-import ru.brikster.chatty.api.chat.handle.strategy.MessageHandleStrategy;
+import ru.brikster.chatty.api.chat.handle.strategy.MessageTransformStrategy;
 import ru.brikster.chatty.api.chat.range.Ranges;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,14 +27,11 @@ public class ChatImpl implements Chat {
     private final @NotNull String name;
     private final @Nullable String displayName;
 
-    @Getter @Setter
-    private boolean enabled;
-
     @Getter
     private final @NotNull Component format;
 
     @Getter
-    private final @Nullable String symbol;
+    private final @NotNull String symbol;
 
     @Getter
     private final @Nullable ChatCommand command;
@@ -47,7 +42,7 @@ public class ChatImpl implements Chat {
     @Getter
     private final boolean permissionRequired;
 
-    private final List<MessageHandleStrategy<?, ?>> strategies
+    private final List<MessageTransformStrategy<?, ?>> strategies
             = new ArrayList<>();
 
     @Override
@@ -58,27 +53,27 @@ public class ChatImpl implements Chat {
     }
 
     @Override
-    public @NotNull List<@NotNull MessageHandleStrategy<?, ?>> getStrategies() {
+    public @NotNull List<@NotNull MessageTransformStrategy<?, ?>> getStrategies() {
         return Collections.unmodifiableList(strategies);
     }
 
     @Override
-    public void addStrategy(int index, @NotNull MessageHandleStrategy<?, ?> strategy) {
+    public void addStrategy(int index, @NotNull MessageTransformStrategy<?, ?> strategy) {
         strategies.add(index, strategy);
     }
 
     @Override
-    public void addStrategy(@NotNull MessageHandleStrategy<?, ?> strategy) {
+    public void addStrategy(@NotNull MessageTransformStrategy<?, ?> strategy) {
         strategies.add(strategy);
     }
 
     @Override
-    public MessageHandleStrategy<?, ?> removeStrategy(int index) {
+    public MessageTransformStrategy<?, ?> removeStrategy(int index) {
         return strategies.remove(index);
     }
 
     @Override
-    public boolean removeStrategy(@NotNull MessageHandleStrategy<?, ?> strategy) {
+    public boolean removeStrategy(@NotNull MessageTransformStrategy<?, ?> strategy) {
         return strategies.remove(strategy);
     }
 

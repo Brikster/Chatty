@@ -1,14 +1,32 @@
 package ru.brikster.chatty.api.chat.handle.strategy;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import ru.brikster.chatty.api.chat.handle.context.MessageContext;
 
 import java.util.Collection;
 
-public interface MessageHandleStrategy<F, T> {
+public interface MessageTransformStrategy<F, T> {
 
-    Result<T> handle(MessageContext<F> context);
+    @NotNull Result<T> handle(MessageContext<F> context);
+
+    @NotNull Stage getStage();
+
+    enum Stage {
+        EARLY(String.class),
+        LATE(Component.class);
+
+        private final Class<?> finalTransformClazz;
+
+        Stage(Class<?> finalTransformClazz) {
+            this.finalTransformClazz = finalTransformClazz;
+        }
+
+        public Class<?> getFinalTransformClass() {
+            return finalTransformClazz;
+        }
+    }
 
     interface Result<T> {
 

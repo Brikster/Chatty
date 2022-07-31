@@ -1,16 +1,16 @@
 package ru.brikster.chatty.chat.handle.strategy.impl.moderation;
 
-import javax.inject.Inject;
 import org.jetbrains.annotations.NotNull;
 import ru.brikster.chatty.api.chat.handle.context.MessageContext;
 import ru.brikster.chatty.repository.swear.SwearRepository;
 import ru.mrbrikster.baseplugin.config.Configuration;
 import ru.mrbrikster.baseplugin.config.ConfigurationNode;
 
+import javax.inject.Inject;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class SwearModerationMessageHandleStrategy implements MatcherMessageHandleStrategy {
+public class SwearModerationMessageTransformStrategy implements MatcherMessageTransformStrategy {
 
     private final String replacement;
     private final boolean useBlock;
@@ -22,7 +22,7 @@ public class SwearModerationMessageHandleStrategy implements MatcherMessageHandl
     @Inject
     private SwearRepository swearRepository;
 
-    public SwearModerationMessageHandleStrategy() {
+    public SwearModerationMessageTransformStrategy() {
         ConfigurationNode node = config.getNode("moderation.swear");
         this.replacement = node.getNode("replacement").getAsString("<swear>");
         this.useBlock = node.getNode("block").getAsBoolean(true);
@@ -37,7 +37,7 @@ public class SwearModerationMessageHandleStrategy implements MatcherMessageHandl
     }
 
     @Override
-    public Result<String> handle(MessageContext<String> context) {
+    public @NotNull Result<String> handle(MessageContext<String> context) {
         String message = context.getMessage();
         String matchedMessage = match(message, swearPattern);
 

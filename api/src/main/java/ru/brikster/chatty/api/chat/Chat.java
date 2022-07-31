@@ -7,7 +7,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.brikster.chatty.api.chat.command.ChatCommand;
-import ru.brikster.chatty.api.chat.handle.strategy.MessageHandleStrategy;
+import ru.brikster.chatty.api.chat.handle.strategy.MessageTransformStrategy;
 import ru.brikster.chatty.api.chat.range.Ranges;
 
 import java.util.*;
@@ -26,10 +26,6 @@ public interface Chat {
     @NotNull
     String getDisplayName();
 
-    boolean isEnabled();
-
-    void setEnabled(boolean enabled);
-
     /**
      * Chat format has the following variables:
      * 1) {player} - player nickname
@@ -41,27 +37,27 @@ public interface Chat {
     @NotNull
     Component getFormat();
 
-    @Nullable String getSymbol();
+    @NotNull String getSymbol();
 
     @Nullable ChatCommand getCommand();
 
     default boolean isSymbolAllowed() {
-        return getSymbol() != null;
+        return !getSymbol().isEmpty();
     }
 
     default boolean isCommandAllowed() {
         return getCommand() != null;
     }
 
-    @NotNull List<@NotNull MessageHandleStrategy<?, ?>> getStrategies();
+    @NotNull List<@NotNull MessageTransformStrategy<?, ?>> getStrategies();
 
-    void addStrategy(int index, @NotNull MessageHandleStrategy<?, ?> strategy);
+    void addStrategy(int index, @NotNull MessageTransformStrategy<?, ?> strategy);
 
-    void addStrategy(@NotNull MessageHandleStrategy<?, ?> strategy);
+    void addStrategy(@NotNull MessageTransformStrategy<?, ?> strategy);
 
-    MessageHandleStrategy<?, ?> removeStrategy(int index);
+    MessageTransformStrategy<?, ?> removeStrategy(int index);
 
-    boolean removeStrategy(@NotNull MessageHandleStrategy<?, ?> strategy);
+    boolean removeStrategy(@NotNull MessageTransformStrategy<?, ?> strategy);
 
     /**
      * Range param for the chat messages
