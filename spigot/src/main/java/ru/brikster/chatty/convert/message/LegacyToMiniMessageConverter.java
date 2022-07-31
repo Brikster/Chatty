@@ -15,23 +15,23 @@ public class LegacyToMiniMessageConverter implements MessageConverter {
     private static final Pattern SPIGOT_HEX_COLOR_PATTERN = Pattern.compile("(?i)[§&]X([§&][A-F\\d]){6}");
 
     private static final Map<Character, String> legacyCodeToMiniMessageMap = new HashMap<Character, String>() {{
-        put('a', "<color:green>");
-        put('b', "<color:aqua>");
-        put('c', "<color:red>");
-        put('d', "<color:light_purple>");
-        put('e', "<color:yellow>");
-        put('f', "<color:white>");
+        put('a', "<reset><color:green>");
+        put('b', "<reset><color:aqua>");
+        put('c', "<reset><color:red>");
+        put('d', "<reset><color:light_purple>");
+        put('e', "<reset><color:yellow>");
+        put('f', "<reset><color:white>");
 
-        put('0', "<color:dark_black>");
-        put('1', "<color:dark_blue>");
-        put('2', "<color:dark_green>");
-        put('3', "<color:dark_aqua>");
-        put('4', "<color:dark_red>");
-        put('5', "<color:dark_purple>");
-        put('6', "<color:gold>");
-        put('7', "<color:gray>");
-        put('8', "<color:dark_gray>");
-        put('9', "<color:blue>");
+        put('0', "<reset><color:dark_black>");
+        put('1', "<reset><color:dark_blue>");
+        put('2', "<reset><color:dark_green>");
+        put('3', "<reset><color:dark_aqua>");
+        put('4', "<reset><color:dark_red>");
+        put('5', "<reset><color:dark_purple>");
+        put('6', "<reset><color:gold>");
+        put('7', "<reset><color:gray>");
+        put('8', "<reset><color:dark_gray>");
+        put('9', "<reset><color:blue>");
 
         put('k', "<obfuscated>");
         put('l', "<bold>");
@@ -60,7 +60,7 @@ public class LegacyToMiniMessageConverter implements MessageConverter {
             String codes = group.substring(1, group.indexOf(' '));
             String text = group.substring(group.indexOf(' ') + 1, group.length() - 1);
 
-            matcher.appendReplacement(buffer, "<gradient:" + codes + ">" + text + "</gradient>");
+            matcher.appendReplacement(buffer, "<reset><gradient:" + codes + ">" + text + "</gradient>");
         }
         matcher.appendTail(buffer);
 
@@ -72,7 +72,7 @@ public class LegacyToMiniMessageConverter implements MessageConverter {
 
         StringBuffer buffer = new StringBuffer();
         while (matcher.find()) {
-            matcher.appendReplacement(buffer, "<color:#" + matcher.group().substring(2, 8) + ">");
+            matcher.appendReplacement(buffer, "<reset><color:#" + matcher.group().substring(2, 8) + ">");
         }
         matcher.appendTail(buffer);
 
@@ -85,7 +85,7 @@ public class LegacyToMiniMessageConverter implements MessageConverter {
         StringBuffer buffer = new StringBuffer();
         while (matcher.find()) {
             String hex = matcher.group().replaceAll("[§&]", "").substring(1);
-            matcher.appendReplacement(buffer, "<color:#" + hex + ">");
+            matcher.appendReplacement(buffer, "<reset><color:#" + hex + ">");
         }
         matcher.appendTail(buffer);
 

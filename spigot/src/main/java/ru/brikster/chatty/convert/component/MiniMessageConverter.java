@@ -8,13 +8,17 @@ import ru.brikster.chatty.convert.message.MessageConverter;
 
 public class MiniMessageConverter implements ComponentConverter {
 
-    private final MiniMessage miniMessage = MiniMessage.miniMessage();
     private final MessageConverter preConverter = new LegacyToMiniMessageConverter();
+
+    private final MiniMessage miniMessage = MiniMessage
+            .builder()
+            .preProcessor(message ->
+                    preConverter.convert(message.replaceFirst("\n$", "")))
+            .build();
 
     @Override
     public @NotNull Component convert(@NotNull String message) {
-        String miniMessageString = preConverter.convert(message);
-        return miniMessage.deserialize(miniMessageString);
+        return miniMessage.deserialize(message);
     }
 
 }
