@@ -4,7 +4,7 @@ plugins {
 
 tasks {
     build {
-        dependsOn("publishToMavenLocal")
+        dependsOn('publishToMavenLocal')
     }
 }
 
@@ -12,7 +12,7 @@ publishing {
     publications {
         maven(MavenPublication) {
             from components.java
-            artifactId = "chatty-api"
+            artifactId = 'chatty-api'
         }
     }
 }

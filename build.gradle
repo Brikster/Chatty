@@ -20,10 +20,10 @@ subprojects {
 
     repositories {
         mavenCentral()
-        maven { url = "https://jitpack.io" }
-        maven { url = "https://hub.spigotmc.org/nexus/content/groups/public/" }
-        maven { url = "https://repo.extendedclip.com/content/repositories/placeholderapi/" }
-        maven { url = "https://repo.codemc.org/repository/maven-public" }
+        maven { url = 'https://jitpack.io' }
+        maven { url = 'https://hub.spigotmc.org/nexus/content/groups/public/' }
+        maven { url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
+        maven { url = 'https://repo.codemc.org/repository/maven-public' }
     }
 
     dependencies {
@@ -32,7 +32,7 @@ subprojects {
         implementation 'net.kyori:adventure-api:4.11.0'
         implementation 'net.kyori:adventure-text-minimessage:4.11.0'
         implementation 'net.kyori:adventure-platform-bukkit:4.1.1'
-        implementation "net.kyori:adventure-text-serializer-gson:4.11.0"
+        implementation 'net.kyori:adventure-text-serializer-gson:4.11.0'
 
         compileOnly 'org.spigotmc:spigot-api:1.19-R0.1-SNAPSHOT'
 
