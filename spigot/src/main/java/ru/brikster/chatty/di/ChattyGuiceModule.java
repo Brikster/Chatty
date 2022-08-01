@@ -16,11 +16,14 @@ import ru.brikster.chatty.prefix.DefaultPrefixProvider;
 import ru.brikster.chatty.prefix.PrefixProvider;
 import ru.mrbrikster.baseplugin.config.Configuration;
 
+import java.util.logging.Logger;
+
 public class ChattyGuiceModule extends AbstractModule {
 
     @Override
     protected void configure() {
         bind(Configuration.class).toInstance(Chatty.get().getConfiguration());
+        bind(Logger.class).toInstance(Chatty.get().getLogger());
         bind(ChatRegistry.class).toInstance(new MemoryChatRegistry());
 
         bind(ComponentConverter.class).to(MiniMessageConverter.class);

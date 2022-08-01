@@ -22,13 +22,13 @@ import ru.brikster.chatty.config.serdes.SerdesChatty;
 import ru.brikster.chatty.convert.component.ComponentConverter;
 import ru.brikster.chatty.di.ChattyGuiceModule;
 import ru.brikster.chatty.misc.MiscellaneousListener;
-import ru.mrbrikster.baseplugin.config.Configuration;
 import ru.mrbrikster.baseplugin.plugin.BukkitBasePlugin;
 
 import lombok.SneakyThrows;
 
-import java.nio.file.Files;
 import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public final class Chatty extends BukkitBasePlugin {
 
@@ -53,6 +53,9 @@ public final class Chatty extends BukkitBasePlugin {
     public void onEnable() {
         Chatty.instance = Chatty.this;
         Injector injector = Guice.createInjector(new ChattyGuiceModule());
+
+        Logger logger = injector.getInstance(Logger.class);
+
         SerdesChatty serdesChatty = new SerdesChatty(injector);
 
         SettingsConfig settingsConfig = ConfigManager.create(SettingsConfig.class, config -> {
@@ -95,35 +98,17 @@ public final class Chatty extends BukkitBasePlugin {
 
         ////////////////////
 
-        Configuration config = getConfiguration();
-
-        if (!config.getNode("config-version")
-                .getAsString("0.0")
-                .equals("3.0")) {
-            Files.move(
-                    getDataFolder().toPath().resolve("config.yml"),
-                    getDataFolder().toPath().resolve("config.yml.old"));
-
-            config = getConfiguration("config.yml");
-        }
-
-        EventPriority eventPriority;
-        try {
-            String priorityName = config.getNode("general.priority").getAsString("normal").toUpperCase();
-            eventPriority = EventPriority.valueOf(priorityName);
-
-            if (eventPriority == EventPriority.MONITOR) {
-                eventPriority = EventPriority.NORMAL;
-            }
-        } catch (IllegalArgumentException e) {
-            eventPriority = EventPriority.NORMAL;
+        EventPriority priority = settingsConfig.getListenerPriority();
+        if (priority == EventPriority.MONITOR) {
+            priority = EventPriority.HIGHEST;
+            logger.log(Level.WARNING, "Cannot use monitor priority for listener");
         }
 
         LegacyEventExecutor chatListener = new LegacyEventExecutor();
         injector.injectMembers(chatListener);
 
         this.getServer().getPluginManager().registerEvents(chatListener, this);
-        this.getServer().getPluginManager().registerEvent(AsyncPlayerChatEvent.class, chatListener, eventPriority, chatListener, Chatty.instance, true);
+        this.getServer().getPluginManager().registerEvent(AsyncPlayerChatEvent.class, chatListener, priority, chatListener, Chatty.instance, true);
 
         MiscellaneousListener miscListener = new MiscellaneousListener();
         injector.injectMembers(miscListener);

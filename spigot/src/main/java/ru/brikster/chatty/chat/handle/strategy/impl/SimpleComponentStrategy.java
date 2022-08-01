@@ -21,12 +21,12 @@ public class SimpleComponentStrategy implements MessageTransformStrategy<String,
         Component message = converter.convert(context.getMessage());
 
         MessageContext<Component> newContext = new MessageContextImpl<Component>(
+                context.getChat(),
+                context.getSender(),
                 context.isCancelled(),
                 context.getFormat(),
                 context.getRecipients(),
-                message,
-                context.getChat(),
-                context.getSender()
+                message
         );
 
         return ResultImpl.<Component>builder()

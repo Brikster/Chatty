@@ -59,12 +59,12 @@ public class LegacyEventExecutor implements Listener, EventExecutor {
         }
 
         MessageContext<String> context = new MessageContextImpl<>(
+                chat,
+                event.getPlayer(),
                 event.isCancelled(),
                 chat.getFormat(),
                 new ArrayList<>(event.getRecipients()),
-                event.getMessage(),
-                chat,
-                event.getPlayer()
+                event.getMessage()
         );
 
         EarlyMessageTransformStrategy strategy = new EarlyMessageTransformStrategy();
