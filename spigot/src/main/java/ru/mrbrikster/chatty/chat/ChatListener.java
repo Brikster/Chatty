@@ -485,16 +485,17 @@ public class ChatListener implements Listener, EventExecutor {
                                 .getAsString("&e&l@{player}").replace("{player}", playerName)))
                                 .tooltip(mentionTooltip).command(command).suggest(suggestCommand).link(link),
                         new LegacyMessagePart(TextUtil.getLastColors(event.getFormat())));
+                if (!configuration.getNode("json.mentions.range-based-sound").getAsBoolean(false) | event.getRecipients().contains(mentionedPlayer)){
+                    String soundName = configuration.getNode("json.mentions.sound").getAsString(null);
+                    if (soundName != null) {
+                        org.bukkit.Sound sound = Sound.byName(soundName);
+                        double soundVolume = (double) configuration.getNode("json.mentions.sound-volume").get(1d);
+                        double soundPitch = (double) configuration.getNode("json.mentions.sound-pitch").get(1d);
+                        mentionedPlayer.playSound(mentionedPlayer.getLocation(), sound, (float) soundVolume, (float) soundPitch);
+                    }
 
-                String soundName = configuration.getNode("json.mentions.sound").getAsString(null);
-                if (soundName != null) {
-                    org.bukkit.Sound sound = Sound.byName(soundName);
-                    double soundVolume = (double) configuration.getNode("json.mentions.sound-volume").get(1d);
-                    double soundPitch = (double) configuration.getNode("json.mentions.sound-pitch").get(1d);
-                    mentionedPlayer.playSound(mentionedPlayer.getLocation(), sound, (float) soundVolume, (float) soundPitch);
+                    event.getRecipients().add(mentionedPlayer);
                 }
-
-                event.getRecipients().add(mentionedPlayer);
             }
         }
 
