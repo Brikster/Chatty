@@ -1,5 +1,7 @@
 package ru.brikster.chatty.chat.executor;
 
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -11,15 +13,14 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.plugin.EventExecutor;
 import org.jetbrains.annotations.NotNull;
-import ru.brikster.chatty.Chatty;
 import ru.brikster.chatty.api.chat.Chat;
 import ru.brikster.chatty.api.chat.handle.context.MessageContext;
 import ru.brikster.chatty.chat.construct.MessageConstructor;
-import ru.brikster.chatty.chat.handle.context.MessageContextImpl;
-import ru.brikster.chatty.chat.handle.strategy.general.EarlyMessageTransformStrategy;
-import ru.brikster.chatty.chat.handle.strategy.general.LateMessageTransformStrategy;
+import ru.brikster.chatty.chat.message.context.MessageContextImpl;
+import ru.brikster.chatty.chat.message.strategy.general.EarlyMessageTransformStrategy;
+import ru.brikster.chatty.chat.message.strategy.general.LateMessageTransformStrategy;
 import ru.brikster.chatty.chat.selection.ChatSelector;
-import ru.brikster.chatty.config.Configs;
+import ru.brikster.chatty.config.config.MessagesConfig;
 
 import javax.inject.Inject;
 import java.util.ArrayDeque;
@@ -29,10 +30,11 @@ import java.util.Deque;
 public class LegacyEventExecutor implements Listener, EventExecutor {
 
     private final Deque<MessageContext<String>> pendingMessages = new ArrayDeque<>();
-    @Inject
-    private ChatSelector selector;
-    @Inject
-    private MessageConstructor messageConstructor;
+
+    @Inject private ChatSelector selector;
+    @Inject private MessageConstructor messageConstructor;
+    @Inject private BukkitAudiences audiences;
+    @Inject private MessagesConfig messages;
 
     @Override
     public void execute(@NotNull Listener listener, @NotNull Event event) {
@@ -51,9 +53,8 @@ public class LegacyEventExecutor implements Listener, EventExecutor {
                         || $.hasSymbolWritePermission(event.getPlayer()));
 
         if (chat == null) {
-            BukkitAudiences.create(Chatty.get())
-                    .player(event.getPlayer())
-                    .sendMessage(Configs.MESSAGES.getChatNotFound());
+            audiences.player(event.getPlayer().getUniqueId())
+                    .sendMessage(messages.getChatNotFound());
             event.setCancelled(true);
             return;
         }
@@ -93,14 +94,10 @@ public class LegacyEventExecutor implements Listener, EventExecutor {
             if (!newContext.isCancelled() && !event.isCancelled()) {
                 Component message = messageConstructor.construct(newContext).compact();
 
-                BukkitAudiences.create(Chatty.get())
-                        .filter(sender -> sender instanceof Player
-                                && newContext.getRecipients().contains(sender))
-                        .sendMessage(message);
-
-                BukkitAudiences.create(Chatty.get())
-                        .sender(Bukkit.getConsoleSender())
-                        .sendMessage(message);
+                Audience.audience(
+                            audiences.filter(sender -> sender instanceof Player && newContext.getRecipients().contains(sender)),
+                            audiences.sender(Bukkit.getConsoleSender())
+                        ).sendMessage(Identity.identity(event.getPlayer().getUniqueId()), message);
 
                 event.setCancelled(true);
             }

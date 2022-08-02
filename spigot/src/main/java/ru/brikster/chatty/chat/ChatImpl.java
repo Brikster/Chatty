@@ -6,7 +6,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import ru.brikster.chatty.Chatty;
 import ru.brikster.chatty.api.chat.Chat;
 import ru.brikster.chatty.api.chat.command.ChatCommand;
 import ru.brikster.chatty.api.chat.handle.strategy.MessageTransformStrategy;
@@ -118,8 +117,8 @@ public class ChatImpl implements Chat {
     }
 
     @Override
-    public void sendMessage(Component message, Predicate<CommandSender> recipientPredicate) {
-        BukkitAudiences.create(Chatty.get())
+    public void sendMessage(BukkitAudiences audienceProvider, Component message, Predicate<CommandSender> recipientPredicate) {
+        audienceProvider
                 .filter(recipientPredicate)
                 .sendMessage(message);
     }

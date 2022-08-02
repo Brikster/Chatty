@@ -1,6 +1,5 @@
 package ru.brikster.chatty.config.serdes.serializer;
 
-import com.google.inject.Inject;
 import eu.okaeri.configs.schema.GenericsPair;
 import eu.okaeri.configs.serdes.BidirectionalTransformer;
 import eu.okaeri.configs.serdes.SerdesContext;
@@ -9,13 +8,14 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import ru.brikster.chatty.convert.component.ComponentConverter;
 
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 public class ComponentSerializer extends BidirectionalTransformer<String, Component> {
 
     private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
 
-    @Inject
-    private ComponentConverter converter;
+    private final ComponentConverter converter;
 
     @Override
     public GenericsPair<String, Component> getPair() {

@@ -1,7 +1,5 @@
 package ru.brikster.chatty.repository.swear;
 
-import ru.brikster.chatty.Chatty;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -14,8 +12,8 @@ public class FileSwearRepository implements SwearRepository {
     private final List<String> words = new ArrayList<>();
     private final List<String> whitelist = new ArrayList<>();
 
-    public FileSwearRepository() throws IOException {
-        Path swearsDirectory = Chatty.get().getDataFolder().toPath().resolve("swears");
+    public FileSwearRepository(Path dataFolderPath) throws IOException {
+        Path swearsDirectory = dataFolderPath.resolve("swears");
         Path swearsFile = swearsDirectory.resolve("swears.txt");
         Path whitelistFile = swearsDirectory.resolve("whitelist.txt");
 

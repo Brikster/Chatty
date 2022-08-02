@@ -17,7 +17,7 @@ public class MetricsUtil {
 
     public void run() {
         if (config.getNode("general.metrics").getAsBoolean(true)) {
-            Metrics metrics = new Metrics(Chatty.get(), 3466);
+            Metrics metrics = new Metrics(Chatty.getPlugin(Chatty.class), 3466);
             metrics.addCustomChart(new SimplePie("language",
                     () -> config.getNode("general.locale").getAsString("en")));
 

@@ -6,7 +6,6 @@ import ru.brikster.chatty.api.chat.Chat;
 import ru.brikster.chatty.chat.registry.ChatRegistry;
 
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 public class ChatSelectorImpl implements ChatSelector {
 
@@ -15,7 +14,6 @@ public class ChatSelectorImpl implements ChatSelector {
 
     @Override
     public @Nullable Chat selectChat(String message, Predicate<Chat> allowedPredicate) {
-        System.out.println("Chats: " + registry.getChats().stream().map(chat -> chat.getName()).collect(Collectors.joining(", ")));
         // TODO maybe add chats priorities ?
         Chat selected = null;
         for (Chat chat : registry.getChats()) {
@@ -23,9 +21,8 @@ public class ChatSelectorImpl implements ChatSelector {
                 continue;
             }
 
-            if (chat.getSymbol().isEmpty() || message.startsWith(chat.getSymbol())) {
+            if ((selected == null || selected.getSymbol().isEmpty()) && chat.getSymbol().isEmpty() || message.startsWith(chat.getSymbol())) {
                 selected = chat;
-                break;
             }
         }
 

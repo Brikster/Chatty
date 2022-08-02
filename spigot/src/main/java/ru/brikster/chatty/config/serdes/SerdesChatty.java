@@ -1,20 +1,20 @@
 package ru.brikster.chatty.config.serdes;
 
-import com.google.inject.Injector;
 import eu.okaeri.configs.serdes.OkaeriSerdesPack;
 import eu.okaeri.configs.serdes.SerdesRegistry;
 import ru.brikster.chatty.config.serdes.serializer.ChatCommandConfigDeclarationSerializer;
 import ru.brikster.chatty.config.serdes.serializer.ChatConfigDeclarationSerializer;
 import ru.brikster.chatty.config.serdes.serializer.ComponentSerializer;
+import ru.brikster.chatty.convert.component.ComponentConverter;
 
 import lombok.NonNull;
 
 public class SerdesChatty implements OkaeriSerdesPack {
 
-    private final Injector injector;
+    private final ComponentConverter converter;
 
-    public SerdesChatty(Injector injector) {
-        this.injector = injector;
+    public SerdesChatty(ComponentConverter converter) {
+        this.converter = converter;
     }
 
     @Override
@@ -22,8 +22,7 @@ public class SerdesChatty implements OkaeriSerdesPack {
         registry.register(new ChatConfigDeclarationSerializer());
         registry.register(new ChatCommandConfigDeclarationSerializer());
 
-        ComponentSerializer componentSerializer = new ComponentSerializer();
-        injector.injectMembers(componentSerializer);
+        ComponentSerializer componentSerializer = new ComponentSerializer(converter);
 
         registry.register(componentSerializer);
     }

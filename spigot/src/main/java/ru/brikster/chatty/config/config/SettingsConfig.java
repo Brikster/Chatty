@@ -30,7 +30,8 @@ public class SettingsConfig extends OkaeriConfig {
 
     @Comment({"",
             "Chat listener priority",
-            "May be useful if Chatty conflicts with another plugin"})
+            "May be useful if Chatty conflicts with another plugin",
+            "See https://hub.spigotmc.org/javadocs/spigot/org/bukkit/event/EventPriority.html"})
     private EventPriority listenerPriority = EventPriority.LOW;
 
     @Comment({"",

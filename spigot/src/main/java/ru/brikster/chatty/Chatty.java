@@ -2,117 +2,76 @@ package ru.brikster.chatty;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import eu.okaeri.configs.ConfigManager;
-import eu.okaeri.configs.yaml.bukkit.YamlBukkitConfigurer;
-import eu.okaeri.configs.yaml.bukkit.serdes.SerdesBukkit;
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
-import ru.brikster.chatty.api.ChattyApi;
 import ru.brikster.chatty.api.chat.Chat;
+import ru.brikster.chatty.api.event.ChattyInitEvent;
 import ru.brikster.chatty.chat.ChatImpl;
 import ru.brikster.chatty.chat.executor.LegacyEventExecutor;
-import ru.brikster.chatty.chat.handle.strategy.impl.SimpleComponentStrategy;
-import ru.brikster.chatty.chat.registry.ChatRegistry;
-import ru.brikster.chatty.config.Configs;
-import ru.brikster.chatty.config.config.ChatsConfig;
-import ru.brikster.chatty.config.config.MessagesConfig;
-import ru.brikster.chatty.config.config.SettingsConfig;
+import ru.brikster.chatty.chat.message.strategy.impl.ConvertComponentMessageTransformStrategy;
+import ru.brikster.chatty.chat.message.strategy.impl.RemoveChatSymbolMessageTransformStrategy;
+import ru.brikster.chatty.chat.message.strategy.impl.papi.PlaceholderApiMessageTransformStrategy;
+import ru.brikster.chatty.chat.message.strategy.impl.vault.PrefixMessageTransformStrategy;
 import ru.brikster.chatty.config.object.ChatConfigDeclaration;
-import ru.brikster.chatty.config.serdes.SerdesChatty;
-import ru.brikster.chatty.convert.component.ComponentConverter;
-import ru.brikster.chatty.di.ChattyGuiceModule;
-import ru.brikster.chatty.misc.MiscellaneousListener;
+import ru.brikster.chatty.guice.ChattyGuiceModule;
 import ru.mrbrikster.baseplugin.plugin.BukkitBasePlugin;
 
 import lombok.SneakyThrows;
 
 import java.util.Map.Entry;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public final class Chatty extends BukkitBasePlugin {
 
     private static Chatty instance;
-    private static ChattyApi api;
-
-    public static Chatty get() {
-        return Chatty.instance;
-    }
-
-    /**
-     * Returns API object for interacting with Chatty
-     *
-     * @return API object
-     */
-    public ChattyApi api() {
-        return Chatty.api;
-    }
 
     @SneakyThrows
     @Override
     public void onEnable() {
         Chatty.instance = Chatty.this;
-        Injector injector = Guice.createInjector(new ChattyGuiceModule());
 
-        Logger logger = injector.getInstance(Logger.class);
+        ChattyInitEvent initEvent = new ChattyInitEvent(BukkitAudiences.create(this));
+        getServer().getPluginManager().callEvent(initEvent);
 
-        SerdesChatty serdesChatty = new SerdesChatty(injector);
+        ChattyGuiceModule guiceModule = new ChattyGuiceModule(
+                Chatty.this,
+                initEvent.getAudienceProvider(),
+                getDataFolder().toPath());
 
-        SettingsConfig settingsConfig = ConfigManager.create(SettingsConfig.class, config -> {
-            config.withConfigurer(new YamlBukkitConfigurer(), new SerdesBukkit(), serdesChatty);
-            config.withBindFile(getDataFolder().toPath().resolve("settings.yml"));
-            config.withRemoveOrphans(true);
-            config.saveDefaults();
-            config.load(true);
-        });
+        Injector injector = Guice.createInjector(guiceModule);
 
-        ChatsConfig chatsConfig = ConfigManager.create(ChatsConfig.class, config -> {
-            config.withConfigurer(new YamlBukkitConfigurer(), new SerdesBukkit(), serdesChatty);
-            config.withBindFile(getDataFolder().toPath().resolve("chats.yml"));
-            config.withRemoveOrphans(true);
-            config.saveDefaults();
-            config.load(true);
-        });
+        injector.injectMembers(ConvertComponentMessageTransformStrategy.instance());
+        injector.injectMembers(PrefixMessageTransformStrategy.instance());
 
-        Configs.MESSAGES = ConfigManager.create(MessagesConfig.class, config -> {
-            config.withConfigurer(new YamlBukkitConfigurer(), new SerdesBukkit(), serdesChatty);
-            config.withBindFile(getDataFolder().toPath().resolve("lang").resolve(settingsConfig.getLanguage() + ".yml"));
-            config.withRemoveOrphans(true);
-            config.saveDefaults();
-            config.load(true);
-        });
-
-        ChatRegistry registry = injector.getInstance(ChatRegistry.class);
-        ComponentConverter converter = injector.getInstance(ComponentConverter.class);
-
-        for (Entry<String, ChatConfigDeclaration> entry : chatsConfig.getChats().entrySet()) {
+        for (Entry<String, ChatConfigDeclaration> entry : guiceModule.getChatsConfig().getChats().entrySet()) {
             ChatConfigDeclaration declaration = entry.getValue();
             Chat chat = new ChatImpl(entry.getKey(),
-                    declaration.getDisplayName(), converter.convert(declaration.getFormat()),
+                    declaration.getDisplayName(), guiceModule.getConverter().convert(declaration.getFormat()),
                     declaration.getSymbol(), null, declaration.getRange(), false);
 
-            chat.addStrategy(new SimpleComponentStrategy());
+            chat.addStrategy(RemoveChatSymbolMessageTransformStrategy.instance());
+            chat.addStrategy(ConvertComponentMessageTransformStrategy.instance());
+            chat.addStrategy(PrefixMessageTransformStrategy.instance());
+            chat.addStrategy(PlaceholderApiMessageTransformStrategy.instance());
 
-            registry.register(chat);
+            guiceModule.getChatRegistry().register(chat);
         }
 
-        ////////////////////
-
-        EventPriority priority = settingsConfig.getListenerPriority();
+        EventPriority priority = guiceModule.getSettingsConfig().getListenerPriority();
         if (priority == EventPriority.MONITOR) {
             priority = EventPriority.HIGHEST;
-            logger.log(Level.WARNING, "Cannot use monitor priority for listener");
+            getLogger().log(Level.WARNING, "Cannot use monitor priority for listener");
         }
 
-        LegacyEventExecutor chatListener = new LegacyEventExecutor();
-        injector.injectMembers(chatListener);
+        LegacyEventExecutor chatListener = injector.getInstance(LegacyEventExecutor.class);
 
         this.getServer().getPluginManager().registerEvents(chatListener, this);
         this.getServer().getPluginManager().registerEvent(AsyncPlayerChatEvent.class, chatListener, priority, chatListener, Chatty.instance, true);
 
-        MiscellaneousListener miscListener = new MiscellaneousListener();
-        injector.injectMembers(miscListener);
-        this.getServer().getPluginManager().registerEvents(miscListener, this);
+//        MiscellaneousListener miscListener = new MiscellaneousListener();
+//        injector.injectMembers(miscListener);
+//        this.getServer().getPluginManager().registerEvents(miscListener, this);
 
 //        if (config.getNode("general.bungeecord").getAsBoolean(false)) {
 //            this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");

@@ -9,7 +9,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import ru.brikster.chatty.Chatty;
 import ru.brikster.chatty.convert.component.ComponentConverter;
 import ru.brikster.chatty.prefix.PrefixProvider;
 import ru.brikster.chatty.util.Sound;
@@ -19,14 +18,11 @@ import javax.inject.Inject;
 
 public class MiscellaneousListener implements Listener {
 
-    @Inject
-    private Configuration config;
+    @Inject private Configuration config;
+    @Inject private PrefixProvider prefixProvider;
+    @Inject private ComponentConverter converter;
 
-    @Inject
-    private PrefixProvider prefixProvider;
-
-    @Inject
-    private ComponentConverter converter;
+    @Inject private BukkitAudiences audiences;
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onJoin(PlayerJoinEvent event) {
@@ -70,8 +66,7 @@ public class MiscellaneousListener implements Listener {
 
                 event.setJoinMessage(null);
 
-                BukkitAudiences.create(Chatty.get())
-                        .filter(player -> true)
+                audiences.all()
                         .sendMessage(converter.convert(joinMessage.replace("{player}", event.getPlayer().getDisplayName())));
             }
         }
@@ -105,9 +100,7 @@ public class MiscellaneousListener implements Listener {
 
                 event.setQuitMessage(null);
 
-                BukkitAudiences.create(Chatty.get())
-                        .filter(player -> true)
-                        .sendMessage(converter.convert(quitMessage.replace("{player}", event.getPlayer().getDisplayName())));
+                audiences.all().sendMessage(converter.convert(quitMessage.replace("{player}", event.getPlayer().getDisplayName())));
             }
         }
 
@@ -158,9 +151,7 @@ public class MiscellaneousListener implements Listener {
 
                 event.setDeathMessage(null);
 
-                BukkitAudiences.create(Chatty.get())
-                        .filter(player -> true)
-                        .sendMessage(converter.convert(deathMessage.replace("{player}", event.getEntity().getDisplayName())));
+                audiences.all().sendMessage(converter.convert(deathMessage.replace("{player}", event.getEntity().getDisplayName())));
             }
         }
 

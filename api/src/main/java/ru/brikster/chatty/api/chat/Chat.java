@@ -1,5 +1,6 @@
 package ru.brikster.chatty.api.chat;
 
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -104,18 +105,20 @@ public interface Chat {
     /**
      * This method let you send any message to the chat participants (without {@link Chat#getFormat()})
      *
+     * @param audienceProvider audience provider to get audience
      * @param message message to send
      */
-    default void sendMessage(Component message) {
-        sendMessage(message, (recipient -> true));
+    default void sendMessage(BukkitAudiences audienceProvider, Component message) {
+        sendMessage(audienceProvider, message, (recipient -> true));
     }
 
     /**
      * This method let you send any message to the chat participants (without {@link Chat#getFormat()})
      *
+     * @param audienceProvider audience provider to get audience
      * @param message            message to send
      * @param recipientPredicate predicate for message recipient
      */
-    void sendMessage(Component message, Predicate<CommandSender> recipientPredicate);
+    void sendMessage(BukkitAudiences audienceProvider, Component message, Predicate<CommandSender> recipientPredicate);
 
 }
