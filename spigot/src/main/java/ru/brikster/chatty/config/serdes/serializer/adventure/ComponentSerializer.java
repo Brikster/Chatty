@@ -1,4 +1,4 @@
-package ru.brikster.chatty.config.serdes.serializer;
+package ru.brikster.chatty.config.serdes.serializer.adventure;
 
 import eu.okaeri.configs.schema.GenericsPair;
 import eu.okaeri.configs.serdes.BidirectionalTransformer;

@@ -4,7 +4,6 @@ import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -49,8 +48,8 @@ public class LegacyEventExecutor implements Listener, EventExecutor {
 
     private void onChat(AsyncPlayerChatEvent event) {
         Chat chat = selector.selectChat(event.getMessage(), $ ->
-                !$.isPermissionRequired()
-                        || $.hasSymbolWritePermission(event.getPlayer()));
+                !$.isPermissionRequired() ||
+                        $.hasSymbolWritePermission(event.getPlayer()));
 
         if (chat == null) {
             audiences.player(event.getPlayer().getUniqueId())
@@ -96,7 +95,7 @@ public class LegacyEventExecutor implements Listener, EventExecutor {
 
                 Audience.audience(
                             audiences.filter(sender -> sender instanceof Player && newContext.getRecipients().contains(sender)),
-                            audiences.sender(Bukkit.getConsoleSender())
+                            audiences.console()
                         ).sendMessage(Identity.identity(event.getPlayer().getUniqueId()), message);
 
                 event.setCancelled(true);

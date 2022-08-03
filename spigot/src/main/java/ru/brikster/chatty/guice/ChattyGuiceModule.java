@@ -15,6 +15,7 @@ import ru.brikster.chatty.chat.selection.ChatSelector;
 import ru.brikster.chatty.chat.selection.ChatSelectorImpl;
 import ru.brikster.chatty.config.config.ChatsConfig;
 import ru.brikster.chatty.config.config.MessagesConfig;
+import ru.brikster.chatty.config.config.MiscConfig;
 import ru.brikster.chatty.config.config.SettingsConfig;
 import ru.brikster.chatty.config.serdes.SerdesChatty;
 import ru.brikster.chatty.convert.component.ComponentConverter;
@@ -42,6 +43,7 @@ public class ChattyGuiceModule extends AbstractModule {
     private final @Getter SettingsConfig settingsConfig;
     private final @Getter ChatsConfig chatsConfig;
     private final MessagesConfig messagesConfig;
+    private final MiscConfig miscConfig;
 
     public ChattyGuiceModule(final Plugin plugin,
                              final BukkitAudiences audienceProvider,
@@ -58,6 +60,7 @@ public class ChattyGuiceModule extends AbstractModule {
         this.settingsConfig = initConfig(SettingsConfig.class, "settings.yml", serdesChatty);
         this.chatsConfig = initConfig(ChatsConfig.class, "chats.yml", serdesChatty);
         this.messagesConfig = initConfig(MessagesConfig.class, "messages.yml", serdesChatty);
+        this.miscConfig = initConfig(MiscConfig.class, "misc.yml", serdesChatty);
     }
 
     @Override
@@ -67,6 +70,7 @@ public class ChattyGuiceModule extends AbstractModule {
         bind(SettingsConfig.class).toInstance(settingsConfig);
         bind(ChatsConfig.class).toInstance(chatsConfig);
         bind(MessagesConfig.class).toInstance(messagesConfig);
+        bind(MiscConfig.class).toInstance(miscConfig);
 
         bind(Plugin.class).toInstance(plugin);
 //        bind(Logger.class).toInstance(plugin.getLogger());

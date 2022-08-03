@@ -17,6 +17,9 @@ public class ChatConfigDeclaration {
     private @NotNull String symbol;
     private int range;
     private int cooldown;
+    private @Nullable Integer vaultPrice;
+    private boolean permissionRequired;
+    private boolean notifyNobodyHeard;
     private @Nullable ChatCommandConfigDeclaration command;
 
     @Getter

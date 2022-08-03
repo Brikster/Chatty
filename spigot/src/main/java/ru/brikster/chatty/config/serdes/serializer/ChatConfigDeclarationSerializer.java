@@ -39,7 +39,8 @@ public class ChatConfigDeclarationSerializer implements ObjectSerializer<ChatCon
         int range = Optional.ofNullable(data.get("range", Integer.class)).orElse(-2);
         int cooldown = Optional.ofNullable(data.get("cooldown", Integer.class)).orElse(0);
         ChatCommandConfigDeclaration command = data.get("command", ChatCommandConfigDeclaration.class);
-        return new ChatConfigDeclaration(displayName, format, symbol, range, cooldown, command);
+        // Todo rewrite
+        return new ChatConfigDeclaration(displayName, format, symbol, range, cooldown, 0, false, false, command);
     }
 
 }

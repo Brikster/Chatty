@@ -15,6 +15,7 @@ import ru.brikster.chatty.chat.message.strategy.impl.papi.PlaceholderApiMessageT
 import ru.brikster.chatty.chat.message.strategy.impl.vault.PrefixMessageTransformStrategy;
 import ru.brikster.chatty.config.object.ChatConfigDeclaration;
 import ru.brikster.chatty.guice.ChattyGuiceModule;
+import ru.brikster.chatty.misc.MiscellaneousListener;
 import ru.mrbrikster.baseplugin.plugin.BukkitBasePlugin;
 
 import lombok.SneakyThrows;
@@ -69,9 +70,8 @@ public final class Chatty extends BukkitBasePlugin {
         this.getServer().getPluginManager().registerEvents(chatListener, this);
         this.getServer().getPluginManager().registerEvent(AsyncPlayerChatEvent.class, chatListener, priority, chatListener, Chatty.instance, true);
 
-//        MiscellaneousListener miscListener = new MiscellaneousListener();
-//        injector.injectMembers(miscListener);
-//        this.getServer().getPluginManager().registerEvents(miscListener, this);
+        MiscellaneousListener miscListener = injector.getInstance(MiscellaneousListener.class);
+        this.getServer().getPluginManager().registerEvents(miscListener, this);
 
 //        if (config.getNode("general.bungeecord").getAsBoolean(false)) {
 //            this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");

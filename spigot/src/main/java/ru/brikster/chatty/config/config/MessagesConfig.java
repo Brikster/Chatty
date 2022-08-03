@@ -18,6 +18,7 @@ public class MessagesConfig extends OkaeriConfig {
     @Exclude
     private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
 
-    private Component chatNotFound = MINI_MESSAGE.deserialize("<red>Applicable chat not found. You can't send the message.");
+    private Component chatNotFound = MINI_MESSAGE.deserialize("<red>No matching chat found. Maybe you don't have enough permissions?");
+    private Component nobodyHeard = MINI_MESSAGE.deserialize("<red>Nobody heard you.");
 
 }

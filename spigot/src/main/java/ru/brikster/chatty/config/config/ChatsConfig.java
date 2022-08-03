@@ -21,13 +21,13 @@ public class ChatsConfig extends OkaeriConfig {
     private Map<String, ChatConfigDeclaration> chats = new TreeMap<String, ChatConfigDeclaration>() {{
         put("global", new ChatConfigDeclaration(
                 "Global", "&7[&2Global&7] &r<prefix><player><suffix>&8: &f<message>",
-                "!", -2, 15, new ChatCommandConfigDeclaration(
-                "gchat", Collections.emptyList(), true, false)
+                "!", -2, 15, 0, false, false,
+                new ChatCommandConfigDeclaration("gchat", Collections.emptyList(), true, false)
         ));
 
         put("local", new ChatConfigDeclaration(
                 "Local", "&7[&cLocal&7] &r<prefix><player><suffix>&8: &f<message>",
-                "", 100, 0, null
+                "", 100, 0, 0, false, true, null
         ));
     }};
 
