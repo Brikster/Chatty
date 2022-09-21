@@ -46,6 +46,9 @@ public class NMSUtil {
         NMS_CLASSES.put("PlayerChatMessage", resolveSuitableClass(NETWORK + ".chat.PlayerChatMessage"));
         NMS_CLASSES.put("ServerPlayer", resolveSuitableClass("net.minecraft.server.level.ServerPlayer"));
         NMS_CLASSES.put("ChatSender", resolveSuitableClass(NETWORK + ".chat.ChatSender"));
+
+        // 1.19.1
+        NMS_CLASSES.put("ClientboundSystemChatPacket", resolveSuitableClass(NETWORK + ".protocol.game.ClientboundSystemChatPacket"));
     }
 
     public Class<?> getClass(String key) {
@@ -90,6 +93,10 @@ public class NMSUtil {
                     chatBaseComponent = null;
                 }
             }
+
+            // EntityPlayer entityPlayer = ((CraftPlayer) player).getHandle();
+            Object entityPlayer = player.getClass().getMethod("getHandle").invoke(player);
+            Object playerConnection = resolveField(entityPlayer.getClass(), "b", "playerConnection").get(entityPlayer);
 
             Class<?> clsClientboundPlayerChatPacket = NMS_CLASSES.get("ClientboundPlayerChatPacket");
 
@@ -168,24 +175,35 @@ public class NMSUtil {
                         .getMethod("a", String.class)
                         .invoke(null, "{\"text\":\"" + player.getDisplayName() + "\"}");
 
-                // PlayerChatMessage playerChatMessage = PlayerChatMessage.a(chatBaseComponent);
-                Object playerChatMessage = clsPlayerChatMessage.getMethod("a", clsIChatBaseComponent)
-                        .invoke(null, chatBaseComponent);
+                try {
+                    // 1.19 - player message with UUID etc.
 
-                // EntityPlayer entityPlayer = ((CraftPlayer) player).getHandle();
-                Object entityPlayer = player.getClass().getMethod("getHandle").invoke(player);
+                    // PlayerChatMessage playerChatMessage = PlayerChatMessage.a(chatBaseComponent);
+                    Object playerChatMessage = clsPlayerChatMessage.getMethod("a", clsIChatBaseComponent)
+                            .invoke(null, chatBaseComponent);
 
-                if (sender == null) {
-                    // entityPlayer.a(chatBaseComponent, chatMessageType);
-                    entityPlayer.getClass().getMethod("a", clsIChatBaseComponent, chatMessageType.getClass())
-                            .invoke(entityPlayer, chatBaseComponent, chatMessageType);
-                } else {
-                    // ChatSender chatSender = new ChatSender(sender, senderName);
-                    Object chatSender = clsChatSender.getConstructor(UUID.class, clsIChatBaseComponent)
-                            .newInstance(sender.getUniqueId(), senderName);
-                    // entityPlayer.a(playerChatMessage, chatSender, chatMessageType);
-                    entityPlayer.getClass().getMethod("a", clsPlayerChatMessage, clsChatSender, chatMessageType.getClass())
-                            .invoke(entityPlayer, playerChatMessage, chatSender, chatMessageType);
+                    if (sender == null) {
+                        // entityPlayer.a(chatBaseComponent, chatMessageType);
+                        entityPlayer.getClass().getMethod("a", clsIChatBaseComponent, chatMessageType.getClass())
+                                .invoke(entityPlayer, chatBaseComponent, chatMessageType);
+                    } else {
+                        // ChatSender chatSender = new ChatSender(sender, senderName);
+                        Object chatSender = clsChatSender.getConstructor(UUID.class, clsIChatBaseComponent)
+                                .newInstance(sender.getUniqueId(), senderName);
+                        // entityPlayer.a(playerChatMessage, chatSender, chatMessageType);
+                        entityPlayer.getClass().getMethod("a", clsPlayerChatMessage, clsChatSender, chatMessageType.getClass())
+                                .invoke(entityPlayer, playerChatMessage, chatSender, chatMessageType);
+                    }
+                } catch (Exception ignored) {
+                    // 1.19.1 - system message
+                    Class<?> clsClientboundSystemChatPacket = NMS_CLASSES.get("ClientboundSystemChatPacket");
+                    // ClientboundSystemChatPacket clientboundSystemChatPacket = new ClientboundSystemChatPacket(chatBaseComponent, false);
+                    Object clientboundSystemChatPacket = clsClientboundSystemChatPacket.getConstructor(clsIChatBaseComponent, boolean.class)
+                            .newInstance(chatBaseComponent, false);
+
+                    // ((CraftPlayer) player).b.a(clientboundSystemChatPacket);
+                    playerConnection.getClass().getMethod("a", NMS_CLASSES.get("Packet"))
+                            .invoke(playerConnection, clientboundSystemChatPacket);
                 }
             }
         } catch (Throwable e) {
