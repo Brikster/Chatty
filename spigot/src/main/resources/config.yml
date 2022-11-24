@@ -19,6 +19,7 @@ general:
   # ru - Russian.
   # de - German.
   # zh_CN - Simplified Chinese
+  # es - Spanish.
   locale: en
 
   # Chat listener priority.

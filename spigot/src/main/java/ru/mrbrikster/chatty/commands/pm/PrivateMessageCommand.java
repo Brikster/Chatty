@@ -120,7 +120,7 @@ public abstract class PrivateMessageCommand extends BukkitCommand {
                 recipient.sendMessage(recipientFormat);
             } else {
                 FormattedMessage formattedMessage = new FormattedMessage(recipientFormat);
-                formattedMessage.toFancyMessage().send((Player) recipient, sender instanceof Player ? ((Player) sender) : null);
+                formattedMessage.toFancyMessage().send(recipient, sender instanceof Player ? ((Player) sender) : null);
 
                 String soundName = configuration.getNode("pm.sound").getAsString(null);
                 if (soundName != null) {

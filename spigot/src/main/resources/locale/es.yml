@@ -1,0 +1,69 @@
+messages:
+  # No puedes remover lineas.
+  # Si elimina alguna línea, se aplicará el idioma predeterminado inglés.
+  only-for-players: '&cEste comando es solo para jugadores.'
+  chat-not-found: '&cChat deseado no encontrado. No puedes enviar el mensaje.'
+  reload: '&aConfiguración recargada satisfactoriamente!'
+  no-permission: '&cNo tienes permisos para hacer esto.'
+  spy-on: '&aModo espia activado.'
+  spy-off: '&cModo espia desactivado.'
+  cooldown: '&cEspera {cooldown} segundos, antes de enviar un mensaje en este chat de nuevo.'
+  not-enough-money: '&cNecesitas {money} de dinero para enviar un mensaje en este chat.'
+
+  clearchat-command:
+    usage: '&cUso correcto: /{label} [all]'
+    clear-chat-for-all: '&aChat limpiado por {player}.'
+    clear-chat-for-yourself: '&aChat limpiado.'
+
+  msg-command:
+    usage: '&cUso correcto: /{label} <player> <message>'
+    player-not-found: '&cEl jugador no existe.'
+    cannot-message-yourself: '&cNo puedes enviarte mensajes a ti mismo.'
+
+  reply-command:
+    usage: '&cUso correcto: /{label} <message>'
+    target-not-found: '&cEl jugador no existe.'
+
+  ignore-command:
+    usage: '&cUso correcto: /{label} <player>'
+    player-not-found: '&cEl jugador no existe.'
+    ignore-list: '&eEstas ignorando a: &6{players}.'
+    ignore-list-delimiter: '&8, &6'
+    add-ignore: '&cAhora estas ignorando al jugador {player}.'
+    remove-ignore: '&aDejaste de ignorar al jugador {player}.'
+    cannot-ignore-yourself: '&cNo puedes ignorarte a ti mismo.'
+
+  swears-command:
+    usage: '&cUso correcto: /{label} add <word>'
+    add-word: '&aAñadiste la palabra "{word}" a la lista blanca.'
+
+  chat-command:
+    usage: '&cUso correcto: /{label} <chat>'
+    chat-not-found: '&cNo se encontró el chat con este nombre.'
+    chat-switched: '&aHas cambiado al chat "{chat}".'
+    no-chat-permission: '&cNo tienes permisos para este chat.'
+
+  prefix-command:
+    usage: '&cUso correcto: /{label} <player> <<prefix>|clear>'
+    no-permissions-others: '&cNo tienes permiso para cambiar los prefijos de otros jugadores..'
+    player-not-found: '&cEl jugador no existe.'
+    length-limit-min: '&cEl prefijo no puede ser más corto que {limit} caracteres.'
+    length-limit-max: '&cEl prefijo no puede ser más largo que {limit} caracteres.'
+    prefix-clear: '&aBorraste el prefijo de {player}.'
+    prefix-set: '&aEstableciste el prefijo &r{prefix} &apara el jugador {player}.'
+
+  suffix-command:
+    usage: '&cUso correcto:: /{label} <player> <<suffix>|clear>'
+    no-permissions-others: '&cNo tienes permiso para cambiar los sufijos de otros jugadores.'
+    player-not-found: '&cEl jugador no existe.'
+    length-limit-min: '&cEl sufijo no puede ser más corto que {limit} caracteres.'
+    length-limit-max: '&cEl sufijo no puede ser más corto que {limit} caracteres.'
+    prefix-clear: '&aBorraste el sufijo de {player}.'
+    prefix-set: 'aEstableciste el sufijo &r{suffix} &apara el jugador {player}.'
+
+  # Puedes remover lineas.
+  # Elimine la línea para deshabilitar el mensaje.
+  advertisement-found: '&cSe detectó publicidad en tu mensaje.'
+  no-recipients: '&cNo hay nadie cerca.'
+  caps-found: '&cSe detectaron demaciadas mayúsculas en tu mensaje.'
+  swear-found: '&cSe detectaron malas palabras en tu mensaje.'
