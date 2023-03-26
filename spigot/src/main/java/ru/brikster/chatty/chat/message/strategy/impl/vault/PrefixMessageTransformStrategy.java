@@ -11,7 +11,7 @@ import ru.brikster.chatty.prefix.PrefixProvider;
 
 import javax.inject.Inject;
 
-public class PrefixMessageTransformStrategy implements MessageTransformStrategy<String, String> {
+public final class PrefixMessageTransformStrategy implements MessageTransformStrategy<String, String> {
 
     private static final PrefixMessageTransformStrategy INSTANCE = new PrefixMessageTransformStrategy();
 

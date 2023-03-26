@@ -10,7 +10,7 @@ import ru.brikster.chatty.chat.message.strategy.result.ResultImpl;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class VaultEconomyMessageTransformStrategy implements MessageTransformStrategy<String, String> {
+public final class VaultEconomyMessageTransformStrategy implements MessageTransformStrategy<String, String> {
 
     private final @NotNull Economy vaultEconomy;
     private final int cost;

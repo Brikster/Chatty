@@ -1,4 +1,4 @@
-package ru.brikster.chatty.config.config;
+package ru.brikster.chatty.config.type;
 
 import eu.okaeri.configs.OkaeriConfig;
 import eu.okaeri.configs.annotation.*;
@@ -41,5 +41,13 @@ public class SettingsConfig extends OkaeriConfig {
             "so it removed players from ignore list"
     })
     private boolean keepRecipients = true;
+
+    @Comment({"",
+            "Force use string format, if legacy",
+            "event executor is used.",
+            "NOT RECOMMENDED, 'cause it doesn't support",
+            "modern click actions, hovers etc."
+    })
+    private boolean forceStringFormatIfLegacyMethod = false;
 
 }

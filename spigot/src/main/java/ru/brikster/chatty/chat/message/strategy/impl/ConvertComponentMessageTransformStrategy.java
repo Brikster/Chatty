@@ -11,7 +11,7 @@ import ru.brikster.chatty.convert.component.MiniMessageConverter;
 
 import javax.inject.Inject;
 
-public class ConvertComponentMessageTransformStrategy implements MessageTransformStrategy<String, Component> {
+public final class ConvertComponentMessageTransformStrategy implements MessageTransformStrategy<String, Component> {
 
     private static final ConvertComponentMessageTransformStrategy INSTANCE = new ConvertComponentMessageTransformStrategy();
 

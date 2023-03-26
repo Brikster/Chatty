@@ -16,20 +16,26 @@ public abstract class Notification {
 
     static final String NOTIFICATION_PERMISSION_NODE = "chatty.notification.";
 
-    private final BukkitTask bukkitTask;
+    private BukkitTask bukkitTask;
+
+    private final double delay;
+    @Getter private final boolean permission;
     private final int size;
     private final boolean random;
-    @Getter private final boolean permission;
 
     @Inject private Plugin plugin;
 
     private int currentMessage;
 
     Notification(double delay, boolean permission, int size, boolean random) {
-        bukkitTask = Bukkit.getScheduler().runTaskTimer(plugin, Notification.this::run, (long) delay * 20, (long) delay * 20);
+        this.delay = delay;
         this.permission = permission;
         this.size = size;
         this.random = random;
+    }
+
+    public void schedule() {
+        bukkitTask = Bukkit.getScheduler().runTaskTimer(plugin, Notification.this::run, (long) delay * 20, (long) delay * 20);
     }
 
     public void cancel() {

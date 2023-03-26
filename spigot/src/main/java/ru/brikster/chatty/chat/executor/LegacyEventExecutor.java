@@ -4,6 +4,7 @@ import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -19,12 +20,14 @@ import ru.brikster.chatty.chat.message.context.MessageContextImpl;
 import ru.brikster.chatty.chat.message.strategy.general.EarlyMessageTransformStrategy;
 import ru.brikster.chatty.chat.message.strategy.general.LateMessageTransformStrategy;
 import ru.brikster.chatty.chat.selection.ChatSelector;
-import ru.brikster.chatty.config.config.MessagesConfig;
+import ru.brikster.chatty.config.type.MessagesConfig;
+import ru.brikster.chatty.config.type.SettingsConfig;
 
 import javax.inject.Inject;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
+import java.util.regex.Pattern;
 
 public class LegacyEventExecutor implements Listener, EventExecutor {
 
@@ -33,6 +36,7 @@ public class LegacyEventExecutor implements Listener, EventExecutor {
     @Inject private ChatSelector selector;
     @Inject private MessageConstructor messageConstructor;
     @Inject private BukkitAudiences audiences;
+    @Inject private SettingsConfig settings;
     @Inject private MessagesConfig messages;
 
     @Override
@@ -91,14 +95,23 @@ public class LegacyEventExecutor implements Listener, EventExecutor {
             MessageContext<Component> newContext = strategy.handle(context).getNewContext();
 
             if (!newContext.isCancelled() && !event.isCancelled()) {
-                Component message = messageConstructor.construct(newContext).compact();
+                if (settings.isForceStringFormatIfLegacyMethod()) {
+                    String stringFormat = LegacyComponentSerializer.legacy('§').serialize(newContext.getFormat());
+                    String stringMessage  = LegacyComponentSerializer.legacy('§').serialize(newContext.getMessage());
+                    stringFormat = stringFormat.replaceFirst(Pattern.quote("<player>"), "%1$s");
+                    stringFormat = stringFormat.replaceFirst(Pattern.quote("<message>"), "%2$s");
+                    event.setFormat(stringFormat);
+                    event.setMessage(stringMessage);
+                } else {
+                    Component message = messageConstructor.construct(newContext).compact();
 
-                Audience.audience(
+                    Audience.audience(
                             audiences.filter(sender -> sender instanceof Player && newContext.getRecipients().contains(sender)),
                             audiences.console()
-                        ).sendMessage(Identity.identity(event.getPlayer().getUniqueId()), message);
+                    ).sendMessage(Identity.identity(event.getPlayer().getUniqueId()), message);
 
-                event.setCancelled(true);
+                    event.setCancelled(true);
+                }
             }
         }
     }

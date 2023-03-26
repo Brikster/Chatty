@@ -8,7 +8,7 @@ import ru.brikster.chatty.chat.message.strategy.result.ResultImpl;
 
 import java.util.regex.Pattern;
 
-public class RemoveChatSymbolMessageTransformStrategy implements MessageTransformStrategy<String, String> {
+public final class RemoveChatSymbolMessageTransformStrategy implements MessageTransformStrategy<String, String> {
 
     private static final RemoveChatSymbolMessageTransformStrategy INSTANCE = new RemoveChatSymbolMessageTransformStrategy();
 

@@ -62,6 +62,28 @@ public class ChatImpl implements Chat {
     }
 
     @Override
+    public <T> void addStrategyAfter(Class<MessageTransformStrategy<?, T>> targetClass, @NotNull MessageTransformStrategy<T, ?> strategy) {
+        for (int i = 0; i < strategies.size(); i++) {
+            MessageTransformStrategy<?, ?> targetStrategy = strategies.get(i);
+            if (targetStrategy.getClass() == targetClass) {
+                addStrategy(i + 1, strategy);
+                return;
+            }
+        }
+    }
+
+    @Override
+    public <T> void addStrategyBefore(Class<MessageTransformStrategy<?, T>> targetClass, @NotNull MessageTransformStrategy<T, ?> strategy) {
+        for (int i = 0; i < strategies.size(); i++) {
+            MessageTransformStrategy<?, ?> targetStrategy = strategies.get(i);
+            if (targetStrategy.getClass() == targetClass) {
+                addStrategy(i, strategy);
+                return;
+            }
+        }
+    }
+
+    @Override
     public void addStrategy(@NotNull MessageTransformStrategy<?, ?> strategy) {
         strategies.add(strategy);
     }

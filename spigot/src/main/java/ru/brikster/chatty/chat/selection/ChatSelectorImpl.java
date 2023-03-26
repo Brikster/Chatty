@@ -21,7 +21,13 @@ public class ChatSelectorImpl implements ChatSelector {
                 continue;
             }
 
-            if ((selected == null || selected.getSymbol().isEmpty()) && chat.getSymbol().isEmpty() || message.startsWith(chat.getSymbol())) {
+            if (chat.getSymbol().isEmpty()
+                    && (selected == null || selected.getSymbol().isEmpty())) {
+                selected = chat;
+                continue;
+            }
+
+            if (!chat.getSymbol().isEmpty() && message.startsWith(chat.getSymbol())) {
                 selected = chat;
             }
         }

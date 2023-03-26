@@ -54,6 +54,10 @@ public interface Chat {
 
     void addStrategy(int index, @NotNull MessageTransformStrategy<?, ?> strategy);
 
+    <T> void addStrategyAfter(Class<MessageTransformStrategy<?, T>> targetClass, @NotNull MessageTransformStrategy<T, ?> strategy);
+
+    <T> void addStrategyBefore(Class<MessageTransformStrategy<?, T>> targetClass, @NotNull MessageTransformStrategy<T, ?> strategy);
+
     void addStrategy(@NotNull MessageTransformStrategy<?, ?> strategy);
 
     MessageTransformStrategy<?, ?> removeStrategy(int index);

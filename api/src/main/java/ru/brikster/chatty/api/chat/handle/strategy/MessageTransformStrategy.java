@@ -11,11 +11,14 @@ public interface MessageTransformStrategy<F, T> {
 
     @NotNull Result<T> handle(MessageContext<F> context);
 
+    default void handleFinally(MessageContext<T> context) {}
+
     @NotNull Stage getStage();
 
     enum Stage {
         EARLY(String.class),
-        LATE(Component.class);
+        LATE(Component.class),
+        POST(Component.class);;
 
         private final Class<?> finalTransformClazz;
 

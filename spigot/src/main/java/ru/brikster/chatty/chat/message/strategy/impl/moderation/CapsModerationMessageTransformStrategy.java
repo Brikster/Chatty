@@ -1,28 +1,38 @@
 package ru.brikster.chatty.chat.message.strategy.impl.moderation;
 
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.jetbrains.annotations.NotNull;
 import ru.brikster.chatty.api.chat.handle.context.MessageContext;
+import ru.brikster.chatty.api.chat.handle.context.MessageContext.Tag;
 import ru.brikster.chatty.api.chat.handle.strategy.MessageTransformStrategy;
 import ru.brikster.chatty.chat.message.context.MessageContextImpl;
 import ru.brikster.chatty.chat.message.strategy.result.ResultImpl;
-import ru.mrbrikster.baseplugin.config.Configuration;
-import ru.mrbrikster.baseplugin.config.ConfigurationNode;
+import ru.brikster.chatty.config.type.MessagesConfig;
+import ru.brikster.chatty.config.type.ModerationConfig;
+import ru.brikster.chatty.config.type.ModerationConfig.CapsModerationConfig;
 
 import javax.inject.Inject;
 
-public class CapsModerationMessageTransformStrategy implements MessageTransformStrategy<String, String> {
+public final class CapsModerationMessageTransformStrategy implements MessageTransformStrategy<String, String> {
+
+    private static final CapsModerationMessageTransformStrategy INSTANCE = new CapsModerationMessageTransformStrategy();
+
+    private final static Tag<Boolean> CAPS_MODERATION_BLOCK_TAG = Tag.Create("caps-moderation-block", Boolean.class);
 
     private final int percent;
     private final int length;
     private final boolean useBlock;
-    @Inject
-    private Configuration config;
 
-    public CapsModerationMessageTransformStrategy() {
-        ConfigurationNode node = config.getNode("moderation.caps");
-        this.useBlock = node.getNode("block").getAsBoolean(true);
-        this.percent = node.getNode("percent").getAsInt(80);
-        this.length = node.getNode("length").getAsInt(6);
+    @Inject private BukkitAudiences audiences;
+
+    @Inject private MessagesConfig messages;
+    @Inject private ModerationConfig moderationConfig;
+
+    private CapsModerationMessageTransformStrategy() {
+        CapsModerationConfig config = moderationConfig.getCaps();
+        this.useBlock = config.isBlock();
+        this.percent = config.getPercent();
+        this.length = config.getLength();
     }
 
     @Override
@@ -39,7 +49,7 @@ public class CapsModerationMessageTransformStrategy implements MessageTransformS
             if (useBlock) {
                 newContext.setCancelled(true);
                 return ResultImpl.<String>builder()
-                        .newContext(newContext)
+                        .newContext(newContext.withTag(CAPS_MODERATION_BLOCK_TAG, true))
                         .messageUpdated(true)
                         .becameCancelled(!context.isCancelled())
                         .build();
@@ -77,6 +87,17 @@ public class CapsModerationMessageTransformStrategy implements MessageTransformS
         }
 
         return (int) ((double) capsLength / (double) length * 100);
+    }
+
+    @Override
+    public void handleFinally(MessageContext<String> context) {
+        if (context.isCancelled() && context.getTag(CAPS_MODERATION_BLOCK_TAG).orElse(false)) {
+            audiences.player(context.getSender()).sendMessage(messages.getCapsFound());
+        }
+    }
+
+    public static CapsModerationMessageTransformStrategy instance() {
+        return INSTANCE;
     }
 
 }

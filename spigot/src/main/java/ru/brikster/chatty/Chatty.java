@@ -2,6 +2,11 @@ package ru.brikster.chatty;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import eu.okaeri.configs.ConfigManager;
+import eu.okaeri.configs.serdes.commons.SerdesCommons;
+import eu.okaeri.configs.validator.okaeri.OkaeriValidator;
+import eu.okaeri.configs.yaml.bukkit.YamlBukkitConfigurer;
+import eu.okaeri.configs.yaml.bukkit.serdes.SerdesBukkit;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
@@ -14,14 +19,24 @@ import ru.brikster.chatty.chat.message.strategy.impl.RemoveChatSymbolMessageTran
 import ru.brikster.chatty.chat.message.strategy.impl.papi.PlaceholderApiMessageTransformStrategy;
 import ru.brikster.chatty.chat.message.strategy.impl.vault.PrefixMessageTransformStrategy;
 import ru.brikster.chatty.config.object.ChatConfigDeclaration;
+import ru.brikster.chatty.config.type.ExampleConfig;
+import ru.brikster.chatty.config.type.NotificationsConfig.ActionbarNotificationsConfig.ActionbarNotificationChannelConfig;
+import ru.brikster.chatty.config.type.NotificationsConfig.ChatNotificationsConfig.ChatNotificationChannelConfig;
+import ru.brikster.chatty.config.type.NotificationsConfig.TitleNotificationsConfig.TitleNotificationChannelConfig;
+import ru.brikster.chatty.convert.component.ComponentConverter;
 import ru.brikster.chatty.guice.ChattyGuiceModule;
-import ru.brikster.chatty.misc.MiscellaneousListener;
+import ru.brikster.chatty.misc.VanillaListener;
+import ru.brikster.chatty.notification.ActionbarNotification;
+import ru.brikster.chatty.notification.ChatNotification;
+import ru.brikster.chatty.notification.TitleNotification;
+import ru.brikster.chatty.util.Pair;
 import ru.mrbrikster.baseplugin.plugin.BukkitBasePlugin;
 
 import lombok.SneakyThrows;
 
 import java.util.Map.Entry;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 public final class Chatty extends BukkitBasePlugin {
 
@@ -59,6 +74,58 @@ public final class Chatty extends BukkitBasePlugin {
             guiceModule.getChatRegistry().register(chat);
         }
 
+        ComponentConverter componentConverter = guiceModule.getConverter();
+
+        if (guiceModule.getNotifications().getChat().isEnable()) {
+            for (Entry<String, ChatNotificationChannelConfig> entry : guiceModule.getNotifications().getChat().getChannels().entrySet()) {
+                ChatNotificationChannelConfig config = entry.getValue();
+                ChatNotification chatNotification = ChatNotification.create(
+                        entry.getKey(), config.getPeriod(),
+                        config.getMessages().stream().map(componentConverter::convert).collect(Collectors.toList()),
+                        config.isPermissionRequired(), config.isRandomOrder());
+                injector.injectMembers(chatNotification);
+                chatNotification.schedule();
+            }
+        }
+
+        if (guiceModule.getNotifications().getTitle().isEnable()) {
+            for (Entry<String, TitleNotificationChannelConfig> entry : guiceModule.getNotifications().getTitle().getChannels().entrySet()) {
+                TitleNotificationChannelConfig config = entry.getValue();
+                TitleNotification chatNotification = TitleNotification.create(
+                        entry.getKey(), config.getPeriod(),
+                        config.getMessages()
+                                .stream()
+                                .map($ -> Pair.create(componentConverter.convert($.getTitle()), componentConverter.convert($.getSubtitle())))
+                                .collect(Collectors.toList()),
+                        config.isPermissionRequired(), config.isRandomOrder());
+                injector.injectMembers(chatNotification);
+                chatNotification.schedule();
+            }
+        }
+
+        if (guiceModule.getNotifications().getActionbar().isEnable()) {
+            for (Entry<String, ActionbarNotificationChannelConfig> entry : guiceModule.getNotifications().getActionbar().getChannels().entrySet()) {
+                ActionbarNotificationChannelConfig config = entry.getValue();
+                ActionbarNotification chatNotification = ActionbarNotification.create(
+                        entry.getKey(), config.getPeriod(), config.getStay(),
+                        config.getMessages()
+                                .stream()
+                                .map(componentConverter::convert)
+                                .collect(Collectors.toList()),
+                        config.isPermissionRequired(), config.isRandomOrder());
+                injector.injectMembers(chatNotification);
+                chatNotification.schedule();
+            }
+        }
+
+        ConfigManager.create(ExampleConfig.class, config -> {
+            config.withConfigurer(new OkaeriValidator(new YamlBukkitConfigurer(), true), new SerdesCommons(), new SerdesBukkit());
+            config.withBindFile(getDataFolder().toPath().resolve("example.yml"));
+            config.withRemoveOrphans(true);
+            config.saveDefaults();
+            config.load(true);
+        });
+
         EventPriority priority = guiceModule.getSettingsConfig().getListenerPriority();
         if (priority == EventPriority.MONITOR) {
             priority = EventPriority.HIGHEST;
@@ -70,7 +137,7 @@ public final class Chatty extends BukkitBasePlugin {
         this.getServer().getPluginManager().registerEvents(chatListener, this);
         this.getServer().getPluginManager().registerEvent(AsyncPlayerChatEvent.class, chatListener, priority, chatListener, Chatty.instance, true);
 
-        MiscellaneousListener miscListener = injector.getInstance(MiscellaneousListener.class);
+        VanillaListener miscListener = injector.getInstance(VanillaListener.class);
         this.getServer().getPluginManager().registerEvents(miscListener, this);
 
 //        if (config.getNode("general.bungeecord").getAsBoolean(false)) {

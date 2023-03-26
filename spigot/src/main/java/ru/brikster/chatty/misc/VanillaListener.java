@@ -6,27 +6,29 @@ import net.kyori.adventure.text.TextReplacementConfig;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import ru.brikster.chatty.config.config.MiscConfig;
-import ru.brikster.chatty.config.config.MiscConfig.VanillaConfig.JoinVanillaConfig;
-import ru.brikster.chatty.config.config.MiscConfig.VanillaConfig.QuitVanillaConfig;
+import ru.brikster.chatty.config.type.VanillaConfig;
+import ru.brikster.chatty.config.type.VanillaConfig.DeathVanillaConfig;
+import ru.brikster.chatty.config.type.VanillaConfig.JoinVanillaConfig;
+import ru.brikster.chatty.config.type.VanillaConfig.QuitVanillaConfig;
 import ru.brikster.chatty.convert.component.ComponentConverter;
 import ru.brikster.chatty.prefix.PrefixProvider;
 
 import javax.inject.Inject;
 
-public class MiscellaneousListener implements Listener {
+public class VanillaListener implements Listener {
 
     @Inject private PrefixProvider prefixProvider;
     @Inject private ComponentConverter converter;
-    @Inject private MiscConfig miscConfig;
+    @Inject private VanillaConfig vanillaConfig;
 
     @Inject private BukkitAudiences audiences;
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onJoin(PlayerJoinEvent event) {
-        JoinVanillaConfig joinConfig = miscConfig.getVanilla().getJoin();
+        JoinVanillaConfig joinConfig = vanillaConfig.getJoin();
 
         if (!joinConfig.isEnable()) {
             return;
@@ -72,7 +74,7 @@ public class MiscellaneousListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onQuit(PlayerQuitEvent event) {
-        QuitVanillaConfig quitConfig = miscConfig.getVanilla().getQuit();
+        QuitVanillaConfig quitConfig = vanillaConfig.getQuit();
 
         if (!quitConfig.isEnable()) {
             return;
@@ -96,6 +98,41 @@ public class MiscellaneousListener implements Listener {
                         TextReplacementConfig.builder()
                                 .matchLiteral("<player>")
                                 .replacement(event.getPlayer().getDisplayName())
+                                .build()));
+            }
+        }
+
+        if (hasPermission && sound != null) {
+            audiences.all().playSound(sound);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onPlayerDeath(PlayerDeathEvent event) {
+        DeathVanillaConfig deathConfig = vanillaConfig.getDeath();
+
+        if (!deathConfig.isEnable()) {
+            return;
+        }
+
+        Component deathMessage = deathConfig.getMessage();
+
+        net.kyori.adventure.sound.Sound sound = deathConfig.isUseSound() ? deathConfig.getSound() : null;
+
+        boolean hasPermission = !deathConfig.isPermissionRequired()
+                || event.getEntity().hasPermission("chatty.misc.deathmessage");
+
+        if (deathMessage != null) {
+            if (deathMessage.equals(Component.empty()) || !hasPermission) {
+                event.setDeathMessage(null);
+                return;
+            } else {
+                event.setDeathMessage(null);
+
+                audiences.all().sendMessage(deathMessage.replaceText(
+                        TextReplacementConfig.builder()
+                                .matchLiteral("<player>")
+                                .replacement(event.getEntity().getDisplayName())
                                 .build()));
             }
         }
