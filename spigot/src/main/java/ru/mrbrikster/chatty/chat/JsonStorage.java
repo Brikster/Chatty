@@ -2,6 +2,7 @@ package ru.mrbrikster.chatty.chat;
 
 import com.google.gson.*;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import ru.mrbrikster.baseplugin.config.Configuration;
 import ru.mrbrikster.chatty.Chatty;
@@ -111,7 +112,7 @@ public class JsonStorage {
     }
 
     public boolean isIgnore(CommandSender recipient, CommandSender sender) {
-        if (sender != null) {
+        if (sender != null && !(recipient instanceof ConsoleCommandSender)) {
                 JsonElement jsonElement = Chatty.instance().getExact(JsonStorage.class)
                         .getProperty((Player)recipient, "ignore").orElseGet(JsonArray::new);
 
