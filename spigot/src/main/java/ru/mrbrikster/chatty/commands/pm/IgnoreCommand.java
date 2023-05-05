@@ -64,7 +64,8 @@ public class IgnoreCommand extends BukkitCommand {
             return;
         }
 
-        String ignoreTarget = args[0];
+        Player ignoreTargetPlayer = Bukkit.getPlayer(args[0]);
+        String ignoreTarget = ignoreTargetPlayer.getName();
 
         if (sender.getName().equalsIgnoreCase(ignoreTarget)) {
             sender.sendMessage(Chatty.instance().messages().get("ignore-command.cannot-ignore-yourself")
@@ -76,8 +77,6 @@ public class IgnoreCommand extends BukkitCommand {
 
         if (!jsonElement.isJsonArray())
             jsonElement = new JsonArray();
-
-        Player ignoreTargetPlayer = Bukkit.getPlayer(ignoreTarget);
 
         if (jsonElement.getAsJsonArray().contains(new JsonPrimitive(ignoreTarget.toLowerCase()))) {
             sender.sendMessage(Chatty.instance().messages().get("ignore-command.remove-ignore")
