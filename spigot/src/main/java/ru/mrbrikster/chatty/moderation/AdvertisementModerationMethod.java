@@ -95,7 +95,7 @@ public class AdvertisementModerationMethod extends ModifyingSubstringsModeration
                 containsAds = true;
 
                 String lastColors = TextUtil.getLastColors(message.substring(0, matcher.start()));
-                if (lastColors.isEmpty()) lastColors = lastFormatColors;
+                if (lastColors.contains("§f") && !message.substring(0, matcher.start()).contains("§f")) lastColors = lastFormatColors;
 
                 builder.append(this.replacement).append(lastColors);
             }
