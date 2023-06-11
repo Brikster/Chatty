@@ -96,15 +96,13 @@ public class NMSUtil {
 
             // EntityPlayer entityPlayer = ((CraftPlayer) player).getHandle();
             Object entityPlayer = player.getClass().getMethod("getHandle").invoke(player);
-            Object playerConnection = resolveField(entityPlayer.getClass(), "b", "playerConnection").get(entityPlayer);
+            Object playerConnection = resolveField(entityPlayer.getClass(), "b", "playerConnection", "field_71135_a").get(entityPlayer);
 
             Class<?> clsClientboundPlayerChatPacket = NMS_CLASSES.get("ClientboundPlayerChatPacket");
 
             if (clsClientboundPlayerChatPacket == null) {
                 // < 1.19
                 Class<?> clsChatMessageType = NMS_CLASSES.get("ChatMessageType");
-                Object entityPlayer = player.getClass().getMethod("getHandle").invoke(player);
-                Object playerConnection = resolveField(entityPlayer.getClass(), "b", "playerConnection", "field_71135_a").get(entityPlayer);
                 Object chatMessageType;
 
                 try {
