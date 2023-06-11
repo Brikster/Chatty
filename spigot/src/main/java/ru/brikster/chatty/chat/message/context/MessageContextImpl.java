@@ -1,5 +1,6 @@
 package ru.brikster.chatty.chat.message.context;
 
+import lombok.*;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -7,14 +8,12 @@ import org.jetbrains.annotations.Nullable;
 import ru.brikster.chatty.api.chat.Chat;
 import ru.brikster.chatty.api.chat.handle.context.MessageContext;
 
-import lombok.*;
-
 import java.util.*;
 
 @RequiredArgsConstructor
 @AllArgsConstructor
 @ToString
-public class MessageContextImpl<T> implements MessageContext<T> {
+public final class MessageContextImpl<T> implements MessageContext<T> {
 
     @Getter
     private final @Nullable Chat chat;

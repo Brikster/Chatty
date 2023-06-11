@@ -11,8 +11,6 @@ public interface MessageTransformStrategy<F, T> {
 
     @NotNull Result<T> handle(MessageContext<F> context);
 
-    default void handleFinally(MessageContext<T> context) {}
-
     @NotNull Stage getStage();
 
     enum Stage {
@@ -38,8 +36,7 @@ public interface MessageTransformStrategy<F, T> {
                     || getRemovedRecipients().size() != 0
                     || isFormatUpdated()
                     || isMessageUpdated()
-                    || isBecameCancelled()
-                    || isBecameUncancelled();
+                    || isBecameCancelled();
         }
 
         @NotNull MessageContext<T> getNewContext();
@@ -55,8 +52,6 @@ public interface MessageTransformStrategy<F, T> {
         boolean isMessageUpdated();
 
         boolean isBecameCancelled();
-
-        boolean isBecameUncancelled();
 
     }
 

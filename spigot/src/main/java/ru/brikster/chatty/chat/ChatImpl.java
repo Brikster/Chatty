@@ -1,5 +1,7 @@
 package ru.brikster.chatty.chat;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
@@ -10,9 +12,6 @@ import ru.brikster.chatty.api.chat.Chat;
 import ru.brikster.chatty.api.chat.command.ChatCommand;
 import ru.brikster.chatty.api.chat.handle.strategy.MessageTransformStrategy;
 import ru.brikster.chatty.api.chat.range.Ranges;
-
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.Collections;

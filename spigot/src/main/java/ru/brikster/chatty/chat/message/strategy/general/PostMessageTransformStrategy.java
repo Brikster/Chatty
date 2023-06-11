@@ -1,11 +1,12 @@
 package ru.brikster.chatty.chat.message.strategy.general;
 
+import eu.okaeri.configs.yaml.snakeyaml.YamlSnakeYamlConfigurer;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 import ru.brikster.chatty.api.chat.handle.context.MessageContext;
 
 /**
- * Used for strategies, that should be called for messages which cancelled state won't be updated
+ * Used for strategies that should be called for messages which cancelled state won't be updated
  */
 public final class PostMessageTransformStrategy extends GeneralMessageTransformStrategy<Component> {
 
@@ -13,7 +14,7 @@ public final class PostMessageTransformStrategy extends GeneralMessageTransformS
     public @NotNull Result<Component> handle(final MessageContext<String> context) {
         Result<Component> result = super.handle(context);
 
-        if (result.isBecameCancelled() && result.isBecameUncancelled()) {
+        if (result.isBecameCancelled()) {
             throw new IllegalStateException("Strategies at POST transform stage cannot switch cancelled state");
         }
 

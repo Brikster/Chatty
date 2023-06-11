@@ -5,10 +5,9 @@ import eu.okaeri.configs.annotation.Exclude;
 import eu.okaeri.configs.annotation.NameModifier;
 import eu.okaeri.configs.annotation.NameStrategy;
 import eu.okaeri.configs.annotation.Names;
+import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-
-import lombok.Getter;
 
 @Getter
 @SuppressWarnings("FieldMayBeFinal")

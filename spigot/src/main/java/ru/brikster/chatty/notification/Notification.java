@@ -1,10 +1,9 @@
 package ru.brikster.chatty.notification;
 
+import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
-
-import lombok.Getter;
 
 import javax.inject.Inject;
 import java.util.Random;
@@ -23,15 +22,16 @@ public abstract class Notification {
     private final int size;
     private final boolean random;
 
-    @Inject private Plugin plugin;
+    private final Plugin plugin;
 
     private int currentMessage;
 
-    Notification(double delay, boolean permission, int size, boolean random) {
+    Notification(double delay, boolean permission, int size, boolean random, Plugin plugin) {
         this.delay = delay;
         this.permission = permission;
         this.size = size;
         this.random = random;
+        this.plugin = plugin;
     }
 
     public void schedule() {

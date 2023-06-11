@@ -2,10 +2,9 @@ package ru.brikster.chatty.chat.component.impl;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.jetbrains.annotations.NotNull;
-import ru.brikster.chatty.chat.component.GsonSerdesComponentTransformer;
 import ru.brikster.chatty.chat.component.context.SinglePlayerTransformContext;
 
-public class PlaceholderApiComponentTransformer extends GsonSerdesComponentTransformer<SinglePlayerTransformContext> {
+public final class PlaceholderApiComponentTransformer extends PlaceholdersComponentTransformer {
 
     private static final PlaceholderApiComponentTransformer INSTANCE = new PlaceholderApiComponentTransformer();
 

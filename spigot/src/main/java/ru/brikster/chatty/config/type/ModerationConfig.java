@@ -2,13 +2,13 @@ package ru.brikster.chatty.config.type;
 
 import com.google.common.collect.Sets;
 import eu.okaeri.configs.OkaeriConfig;
+import eu.okaeri.configs.annotation.Comment;
 import eu.okaeri.configs.annotation.NameModifier;
 import eu.okaeri.configs.annotation.NameStrategy;
 import eu.okaeri.configs.annotation.Names;
 import eu.okaeri.validator.annotation.Max;
 import eu.okaeri.validator.annotation.Min;
 import eu.okaeri.validator.annotation.Positive;
-
 import lombok.Getter;
 
 import java.util.Set;
@@ -38,6 +38,7 @@ public class ModerationConfig extends OkaeriConfig {
 
     }
 
+    @Comment
     private AdvertisementModerationConfig advertisement = new AdvertisementModerationConfig();
 
     @Getter
@@ -58,6 +59,7 @@ public class ModerationConfig extends OkaeriConfig {
 
     }
 
+    @Comment
     private SwearModerationConfig swear = new SwearModerationConfig();
 
     @Getter

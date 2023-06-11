@@ -1,19 +1,17 @@
 package ru.brikster.chatty.prefix;
 
-import net.milkbowl.vault.chat.Chat;
+import lombok.RequiredArgsConstructor;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-
-import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class VaultPrefixProvider implements PrefixProvider {
 
-    private final @NotNull Chat vaultChat;
+    private final @NotNull net.milkbowl.vault.chat.Chat vaultChatModule;
 
     @Override
     public String getPrefix(Player player) {
-        String prefix = vaultChat.getPlayerPrefix(player);
+        String prefix = vaultChatModule.getPlayerPrefix(player);
 
         if (prefix == null) {
             prefix = "";
@@ -24,7 +22,7 @@ public class VaultPrefixProvider implements PrefixProvider {
 
     @Override
     public String getSuffix(Player player) {
-        String suffix = vaultChat.getPlayerSuffix(player);
+        String suffix = vaultChatModule.getPlayerSuffix(player);
 
         if (suffix == null) {
             suffix = "";

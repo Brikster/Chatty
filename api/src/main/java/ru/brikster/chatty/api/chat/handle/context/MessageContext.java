@@ -69,8 +69,8 @@ public interface MessageContext<T> {
             return new Tag<>(key, Integer.class);
         }
 
-        public static <T> Tag<T> Create(String key, Class<T> clazz) {
-            return new Tag<>(key, clazz);
+        public static Tag<Boolean> Boolean(String key) {
+            return new Tag<>(key, Boolean.class);
         }
 
     }

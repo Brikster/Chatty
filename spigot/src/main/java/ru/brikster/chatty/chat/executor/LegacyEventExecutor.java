@@ -15,7 +15,7 @@ import org.bukkit.plugin.EventExecutor;
 import org.jetbrains.annotations.NotNull;
 import ru.brikster.chatty.api.chat.Chat;
 import ru.brikster.chatty.api.chat.handle.context.MessageContext;
-import ru.brikster.chatty.chat.construct.MessageConstructor;
+import ru.brikster.chatty.chat.construct.ComponentFromContextConstructor;
 import ru.brikster.chatty.chat.message.context.MessageContextImpl;
 import ru.brikster.chatty.chat.message.strategy.general.EarlyMessageTransformStrategy;
 import ru.brikster.chatty.chat.message.strategy.general.LateMessageTransformStrategy;
@@ -29,12 +29,12 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.regex.Pattern;
 
-public class LegacyEventExecutor implements Listener, EventExecutor {
+public final class LegacyEventExecutor implements Listener, EventExecutor {
 
     private final Deque<MessageContext<String>> pendingMessages = new ArrayDeque<>();
 
     @Inject private ChatSelector selector;
-    @Inject private MessageConstructor messageConstructor;
+    @Inject private ComponentFromContextConstructor componentFromContextConstructor;
     @Inject private BukkitAudiences audiences;
     @Inject private SettingsConfig settings;
     @Inject private MessagesConfig messages;
@@ -91,19 +91,19 @@ public class LegacyEventExecutor implements Listener, EventExecutor {
             context.setRecipients(event.getRecipients());
             context.setMessage(event.getMessage());
 
-            LateMessageTransformStrategy strategy = new LateMessageTransformStrategy();
-            MessageContext<Component> newContext = strategy.handle(context).getNewContext();
+            LateMessageTransformStrategy lateTransformStrategy = new LateMessageTransformStrategy();
+            MessageContext<Component> newContext = lateTransformStrategy.handle(context).getNewContext();
 
             if (!newContext.isCancelled() && !event.isCancelled()) {
                 if (settings.isForceStringFormatIfLegacyMethod()) {
-                    String stringFormat = LegacyComponentSerializer.legacy('§').serialize(newContext.getFormat());
-                    String stringMessage  = LegacyComponentSerializer.legacy('§').serialize(newContext.getMessage());
+                    String stringFormat = LegacyComponentSerializer.legacySection().serialize(newContext.getFormat());
+                    String stringMessage  = LegacyComponentSerializer.legacySection().serialize(newContext.getMessage());
                     stringFormat = stringFormat.replaceFirst(Pattern.quote("<player>"), "%1$s");
                     stringFormat = stringFormat.replaceFirst(Pattern.quote("<message>"), "%2$s");
                     event.setFormat(stringFormat);
                     event.setMessage(stringMessage);
                 } else {
-                    Component message = messageConstructor.construct(newContext).compact();
+                    Component message = componentFromContextConstructor.construct(newContext).compact();
 
                     Audience.audience(
                             audiences.filter(sender -> sender instanceof Player && newContext.getRecipients().contains(sender)),

@@ -4,13 +4,12 @@ import eu.okaeri.configs.schema.GenericsDeclaration;
 import eu.okaeri.configs.serdes.DeserializationData;
 import eu.okaeri.configs.serdes.ObjectSerializer;
 import eu.okaeri.configs.serdes.SerializationData;
+import lombok.NonNull;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.sound.Sound.Source;
 
-import lombok.NonNull;
-
-public class SoundSerializer implements ObjectSerializer<Sound> {
+public final class SoundSerializer implements ObjectSerializer<Sound> {
 
     @Override
     public boolean supports(@NonNull final Class<? super Sound> type) {

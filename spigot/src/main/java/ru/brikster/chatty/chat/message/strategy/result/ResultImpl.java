@@ -1,15 +1,14 @@
 package ru.brikster.chatty.chat.message.strategy.result;
 
-import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
-import ru.brikster.chatty.api.chat.handle.context.MessageContext;
-import ru.brikster.chatty.api.chat.handle.strategy.MessageTransformStrategy.Result;
-
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.experimental.FieldDefaults;
+import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import ru.brikster.chatty.api.chat.handle.context.MessageContext;
+import ru.brikster.chatty.api.chat.handle.strategy.MessageTransformStrategy.Result;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -31,6 +30,5 @@ public class ResultImpl<T> implements Result<T> {
     boolean messageUpdated;
 
     boolean becameCancelled;
-    boolean becameUncancelled;
 
 }

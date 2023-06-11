@@ -4,7 +4,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
 import ru.brikster.chatty.api.chat.handle.context.MessageContext;
 
-public class MessageConstructorImpl implements MessageConstructor {
+public final class ComponentFromContextConstructorImpl implements ComponentFromContextConstructor {
 
     private static final String PLAYER_FORMAT_PLACEHOLDER = "<player>";
     private static final String MESSAGE_FORMAT_PLACEHOLDER = "<message>";

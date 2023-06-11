@@ -1,11 +1,10 @@
 package ru.brikster.chatty.util;
 
+import lombok.experimental.UtilityClass;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import ru.brikster.chatty.Chatty;
 import ru.mrbrikster.baseplugin.config.Configuration;
-
-import lombok.experimental.UtilityClass;
 
 import javax.inject.Inject;
 

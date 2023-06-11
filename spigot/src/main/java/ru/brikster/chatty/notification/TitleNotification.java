@@ -1,27 +1,41 @@
 package ru.brikster.chatty.notification;
 
+import lombok.Value;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import ru.brikster.chatty.chat.component.context.SinglePlayerTransformContext;
-import ru.brikster.chatty.chat.component.impl.PlaceholderApiComponentTransformer;
-import ru.brikster.chatty.util.Pair;
+import ru.brikster.chatty.chat.component.impl.PlaceholdersComponentTransformer;
 
-import javax.inject.Inject;
 import java.util.List;
 
 public class TitleNotification extends Notification {
 
+    @Value
+    public static class TitleNotificationMessage {
+        Component title;
+        Component subtitle;
+    }
+
     private static final String PERMISSION_NODE = NOTIFICATION_PERMISSION_NODE + "title.%s";
     private final String name;
-    private final List<Pair<Component, Component>> messages;
+    private final List<TitleNotificationMessage> messages;
 
-    @Inject private BukkitAudiences audiences;
+    private final BukkitAudiences audiences;
+    private final PlaceholdersComponentTransformer placeholdersComponentTransformer;
 
-    private TitleNotification(String name, int period, List<Pair<Component, Component>> messages, boolean permission, boolean random) {
-        super(period, permission, messages.size(), random);
+    public TitleNotification(String name, int period, List<TitleNotificationMessage> messages,
+                              boolean permission, boolean random,
+                              BukkitAudiences audiences,
+                             Plugin plugin,
+                             PlaceholdersComponentTransformer placeholdersComponentTransformer) {
+        super(period, permission, messages.size(), random, plugin);
+
+        this.audiences = audiences;
+        this.placeholdersComponentTransformer = placeholdersComponentTransformer;
 
         this.name = name;
         this.messages = messages;
@@ -33,21 +47,16 @@ public class TitleNotification extends Notification {
             return;
         }
 
-        Pair<Component, Component> message = messages.get(nextMessage());
+        TitleNotificationMessage message = messages.get(nextMessage());
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             if (!isPermission() || player.hasPermission(String.format(PERMISSION_NODE, name))) {
-                // TODO check if placeholder api is enabled
                 SinglePlayerTransformContext context = SinglePlayerTransformContext.of(player);
-                Component title = PlaceholderApiComponentTransformer.instance().transform(message.a(), context);
-                Component subtitle = PlaceholderApiComponentTransformer.instance().transform(message.b(), context);
+                Component title = placeholdersComponentTransformer.transform(message.getTitle(), context);
+                Component subtitle = placeholdersComponentTransformer.transform(message.getSubtitle(), context);
                 audiences.player(player).showTitle(Title.title(title, subtitle));
             }
         }
-    }
-
-    public static TitleNotification create(String name, int period, List<Pair<Component, Component>> messages, boolean permission, boolean random) {
-        return new TitleNotification(name, period, messages, permission, random);
     }
 
 }

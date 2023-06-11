@@ -22,7 +22,6 @@ public abstract class GeneralMessageTransformStrategy<T> implements MessageTrans
         boolean formatUpdated = false;
         boolean messageUpdated = false;
         boolean becameCancelled = false;
-        boolean becameUncancelled = false;
 
         for (MessageTransformStrategy<?, ?> strategy : context.getChat().getStrategies()) {
             if (strategy.getStage() != getStage()) {
@@ -30,13 +29,13 @@ public abstract class GeneralMessageTransformStrategy<T> implements MessageTrans
             }
 
             try {
+                @SuppressWarnings({"rawtypes", "unchecked"})
                 Result<?> result = ((MessageTransformStrategy) strategy).handle(newContext);
 
                 newContext = result.getNewContext();
                 formatUpdated |= result.isFormatUpdated();
                 messageUpdated |= result.isMessageUpdated();
                 becameCancelled |= result.isBecameCancelled();
-                becameUncancelled |= result.isBecameUncancelled();
 
                 addedRecipients.addAll(result.getAddedRecipients());
                 removedRecipients.removeAll(result.getAddedRecipients());
@@ -52,12 +51,12 @@ public abstract class GeneralMessageTransformStrategy<T> implements MessageTrans
             throw new IllegalArgumentException("Strategies chain should end with string context");
         }
 
+        //noinspection unchecked
         return ResultImpl
                 .<T>builder()
                 .newContext((MessageContext<T>) newContext)
                 .messageUpdated(messageUpdated)
                 .formatUpdated(formatUpdated)
-                .becameUncancelled(becameUncancelled)
                 .becameCancelled(becameCancelled)
                 .addedRecipients(addedRecipients)
                 .removedRecipients(removedRecipients)

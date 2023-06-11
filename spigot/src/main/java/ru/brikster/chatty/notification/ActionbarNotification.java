@@ -8,9 +8,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
 import ru.brikster.chatty.chat.component.context.SinglePlayerTransformContext;
-import ru.brikster.chatty.chat.component.impl.PlaceholderApiComponentTransformer;
+import ru.brikster.chatty.chat.component.impl.PlaceholdersComponentTransformer;
 
-import javax.inject.Inject;
 import java.util.List;
 
 public class ActionbarNotification extends Notification {
@@ -23,23 +22,31 @@ public class ActionbarNotification extends Notification {
     private final int period;
     private final int stay;
 
-    @Inject private Plugin plugin;
-    @Inject private BukkitAudiences audiences;
+    private final BukkitAudiences audiences;
+    private final PlaceholdersComponentTransformer placeholdersComponentTransformer;
 
     private int currentMessage;
 
     private int currentTick;
     private boolean visible;
 
-    private ActionbarNotification(String name, int period, int stay, List<Component> messages, boolean permission, boolean random) {
-        super(0.5, permission, messages.size(), random);
+    public ActionbarNotification(String name, int period, int stay, List<Component> messages,
+                                  boolean permission, boolean random,
+                                  BukkitAudiences audiences,
+                                  Plugin plugin,
+                                  PlaceholdersComponentTransformer placeholdersComponentTransformer) {
+        super(0.5, permission, messages.size(), random, plugin);
+
+        this.audiences = audiences;
+        this.placeholdersComponentTransformer = placeholdersComponentTransformer;
 
         Preconditions.checkArgument(stay <= period, "Stay should be equal or lower than period");
 
         this.name = name;
         this.messages = messages;
 
-        switchMessageTask = Bukkit.getScheduler().runTaskTimer(plugin, ActionbarNotification.this::update, 20, 20);
+        this.switchMessageTask = Bukkit.getScheduler().runTaskTimer(plugin, ActionbarNotification.this::update,
+                20, 20);
 
         this.period = period;
         this.stay = stay;
@@ -81,16 +88,10 @@ public class ActionbarNotification extends Notification {
         for (Player player : Bukkit.getOnlinePlayers()) {
             if (!isPermission() || player.hasPermission(PERMISSION_NODE + "." + name)) {
                 // TODO check if placeholder api is enabled
-                audiences.player(player).sendMessage(
-                        PlaceholderApiComponentTransformer
-                                .instance()
+                audiences.player(player).sendActionBar(placeholdersComponentTransformer
                                 .transform(messages.get(currentMessage), SinglePlayerTransformContext.of(player)));
             }
         }
-    }
-
-    public static ActionbarNotification create(String name, int period, int stay, List<Component> messages, boolean permission, boolean random) {
-        return new ActionbarNotification(name, period, stay, messages, permission, random);
     }
 
 }

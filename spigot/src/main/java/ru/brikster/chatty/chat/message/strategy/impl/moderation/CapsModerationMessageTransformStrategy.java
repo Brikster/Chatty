@@ -3,7 +3,6 @@ package ru.brikster.chatty.chat.message.strategy.impl.moderation;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.jetbrains.annotations.NotNull;
 import ru.brikster.chatty.api.chat.handle.context.MessageContext;
-import ru.brikster.chatty.api.chat.handle.context.MessageContext.Tag;
 import ru.brikster.chatty.api.chat.handle.strategy.MessageTransformStrategy;
 import ru.brikster.chatty.chat.message.context.MessageContextImpl;
 import ru.brikster.chatty.chat.message.strategy.result.ResultImpl;
@@ -16,8 +15,6 @@ import javax.inject.Inject;
 public final class CapsModerationMessageTransformStrategy implements MessageTransformStrategy<String, String> {
 
     private static final CapsModerationMessageTransformStrategy INSTANCE = new CapsModerationMessageTransformStrategy();
-
-    private final static Tag<Boolean> CAPS_MODERATION_BLOCK_TAG = Tag.Create("caps-moderation-block", Boolean.class);
 
     private final int percent;
     private final int length;
@@ -40,16 +37,18 @@ public final class CapsModerationMessageTransformStrategy implements MessageTran
         String message = context.getMessage();
 
         if (message.length() >= length
-                && calculatePercent(message) >= percent) {
+                && calculateUppercasePercent(message) >= percent) {
             message = message.toLowerCase();
 
             MessageContext<String> newContext = new MessageContextImpl<>(context);
             newContext.setMessage(message);
 
+            audiences.player(context.getSender()).sendMessage(messages.getCapsFound());
+
             if (useBlock) {
                 newContext.setCancelled(true);
                 return ResultImpl.<String>builder()
-                        .newContext(newContext.withTag(CAPS_MODERATION_BLOCK_TAG, true))
+                        .newContext(newContext)
                         .messageUpdated(true)
                         .becameCancelled(!context.isCancelled())
                         .build();
@@ -71,29 +70,18 @@ public final class CapsModerationMessageTransformStrategy implements MessageTran
         return Stage.EARLY;
     }
 
-    private int calculatePercent(String message) {
-        int codePoint;
-        int length = 0;
+    private int calculateUppercasePercent(String message) {
+        int totalLength = 0;
         int capsLength = 0;
         for (char c : message.toCharArray()) {
-            codePoint = c;
-            if (Character.isLetter(codePoint)) {
-                length++;
-                if (codePoint == Character.toUpperCase(codePoint)
-                        && (Character.toLowerCase(codePoint) != Character.toUpperCase(codePoint))) {
+            if (Character.isLetter(c)) {
+                totalLength++;
+                if (c == Character.toUpperCase(c) && (Character.toLowerCase(c) != Character.toUpperCase(c))) {
                     capsLength++;
                 }
             }
         }
-
-        return (int) ((double) capsLength / (double) length * 100);
-    }
-
-    @Override
-    public void handleFinally(MessageContext<String> context) {
-        if (context.isCancelled() && context.getTag(CAPS_MODERATION_BLOCK_TAG).orElse(false)) {
-            audiences.player(context.getSender()).sendMessage(messages.getCapsFound());
-        }
+        return (int) ((double) capsLength / (double) totalLength * 100);
     }
 
     public static CapsModerationMessageTransformStrategy instance() {

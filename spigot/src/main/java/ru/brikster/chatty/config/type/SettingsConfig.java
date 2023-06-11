@@ -2,28 +2,26 @@ package ru.brikster.chatty.config.type;
 
 import eu.okaeri.configs.OkaeriConfig;
 import eu.okaeri.configs.annotation.*;
+import lombok.Getter;
 import org.bukkit.event.EventPriority;
 import ru.brikster.chatty.BuildConstants;
-
-import lombok.Getter;
 
 @Getter
 @SuppressWarnings("FieldMayBeFinal")
 @Header("################################################################")
-@Header("#                                                              #")
-@Header("#    Chatty (version " + BuildConstants.VERSION + ") #")
-@Header("#    Author: Brikster                                          #")
-@Header("#                                                              #")
-@Header("#    Optional dependencies: PlaceholderAPI, Vault              #")
-@Header("#                                                              #")
+@Header("#")
+@Header("#    Chatty (version " + BuildConstants.VERSION + ")")
+@Header("#    Author: Brikster")
+@Header("#")
+@Header("#    Optional dependencies: PlaceholderAPI, Vault")
+@Header("#")
 @Header("################################################################")
 @Names(strategy = NameStrategy.HYPHEN_CASE, modifier = NameModifier.TO_LOWER_CASE)
 public class SettingsConfig extends OkaeriConfig {
 
     @Comment({
-            "Supported languages: ",
-            "en-us, ru-ru, de-de, zh-cn",
-            " ",
+            "",
+            "Supported languages: en-us, ru-ru, de-de, zh-cn",
             "You can create own language file and put it into \"lang/<language>.yml\""
     })
     private String language = "en-us";
@@ -37,16 +35,20 @@ public class SettingsConfig extends OkaeriConfig {
     @Comment({"",
             "Should Chatty keep modified recipients list, ",
             "got after previous event handlers? ",
-            "For example: Essentials event handler called earlier, ",
-            "so it removed players from ignore list"
+            "For example: Essentials event handler called earlier ",
+            "and removed some players due to ignore list"
     })
     private boolean keepRecipients = true;
 
     @Comment({"",
-            "Force use string format, if legacy",
-            "event executor is used.",
-            "NOT RECOMMENDED, 'cause it doesn't support",
-            "modern click actions, hovers etc."
+            "Force plain string format, if legacy ",
+            "event executor is used. ",
+            "May be useful when another plugins ",
+            "cannot work with non-event messages. ",
+            "",
+            "Messages will be sent as plain text: ",
+            "without hovers, click actions etc.,",
+            "so it is NOT RECOMMENDED."
     })
     private boolean forceStringFormatIfLegacyMethod = false;
 

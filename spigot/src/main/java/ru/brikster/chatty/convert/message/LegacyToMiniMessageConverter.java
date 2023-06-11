@@ -13,10 +13,9 @@ public class LegacyToMiniMessageConverter implements MessageConverter {
     private static final Pattern HEX_GRADIENT_PATTERN = Pattern.compile("(?i)\\{#([A-F\\d]{6})(:#([A-F\\d]{6}))+( )([^{}])*(})");
     private static final Pattern HEX_COLOR_PATTERN = Pattern.compile("(?i)\\{#([A-F\\d]{6})}");
     private static final Pattern SPIGOT_HEX_COLOR_PATTERN = Pattern.compile("(?i)[§&]X([§&][A-F\\d]){6}");
-    
-    private static final String RESET_TAGS = "<!bold><!italic><!strikethrough><!obfuscated><!underlined>";
+    private static final Pattern COLOR_SYMBOLS_PATTERN = Pattern.compile("[§&]");
 
-    // <hover:show_text:'&a123'></hover><green>123</hover>
+    private static final String RESET_TAGS = "<!bold><!italic><!strikethrough><!obfuscated><!underlined>";
 
     private static final Map<Character, String> legacyCodeToMiniMessageMap = new HashMap<Character, String>() {{
         put('a', RESET_TAGS + "<color:green>");
@@ -88,7 +87,7 @@ public class LegacyToMiniMessageConverter implements MessageConverter {
 
         StringBuffer buffer = new StringBuffer();
         while (matcher.find()) {
-            String hex = matcher.group().replaceAll("[§&]", "").substring(1);
+            String hex = COLOR_SYMBOLS_PATTERN.matcher(matcher.group()).replaceAll("").substring(1);
             matcher.appendReplacement(buffer, RESET_TAGS + "<color:#" + hex + ">");
         }
         matcher.appendTail(buffer);

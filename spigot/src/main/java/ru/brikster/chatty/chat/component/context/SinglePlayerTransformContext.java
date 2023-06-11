@@ -1,9 +1,8 @@
 package ru.brikster.chatty.chat.component.context;
 
-import org.bukkit.entity.Player;
-
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.bukkit.entity.Player;
 
 @RequiredArgsConstructor(staticName = "of")
 public final class SinglePlayerTransformContext implements TransformContext {

@@ -1,13 +1,12 @@
 package ru.brikster.chatty.chat.message.strategy.impl.vault;
 
+import lombok.RequiredArgsConstructor;
 import net.milkbowl.vault.economy.Economy;
 import org.jetbrains.annotations.NotNull;
 import ru.brikster.chatty.api.chat.handle.context.MessageContext;
 import ru.brikster.chatty.api.chat.handle.strategy.MessageTransformStrategy;
 import ru.brikster.chatty.chat.message.context.MessageContextImpl;
 import ru.brikster.chatty.chat.message.strategy.result.ResultImpl;
-
-import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public final class VaultEconomyMessageTransformStrategy implements MessageTransformStrategy<String, String> {

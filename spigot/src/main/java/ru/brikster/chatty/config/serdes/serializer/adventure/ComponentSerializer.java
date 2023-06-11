@@ -3,19 +3,16 @@ package ru.brikster.chatty.config.serdes.serializer.adventure;
 import eu.okaeri.configs.schema.GenericsPair;
 import eu.okaeri.configs.serdes.BidirectionalTransformer;
 import eu.okaeri.configs.serdes.SerdesContext;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
-import ru.brikster.chatty.convert.component.ComponentConverter;
-
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import ru.brikster.chatty.convert.component.ComponentStringConverter;
 
 @RequiredArgsConstructor
-public class ComponentSerializer extends BidirectionalTransformer<String, Component> {
+public final class ComponentSerializer extends BidirectionalTransformer<String, Component> {
 
-    private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
-
-    private final ComponentConverter converter;
+    private final ComponentStringConverter converter;
 
     @Override
     public GenericsPair<String, Component> getPair() {
@@ -23,13 +20,13 @@ public class ComponentSerializer extends BidirectionalTransformer<String, Compon
     }
 
     @Override
-    public Component leftToRight(@NonNull String message, @NonNull SerdesContext serdesContext) {
-        return converter.convert(message);
+    public Component leftToRight(@NonNull String value, @NonNull SerdesContext serdesContext) {
+        return converter.stringToComponent(value);
     }
 
     @Override
-    public String rightToLeft(@NonNull Component component, @NonNull SerdesContext serdesContext) {
-        return MINI_MESSAGE.serialize(component);
+    public String rightToLeft(@NonNull Component value, @NonNull SerdesContext serdesContext) {
+        return converter.componentToString(value);
     }
 
 }

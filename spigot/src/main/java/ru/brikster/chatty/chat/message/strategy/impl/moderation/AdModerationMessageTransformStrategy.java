@@ -17,8 +17,6 @@ public final class AdModerationMessageTransformStrategy implements MatcherMessag
 
     private static final AdModerationMessageTransformStrategy INSTANCE = new AdModerationMessageTransformStrategy();
 
-    private final static Tag<Boolean> AD_MODERATION_BLOCK_TAG = Tag.Create("ad-moderation-block", Boolean.class);
-
     private final Set<String> whitelist;
     private final boolean useBlock;
     private final String replacement;
@@ -47,10 +45,11 @@ public final class AdModerationMessageTransformStrategy implements MatcherMessag
         String matchedMessage = match(message, ipPattern);
         matchedMessage = match(matchedMessage, webPattern);
 
-        Result<String> result = getMatcherResult(context, matchedMessage, message.equals(matchedMessage), useBlock);
+        boolean hasViolations = !message.equals(matchedMessage);
+        Result<String> result = getMatcherResult(context, matchedMessage, !hasViolations, useBlock);
 
-        if (result.isBecameCancelled()) {
-            result.getNewContext().withTag(AD_MODERATION_BLOCK_TAG, true);
+        if (hasViolations) {
+            audiences.player(context.getSender()).sendMessage(messages.getAdvertisementFound());
         }
 
         return result;
@@ -68,13 +67,6 @@ public final class AdModerationMessageTransformStrategy implements MatcherMessag
         matcher.appendTail(buffer);
 
         return buffer.toString();
-    }
-
-    @Override
-    public void handleFinally(MessageContext<String> context) {
-        if (context.isCancelled() && context.getTag(AD_MODERATION_BLOCK_TAG).orElse(false)) {
-            audiences.player(context.getSender()).sendMessage(messages.getAdvertisementFound());
-        }
     }
 
     public static AdModerationMessageTransformStrategy instance() {

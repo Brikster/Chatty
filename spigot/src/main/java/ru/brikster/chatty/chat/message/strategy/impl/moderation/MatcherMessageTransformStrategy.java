@@ -9,7 +9,8 @@ import ru.brikster.chatty.chat.message.strategy.result.ResultImpl;
 public interface MatcherMessageTransformStrategy extends MessageTransformStrategy<String, String> {
 
 
-    default Result<String> getMatcherResult(MessageContext<String> context, String matchedMessage,
+    default Result<String> getMatcherResult(MessageContext<String> context,
+                                            String matchedMessage,
                                             boolean messageMatches,
                                             boolean useBlock) {
         if (messageMatches) {

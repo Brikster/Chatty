@@ -1,16 +1,15 @@
 package ru.brikster.chatty.config.object;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
 @Getter
 @AllArgsConstructor
-public class ChatConfigDeclaration {
+public class ChatProperties {
 
     private @NotNull String displayName;
     private @NotNull String format;
@@ -20,11 +19,11 @@ public class ChatConfigDeclaration {
     private @Nullable Integer vaultPrice;
     private boolean permissionRequired;
     private boolean notifyNobodyHeard;
-    private @Nullable ChatCommandConfigDeclaration command;
+    private @Nullable ChatCommandProperties command;
 
     @Getter
     @AllArgsConstructor
-    public static class ChatCommandConfigDeclaration {
+    public static class ChatCommandProperties {
 
         private String name;
         private List<String> aliases;

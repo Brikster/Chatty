@@ -2,13 +2,12 @@ package ru.brikster.chatty.config.type;
 
 import eu.okaeri.configs.OkaeriConfig;
 import eu.okaeri.configs.annotation.*;
+import lombok.Getter;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.sound.Sound.Source;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-
-import lombok.Getter;
 
 @Getter
 @SuppressWarnings("FieldMayBeFinal")

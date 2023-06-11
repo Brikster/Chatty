@@ -13,7 +13,7 @@ import ru.brikster.chatty.config.type.VanillaConfig;
 import ru.brikster.chatty.config.type.VanillaConfig.DeathVanillaConfig;
 import ru.brikster.chatty.config.type.VanillaConfig.JoinVanillaConfig;
 import ru.brikster.chatty.config.type.VanillaConfig.QuitVanillaConfig;
-import ru.brikster.chatty.convert.component.ComponentConverter;
+import ru.brikster.chatty.convert.component.ComponentStringConverter;
 import ru.brikster.chatty.prefix.PrefixProvider;
 
 import javax.inject.Inject;
@@ -21,7 +21,7 @@ import javax.inject.Inject;
 public class VanillaListener implements Listener {
 
     @Inject private PrefixProvider prefixProvider;
-    @Inject private ComponentConverter converter;
+    @Inject private ComponentStringConverter converter;
     @Inject private VanillaConfig vanillaConfig;
 
     @Inject private BukkitAudiences audiences;

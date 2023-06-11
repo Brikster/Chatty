@@ -17,8 +17,6 @@ public final class SwearModerationMessageTransformStrategy implements MatcherMes
 
     private static final SwearModerationMessageTransformStrategy INSTANCE = new SwearModerationMessageTransformStrategy();
 
-    private final static Tag<Boolean> SWEAR_MODERATION_BLOCK_TAG = Tag.Create("swear-moderation-block", Boolean.class);
-
     private final String replacement;
     private final boolean useBlock;
 
@@ -48,10 +46,11 @@ public final class SwearModerationMessageTransformStrategy implements MatcherMes
         String message = context.getMessage();
         String matchedMessage = match(message, swearPattern);
 
-        Result<String> result = getMatcherResult(context, matchedMessage, message.equals(matchedMessage), useBlock);
+        boolean hasViolations = !message.equals(matchedMessage);
+        Result<String> result = getMatcherResult(context, matchedMessage, !hasViolations, useBlock);
 
-        if (result.isBecameCancelled()) {
-            result.getNewContext().withTag(SWEAR_MODERATION_BLOCK_TAG, true);
+        if (hasViolations) {
+            audiences.player(context.getSender()).sendMessage(messages.getSwearFound());
         }
 
         return result;
@@ -69,13 +68,6 @@ public final class SwearModerationMessageTransformStrategy implements MatcherMes
         matcher.appendTail(buffer);
 
         return buffer.toString();
-    }
-
-    @Override
-    public void handleFinally(MessageContext<String> context) {
-        if (context.isCancelled() && context.getTag(SWEAR_MODERATION_BLOCK_TAG).orElse(false)) {
-            audiences.player(context.getSender()).sendMessage(messages.getSwearFound());
-        }
     }
 
     public static SwearModerationMessageTransformStrategy instance() {
