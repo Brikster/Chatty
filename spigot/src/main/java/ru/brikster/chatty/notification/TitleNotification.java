@@ -6,7 +6,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 import ru.brikster.chatty.chat.component.context.SinglePlayerTransformContext;
 import ru.brikster.chatty.chat.component.impl.PlaceholdersComponentTransformer;
 
@@ -30,9 +29,8 @@ public class TitleNotification extends Notification {
     public TitleNotification(String name, int period, List<TitleNotificationMessage> messages,
                               boolean permission, boolean random,
                               BukkitAudiences audiences,
-                             Plugin plugin,
                              PlaceholdersComponentTransformer placeholdersComponentTransformer) {
-        super(period, permission, messages.size(), random, plugin);
+        super(period, permission, messages.size(), random);
 
         this.audiences = audiences;
         this.placeholdersComponentTransformer = placeholdersComponentTransformer;

@@ -6,8 +6,8 @@ import ru.brikster.chatty.api.chat.handle.context.MessageContext;
 
 public final class ComponentFromContextConstructorImpl implements ComponentFromContextConstructor {
 
-    private static final String PLAYER_FORMAT_PLACEHOLDER = "<player>";
-    private static final String MESSAGE_FORMAT_PLACEHOLDER = "<message>";
+    private static final String PLAYER_FORMAT_PLACEHOLDER = "{player}";
+    private static final String MESSAGE_FORMAT_PLACEHOLDER = "{message}";
 
     @Override
     public Component construct(MessageContext<Component> context) {

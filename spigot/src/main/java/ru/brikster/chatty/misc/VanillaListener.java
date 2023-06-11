@@ -43,9 +43,9 @@ public class VanillaListener implements Listener {
 
         net.kyori.adventure.sound.Sound sound = null;
         if (event.getPlayer().hasPlayedBefore() ||
-                (!joinConfig.getFirstJoin().isUseSound() && joinConfig.isUseSound())) {
+                (!joinConfig.getFirstJoin().isPlaySound() && joinConfig.isPlaySound())) {
             sound = joinConfig.getSound();
-        } else if (joinConfig.getFirstJoin().isUseSound()) {
+        } else if (joinConfig.getFirstJoin().isPlaySound()) {
             sound = joinConfig.getFirstJoin().getSound();
         }
 
@@ -61,7 +61,7 @@ public class VanillaListener implements Listener {
 
                 audiences.all().sendMessage(joinMessage.replaceText(
                         TextReplacementConfig.builder()
-                                .matchLiteral("<player>")
+                                .matchLiteral("{player}")
                                 .replacement(event.getPlayer().getDisplayName())
                                 .build()));
             }
@@ -82,7 +82,7 @@ public class VanillaListener implements Listener {
 
         Component quitMessage = quitConfig.getMessage();
 
-        net.kyori.adventure.sound.Sound sound = quitConfig.isUseSound() ? quitConfig.getSound() : null;
+        net.kyori.adventure.sound.Sound sound = quitConfig.isPlaySound() ? quitConfig.getSound() : null;
 
         boolean hasPermission = !quitConfig.isPermissionRequired()
                 || event.getPlayer().hasPermission("chatty.misc.quitmessage");
@@ -96,7 +96,7 @@ public class VanillaListener implements Listener {
 
                 audiences.all().sendMessage(quitMessage.replaceText(
                         TextReplacementConfig.builder()
-                                .matchLiteral("<player>")
+                                .matchLiteral("{player}")
                                 .replacement(event.getPlayer().getDisplayName())
                                 .build()));
             }
@@ -117,7 +117,7 @@ public class VanillaListener implements Listener {
 
         Component deathMessage = deathConfig.getMessage();
 
-        net.kyori.adventure.sound.Sound sound = deathConfig.isUseSound() ? deathConfig.getSound() : null;
+        net.kyori.adventure.sound.Sound sound = deathConfig.isPlaySound() ? deathConfig.getSound() : null;
 
         boolean hasPermission = !deathConfig.isPermissionRequired()
                 || event.getEntity().hasPermission("chatty.misc.deathmessage");
@@ -131,7 +131,7 @@ public class VanillaListener implements Listener {
 
                 audiences.all().sendMessage(deathMessage.replaceText(
                         TextReplacementConfig.builder()
-                                .matchLiteral("<player>")
+                                .matchLiteral("{player}")
                                 .replacement(event.getEntity().getDisplayName())
                                 .build()));
             }

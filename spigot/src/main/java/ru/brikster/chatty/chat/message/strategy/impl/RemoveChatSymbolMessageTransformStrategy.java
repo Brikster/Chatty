@@ -37,7 +37,7 @@ public final class RemoveChatSymbolMessageTransformStrategy implements MessageTr
         return Stage.EARLY;
     }
 
-    public static RemoveChatSymbolMessageTransformStrategy instance() {
+    public static MessageTransformStrategy<String, String> instance() {
         return INSTANCE;
     }
 

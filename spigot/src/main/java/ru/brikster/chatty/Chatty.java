@@ -2,7 +2,6 @@ package ru.brikster.chatty;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import eu.okaeri.configs.yaml.snakeyaml.YamlSnakeYamlConfigurer;
 import lombok.SneakyThrows;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.event.EventPriority;
@@ -16,21 +15,11 @@ import ru.brikster.chatty.config.type.SettingsConfig;
 import ru.brikster.chatty.guice.ConfigsLoader;
 import ru.brikster.chatty.guice.GeneralGuiceModule;
 import ru.brikster.chatty.misc.VanillaListener;
+import ru.brikster.chatty.notification.NotificationTicker;
 
 import java.util.logging.Level;
 
 public final class Chatty extends JavaPlugin {
-
-    @Override
-    public void onDisable() {
-        this.getServer().getScheduler().cancelTasks(this);
-//        this.getExact(CommandManager.class).unregisterAll();
-//        this.getExact(ChatManager.class).getChats().forEach(chat -> {
-//            if (chat.getBukkitCommand() != null) {
-//                chat.getBukkitCommand().unregister(Chatty.get());
-//            }
-//        });
-    }
 
     @SneakyThrows
     @Override
@@ -62,6 +51,8 @@ public final class Chatty extends JavaPlugin {
         VanillaListener miscListener = injector.getInstance(VanillaListener.class);
         this.getServer().getPluginManager().registerEvents(miscListener, this);
 
+        injector.getInstance(NotificationTicker.class).startTicking();
+
 //        if (config.getNode("general.bungeecord").getAsBoolean(false)) {
 //            this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
 //            this.getServer().getMessenger().registerIncomingPluginChannel(this, "BungeeCord", new BungeeCordListener(getExact(ChatManager.class)));
@@ -71,6 +62,17 @@ public final class Chatty extends JavaPlugin {
 //        ChattyApiHolder.setApi(api);
 
 //        MetricsUtil.run();
+    }
+
+    @Override
+    public void onDisable() {
+        this.getServer().getScheduler().cancelTasks(this);
+//        this.getExact(CommandManager.class).unregisterAll();
+//        this.getExact(ChatManager.class).getChats().forEach(chat -> {
+//            if (chat.getBukkitCommand() != null) {
+//                chat.getBukkitCommand().unregister(Chatty.get());
+//            }
+//        });
     }
 
 }

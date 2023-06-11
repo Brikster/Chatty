@@ -29,11 +29,11 @@ public class VanillaConfig extends OkaeriConfig {
 
         @Comment
         @Comment("Set this to '', if you want to hide join message")
-        private Component message = MINI_MESSAGE.deserialize("<green>* <yellow><player> joined the server.");
+        private Component message = MINI_MESSAGE.deserialize("<green>* <yellow>{player} joined the server.");
 
         @Comment
         @Comment("Play sound on join?")
-        private boolean useSound = true;
+        private boolean playSound = true;
 
         private Sound sound = Sound.sound(Key.key("entity.experience_orb.pickup"), Source.MASTER, 1f, 1f);
 
@@ -55,11 +55,11 @@ public class VanillaConfig extends OkaeriConfig {
 
             @Comment
             @Comment("Set this to '', if you want to hide first join message")
-            private Component message = MINI_MESSAGE.deserialize("<green>* <yellow><player> joined the server first time!");
+            private Component message = MINI_MESSAGE.deserialize("<green>* <yellow>{player} joined the server for the first time!");
 
             @Comment
             @Comment("Disable this, if you don't want to specify first join sound")
-            private boolean useSound = false;
+            private boolean playSound = false;
 
             private Sound sound = Sound.sound(Key.key("entity.experience_orb.pickup"), Source.MASTER, 1f, 1f);
 
@@ -80,11 +80,11 @@ public class VanillaConfig extends OkaeriConfig {
 
         @Comment
         @Comment("Set this to '', if you want to hide quit message")
-        private Component message = MINI_MESSAGE.deserialize("<red>* <yellow><player> left the server.");
+        private Component message = MINI_MESSAGE.deserialize("<red>* <yellow>{player} left the server.");
 
         @Comment
         @Comment("Play sound on quit?")
-        private boolean useSound = true;
+        private boolean playSound = true;
 
         private Sound sound = Sound.sound(Key.key("entity.experience_orb.pickup"), Source.MASTER, 1f, 1f);
 
@@ -108,11 +108,11 @@ public class VanillaConfig extends OkaeriConfig {
 
         @Comment
         @Comment("Set this to '', if you want to hide death message")
-        private Component message = MINI_MESSAGE.deserialize("<red>* <yellow><player> dead.");
+        private Component message = MINI_MESSAGE.deserialize("<red>* <yellow>{player} dead.");
 
         @Comment
         @Comment("Play sound on death?")
-        private boolean useSound = true;
+        private boolean playSound = true;
 
         private Sound sound = Sound.sound(Key.key("entity.experience_orb.pickup"), Source.MASTER, 1f, 1f);
 

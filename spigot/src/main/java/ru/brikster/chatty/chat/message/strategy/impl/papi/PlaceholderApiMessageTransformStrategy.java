@@ -1,6 +1,7 @@
 package ru.brikster.chatty.chat.message.strategy.impl.papi;
 
 import org.jetbrains.annotations.NotNull;
+import ru.brikster.chatty.api.chat.handle.strategy.MessageTransformStrategy;
 import ru.brikster.chatty.chat.component.impl.PlaceholderApiComponentTransformer;
 import ru.brikster.chatty.chat.message.strategy.impl.ComponentTransformerFormatMessageTransformStrategy;
 
@@ -17,7 +18,7 @@ public final class PlaceholderApiMessageTransformStrategy extends ComponentTrans
         return Stage.EARLY;
     }
 
-    public static PlaceholderApiMessageTransformStrategy instance() {
+    public static MessageTransformStrategy<String, String> instance() {
         return INSTANCE;
     }
 

@@ -98,8 +98,8 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
                 if (settings.isForceStringFormatIfLegacyMethod()) {
                     String stringFormat = LegacyComponentSerializer.legacySection().serialize(newContext.getFormat());
                     String stringMessage  = LegacyComponentSerializer.legacySection().serialize(newContext.getMessage());
-                    stringFormat = stringFormat.replaceFirst(Pattern.quote("<player>"), "%1$s");
-                    stringFormat = stringFormat.replaceFirst(Pattern.quote("<message>"), "%2$s");
+                    stringFormat = stringFormat.replaceFirst(Pattern.quote("{player}"), "%1$s");
+                    stringFormat = stringFormat.replaceFirst(Pattern.quote("{message}"), "%2$s");
                     event.setFormat(stringFormat);
                     event.setMessage(stringMessage);
                 } else {

@@ -47,7 +47,7 @@ public abstract class GeneralMessageTransformStrategy<T> implements MessageTrans
             }
         }
 
-        if (!getStage().getFinalTransformClass().isAssignableFrom(newContext.getMessage().getClass())) {
+        if (!getStage().getTargetTransformClass().isAssignableFrom(newContext.getMessage().getClass())) {
             throw new IllegalArgumentException("Strategies chain should end with string context");
         }
 

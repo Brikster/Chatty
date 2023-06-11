@@ -44,7 +44,7 @@ public final class ConvertComponentMessageTransformStrategy implements MessageTr
         return Stage.LATE;
     }
 
-    public static ConvertComponentMessageTransformStrategy instance() {
+    public static MessageTransformStrategy<String, Component> instance() {
         return INSTANCE;
     }
 

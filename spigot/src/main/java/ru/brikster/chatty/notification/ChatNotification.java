@@ -1,13 +1,10 @@
 package ru.brikster.chatty.notification;
 
-import com.google.inject.Injector;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 import ru.brikster.chatty.chat.component.context.SinglePlayerTransformContext;
-import ru.brikster.chatty.chat.component.impl.PlaceholderApiComponentTransformer;
 import ru.brikster.chatty.chat.component.impl.PlaceholdersComponentTransformer;
 
 import java.util.List;
@@ -24,9 +21,8 @@ public final class ChatNotification extends Notification {
     public ChatNotification(String name, int delay, List<Component> messages,
                             boolean permission, boolean random,
                             BukkitAudiences audiences,
-                            Plugin plugin,
                             PlaceholdersComponentTransformer placeholdersComponentTransformer) {
-        super(delay, permission, messages.size(), random, plugin);
+        super(delay, permission, messages.size(), random);
 
         this.audiences = audiences;
         this.placeholdersComponentTransformer = placeholdersComponentTransformer;

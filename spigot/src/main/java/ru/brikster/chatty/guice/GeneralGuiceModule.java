@@ -9,8 +9,16 @@ import eu.okaeri.configs.validator.okaeri.OkaeriValidator;
 import eu.okaeri.configs.yaml.bukkit.serdes.SerdesBukkit;
 import eu.okaeri.configs.yaml.snakeyaml.YamlSnakeYamlConfigurer;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.LoaderOptions;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.representer.Representer;
+import org.yaml.snakeyaml.resolver.Resolver;
 import ru.brikster.chatty.chat.component.impl.DummyPlaceholdersComponentTransformer;
+import ru.brikster.chatty.chat.component.impl.PlaceholderApiComponentTransformer;
 import ru.brikster.chatty.chat.component.impl.PlaceholdersComponentTransformer;
 import ru.brikster.chatty.chat.construct.ComponentFromContextConstructor;
 import ru.brikster.chatty.chat.construct.ComponentFromContextConstructorImpl;
@@ -24,8 +32,11 @@ import ru.brikster.chatty.convert.component.ComponentStringConverter;
 import ru.brikster.chatty.convert.component.MiniMessageStringConverter;
 import ru.brikster.chatty.convert.message.LegacyToMiniMessageConverter;
 import ru.brikster.chatty.convert.message.MessageConverter;
+import ru.brikster.chatty.notification.NotificationTicker;
+import ru.brikster.chatty.notification.ScheduledExecutorNotificationTicker;
 import ru.brikster.chatty.prefix.NullPrefixProvider;
 import ru.brikster.chatty.prefix.PrefixProvider;
+import ru.brikster.chatty.prefix.VaultPrefixProvider;
 
 import java.nio.file.Path;
 
@@ -59,8 +70,15 @@ public final class GeneralGuiceModule extends AbstractModule {
         bind(ComponentStringConverter.class).toInstance(MiniMessageStringConverter.miniMessageStringConverter());
         bind(MessageConverter.class).toInstance(new LegacyToMiniMessageConverter());
         bind(ComponentFromContextConstructor.class).toInstance(new ComponentFromContextConstructorImpl());
-        bind(PrefixProvider.class).toInstance(new NullPrefixProvider());
+
+        if (Bukkit.getPluginManager().isPluginEnabled("Vault")) {
+            bind(PrefixProvider.class).toInstance(new VaultPrefixProvider());
+        } else {
+            bind(PrefixProvider.class).toInstance(new NullPrefixProvider());
+        }
+
         bind(ChatSelector.class).toInstance(new ChatSelectorImpl());
+        bind(NotificationTicker.class).toInstance(new ScheduledExecutorNotificationTicker());
 
         bind(BukkitAudiences.class).toInstance(audienceProvider);
 
@@ -74,9 +92,12 @@ public final class GeneralGuiceModule extends AbstractModule {
 
     @Provides
     public PlaceholdersComponentTransformer placeholdersComponentTransformer() {
-        return new DummyPlaceholdersComponentTransformer();
+        return Bukkit.getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")
+                ? PlaceholderApiComponentTransformer.instance()
+                : DummyPlaceholdersComponentTransformer.instance();
     }
 
+    @SuppressWarnings("VulnerableCodeUsages")
     private <T extends OkaeriConfig> T createConfig(Class<T> configClass, String fileName) {
         try {
             configClass.getDeclaredField("converter").set(null, MiniMessageStringConverter.miniMessageStringConverter());
@@ -85,7 +106,22 @@ public final class GeneralGuiceModule extends AbstractModule {
         } catch (NoSuchFieldException ignored) {}
 
         return ConfigManager.create(configClass, config -> {
-            config.withConfigurer(new OkaeriValidator(new YamlSnakeYamlConfigurer(), true), new SerdesCommons(), new SerdesBukkit(), serdesChatty);
+            config.withConfigurer(new OkaeriValidator(new YamlSnakeYamlConfigurer(new Yaml(
+                    new Constructor(),
+                    new Representer() {
+                        {
+                            setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+                        }
+                    },
+                    new DumperOptions() {
+                        {
+                            setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+                            setSplitLines(false);
+                        }
+                    },
+                    new LoaderOptions(),
+                    new Resolver())), true),
+                    new SerdesCommons(), new SerdesBukkit(), serdesChatty);
             config.withBindFile(dataFolderPath.resolve(fileName));
             config.withRemoveOrphans(true);
             config.saveDefaults();

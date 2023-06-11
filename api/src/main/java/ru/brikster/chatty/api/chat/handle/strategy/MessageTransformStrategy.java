@@ -18,14 +18,14 @@ public interface MessageTransformStrategy<F, T> {
         LATE(Component.class),
         POST(Component.class);;
 
-        private final Class<?> finalTransformClazz;
+        private final Class<?> targetTransformClazz;
 
-        Stage(Class<?> finalTransformClazz) {
-            this.finalTransformClazz = finalTransformClazz;
+        Stage(Class<?> targetTransformClazz) {
+            this.targetTransformClazz = targetTransformClazz;
         }
 
-        public Class<?> getFinalTransformClass() {
-            return finalTransformClazz;
+        public Class<?> getTargetTransformClass() {
+            return targetTransformClazz;
         }
     }
 

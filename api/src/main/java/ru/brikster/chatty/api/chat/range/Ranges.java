@@ -1,10 +1,9 @@
 package ru.brikster.chatty.api.chat.range;
 
+import lombok.experimental.UtilityClass;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-
-import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class Ranges {
@@ -20,6 +19,10 @@ public class Ranges {
      */
     public boolean isApplicable(@NotNull Player firstPlayer, @NotNull Player secondPlayer, int range) {
         if (range == CROSS_WORLD || range == MULTI_SERVER) {
+            return true;
+        }
+
+        if (firstPlayer == secondPlayer) {
             return true;
         }
 

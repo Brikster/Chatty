@@ -5,11 +5,12 @@ plugins {
 
 tasks {
     shadowJar {
-        archiveFileName = "Chatty-v${rootProject.version}.jar"
+        archiveFileName = "Chatty-${rootProject.version}.jar"
         destinationDirectory.set(new File(rootProject.projectDir.getAbsolutePath(), '/build/libs'))
-        relocate 'ru.mrbrikster.baseplugin', "${rootProject.group}.${rootProject.name}.shaded.baseplugin"
-        relocate 'org.bstats', "${rootProject.group}.${rootProject.name}.shaded.metrics"
-        relocate 'com.google.gson', "${rootProject.group}.${rootProject.name}.shaded.gson"
+        def relocations = ['ru.mrbrikster.baseplugin', 'org.bstats', 'com.google.gson', 'org.yaml.snakeyaml']
+        relocations.forEach {
+            relocate it, "ru.brikster.chatty.shaded.${it}"
+        }
     }
 
     build {
@@ -17,7 +18,7 @@ tasks {
     }
 
     runServer {
-        minecraftVersion('1.19.4')
+        minecraftVersion('1.20')
     }
 }
 
@@ -31,19 +32,18 @@ processResources {
 }
 
 repositories {
-    // TODO remove local maven repo
-    mavenLocal()
+    maven { url "https://storehouse.okaeri.eu/repository/maven-public/" }
 }
 
-def okaeriConfigsVersion = '4.0.7-SNAPSHOT'
+def okaeriConfigsVersion = '4.0.6'
 
+//noinspection VulnerableLibrariesLocal
 dependencies {
     api project(':api')
     api 'com.github.Brikster:BasePlugin:v1.8'
     api 'com.google.code.gson:gson:2.9.0'
     api 'org.bstats:bstats-bukkit:3.0.0'
 
-    implementation "eu.okaeri:okaeri-configs-yaml-bukkit:$okaeriConfigsVersion"
     implementation "eu.okaeri:okaeri-configs-yaml-snakeyaml:$okaeriConfigsVersion"
     implementation "eu.okaeri:okaeri-configs-serdes-commons:$okaeriConfigsVersion"
     implementation "eu.okaeri:okaeri-configs-serdes-bukkit:$okaeriConfigsVersion"

@@ -29,14 +29,14 @@ public final class PrefixMessageTransformStrategy implements MessageTransformStr
 
         if (prefix != null) {
             newFormat = newFormat.replaceText(TextReplacementConfig.builder()
-                    .match("<prefix>")
+                    .matchLiteral("{prefix}")
                     .replacement(prefix)
                     .build());
         }
 
         if (suffix != null) {
             newFormat = newFormat.replaceText(TextReplacementConfig.builder()
-                    .match("<suffix>")
+                    .matchLiteral("{suffix}")
                     .replacement(suffix)
                     .build());
         }
@@ -55,7 +55,7 @@ public final class PrefixMessageTransformStrategy implements MessageTransformStr
         return Stage.EARLY;
     }
 
-    public static PrefixMessageTransformStrategy instance() {
+    public static MessageTransformStrategy<String, String> instance() {
         return INSTANCE;
     }
 

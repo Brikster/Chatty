@@ -1,7 +1,6 @@
 package ru.brikster.chatty.config.type;
 
 import com.google.common.collect.Lists;
-import com.google.inject.Inject;
 import eu.okaeri.configs.OkaeriConfig;
 import eu.okaeri.configs.annotation.*;
 import eu.okaeri.validator.annotation.Positive;
@@ -9,7 +8,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import ru.brikster.chatty.convert.component.ComponentStringConverter;
 
 import java.util.LinkedHashMap;
@@ -62,7 +60,7 @@ public class NotificationsConfig extends OkaeriConfig {
          @Comment({
                  "Messages of chat notifications support MiniMessage format BOTH",
                  "legacy color codes with &, various hex-codes formats.",
-                 "You can use convenient WebUI: https://webui.adventure.kyori.net/"
+                 "You can use convenient WebUI: https://webui.advntr.dev/"
          })
          private List<Component> messages = Lists.newArrayList(converter.stringToComponent(
                  "&8===================================\n" +
@@ -70,7 +68,7 @@ public class NotificationsConfig extends OkaeriConfig {
                          "It supports <yellow>MiniMessage</yellow> format.\n" +
                          "But you can use also legacy color codes with &b& &fsymbol.\n" +
                          "Convenient website for preparing <yellow>MiniMessage</yellow>: " +
-                         "<click:open_url:'https://webui.adventure.kyori.net/'><hover:show_text:'<green>MiniMessage Viewer'>&2click here</hover></click>.\n" +
+                         "<click:open_url:'https://webui.advntr.dev/'><hover:show_text:'<green>MiniMessage Viewer'>&2click here</hover></click>.\n" +
                          "&8==================================="),
                          converter.stringToComponent(
                          "&8===================================\n" +
@@ -125,7 +123,7 @@ public class NotificationsConfig extends OkaeriConfig {
          @Comment({
                  "Messages of chat notifications support MiniMessage format BOTH",
                  "legacy color codes with &, various hex-codes formats.",
-                 "You can use convenient WebUI: https://webui.adventure.kyori.net/"
+                 "You can use convenient WebUI: https://webui.advntr.dev/"
          })
          private List<Component> messages = Lists.newArrayList(
                  converter.stringToComponent("&aFirst message from actionbar"),
@@ -173,7 +171,7 @@ public class NotificationsConfig extends OkaeriConfig {
          @Comment({
                  "Messages of title notifications support MiniMessage format BOTH",
                  "legacy color codes with &, various hex-codes formats.",
-                 "You can use convenient WebUI: https://webui.adventure.kyori.net/"
+                 "You can use convenient WebUI: https://webui.advntr.dev/"
          })
          private List<TitleNotificationMessageConfig> messages = Lists.newArrayList(new TitleNotificationMessageConfig());
 

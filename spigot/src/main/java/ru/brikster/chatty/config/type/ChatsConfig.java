@@ -19,13 +19,13 @@ public class ChatsConfig extends OkaeriConfig {
 
     private Map<String, ChatProperties> chats = new TreeMap<String, ChatProperties>() {{
         put("global", new ChatProperties(
-                "Global", "&7[&2Global&7] &r<prefix><player><suffix>&8: &f<message>",
+                "Global", "&7[&2Global&7] &r{prefix}{player}{suffix}&8: &f{message}",
                 "!", -2, 15, 0, false, false,
                 new ChatCommandProperties("gchat", Collections.emptyList(), true, false)
         ));
 
         put("local", new ChatProperties(
-                "Local", "&7[&cLocal&7] &r<prefix><player><suffix>&8: &f<message>",
+                "Local", "&7[&cLocal&7] &r{prefix}{player}{suffix}&8: &f{message}",
                 "", 100, 0, 0, false, true, null
         ));
     }};
