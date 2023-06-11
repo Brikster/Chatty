@@ -112,7 +112,7 @@ public class SwearModerationMethod extends ModifyingSubstringsModerationMethod {
             String swear = message.substring(previousWordStart = wordStartAndEndArray[0], previousWordEnd = wordStartAndEndArray[1]);
 
             String lastColors = TextUtil.getLastColors(message.substring(0, previousWordStart));
-            if (lastColors.isEmpty()) lastColors = lastFormatColors;
+            if (lastColors.contains("§f") && !message.substring(0, previousWordStart).contains("§f")) lastColors = lastFormatColors;
 
             boolean whitelisted = false;
             for (Pattern pattern : swearsWhitelist) {
