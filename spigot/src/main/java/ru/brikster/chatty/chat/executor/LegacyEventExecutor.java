@@ -17,8 +17,9 @@ import ru.brikster.chatty.api.chat.Chat;
 import ru.brikster.chatty.api.chat.handle.context.MessageContext;
 import ru.brikster.chatty.chat.construct.ComponentFromContextConstructor;
 import ru.brikster.chatty.chat.message.context.MessageContextImpl;
-import ru.brikster.chatty.chat.message.strategy.general.EarlyMessageTransformStrategy;
-import ru.brikster.chatty.chat.message.strategy.general.LateMessageTransformStrategy;
+import ru.brikster.chatty.chat.message.strategy.general.EarlyMessageTransformStrategiesProcessor;
+import ru.brikster.chatty.chat.message.strategy.general.LateMessageTransformStrategiesProcessor;
+import ru.brikster.chatty.chat.message.strategy.general.PostMessageTransformStrategiesProcessor;
 import ru.brikster.chatty.chat.selection.ChatSelector;
 import ru.brikster.chatty.config.type.MessagesConfig;
 import ru.brikster.chatty.config.type.SettingsConfig;
@@ -71,8 +72,8 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
                 event.getMessage()
         );
 
-        EarlyMessageTransformStrategy strategy = new EarlyMessageTransformStrategy();
-        MessageContext<String> newContext = strategy.handle(context).getNewContext();
+        EarlyMessageTransformStrategiesProcessor earlyProcessor = new EarlyMessageTransformStrategiesProcessor();
+        MessageContext<String> newContext = earlyProcessor.handle(context).getNewContext();
 
         if (newContext.isCancelled()) {
             event.setCancelled(true);
@@ -91,28 +92,34 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
             context.setRecipients(event.getRecipients());
             context.setMessage(event.getMessage());
 
-            LateMessageTransformStrategy lateTransformStrategy = new LateMessageTransformStrategy();
-            MessageContext<Component> newContext = lateTransformStrategy.handle(context).getNewContext();
+            LateMessageTransformStrategiesProcessor lateProcessor = new LateMessageTransformStrategiesProcessor();
+            MessageContext<Component> lateContext = lateProcessor.handle(context).getNewContext();
 
-            if (!newContext.isCancelled() && !event.isCancelled()) {
-                if (settings.isForceStringFormatIfLegacyMethod()) {
-                    String stringFormat = LegacyComponentSerializer.legacySection().serialize(newContext.getFormat());
-                    String stringMessage  = LegacyComponentSerializer.legacySection().serialize(newContext.getMessage());
-                    stringFormat = stringFormat.replaceFirst(Pattern.quote("{player}"), "%1$s");
-                    stringFormat = stringFormat.replaceFirst(Pattern.quote("{message}"), "%2$s");
-                    event.setFormat(stringFormat);
-                    event.setMessage(stringMessage);
-                } else {
-                    Component message = componentFromContextConstructor.construct(newContext).compact();
-
-                    Audience.audience(
-                            audiences.filter(sender -> sender instanceof Player && newContext.getRecipients().contains(sender)),
-                            audiences.console()
-                    ).sendMessage(Identity.identity(event.getPlayer().getUniqueId()), message);
-
-                    event.setCancelled(true);
-                }
+            if (!lateContext.isCancelled() && !event.isCancelled()) {
+                PostMessageTransformStrategiesProcessor postProcessor = new PostMessageTransformStrategiesProcessor();
+                MessageContext<Component> newContext = postProcessor.handle(lateContext).getNewContext();
+                sendProcessedMessage(event, newContext);
             }
+        }
+    }
+
+    private void sendProcessedMessage(AsyncPlayerChatEvent event, MessageContext<Component> newContext) {
+        if (settings.isForceStringFormatIfLegacyMethod()) {
+            String stringFormat = LegacyComponentSerializer.legacySection().serialize(newContext.getFormat());
+            String stringMessage  = LegacyComponentSerializer.legacySection().serialize(newContext.getMessage());
+            stringFormat = stringFormat.replaceFirst(Pattern.quote("{player}"), "%1$s");
+            stringFormat = stringFormat.replaceFirst(Pattern.quote("{message}"), "%2$s");
+            event.setFormat(stringFormat);
+            event.setMessage(stringMessage);
+        } else {
+            Component message = componentFromContextConstructor.construct(newContext).compact();
+
+            Audience.audience(
+                    audiences.filter(sender -> sender instanceof Player && newContext.getRecipients().contains(sender)),
+                    audiences.console()
+            ).sendMessage(Identity.identity(event.getPlayer().getUniqueId()), message);
+
+            event.setCancelled(true);
         }
     }
 

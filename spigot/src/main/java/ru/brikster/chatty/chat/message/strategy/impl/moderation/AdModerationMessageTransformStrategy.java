@@ -3,7 +3,6 @@ package ru.brikster.chatty.chat.message.strategy.impl.moderation;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.jetbrains.annotations.NotNull;
 import ru.brikster.chatty.api.chat.handle.context.MessageContext;
-import ru.brikster.chatty.api.chat.handle.context.MessageContext.Tag;
 import ru.brikster.chatty.config.type.MessagesConfig;
 import ru.brikster.chatty.config.type.ModerationConfig;
 import ru.brikster.chatty.config.type.ModerationConfig.AdvertisementModerationConfig;

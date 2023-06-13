@@ -4,16 +4,17 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import ru.brikster.chatty.api.chat.handle.context.MessageContext;
 import ru.brikster.chatty.api.chat.handle.strategy.MessageTransformStrategy;
+import ru.brikster.chatty.api.chat.handle.strategy.MessageTransformStrategy.Result;
+import ru.brikster.chatty.api.chat.handle.strategy.MessageTransformStrategy.Stage;
 import ru.brikster.chatty.chat.message.context.MessageContextImpl;
 import ru.brikster.chatty.chat.message.strategy.result.ResultImpl;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class GeneralMessageTransformStrategy<T> implements MessageTransformStrategy<String, T> {
+public abstract class MessageTransformStrategiesProcessor<FromT, IntoT> {
 
-    @Override
-    public @NotNull Result<T> handle(MessageContext<String> context) {
+    public @NotNull Result<IntoT> handle(MessageContext<FromT> context) {
         MessageContext<?> newContext = new MessageContextImpl<>(context);
 
         List<Player> addedRecipients = new ArrayList<>();
@@ -53,8 +54,8 @@ public abstract class GeneralMessageTransformStrategy<T> implements MessageTrans
 
         //noinspection unchecked
         return ResultImpl
-                .<T>builder()
-                .newContext((MessageContext<T>) newContext)
+                .<IntoT>builder()
+                .newContext((MessageContext<IntoT>) newContext)
                 .messageUpdated(messageUpdated)
                 .formatUpdated(formatUpdated)
                 .becameCancelled(becameCancelled)
@@ -62,5 +63,7 @@ public abstract class GeneralMessageTransformStrategy<T> implements MessageTrans
                 .removedRecipients(removedRecipients)
                 .build();
     }
+
+    public abstract Stage getStage();
 
 }
