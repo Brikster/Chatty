@@ -2,12 +2,6 @@ plugins {
     id 'maven-publish'
 }
 
-tasks {
-    build {
-        dependsOn('publishToMavenLocal')
-    }
-}
-
 publishing {
     publications {
         maven(MavenPublication) {
