@@ -1,4 +1,4 @@
-package ru.brikster.chatty.chat.message.strategy.general;
+package ru.brikster.chatty.chat.message.strategy.processor;
 
 import org.jetbrains.annotations.NotNull;
 import ru.brikster.chatty.api.chat.handle.strategy.MessageTransformStrategy.Stage;

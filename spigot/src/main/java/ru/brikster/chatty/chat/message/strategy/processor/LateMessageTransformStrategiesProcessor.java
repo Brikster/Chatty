@@ -1,4 +1,4 @@
-package ru.brikster.chatty.chat.message.strategy.general;
+package ru.brikster.chatty.chat.message.strategy.processor;
 
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
