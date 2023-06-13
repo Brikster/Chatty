@@ -32,10 +32,11 @@ processResources {
 }
 
 repositories {
-    maven { url "https://storehouse.okaeri.eu/repository/maven-public/" }
+    maven { url = 'https://jitpack.io' }
+    maven { url = "https://storehouse.okaeri.eu/repository/maven-public/" }
+    maven { url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
+    maven { url = 'https://repo.codemc.org/repository/maven-public' }
 }
-
-def okaeriConfigsVersion = '4.0.6'
 
 //noinspection VulnerableLibrariesLocal
 dependencies {
@@ -44,10 +45,10 @@ dependencies {
     api 'com.google.code.gson:gson:2.9.0'
     api 'org.bstats:bstats-bukkit:3.0.0'
 
-    implementation "eu.okaeri:okaeri-configs-yaml-snakeyaml:$okaeriConfigsVersion"
-    implementation "eu.okaeri:okaeri-configs-serdes-commons:$okaeriConfigsVersion"
-    implementation "eu.okaeri:okaeri-configs-serdes-bukkit:$okaeriConfigsVersion"
-    implementation "eu.okaeri:okaeri-configs-validator-okaeri:$okaeriConfigsVersion"
+    implementation 'com.github.Brikster.okaeri-configs:okaeri-configs-yaml-snakeyaml:1aa0a9e963'
+    implementation 'com.github.Brikster.okaeri-configs:okaeri-configs-serdes-commons:1aa0a9e963'
+    implementation 'com.github.Brikster.okaeri-configs:okaeri-configs-serdes-bukkit:1aa0a9e963'
+    implementation 'com.github.Brikster.okaeri-configs:okaeri-configs-validator-okaeri:1aa0a9e963'
 
     compileOnly 'net.milkbowl.vault:VaultAPI:1.7'
     compileOnly 'me.clip:placeholderapi:2.10.6'
