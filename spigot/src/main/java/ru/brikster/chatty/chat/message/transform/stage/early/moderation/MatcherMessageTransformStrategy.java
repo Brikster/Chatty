@@ -3,8 +3,8 @@ package ru.brikster.chatty.chat.message.transform.stage.early.moderation;
 import org.jetbrains.annotations.NotNull;
 import ru.brikster.chatty.api.chat.message.context.MessageContext;
 import ru.brikster.chatty.api.chat.message.strategy.result.MessageTransformResult;
+import ru.brikster.chatty.api.chat.message.strategy.stage.EarlyMessageTransformStrategy;
 import ru.brikster.chatty.chat.message.transform.result.MessageTransformResultBuilder;
-import ru.brikster.chatty.chat.message.transform.stage.EarlyMessageTransformStrategy;
 
 public interface MatcherMessageTransformStrategy extends EarlyMessageTransformStrategy {
 

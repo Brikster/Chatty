@@ -1,9 +1,9 @@
 package ru.brikster.chatty.chat.message.transform.stage.late.prefix;
 
 import org.jetbrains.annotations.NotNull;
+import ru.brikster.chatty.api.chat.message.strategy.stage.LateMessageTransformStrategy;
 import ru.brikster.chatty.chat.component.impl.PrefixComponentTransformer;
 import ru.brikster.chatty.chat.message.transform.FormatMessageWithComponentTransformerTransformStrategy;
-import ru.brikster.chatty.chat.message.transform.stage.LateMessageTransformStrategy;
 
 import javax.inject.Inject;
 
