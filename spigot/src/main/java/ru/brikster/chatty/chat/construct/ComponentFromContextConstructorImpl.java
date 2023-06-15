@@ -2,7 +2,7 @@ package ru.brikster.chatty.chat.construct;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
-import ru.brikster.chatty.api.chat.handle.context.MessageContext;
+import ru.brikster.chatty.api.chat.message.context.MessageContext;
 
 public final class ComponentFromContextConstructorImpl implements ComponentFromContextConstructor {
 

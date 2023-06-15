@@ -1,11 +1,10 @@
 package ru.brikster.chatty.api;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.brikster.chatty.api.chat.Chat;
-
-import lombok.Getter;
-import lombok.Setter;
 
 import java.util.Collection;
 

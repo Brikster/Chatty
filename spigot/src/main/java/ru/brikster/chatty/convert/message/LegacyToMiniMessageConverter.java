@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class LegacyToMiniMessageConverter implements MessageConverter {
+public final class LegacyToMiniMessageConverter implements MessageConverter {
 
     private static final Pattern SIMPLE_COLOR_PATTERN = Pattern.compile("(?i)[§&][A-FK-OR\\d]");
     private static final Pattern HEX_GRADIENT_PATTERN = Pattern.compile("(?i)\\{#([A-F\\d]{6})(:#([A-F\\d]{6}))+( )([^{}])*(})");

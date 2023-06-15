@@ -9,8 +9,6 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import ru.brikster.chatty.api.event.ChattyInitEvent;
 import ru.brikster.chatty.chat.executor.LegacyEventExecutor;
-import ru.brikster.chatty.chat.message.strategy.impl.ConvertComponentMessageTransformStrategy;
-import ru.brikster.chatty.chat.message.strategy.impl.vault.PrefixMessageTransformStrategy;
 import ru.brikster.chatty.config.type.SettingsConfig;
 import ru.brikster.chatty.guice.ConfigsLoader;
 import ru.brikster.chatty.guice.GeneralGuiceModule;
@@ -33,9 +31,6 @@ public final class Chatty extends JavaPlugin {
                         getDataFolder().toPath()));
 
         injector.injectMembers(new ConfigsLoader());
-
-        injector.injectMembers(ConvertComponentMessageTransformStrategy.instance());
-        injector.injectMembers(PrefixMessageTransformStrategy.instance());
 
         EventPriority priority = injector.getInstance(SettingsConfig.class).getListenerPriority();
         if (priority == EventPriority.MONITOR) {

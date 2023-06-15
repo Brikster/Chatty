@@ -6,7 +6,6 @@ import eu.okaeri.configs.serdes.SerdesContext;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import ru.brikster.chatty.convert.component.ComponentStringConverter;
 
 @RequiredArgsConstructor

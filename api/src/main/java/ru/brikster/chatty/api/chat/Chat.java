@@ -8,10 +8,13 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.brikster.chatty.api.chat.command.ChatCommand;
-import ru.brikster.chatty.api.chat.handle.strategy.MessageTransformStrategy;
+import ru.brikster.chatty.api.chat.message.strategy.MessageTransformStrategy;
 import ru.brikster.chatty.api.chat.range.Ranges;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Predicate;
 
 public interface Chat {
@@ -50,19 +53,11 @@ public interface Chat {
         return getCommand() != null;
     }
 
-    @NotNull List<@NotNull MessageTransformStrategy<?, ?>> getStrategies();
+    @NotNull Set<@NotNull MessageTransformStrategy<?>> getStrategies();
 
-    void addStrategy(int index, @NotNull MessageTransformStrategy<?, ?> strategy);
+    void addStrategy(@NotNull MessageTransformStrategy<?> strategy);
 
-    <T> void addStrategyAfter(Class<MessageTransformStrategy<?, T>> targetClass, @NotNull MessageTransformStrategy<T, ?> strategy);
-
-    <T> void addStrategyBefore(Class<MessageTransformStrategy<?, T>> targetClass, @NotNull MessageTransformStrategy<T, ?> strategy);
-
-    void addStrategy(@NotNull MessageTransformStrategy<?, ?> strategy);
-
-    MessageTransformStrategy<?, ?> removeStrategy(int index);
-
-    boolean removeStrategy(@NotNull MessageTransformStrategy<?, ?> strategy);
+    boolean removeStrategy(@NotNull MessageTransformStrategy<?> strategy);
 
     /**
      * Range param for the chat messages

@@ -38,18 +38,6 @@ public class SettingsConfig extends OkaeriConfig {
             "For example: Essentials event handler called earlier ",
             "and removed some players due to ignore list"
     })
-    private boolean keepRecipients = true;
-
-    @Comment({"",
-            "Force plain string format, if legacy ",
-            "event executor is used. ",
-            "May be useful when another plugins ",
-            "cannot work with non-event messages. ",
-            "",
-            "Messages will be sent as plain text: ",
-            "without hovers, click actions etc.,",
-            "so it is NOT RECOMMENDED."
-    })
-    private boolean forceStringFormatIfLegacyMethod = false;
+    private boolean respectForeignRecipients = true;
 
 }

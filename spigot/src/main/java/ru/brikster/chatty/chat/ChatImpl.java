@@ -10,16 +10,16 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.brikster.chatty.api.chat.Chat;
 import ru.brikster.chatty.api.chat.command.ChatCommand;
-import ru.brikster.chatty.api.chat.handle.strategy.MessageTransformStrategy;
+import ru.brikster.chatty.api.chat.message.strategy.MessageTransformStrategy;
 import ru.brikster.chatty.api.chat.range.Ranges;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Predicate;
 
 @RequiredArgsConstructor
-public class ChatImpl implements Chat {
+public final class ChatImpl implements Chat {
 
     @Getter
     private final @NotNull String name;
@@ -40,8 +40,8 @@ public class ChatImpl implements Chat {
     @Getter
     private final boolean permissionRequired;
 
-    private final List<MessageTransformStrategy<?, ?>> strategies
-            = new ArrayList<>();
+    private final Set<MessageTransformStrategy<?>> strategies
+            = new HashSet<>();
 
     @Override
     public @NotNull String getDisplayName() {
@@ -51,49 +51,17 @@ public class ChatImpl implements Chat {
     }
 
     @Override
-    public @NotNull List<@NotNull MessageTransformStrategy<?, ?>> getStrategies() {
-        return Collections.unmodifiableList(strategies);
+    public @NotNull Set<@NotNull MessageTransformStrategy<?>> getStrategies() {
+        return Collections.unmodifiableSet(strategies);
     }
 
     @Override
-    public void addStrategy(int index, @NotNull MessageTransformStrategy<?, ?> strategy) {
-        strategies.add(index, strategy);
-    }
-
-    @Override
-    public <T> void addStrategyAfter(Class<MessageTransformStrategy<?, T>> targetClass, @NotNull MessageTransformStrategy<T, ?> strategy) {
-        for (int i = 0; i < strategies.size(); i++) {
-            MessageTransformStrategy<?, ?> targetStrategy = strategies.get(i);
-            if (targetStrategy.getClass() == targetClass) {
-                addStrategy(i + 1, strategy);
-                return;
-            }
-        }
-    }
-
-    @Override
-    public <T> void addStrategyBefore(Class<MessageTransformStrategy<?, T>> targetClass, @NotNull MessageTransformStrategy<T, ?> strategy) {
-        for (int i = 0; i < strategies.size(); i++) {
-            MessageTransformStrategy<?, ?> targetStrategy = strategies.get(i);
-            if (targetStrategy.getClass() == targetClass) {
-                addStrategy(i, strategy);
-                return;
-            }
-        }
-    }
-
-    @Override
-    public void addStrategy(@NotNull MessageTransformStrategy<?, ?> strategy) {
+    public void addStrategy(@NotNull MessageTransformStrategy<?> strategy) {
         strategies.add(strategy);
     }
 
     @Override
-    public MessageTransformStrategy<?, ?> removeStrategy(int index) {
-        return strategies.remove(index);
-    }
-
-    @Override
-    public boolean removeStrategy(@NotNull MessageTransformStrategy<?, ?> strategy) {
+    public boolean removeStrategy(@NotNull MessageTransformStrategy<?> strategy) {
         return strategies.remove(strategy);
     }
 

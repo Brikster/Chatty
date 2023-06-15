@@ -2,15 +2,9 @@ package ru.brikster.chatty.guice;
 
 import com.google.inject.Inject;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
-import org.bukkit.Bukkit;
 import ru.brikster.chatty.api.chat.Chat;
 import ru.brikster.chatty.chat.ChatImpl;
 import ru.brikster.chatty.chat.component.impl.PlaceholdersComponentTransformer;
-import ru.brikster.chatty.chat.message.strategy.impl.ConvertComponentMessageTransformStrategy;
-import ru.brikster.chatty.chat.message.strategy.impl.RemoveChatSymbolMessageTransformStrategy;
-import ru.brikster.chatty.chat.message.strategy.impl.papi.PlaceholderApiMessageTransformStrategy;
-import ru.brikster.chatty.chat.message.strategy.impl.range.RangeLimiterMessageTransformStrategy;
-import ru.brikster.chatty.chat.message.strategy.impl.vault.PrefixMessageTransformStrategy;
 import ru.brikster.chatty.chat.registry.ChatRegistry;
 import ru.brikster.chatty.config.object.ChatProperties;
 import ru.brikster.chatty.config.type.ChatsConfig;
@@ -39,16 +33,6 @@ public final class ConfigsLoader {
             Chat chat = new ChatImpl(entry.getKey(),
                     declaration.getDisplayName(), componentConverter.stringToComponent(declaration.getFormat()),
                     declaration.getSymbol(), null, declaration.getRange(), false);
-
-            chat.addStrategy(RemoveChatSymbolMessageTransformStrategy.instance());
-            chat.addStrategy(RangeLimiterMessageTransformStrategy.instance());
-            chat.addStrategy(ConvertComponentMessageTransformStrategy.instance());
-            chat.addStrategy(PrefixMessageTransformStrategy.instance());
-
-            if (Bukkit.getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
-                chat.addStrategy(PlaceholderApiMessageTransformStrategy.instance());
-            }
-
             registry.register(chat);
         }
     }

@@ -2,6 +2,8 @@ package ru.brikster.chatty.guice;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
+import com.google.inject.TypeLiteral;
+import com.google.inject.multibindings.Multibinder;
 import eu.okaeri.configs.ConfigManager;
 import eu.okaeri.configs.OkaeriConfig;
 import eu.okaeri.configs.serdes.commons.SerdesCommons;
@@ -17,11 +19,20 @@ import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.representer.Representer;
 import org.yaml.snakeyaml.resolver.Resolver;
+import ru.brikster.chatty.api.chat.message.strategy.MessageTransformStrategy;
 import ru.brikster.chatty.chat.component.impl.DummyPlaceholdersComponentTransformer;
 import ru.brikster.chatty.chat.component.impl.PlaceholderApiComponentTransformer;
 import ru.brikster.chatty.chat.component.impl.PlaceholdersComponentTransformer;
 import ru.brikster.chatty.chat.construct.ComponentFromContextConstructor;
 import ru.brikster.chatty.chat.construct.ComponentFromContextConstructorImpl;
+import ru.brikster.chatty.chat.message.transform.processor.MessageTransformStrategiesProcessor;
+import ru.brikster.chatty.chat.message.transform.processor.MessageTransformStrategiesProcessorImpl;
+import ru.brikster.chatty.chat.message.transform.stage.early.range.RangeLimiterMessageTransformStrategy;
+import ru.brikster.chatty.chat.message.transform.stage.early.symbol.RemoveChatSymbolMessageTransformStrategy;
+import ru.brikster.chatty.chat.message.transform.stage.intermediary.IntermediateMessageTransformer;
+import ru.brikster.chatty.chat.message.transform.stage.intermediary.IntermediateMessageTransformerImpl;
+import ru.brikster.chatty.chat.message.transform.stage.late.papi.PlaceholdersMessageTransformStrategy;
+import ru.brikster.chatty.chat.message.transform.stage.late.prefix.PrefixMessageTransformStrategy;
 import ru.brikster.chatty.chat.registry.ChatRegistry;
 import ru.brikster.chatty.chat.registry.MemoryChatRegistry;
 import ru.brikster.chatty.chat.selection.ChatSelector;
@@ -29,7 +40,7 @@ import ru.brikster.chatty.chat.selection.ChatSelectorImpl;
 import ru.brikster.chatty.config.serdes.SerdesChatty;
 import ru.brikster.chatty.config.type.*;
 import ru.brikster.chatty.convert.component.ComponentStringConverter;
-import ru.brikster.chatty.convert.component.MiniMessageStringConverter;
+import ru.brikster.chatty.convert.component.SystemMiniMessageStringConverter;
 import ru.brikster.chatty.convert.message.LegacyToMiniMessageConverter;
 import ru.brikster.chatty.convert.message.MessageConverter;
 import ru.brikster.chatty.notification.NotificationTicker;
@@ -47,8 +58,9 @@ public final class GeneralGuiceModule extends AbstractModule {
 
     private final Path dataFolderPath;
 
-    private final ChatRegistry chatRegistry;
+    private final SystemMiniMessageStringConverter systemMiniMessageStringConverter;
 
+    private final ChatRegistry chatRegistry;
     private final SerdesChatty serdesChatty;
 
     public GeneralGuiceModule(final Plugin plugin,
@@ -58,8 +70,9 @@ public final class GeneralGuiceModule extends AbstractModule {
         this.audienceProvider = audienceProvider;
         this.dataFolderPath = dataFolderPath;
 
+        this.systemMiniMessageStringConverter = new SystemMiniMessageStringConverter();
         this.chatRegistry = new MemoryChatRegistry();
-        this.serdesChatty = new SerdesChatty(MiniMessageStringConverter.miniMessageStringConverter());
+        this.serdesChatty = new SerdesChatty(systemMiniMessageStringConverter);
     }
 
     @Override
@@ -67,15 +80,10 @@ public final class GeneralGuiceModule extends AbstractModule {
         bind(Plugin.class).toInstance(plugin);
         bind(ChatRegistry.class).toInstance(chatRegistry);
 
-        bind(ComponentStringConverter.class).toInstance(MiniMessageStringConverter.miniMessageStringConverter());
+        bind(MessageTransformStrategiesProcessor.class).to(MessageTransformStrategiesProcessorImpl.class);
+        bind(ComponentStringConverter.class).toInstance(systemMiniMessageStringConverter);
         bind(MessageConverter.class).toInstance(new LegacyToMiniMessageConverter());
         bind(ComponentFromContextConstructor.class).toInstance(new ComponentFromContextConstructorImpl());
-
-        if (Bukkit.getPluginManager().isPluginEnabled("Vault")) {
-            bind(PrefixProvider.class).toInstance(new VaultPrefixProvider());
-        } else {
-            bind(PrefixProvider.class).toInstance(new NullPrefixProvider());
-        }
 
         bind(ChatSelector.class).toInstance(new ChatSelectorImpl());
         bind(NotificationTicker.class).toInstance(new ScheduledExecutorNotificationTicker());
@@ -88,19 +96,36 @@ public final class GeneralGuiceModule extends AbstractModule {
         bind(VanillaConfig.class).toInstance(createConfig(VanillaConfig.class, "vanilla.yml"));
         bind(ModerationConfig.class).toInstance(createConfig(ModerationConfig.class, "moderation.yml"));
         bind(NotificationsConfig.class).toInstance(createConfig(NotificationsConfig.class, "notifications.yml"));
+
+        Multibinder<MessageTransformStrategy<?>> strategyMultibinder = Multibinder.newSetBinder(binder(), new TypeLiteral<MessageTransformStrategy<?>>() {});
+        // Early
+        strategyMultibinder.addBinding().to(RemoveChatSymbolMessageTransformStrategy.class);
+        strategyMultibinder.addBinding().to(RangeLimiterMessageTransformStrategy.class);
+        // Late
+        strategyMultibinder.addBinding().to(PlaceholdersMessageTransformStrategy.class);
+        strategyMultibinder.addBinding().to(PrefixMessageTransformStrategy.class);
+
+        bind(IntermediateMessageTransformer.class).to(IntermediateMessageTransformerImpl.class);
+    }
+
+    @Provides
+    public PrefixProvider prefixProvider() {
+        return Bukkit.getPluginManager().isPluginEnabled("Vault")
+                ? new VaultPrefixProvider()
+                : new NullPrefixProvider();
     }
 
     @Provides
     public PlaceholdersComponentTransformer placeholdersComponentTransformer() {
         return Bukkit.getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")
-                ? PlaceholderApiComponentTransformer.instance()
-                : DummyPlaceholdersComponentTransformer.instance();
+                ? new PlaceholderApiComponentTransformer()
+                : new DummyPlaceholdersComponentTransformer();
     }
 
     @SuppressWarnings("VulnerableCodeUsages")
-    private <T extends OkaeriConfig> T createConfig(Class<T> configClass, String fileName) {
+    private <ConfigT extends OkaeriConfig> ConfigT createConfig(Class<ConfigT> configClass, String fileName) {
         try {
-            configClass.getDeclaredField("converter").set(null, MiniMessageStringConverter.miniMessageStringConverter());
+            configClass.getDeclaredField("converter").set(null, systemMiniMessageStringConverter);
         } catch (IllegalAccessException e) {
             throw new IllegalStateException("Cannot inject converter into " + configClass.getSimpleName() + " class", e);
         } catch (NoSuchFieldException ignored) {}
