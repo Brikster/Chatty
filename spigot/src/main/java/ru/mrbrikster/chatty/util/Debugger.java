@@ -19,7 +19,7 @@ public class Debugger {
 
     @SuppressWarnings("all")
     public void debug(String msg, String... strings) {
-        if (debug) chatty.getLogger().info("[DEBUG] " + String.format(msg, strings));
+        if (debug) chatty.getLogger().info("[DEBUG] " + String.format(msg, (Object[]) strings));
     }
 
 }
