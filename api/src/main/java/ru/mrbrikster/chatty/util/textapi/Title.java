@@ -83,7 +83,7 @@ public class Title {
     public void send(Player player) {
         try {
             Object entityPlayer = player.getClass().getMethod("getHandle").invoke(player);
-            Object playerConnection = NMSUtil.resolveField(entityPlayer.getClass(), "b", "playerConnection").get(entityPlayer);
+            Object playerConnection = NMSUtil.resolveField(entityPlayer.getClass(), "b", "playerConnection", "connection", "c", "field_71135_a").get(entityPlayer);
 
             Class<?> clsPacket = NMSUtil.getClass("Packet");
             Class<?> clsIChatBaseComponent = NMSUtil.getClass("IChatBaseComponent");
