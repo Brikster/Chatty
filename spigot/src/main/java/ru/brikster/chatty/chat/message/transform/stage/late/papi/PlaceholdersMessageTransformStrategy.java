@@ -6,7 +6,9 @@ import ru.brikster.chatty.chat.component.impl.PlaceholdersComponentTransformer;
 import ru.brikster.chatty.chat.message.transform.FormatMessageWithComponentTransformerTransformStrategy;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
+@Singleton
 public final class PlaceholdersMessageTransformStrategy extends FormatMessageWithComponentTransformerTransformStrategy<String>
         implements LateMessageTransformStrategy {
 

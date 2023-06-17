@@ -8,7 +8,9 @@ import ru.brikster.chatty.chat.message.transform.result.MessageTransformResultBu
 import ru.brikster.chatty.convert.component.ComponentStringConverter;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
+@Singleton
 public final class IntermediateMessageTransformerImpl implements IntermediateMessageTransformer {
 
     @Inject

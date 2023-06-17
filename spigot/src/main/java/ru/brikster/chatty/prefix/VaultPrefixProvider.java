@@ -4,8 +4,10 @@ import net.milkbowl.vault.chat.Chat;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import javax.inject.Singleton;
 import java.util.Objects;
 
+@Singleton
 public final class VaultPrefixProvider implements PrefixProvider {
 
     private final net.milkbowl.vault.chat.Chat vaultChatModule =

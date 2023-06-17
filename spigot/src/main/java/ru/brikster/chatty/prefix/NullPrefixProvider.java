@@ -3,6 +3,9 @@ package ru.brikster.chatty.prefix;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Singleton;
+
+@Singleton
 public final class NullPrefixProvider implements PrefixProvider {
 
     @Override

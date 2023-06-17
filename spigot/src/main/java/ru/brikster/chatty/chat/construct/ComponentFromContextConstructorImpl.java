@@ -4,6 +4,9 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
 import ru.brikster.chatty.api.chat.message.context.MessageContext;
 
+import javax.inject.Singleton;
+
+@Singleton
 public final class ComponentFromContextConstructorImpl implements ComponentFromContextConstructor {
 
     private static final String PLAYER_FORMAT_PLACEHOLDER = "{player}";

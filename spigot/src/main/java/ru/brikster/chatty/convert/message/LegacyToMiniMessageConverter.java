@@ -2,11 +2,13 @@ package ru.brikster.chatty.convert.message;
 
 import org.jetbrains.annotations.NotNull;
 
+import javax.inject.Singleton;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Singleton
 public final class LegacyToMiniMessageConverter implements MessageConverter {
 
     private static final Pattern SIMPLE_COLOR_PATTERN = Pattern.compile("(?i)[§&][A-FK-OR\\d]");

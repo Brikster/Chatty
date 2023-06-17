@@ -1,5 +1,6 @@
 package ru.brikster.chatty.notification;
 
+import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -7,6 +8,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+@Singleton
 public final class ScheduledExecutorNotificationTicker implements NotificationTicker {
 
     private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();

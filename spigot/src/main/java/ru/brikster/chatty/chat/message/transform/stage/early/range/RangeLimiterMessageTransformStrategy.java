@@ -9,9 +9,11 @@ import ru.brikster.chatty.api.chat.message.strategy.stage.EarlyMessageTransformS
 import ru.brikster.chatty.api.chat.range.Ranges;
 import ru.brikster.chatty.chat.message.transform.result.MessageTransformResultBuilder;
 
+import javax.inject.Singleton;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Singleton
 public final class RangeLimiterMessageTransformStrategy implements EarlyMessageTransformStrategy {
 
     @Override

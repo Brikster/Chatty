@@ -10,12 +10,14 @@ import ru.brikster.chatty.api.chat.message.strategy.result.MessageTransformResul
 import ru.brikster.chatty.chat.message.transform.result.MessageTransformResultImpl;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@Singleton
 public final class MessageTransformStrategiesProcessorImpl implements MessageTransformStrategiesProcessor {
 
     @Inject

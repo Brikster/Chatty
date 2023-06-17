@@ -6,8 +6,10 @@ import ru.brikster.chatty.api.chat.message.strategy.result.MessageTransformResul
 import ru.brikster.chatty.api.chat.message.strategy.stage.EarlyMessageTransformStrategy;
 import ru.brikster.chatty.chat.message.transform.result.MessageTransformResultBuilder;
 
+import javax.inject.Singleton;
 import java.util.regex.Pattern;
 
+@Singleton
 public final class RemoveChatSymbolMessageTransformStrategy implements EarlyMessageTransformStrategy {
 
     @Override

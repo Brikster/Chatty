@@ -82,11 +82,11 @@ public final class GeneralGuiceModule extends AbstractModule {
 
         bind(MessageTransformStrategiesProcessor.class).to(MessageTransformStrategiesProcessorImpl.class);
         bind(ComponentStringConverter.class).toInstance(systemMiniMessageStringConverter);
-        bind(MessageConverter.class).toInstance(new LegacyToMiniMessageConverter());
-        bind(ComponentFromContextConstructor.class).toInstance(new ComponentFromContextConstructorImpl());
+        bind(MessageConverter.class).to(LegacyToMiniMessageConverter.class);
+        bind(ComponentFromContextConstructor.class).to(ComponentFromContextConstructorImpl.class);
 
-        bind(ChatSelector.class).toInstance(new ChatSelectorImpl());
-        bind(NotificationTicker.class).toInstance(new ScheduledExecutorNotificationTicker());
+        bind(ChatSelector.class).to(ChatSelectorImpl.class);
+        bind(NotificationTicker.class).to(ScheduledExecutorNotificationTicker.class);
 
         bind(BukkitAudiences.class).toInstance(audienceProvider);
 

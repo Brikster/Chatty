@@ -1,13 +1,15 @@
 package ru.brikster.chatty.chat.selection;
 
-import com.google.inject.Inject;
 import org.jetbrains.annotations.Nullable;
 import ru.brikster.chatty.api.chat.Chat;
 import ru.brikster.chatty.chat.registry.ChatRegistry;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.function.Predicate;
 
-public class ChatSelectorImpl implements ChatSelector {
+@Singleton
+public final class ChatSelectorImpl implements ChatSelector {
 
     @Inject
     private ChatRegistry registry;
