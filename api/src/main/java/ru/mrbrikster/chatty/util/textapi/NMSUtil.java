@@ -134,9 +134,9 @@ public class NMSUtil {
                 // New versions (>= 1.16)
                 if (packetPlayOutChat == null) {
                     try {
-                        final UUID Our_UUID = sender != null ? sender.getUniqueId() : new UUID(0L, 0L);
+                        final UUID senderUuid = sender != null ? sender.getUniqueId() : new UUID(0L, 0L);
                         packetPlayOutChat = packetPlayOutChatClass.getConstructor(clsIChatBaseComponent, clsChatMessageType, UUID.class)
-                                .newInstance(chatBaseComponent, chatMessageType, Our_UUID);
+                                .newInstance(chatBaseComponent, chatMessageType, senderUuid);
                     } catch (Throwable ignored) {
                     }
                 }
