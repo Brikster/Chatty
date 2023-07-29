@@ -64,10 +64,7 @@ public class IgnoreCommand extends BukkitCommand {
             return;
         }
 
-        Player ignoreTargetPlayer = Bukkit.getPlayer(args[0]);
-        String ignoreTarget = ignoreTargetPlayer.getName();
-
-        if (sender.getName().equalsIgnoreCase(ignoreTarget)) {
+        if (sender.getName().equalsIgnoreCase(args[0])) {
             sender.sendMessage(Chatty.instance().messages().get("ignore-command.cannot-ignore-yourself")
                     .replace("{label}", label));
             return;
@@ -78,22 +75,27 @@ public class IgnoreCommand extends BukkitCommand {
         if (!jsonElement.isJsonArray())
             jsonElement = new JsonArray();
 
-        if (jsonElement.getAsJsonArray().contains(new JsonPrimitive(ignoreTarget.toLowerCase()))) {
+        if (jsonElement.getAsJsonArray().contains(new JsonPrimitive(args[0].toLowerCase()))) {
+            Player targetPlayer = Bukkit.getPlayerExact(args[0]);
             sender.sendMessage(Chatty.instance().messages().get("ignore-command.remove-ignore")
-                    .replace("{label}", label).replace("{player}", ignoreTargetPlayer == null
-                            ? ignoreTarget
-                            : ignoreTargetPlayer.getName()));
-            ((JsonArray) jsonElement).remove(new JsonPrimitive(ignoreTarget.toLowerCase()));
+                    .replace("{label}", label).replace("{player}", targetPlayer == null
+                            ? args[0].toLowerCase()
+                            : targetPlayer.getName()));
+            ((JsonArray) jsonElement).remove(new JsonPrimitive(args[0].toLowerCase()));
         } else {
+            Player ignoreTargetPlayer = Bukkit.getPlayerExact(args[0]);
+
             if (ignoreTargetPlayer == null) {
                 sender.sendMessage(Chatty.instance().messages().get("ignore-command.player-not-found")
                         .replace("{label}", label));
                 return;
             }
 
+            String ignoreTarget = ignoreTargetPlayer.getName();
+
             sender.sendMessage(Chatty.instance().messages().get("ignore-command.add-ignore")
-                    .replace("{label}", label).replace("{player}", ignoreTargetPlayer.getName()));
-            jsonElement.getAsJsonArray().add(ignoreTargetPlayer.getName().toLowerCase());
+                    .replace("{label}", label).replace("{player}", ignoreTarget));
+            jsonElement.getAsJsonArray().add(ignoreTarget.toLowerCase());
         }
 
         jsonStorage.setProperty((Player) sender, "ignore", jsonElement);
