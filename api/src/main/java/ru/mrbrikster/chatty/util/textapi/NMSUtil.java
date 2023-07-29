@@ -181,7 +181,8 @@ public class NMSUtil {
                     Object playerChatMessage = clsPlayerChatMessage.getMethod("a", clsIChatBaseComponent)
                             .invoke(null, chatBaseComponent);
 
-                    if (sender == null) {
+                    // TODO fix kick problems
+                    if (true) {
                         // entityPlayer.a(chatBaseComponent, chatMessageType);
                         entityPlayer.getClass().getMethod("a", clsIChatBaseComponent, chatMessageType.getClass())
                                 .invoke(entityPlayer, chatBaseComponent, chatMessageType);
