@@ -2,14 +2,16 @@ package ru.brikster.chatty.chat.registry;
 
 import ru.brikster.chatty.api.chat.Chat;
 
+import javax.inject.Singleton;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
+@Singleton
 public class MemoryChatRegistry implements ChatRegistry {
 
-    private final Set<Chat> chats = new HashSet<>();
+    private final List<Chat> chats = new ArrayList<>();
 
     @Override
     public void register(Chat chat) {
@@ -23,7 +25,7 @@ public class MemoryChatRegistry implements ChatRegistry {
 
     @Override
     public Collection<Chat> getChats() {
-        return Collections.unmodifiableSet(chats);
+        return Collections.unmodifiableList(chats);
     }
 
 }
