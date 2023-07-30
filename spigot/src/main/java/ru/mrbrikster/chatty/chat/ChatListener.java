@@ -29,11 +29,7 @@ import ru.mrbrikster.chatty.util.Pair;
 import ru.mrbrikster.chatty.util.Sound;
 import ru.mrbrikster.chatty.util.TextUtil;
 
-import java.util.ArrayList;
-import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UnknownFormatConversionException;
+import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -329,14 +325,10 @@ public class ChatListener implements Listener, EventExecutor {
         if (configuration.getNode("json.enable").getAsBoolean(false)) {
             performJsonMessage(event, chat);
         } else {
+            event.setFormat(TextUtil.stripHex(event.getFormat()));
             String format = String.format(event.getFormat(), event.getPlayer().getDisplayName(), event.getMessage());
-            String strippedHexFormat = TextUtil.stripHex(format);
-
-            if (!strippedHexFormat.equals(format)) {
-                event.getRecipients().forEach(player -> player.sendMessage(format));
-                event.getRecipients().clear();
-                event.setFormat(strippedHexFormat);
-            }
+            event.getRecipients().forEach(player -> player.sendMessage(format));
+            event.getRecipients().clear();
         }
     }
 
