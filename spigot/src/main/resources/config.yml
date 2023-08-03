@@ -135,6 +135,10 @@ pm:
   # Default: false
   allow-console: false
 
+  # Allows you to send messages to yourself
+  # Default: true
+  allow-yourself: true
+
   # Allows to PM players, that in vanish
   # Supports EssentialsX, SuperVanish, PremiumVanish, VanishNoPacket etc.
   # Default: true
