@@ -551,7 +551,7 @@ public class FancyMessage implements JsonRepresentedObject, Cloneable, Iterable<
             return jsonString;
         }
         StringWriter string = new StringWriter();
-        JsonWriter json = GSON.newJsonWriter(string);
+        JsonWriter json = new JsonWriter(string);
         json.setHtmlSafe(false);
         try {
             writeJson(json);
