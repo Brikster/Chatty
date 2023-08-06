@@ -3,15 +3,12 @@ package ru.brikster.chatty.guice;
 import com.google.inject.Inject;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import ru.brikster.chatty.api.chat.Chat;
+import ru.brikster.chatty.api.chat.ChatStyle;
 import ru.brikster.chatty.chat.ChatImpl;
 import ru.brikster.chatty.chat.component.impl.PlaceholdersComponentTransformer;
 import ru.brikster.chatty.chat.registry.ChatRegistry;
-import ru.brikster.chatty.config.object.ChatProperties;
 import ru.brikster.chatty.config.type.ChatsConfig;
 import ru.brikster.chatty.config.type.NotificationsConfig;
-import ru.brikster.chatty.config.type.NotificationsConfig.ActionbarNotificationsConfig.ActionbarNotificationChannelConfig;
-import ru.brikster.chatty.config.type.NotificationsConfig.ChatNotificationsConfig.ChatNotificationChannelConfig;
-import ru.brikster.chatty.config.type.NotificationsConfig.TitleNotificationsConfig.TitleNotificationChannelConfig;
 import ru.brikster.chatty.convert.component.ComponentStringConverter;
 import ru.brikster.chatty.notification.ActionbarNotification;
 import ru.brikster.chatty.notification.ChatNotification;
@@ -19,7 +16,6 @@ import ru.brikster.chatty.notification.NotificationTicker;
 import ru.brikster.chatty.notification.TitleNotification;
 import ru.brikster.chatty.notification.TitleNotification.TitleNotificationMessage;
 
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 public final class ConfigsLoader {
@@ -28,76 +24,82 @@ public final class ConfigsLoader {
     public void loadChannels(ChatsConfig config,
                              ChatRegistry registry,
                              ComponentStringConverter componentConverter) {
-        for (Entry<String, ChatProperties> entry : config.getChats().entrySet()) {
-            ChatProperties declaration = entry.getValue();
-            Chat chat = new ChatImpl(entry.getKey(),
-                    declaration.getDisplayName(), componentConverter.stringToComponent(declaration.getFormat()),
-                    declaration.getSymbol(), null, declaration.getRange(), false);
+        config.getChats().forEach((chatId, chatConfig) -> {
+            Chat chat = new ChatImpl(chatId,
+                    chatConfig.getDisplayName(), componentConverter.stringToComponent(chatConfig.getFormat()),
+                    chatConfig.getSymbol(), null, chatConfig.getRange(), chatConfig.isPermissionRequired(),
+                    chatConfig
+                            .getStyles()
+                            .entrySet()
+                            .stream()
+                            .map(styleEntry -> new ChatStyle(styleEntry.getKey(),
+                                    componentConverter.stringToComponent(styleEntry.getValue().getFormat()),
+                                    styleEntry.getValue().getPriority()))
+                            .collect(Collectors.toSet()),
+                    chatConfig.isNotifyNobodyHeard(),
+                    chatConfig.isParseLinks());
             registry.register(chat);
-        }
+        });
     }
 
     @Inject
     public void loadTitleNotifications(NotificationTicker ticker,
-                                       NotificationsConfig notifications,
+                                       NotificationsConfig config,
                                        BukkitAudiences audiences,
                                        PlaceholdersComponentTransformer placeholdersComponentTransformer) {
-        if (notifications.getTitle().isEnable()) {
-            for (Entry<String, TitleNotificationChannelConfig> entry : notifications.getTitle().getLists().entrySet()) {
-                TitleNotificationChannelConfig config = entry.getValue();
+        if (config.getTitle().isEnable()) {
+            config.getTitle().getLists().forEach((channelId, channelConfig) -> {
                 TitleNotification titleNotification = new TitleNotification(
-                        entry.getKey(), config.getPeriod(),
-                        config.getMessages()
+                        channelId, channelConfig.getPeriod(),
+                        channelConfig.getMessages()
                                 .stream()
                                 .map(titleConfig -> new TitleNotificationMessage(
                                         titleConfig.getTitle(),
                                         titleConfig.getSubtitle()))
                                 .collect(Collectors.toList()),
-                        config.isPermissionRequired(),
-                        config.isRandomOrder(),
+                        channelConfig.isPermissionRequired(),
+                        channelConfig.isRandomOrder(),
                         audiences,
                         placeholdersComponentTransformer);
                 ticker.addNotification(titleNotification);
-            }
+            });
         }
     }
 
     @Inject
     public void loadChatNotifications(NotificationTicker ticker,
-                                      NotificationsConfig notifications,
+                                      NotificationsConfig config,
                                       BukkitAudiences audiences,
                                       PlaceholdersComponentTransformer placeholdersComponentTransformer) {
-        if (notifications.getChat().isEnable()) {
-            for (Entry<String, ChatNotificationChannelConfig> entry : notifications.getChat().getLists().entrySet()) {
-                ChatNotificationChannelConfig config = entry.getValue();
+        if (config.getChat().isEnable()) {
+            config.getChat().getLists().forEach((channelId, channelConfig) -> {
                 ChatNotification chatNotification = new ChatNotification(
-                        entry.getKey(), config.getPeriod(),
-                        config.getMessages(),
-                        config.isPermissionRequired(), config.isRandomOrder(),
+                        channelId, channelConfig.getPeriod(),
+                        channelConfig.getMessages(),
+                        channelConfig.isPermissionRequired(), channelConfig.isRandomOrder(),
                         audiences,
                         placeholdersComponentTransformer);
                 ticker.addNotification(chatNotification);
-            }
+            });
         }
     }
 
     @Inject
     public void loadActionbarNotifications(NotificationTicker ticker,
-                                           NotificationsConfig notifications,
+                                           NotificationsConfig config,
                                            BukkitAudiences audiences,
                                            PlaceholdersComponentTransformer placeholdersComponentTransformer) {
-        if (notifications.getActionbar().isEnable()) {
-            for (Entry<String, ActionbarNotificationChannelConfig> entry : notifications.getActionbar()
-                    .getLists().entrySet()) {
-                ActionbarNotificationChannelConfig config = entry.getValue();
-                ActionbarNotification actionbarNotification = new ActionbarNotification(
-                        entry.getKey(), config.getPeriod(), config.getStay(),
-                        config.getMessages(),
-                        config.isPermissionRequired(), config.isRandomOrder(),
-                        audiences,
-                        placeholdersComponentTransformer);
-                ticker.addNotification(actionbarNotification);
-            }
+        if (config.getActionbar().isEnable()) {
+            config.getActionbar()
+                    .getLists().forEach((channelId, channelConfig) -> {
+                        ActionbarNotification actionbarNotification = new ActionbarNotification(
+                                channelId, channelConfig.getPeriod(), channelConfig.getStay(),
+                                channelConfig.getMessages(),
+                                channelConfig.isPermissionRequired(), channelConfig.isRandomOrder(),
+                                audiences,
+                                placeholdersComponentTransformer);
+                        ticker.addNotification(actionbarNotification);
+                    });
         }
     }
 

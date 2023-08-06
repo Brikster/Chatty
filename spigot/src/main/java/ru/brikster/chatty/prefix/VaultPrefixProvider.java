@@ -15,24 +15,12 @@ public final class VaultPrefixProvider implements PrefixProvider {
 
     @Override
     public String getPrefix(Player player) {
-        String prefix = vaultChatModule.getPlayerPrefix(player);
-
-        if (prefix == null) {
-            prefix = "";
-        }
-
-        return prefix;
+        return vaultChatModule.getPlayerPrefix(player);
     }
 
     @Override
     public String getSuffix(Player player) {
-        String suffix = vaultChatModule.getPlayerSuffix(player);
-
-        if (suffix == null) {
-            suffix = "";
-        }
-
-        return suffix;
+        return vaultChatModule.getPlayerSuffix(player);
     }
 
 }

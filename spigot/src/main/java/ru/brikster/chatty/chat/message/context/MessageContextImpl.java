@@ -14,21 +14,15 @@ import java.util.Collection;
 @RequiredArgsConstructor
 @AllArgsConstructor
 @ToString
+@Getter @Setter
 public final class MessageContextImpl<MessageT> implements MessageContext<MessageT> {
 
-    @Getter
     private final @Nullable Chat chat;
-    @Getter
     private final @Nullable Player sender;
-    @Getter @Setter
     private boolean cancelled;
-    @Getter @Setter
     private @NotNull Component format;
-    @Getter @Setter
     private @NotNull Collection<? extends @NotNull Player> recipients;
-    @Getter @Setter
     private MessageT message;
-    @Getter @Setter
     private @Nullable Player target;
 
     public MessageContextImpl(MessageContext<?> context) {

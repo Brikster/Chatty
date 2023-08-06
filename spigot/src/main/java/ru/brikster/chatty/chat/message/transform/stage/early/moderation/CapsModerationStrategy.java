@@ -3,8 +3,8 @@ package ru.brikster.chatty.chat.message.transform.stage.early.moderation;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.jetbrains.annotations.NotNull;
 import ru.brikster.chatty.api.chat.message.context.MessageContext;
+import ru.brikster.chatty.api.chat.message.strategy.MessageTransformStrategy;
 import ru.brikster.chatty.api.chat.message.strategy.result.MessageTransformResult;
-import ru.brikster.chatty.api.chat.message.strategy.stage.EarlyMessageTransformStrategy;
 import ru.brikster.chatty.chat.message.transform.result.MessageTransformResultBuilder;
 import ru.brikster.chatty.config.type.MessagesConfig;
 import ru.brikster.chatty.config.type.ModerationConfig;
@@ -12,7 +12,7 @@ import ru.brikster.chatty.config.type.ModerationConfig.CapsModerationConfig;
 
 import javax.inject.Inject;
 
-public final class CapsModerationMessageTransformStrategy implements EarlyMessageTransformStrategy {
+public final class CapsModerationStrategy implements MessageTransformStrategy<String> {
 
     private final int percent;
     private final int length;
@@ -23,7 +23,7 @@ public final class CapsModerationMessageTransformStrategy implements EarlyMessag
     @Inject private MessagesConfig messages;
     @Inject private ModerationConfig moderationConfig;
 
-    private CapsModerationMessageTransformStrategy() {
+    private CapsModerationStrategy() {
         CapsModerationConfig config = moderationConfig.getCaps();
         this.useBlock = config.isBlock();
         this.percent = config.getPercent();

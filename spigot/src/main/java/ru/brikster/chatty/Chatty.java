@@ -4,6 +4,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import lombok.SneakyThrows;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import org.bukkit.Bukkit;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -14,6 +15,7 @@ import ru.brikster.chatty.guice.ConfigsLoader;
 import ru.brikster.chatty.guice.GeneralGuiceModule;
 import ru.brikster.chatty.misc.VanillaListener;
 import ru.brikster.chatty.notification.NotificationTicker;
+import ru.brikster.chatty.papi.PapiExpansionInstaller;
 
 import java.util.logging.Level;
 
@@ -47,6 +49,10 @@ public final class Chatty extends JavaPlugin {
         this.getServer().getPluginManager().registerEvents(miscListener, this);
 
         injector.getInstance(NotificationTicker.class).startTicking();
+
+        if (Bukkit.getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+            PapiExpansionInstaller.install(injector);
+        }
 
 //        if (config.getNode("general.bungeecord").getAsBoolean(false)) {
 //            this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");

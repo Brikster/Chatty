@@ -7,7 +7,7 @@ tasks {
     shadowJar {
         archiveFileName = "Chatty-${rootProject.version}.jar"
         destinationDirectory.set(new File(rootProject.projectDir.getAbsolutePath(), '/build/libs'))
-        def relocations = ['ru.mrbrikster.baseplugin', 'org.bstats', 'com.google.gson', 'org.yaml.snakeyaml']
+        def relocations = ['ru.mrbrikster.baseplugin', 'org.bstats', 'com.google.gson', 'com.google.guava', 'com.google.common', 'org.yaml.snakeyaml']
         relocations.forEach {
             relocate it, "ru.brikster.chatty.shaded.${it}"
         }
@@ -18,7 +18,7 @@ tasks {
     }
 
     runServer {
-        minecraftVersion('1.20')
+        minecraftVersion('1.20.1')
     }
 }
 
@@ -54,6 +54,7 @@ dependencies {
 
     compileOnly 'net.milkbowl.vault:VaultAPI:1.7'
     compileOnly 'me.clip:placeholderapi:2.10.6'
+    compileOnly 'net.luckperms:api:5.4'
     compileOnly 'commons-io:commons-io:2.11.0'
 }
 

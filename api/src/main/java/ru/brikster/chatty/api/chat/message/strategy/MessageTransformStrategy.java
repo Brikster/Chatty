@@ -1,9 +1,7 @@
 package ru.brikster.chatty.api.chat.message.strategy;
 
 import net.kyori.adventure.text.Component;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import ru.brikster.chatty.api.chat.message.context.MessageContext;
 import ru.brikster.chatty.api.chat.message.strategy.result.MessageTransformResult;
 
@@ -11,7 +9,7 @@ import static ru.brikster.chatty.api.chat.message.strategy.MessageTransformStrat
 
 public interface MessageTransformStrategy<MessageT> {
 
-    @NotNull MessageTransformResult<MessageT> handle(MessageContext<MessageT> context, @Nullable Player target);
+    @NotNull MessageTransformResult<MessageT> handle(MessageContext<MessageT> context);
 
     @NotNull Stage getStage();
 
@@ -22,8 +20,13 @@ public interface MessageTransformStrategy<MessageT> {
     }
 
     enum Stage {
+        // Ungrouped stage with string message
         EARLY(String.class, DENY_FORMAT_UPDATE),
-        LATE(String.class, DENY_CANCEL),
+        // Ungrouped stage with component message
+        MIDDLE(Component.class, DENY_FORMAT_UPDATE, DENY_CANCEL),
+        // Grouped stage with component message
+        LATE(Component.class, DENY_CANCEL, DENY_REMOVE_RECIPIENTS),
+        // Personal stage with component message
         POST(Component.class, DENY_CANCEL, DENY_REMOVE_RECIPIENTS);
 
         private final Class<?> messageType;

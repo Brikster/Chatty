@@ -5,6 +5,9 @@ import eu.okaeri.configs.annotation.*;
 import lombok.Getter;
 import org.bukkit.event.EventPriority;
 import ru.brikster.chatty.BuildConstants;
+import ru.brikster.chatty.convert.component.ComponentStringConverter;
+
+import java.util.regex.Pattern;
 
 @Getter
 @SuppressWarnings("FieldMayBeFinal")
@@ -18,6 +21,9 @@ import ru.brikster.chatty.BuildConstants;
 @Header("################################################################")
 @Names(strategy = NameStrategy.HYPHEN_CASE, modifier = NameModifier.TO_LOWER_CASE)
 public class SettingsConfig extends OkaeriConfig {
+
+    @Exclude
+    public static ComponentStringConverter converter;
 
     @Comment({
             "",
@@ -39,5 +45,39 @@ public class SettingsConfig extends OkaeriConfig {
             "and removed some players due to ignore list"
     })
     private boolean respectForeignRecipients = true;
+
+    @Comment({"",
+            "Order for handling relational placeholders",
+            "from PlaceholderAPI (%rel_<placeholder>%).",
+            "Values: SENDER_AND_TARGET, TARGET_AND_SENDER."
+    })
+    private RelationalPlaceholdersOrder relationalPlaceholdersOrder = RelationalPlaceholdersOrder.SENDER_AND_TARGET;
+
+    @Comment({"", "Settings for parsing links from player messages.", "See chats.yml for per-chat enabling"})
+    private LinksParsingConfig linksParsing = new LinksParsingConfig();
+
+    @Comment({"",
+            "Send unsigned chat messages with sender's UUID.",
+            "Helpful for enabling in-game ignore feature, but may cause newer client CRASHES"})
+    private boolean sendIdentifiedMessages = false;
+
+    public enum RelationalPlaceholdersOrder {
+        SENDER_AND_TARGET,
+        TARGET_AND_SENDER
+    }
+
+    @Getter
+    @Names(strategy = NameStrategy.HYPHEN_CASE, modifier = NameModifier.TO_LOWER_CASE)
+    public static class LinksParsingConfig extends OkaeriConfig {
+
+        @Comment(
+                {"Pattern for URLs parsing"}
+        )
+        private Pattern pattern = Pattern.compile("(?i)\\bhttps?://\\S+\\b");
+
+        @Comment({"", "Hover message for parsed URLs"})
+        private String hoverMessage = "&bClick to follow the link";
+
+    }
 
 }

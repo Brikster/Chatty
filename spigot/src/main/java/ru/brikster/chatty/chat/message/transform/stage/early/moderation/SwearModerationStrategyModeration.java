@@ -13,7 +13,7 @@ import javax.inject.Inject;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public final class SwearModerationMessageTransformStrategy implements MatcherMessageTransformStrategy {
+public final class SwearModerationStrategyModeration implements ModerationMatcherStrategy {
 
     private final String replacement;
     private final boolean useBlock;
@@ -25,7 +25,7 @@ public final class SwearModerationMessageTransformStrategy implements MatcherMes
     @Inject private ModerationConfig moderationConfig;
     @Inject private SwearRepository swearRepository;
 
-    private SwearModerationMessageTransformStrategy() {
+    private SwearModerationStrategyModeration() {
         SwearModerationConfig config = moderationConfig.getSwear();
         this.replacement = config.getReplacement();
         this.useBlock = config.isBlock();

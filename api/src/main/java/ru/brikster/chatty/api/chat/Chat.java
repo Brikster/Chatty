@@ -41,6 +41,8 @@ public interface Chat {
     @NotNull
     Component getFormat();
 
+    @NotNull Set<ChatStyle> getStyles();
+
     @NotNull String getSymbol();
 
     @Nullable ChatCommand getCommand();
@@ -52,6 +54,10 @@ public interface Chat {
     default boolean isCommandAllowed() {
         return getCommand() != null;
     }
+
+    boolean isSendNobodyHeardYou();
+
+    boolean isParseLinks();
 
     @NotNull Set<@NotNull MessageTransformStrategy<?>> getStrategies();
 

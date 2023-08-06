@@ -39,7 +39,7 @@ public final class MessageTransformStrategiesProcessorImpl implements MessageTra
 
         for (MessageTransformStrategy<?> strategy : strategySet) {
             @SuppressWarnings({"rawtypes", "unchecked"})
-            MessageTransformResult<?> messageTransformResult = ((MessageTransformStrategy) strategy).handle(newContext, context.getTarget());
+            MessageTransformResult<?> messageTransformResult = ((MessageTransformStrategy) strategy).handle(newContext);
 
             newContext = messageTransformResult.getNewContext();
             formatUpdated |= messageTransformResult.isFormatUpdated();

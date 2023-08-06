@@ -1,4 +1,4 @@
-package ru.brikster.chatty.chat.message.transform.stage.intermediary;
+package ru.brikster.chatty.chat.message.transform.intermediary;
 
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;

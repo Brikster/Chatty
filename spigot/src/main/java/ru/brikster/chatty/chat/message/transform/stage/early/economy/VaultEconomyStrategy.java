@@ -4,12 +4,12 @@ import lombok.RequiredArgsConstructor;
 import net.milkbowl.vault.economy.Economy;
 import org.jetbrains.annotations.NotNull;
 import ru.brikster.chatty.api.chat.message.context.MessageContext;
+import ru.brikster.chatty.api.chat.message.strategy.MessageTransformStrategy;
 import ru.brikster.chatty.api.chat.message.strategy.result.MessageTransformResult;
-import ru.brikster.chatty.api.chat.message.strategy.stage.EarlyMessageTransformStrategy;
 import ru.brikster.chatty.chat.message.transform.result.MessageTransformResultBuilder;
 
 @RequiredArgsConstructor
-public final class VaultEconomyMessageTransformStrategy implements EarlyMessageTransformStrategy {
+public final class VaultEconomyStrategy implements MessageTransformStrategy<String> {
 
     private final @NotNull Economy vaultEconomy;
     private final int cost;

@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.brikster.chatty.api.chat.Chat;
+import ru.brikster.chatty.api.chat.ChatStyle;
 import ru.brikster.chatty.api.chat.command.ChatCommand;
 import ru.brikster.chatty.api.chat.message.strategy.MessageTransformStrategy;
 import ru.brikster.chatty.api.chat.range.Ranges;
@@ -40,8 +41,18 @@ public final class ChatImpl implements Chat {
     @Getter
     private final boolean permissionRequired;
 
+    @Getter
+    private final Set<ChatStyle> styles;
+
+    @Getter
+    private final boolean sendNobodyHeardYou;
+
+    @Getter
+    private final boolean parseLinks;
+
     private final Set<MessageTransformStrategy<?>> strategies
             = new HashSet<>();
+
 
     @Override
     public @NotNull String getDisplayName() {

@@ -19,6 +19,12 @@ public class VanillaConfig extends OkaeriConfig {
 
     private JoinVanillaConfig join = new JoinVanillaConfig();
 
+    @Comment
+    private QuitVanillaConfig quit = new QuitVanillaConfig();
+
+    @Comment
+    private DeathVanillaConfig death = new DeathVanillaConfig();
+
     @Getter
     @SuppressWarnings("FieldMayBeFinal")
     @Names(strategy = NameStrategy.HYPHEN_CASE, modifier = NameModifier.TO_LOWER_CASE)
@@ -67,9 +73,6 @@ public class VanillaConfig extends OkaeriConfig {
 
     }
 
-    @Comment
-    private QuitVanillaConfig quit = new QuitVanillaConfig();
-
     @Getter
     @SuppressWarnings("FieldMayBeFinal")
     @Names(strategy = NameStrategy.HYPHEN_CASE, modifier = NameModifier.TO_LOWER_CASE)
@@ -94,9 +97,6 @@ public class VanillaConfig extends OkaeriConfig {
         private boolean permissionRequired = false;
 
     }
-
-    @Comment
-    private DeathVanillaConfig death = new DeathVanillaConfig();
 
     @Getter
     @SuppressWarnings("FieldMayBeFinal")

@@ -13,7 +13,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public final class AdModerationMessageTransformStrategy implements MatcherMessageTransformStrategy {
+public final class AdModerationStrategyModeration implements ModerationMatcherStrategy {
 
     private final Set<String> whitelist;
     private final boolean useBlock;
@@ -26,7 +26,7 @@ public final class AdModerationMessageTransformStrategy implements MatcherMessag
     @Inject private MessagesConfig messages;
     @Inject private ModerationConfig moderationConfig;
 
-    private AdModerationMessageTransformStrategy() {
+    private AdModerationStrategyModeration() {
         AdvertisementModerationConfig config = moderationConfig.getAdvertisement();
 
         this.whitelist = config.getWhitelist();
