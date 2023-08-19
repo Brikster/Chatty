@@ -12,9 +12,9 @@
 Chatty is the unique Bukkit-plugin, that supports all modern Bukkit-servers, such as Thermos, Cauldron, Spigot,
 PaperSpigot e t.c. This plugin doesn't have any non-switchable options. It's simple, stable and lightweight.
 
-- Chats, such as local and global chats. Also you can add another chat.
+- Chats, such as local and global chats. Also, you can add another chat.
 - Chats separation by permission. For example, if you have permission "chatty.chat.local", but have "chatty.chat.global"
-  , your message will sent at global chat.
+  , your message will send at global chat.
 - Spy-mode permission. Players with "chatty.spy" permission can see all messages from all chats.
 - Vault API support.
 - Advancements announcements system.
@@ -42,7 +42,7 @@ PaperSpigot e t.c. This plugin doesn't have any non-switchable options. It's sim
 ## Comparison with ChatEx
 
 | Feature                                  | ChatEx | Chatty |
-|------------------------------------------| ------ | ------ |
+|------------------------------------------|--------|--------|
 | Vault support                            | +      | +      |
 | Advertisement protection                 | +      | +      |
 | PlaceholderAPI support                   | +      | +      |
@@ -70,7 +70,7 @@ Chatty supports new 1.16+ color codes. To add a new color code in your chat form
 
 ### Gradient
 
-You can create various multi-color gradient strings with this pattern:
+You can create various multicolor gradient strings with this pattern:
 
     {#ffffff:#0039a6:#d52b1e This is awesome tricolor gradient}
 
