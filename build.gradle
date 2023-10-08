@@ -1,6 +1,6 @@
 allprojects {
     group = 'ru.mrbrikster'
-    version = '2.19.13'
+    version = '2.19.14'
 }
 
 subprojects {

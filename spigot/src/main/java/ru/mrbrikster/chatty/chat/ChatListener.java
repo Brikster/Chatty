@@ -29,11 +29,7 @@ import ru.mrbrikster.chatty.util.Pair;
 import ru.mrbrikster.chatty.util.Sound;
 import ru.mrbrikster.chatty.util.TextUtil;
 
-import java.util.ArrayList;
-import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UnknownFormatConversionException;
+import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -329,14 +325,10 @@ public class ChatListener implements Listener, EventExecutor {
         if (configuration.getNode("json.enable").getAsBoolean(false)) {
             performJsonMessage(event, chat);
         } else {
+            event.setFormat(TextUtil.stripHex(event.getFormat()));
             String format = String.format(event.getFormat(), event.getPlayer().getDisplayName(), event.getMessage());
-            String strippedHexFormat = TextUtil.stripHex(format);
-
-            if (!strippedHexFormat.equals(format)) {
-                event.getRecipients().forEach(player -> player.sendMessage(format));
-                event.getRecipients().clear();
-                event.setFormat(strippedHexFormat);
-            }
+            event.getRecipients().forEach(player -> player.sendMessage(format));
+            event.getRecipients().clear();
         }
     }
 
@@ -523,7 +515,10 @@ public class ChatListener implements Listener, EventExecutor {
         String replacementSuggestCommand = replacement.getNode("suggest").getAsString(null);
         String replacementLink = replacement.getNode("link").getAsString(null);
 
-        formattedMessage.replace(replacementName, new JsonMessagePart(stringVariablesFunction.apply(text))
+        formattedMessage.replace(replacementName, new JsonMessagePart(TextUtil.stylish(
+                applyPlaceholders(player, text.replace("{player}", player.getDisplayName())
+                                .replace("{prefix}", playerTagManager.getPrefix(player))
+                                .replace("{suffix}", playerTagManager.getSuffix(player)))))
                 .command(stringVariablesFunction.apply(replacementCommand))
                 .suggest(stringVariablesFunction.apply(replacementSuggestCommand))
                 .link(stringVariablesFunction.apply(replacementLink))
@@ -558,7 +553,7 @@ public class ChatListener implements Listener, EventExecutor {
     private String stylish(Player player, String message, String chat) {
         for (Map.Entry<String, Pattern> entry : PATTERNS.entrySet()) {
             if (player.hasPermission(entry.getKey()) || player.hasPermission(entry.getKey() + "." + chat)) {
-                message = entry.getValue().matcher(message).replaceAll("\u00A7$1");
+                message = entry.getValue().matcher(message).replaceAll("§$1");
             }
         }
 
@@ -576,7 +571,7 @@ public class ChatListener implements Listener, EventExecutor {
     private String unstylish(String string) {
         char[] b = string.toCharArray();
         for (int i = 0; i < b.length - 1; i++) {
-            if (b[i] == '\u00A7' && "0123456789AaBbCcDdEeFfKkLlMmNnOoRr".indexOf(b[i + 1]) > -1) {
+            if (b[i] == '§' && "0123456789AaBbCcDdEeFfKkLlMmNnOoRr".indexOf(b[i + 1]) > -1) {
                 b[i] = '&';
                 b[i + 1] = Character.toLowerCase(b[i + 1]);
             }
