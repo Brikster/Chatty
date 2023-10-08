@@ -47,7 +47,7 @@ public class MsgCommand extends PrivateMessageCommand {
             return;
         }
 
-        if (recipient.equals(sender)) {
+        if (recipient.equals(sender) && !configuration.getNode("pm.allow-yourself").getAsBoolean(false)) {
             sender.sendMessage(Chatty.instance().messages().get("msg-command.cannot-message-yourself"));
             return;
         }
