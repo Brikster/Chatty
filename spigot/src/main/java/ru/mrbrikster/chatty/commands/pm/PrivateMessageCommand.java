@@ -118,9 +118,9 @@ public abstract class PrivateMessageCommand extends BukkitCommand {
             if (!(recipient instanceof Player)) {
                 recipientFormat = TextUtil.stripHex(recipientFormat);
                 recipient.sendMessage(recipientFormat);
+                return;
             } else {
-                FormattedMessage formattedMessage = new FormattedMessage(recipientFormat);
-                formattedMessage.toFancyMessage().send(recipient, sender instanceof Player ? ((Player) sender) : null);
+                recipient.sendMessage(recipientFormat);
 
                 String soundName = configuration.getNode("pm.sound").getAsString(null);
                 if (soundName != null) {
@@ -138,7 +138,9 @@ public abstract class PrivateMessageCommand extends BukkitCommand {
                 senderName, senderPrefix, senderSuffix);
 
         if (!(sender instanceof Player)) {
-            TextUtil.stripHex(senderFormat);
+            senderFormat = TextUtil.stripHex(senderFormat);
+            sender.sendMessage(senderFormat);
+            return;
         }
 
         sender.sendMessage(senderFormat);
