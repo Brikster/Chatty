@@ -54,7 +54,7 @@ import ru.brikster.chatty.chat.selection.ChatSelectorImpl;
 import ru.brikster.chatty.config.serdes.SerdesChatty;
 import ru.brikster.chatty.config.type.*;
 import ru.brikster.chatty.convert.component.ComponentStringConverter;
-import ru.brikster.chatty.convert.component.SystemMiniMessageStringConverter;
+import ru.brikster.chatty.convert.component.InternalMiniMessageStringConverter;
 import ru.brikster.chatty.convert.message.LegacyToMiniMessageConverter;
 import ru.brikster.chatty.convert.message.MessageConverter;
 import ru.brikster.chatty.notification.NotificationTicker;
@@ -79,7 +79,7 @@ public final class GeneralGuiceModule extends AbstractModule {
 
     private final Path dataFolderPath;
 
-    private final SystemMiniMessageStringConverter systemMiniMessageStringConverter;
+    private final InternalMiniMessageStringConverter internalMiniMessageStringConverter;
 
     private final ChatRegistry chatRegistry;
     private final SerdesChatty serdesChatty;
@@ -91,9 +91,9 @@ public final class GeneralGuiceModule extends AbstractModule {
         this.audienceProvider = audienceProvider;
         this.dataFolderPath = dataFolderPath;
 
-        this.systemMiniMessageStringConverter = new SystemMiniMessageStringConverter();
+        this.internalMiniMessageStringConverter = new InternalMiniMessageStringConverter();
         this.chatRegistry = new MemoryChatRegistry();
-        this.serdesChatty = new SerdesChatty(systemMiniMessageStringConverter);
+        this.serdesChatty = new SerdesChatty(internalMiniMessageStringConverter);
     }
 
     @Override
@@ -102,7 +102,7 @@ public final class GeneralGuiceModule extends AbstractModule {
         bind(ChatRegistry.class).toInstance(chatRegistry);
 
         bind(MessageTransformStrategiesProcessor.class).to(MessageTransformStrategiesProcessorImpl.class);
-        bind(ComponentStringConverter.class).toInstance(systemMiniMessageStringConverter);
+        bind(ComponentStringConverter.class).toInstance(internalMiniMessageStringConverter);
         bind(MessageConverter.class).to(LegacyToMiniMessageConverter.class);
         bind(ComponentFromContextConstructor.class).to(ComponentFromContextConstructorImpl.class);
 
@@ -182,7 +182,7 @@ public final class GeneralGuiceModule extends AbstractModule {
     @SuppressWarnings("VulnerableCodeUsages")
     private <ConfigT extends OkaeriConfig> ConfigT createConfig(Class<ConfigT> configClass, String fileName) {
         try {
-            configClass.getDeclaredField("converter").set(null, systemMiniMessageStringConverter);
+            configClass.getDeclaredField("converter").set(null, internalMiniMessageStringConverter);
         } catch (IllegalAccessException e) {
             throw new IllegalStateException("Cannot inject converter into " + configClass.getSimpleName() + " class", e);
         } catch (NoSuchFieldException ignored) {}

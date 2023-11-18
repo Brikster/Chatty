@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import ru.brikster.chatty.convert.message.LegacyToMiniMessageConverter;
 import ru.brikster.chatty.convert.message.MessageConverter;
 
-public final class SystemMiniMessageStringConverter implements ComponentStringConverter {
+public final class InternalMiniMessageStringConverter implements ComponentStringConverter {
 
     private final MessageConverter preConverter = new LegacyToMiniMessageConverter();
 
