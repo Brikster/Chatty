@@ -12,7 +12,7 @@ import lombok.Getter;
 @Names(strategy = NameStrategy.HYPHEN_CASE, modifier = NameModifier.TO_LOWER_CASE)
 public class PmConfig extends OkaeriConfig {
 
-    @Comment({"Allow private messages from/to Console?"})
+    @Comment({"Allow private messages from/to console?"})
     private boolean allowConsole = true;
 
     @Comment({"",
