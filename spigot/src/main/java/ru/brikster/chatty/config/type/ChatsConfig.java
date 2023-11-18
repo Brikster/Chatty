@@ -69,7 +69,7 @@ public class ChatsConfig extends OkaeriConfig {
                 "* PlaceholderAPI (including relational placeholders)",
                 "* MiniMessage interactive components (click handlers etc.)",
                 "* Vault or LuckPerms prefixes/suffixes ({prefix} and {suffix})",
-                "* Legacy colorcodes format (\"&c&lTHAT'S BOLD TEXT\")",
+                "* Legacy color codes format (\"&c&lTHAT'S BOLD TEXT\")",
                 "",
                 "Use https://webui.advntr.dev/ for convenient format creation"
         })

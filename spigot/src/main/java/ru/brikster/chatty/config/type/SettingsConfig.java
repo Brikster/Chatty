@@ -50,7 +50,7 @@ public class SettingsConfig extends OkaeriConfig {
         "Should Chatty ignore vanished recipients?",
         "This setting only affects \"no recipients\" message:",
         "if true, and everybody is vanished, Chatty will send it.",
-        "Supports vanished players from Essentials any many others plugins, ",
+        "Supports vanished players from Essentials and many others plugins, ",
         "that hides players with native Bukkit mechanism"
     })
     private boolean hideVanishedRecipients = true;

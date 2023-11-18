@@ -252,7 +252,7 @@ public class AdventureUtil {
      * <br>
      * If replaceFunction returns null, matched string won't be replaced.
      * Processed component should have ending space as a trick for keeping ending styles (for example, component from
-     * legacy string "&6&lPrefix &e")
+     * legacy string "&6&lPrefix &e" will lose yellow color without ending space)
      * @author Brikster
      * @param componentWithEndingSpace the component with ending space
      * @param pattern the pattern to match
