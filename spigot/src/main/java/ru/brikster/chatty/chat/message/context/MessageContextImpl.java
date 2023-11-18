@@ -10,6 +10,7 @@ import ru.brikster.chatty.api.chat.message.context.MessageContext;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @AllArgsConstructor
@@ -19,6 +20,7 @@ public final class MessageContextImpl<MessageT> implements MessageContext<Messag
 
     private final @Nullable Chat chat;
     private final @Nullable Player sender;
+    private final @NotNull Map<String, Object> metadata;
     private boolean cancelled;
     private @NotNull Component format;
     private @NotNull Collection<? extends @NotNull Player> recipients;
@@ -31,6 +33,7 @@ public final class MessageContextImpl<MessageT> implements MessageContext<Messag
         this.recipients = new ArrayList<>(context.getRecipients());
         this.chat = context.getChat();
         this.sender = context.getSender();
+        this.metadata = context.getMetadata();
         this.target = context.getTarget();
     }
 

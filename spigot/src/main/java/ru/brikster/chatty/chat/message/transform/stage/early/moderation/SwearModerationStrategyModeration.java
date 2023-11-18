@@ -1,7 +1,9 @@
 package ru.brikster.chatty.chat.message.transform.stage.early.moderation;
 
+import com.google.inject.Singleton;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import ru.brikster.chatty.api.chat.message.context.MessageContext;
 import ru.brikster.chatty.api.chat.message.strategy.result.MessageTransformResult;
 import ru.brikster.chatty.config.type.MessagesConfig;
@@ -12,27 +14,36 @@ import ru.brikster.chatty.repository.swear.SwearRepository;
 import javax.inject.Inject;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
+@Singleton
 public final class SwearModerationStrategyModeration implements ModerationMatcherStrategy {
+
+    private final BukkitAudiences audiences;
+    private final MessagesConfig messages;
+    private final SwearRepository swearRepository;
 
     private final String replacement;
     private final boolean useBlock;
 
     private final Pattern swearPattern;
 
-    @Inject private BukkitAudiences audiences;
-    @Inject private MessagesConfig messages;
-    @Inject private ModerationConfig moderationConfig;
-    @Inject private SwearRepository swearRepository;
+    @Inject
+    public SwearModerationStrategyModeration(BukkitAudiences audiences, MessagesConfig messages, ModerationConfig moderationConfig, SwearRepository swearRepository) {
+        this.audiences = audiences;
+        this.messages = messages;
+        this.swearRepository = swearRepository;
 
-    private SwearModerationStrategyModeration() {
         SwearModerationConfig config = moderationConfig.getSwear();
         this.replacement = config.getReplacement();
         this.useBlock = config.isBlock();
 
-        if (swearRepository.getSwears().size() != 0) {
+        if (!swearRepository.getSwears().isEmpty()) {
             this.swearPattern =
-                    Pattern.compile(String.join("|", swearRepository.getSwears()),
+                    Pattern.compile(swearRepository.getSwears()
+                                    .stream()
+                                    .map(swear -> "(".concat(swear).concat(")"))
+                                    .collect(Collectors.joining("|")),
                             Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
         } else {
             this.swearPattern = null;
@@ -54,7 +65,11 @@ public final class SwearModerationStrategyModeration implements ModerationMatche
         return messageTransformResult;
     }
 
-    private @NotNull String match(@NotNull String message, @NotNull Pattern pattern) {
+    private @NotNull String match(@NotNull String message, @Nullable Pattern pattern) {
+        if (pattern == null) {
+            return message;
+        }
+
         Matcher matcher = pattern.matcher(message);
 
         StringBuffer buffer = new StringBuffer();

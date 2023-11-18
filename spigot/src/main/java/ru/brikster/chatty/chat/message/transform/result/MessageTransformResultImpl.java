@@ -17,6 +17,7 @@ public final class MessageTransformResultImpl<MessageT> implements MessageTransf
     @NotNull MessageContext<MessageT> newContext;
 
     Collection<? extends @NotNull Player> removedRecipients;
+    Collection<? extends @NotNull Player> addedRecipients;
 
     boolean formatUpdated;
     boolean messageUpdated;
@@ -24,9 +25,11 @@ public final class MessageTransformResultImpl<MessageT> implements MessageTransf
 
     public MessageTransformResultImpl(@NotNull MessageContext<MessageT> newContext,
                                       Collection<? extends @NotNull Player> removedRecipients,
+                                      Collection<? extends @NotNull Player> addedRecipients,
                                       boolean formatUpdated, boolean messageUpdated, boolean becameCancelled) {
         this.newContext = newContext;
         this.removedRecipients = removedRecipients;
+        this.addedRecipients = addedRecipients;
         this.formatUpdated = formatUpdated;
         this.messageUpdated = messageUpdated;
         this.becameCancelled = becameCancelled;

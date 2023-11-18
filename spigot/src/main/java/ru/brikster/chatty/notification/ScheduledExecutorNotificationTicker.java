@@ -34,6 +34,7 @@ public final class ScheduledExecutorNotificationTicker implements NotificationTi
                     notification.tick();
                 }
             } catch (Throwable t) {
+                //noinspection CallToPrintStackTrace
                 t.printStackTrace();
             }
         }, 1, 1, TimeUnit.SECONDS);

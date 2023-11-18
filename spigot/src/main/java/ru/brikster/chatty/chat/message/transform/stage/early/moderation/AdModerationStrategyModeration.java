@@ -1,5 +1,6 @@
 package ru.brikster.chatty.chat.message.transform.stage.early.moderation;
 
+import com.google.inject.Singleton;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.jetbrains.annotations.NotNull;
 import ru.brikster.chatty.api.chat.message.context.MessageContext;
@@ -13,7 +14,11 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Singleton
 public final class AdModerationStrategyModeration implements ModerationMatcherStrategy {
+
+    private final BukkitAudiences audiences;
+    private final MessagesConfig messages;
 
     private final Set<String> whitelist;
     private final boolean useBlock;
@@ -22,11 +27,11 @@ public final class AdModerationStrategyModeration implements ModerationMatcherSt
     private final Pattern ipPattern;
     private final Pattern webPattern;
 
-    @Inject private BukkitAudiences audiences;
-    @Inject private MessagesConfig messages;
-    @Inject private ModerationConfig moderationConfig;
+    @Inject
+    public AdModerationStrategyModeration(BukkitAudiences audiences, MessagesConfig messages, ModerationConfig moderationConfig) {
+        this.audiences = audiences;
+        this.messages = messages;
 
-    private AdModerationStrategyModeration() {
         AdvertisementModerationConfig config = moderationConfig.getAdvertisement();
 
         this.whitelist = config.getWhitelist();

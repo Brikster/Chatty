@@ -5,6 +5,7 @@ import eu.okaeri.configs.annotation.Comment;
 import eu.okaeri.configs.annotation.NameModifier;
 import eu.okaeri.configs.annotation.NameStrategy;
 import eu.okaeri.configs.annotation.Names;
+import eu.okaeri.validator.annotation.Min;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,19 +18,6 @@ import java.util.Map;
 @Names(strategy = NameStrategy.HYPHEN_CASE, modifier = NameModifier.TO_LOWER_CASE)
 public class ChatsConfig extends OkaeriConfig {
 
-//    private Map<String, ChatProperties> chats = new TreeMap<String, ChatProperties>() {{
-//        put("global", new ChatProperties(
-//                "Global", "&7[&2Global&7] &r{prefix}{player}{suffix}&8: &f{message}",
-//                "!", -2, 15, 0, false, false,
-//                new ChatCommandProperties("gchat", Collections.emptyList(), true, false)
-//        ));
-//
-//        put("local", new ChatProperties(
-//                "Local", "&7[&cLocal&7] &r{prefix}{player}{suffix}&8: &f{message}",
-//                "", 100, 0, 0, false, true, null
-//        ));
-//    }};
-
     @Comment({"List of chats.",
             "You can use declared or add you own chats"})
     private Map<String, ChatConfig> chats = new HashMap<String, ChatConfig>() {{
@@ -41,7 +29,8 @@ public class ChatsConfig extends OkaeriConfig {
                 200,
                 false,
                 true,
-                true));
+                true,
+                new ChatSpyConfig(true, "&6[Spy (local)] &r{prefix}{player}{suffix}&8: &f{message}")));
         put("global", new ChatConfig(
                 "Global",
                 "&7[<hover:show_text:'&aUse &2&l! &afor global chat'><click:suggest_command:!>&6Global</click></hover>&7] &r{prefix}{player}{suffix}&8: &f{message}",
@@ -52,14 +41,15 @@ public class ChatsConfig extends OkaeriConfig {
                     ));
                     put("green", new ChatStyleConfig(
                             "&7[&2Global&7] &r{prefix}{player}{suffix}&8: &a{message}",
-                            10
+                            20
                     ));
                 }},
                 "!",
                 -2,
                 false,
                 false,
-                true));
+                true,
+                new ChatSpyConfig(false, "")));
     }};
 
     @Getter
@@ -108,6 +98,7 @@ public class ChatsConfig extends OkaeriConfig {
                 " -2 -> message will be sent to all online players",
                 " -1 -> message will be sent to all players of the sender's world",
                 " >= 0 -> message will be sent to all players in this blocks range"})
+        @Min(-2)
         private int range = -2;
 
         @Comment({"",
@@ -130,10 +121,15 @@ public class ChatsConfig extends OkaeriConfig {
         @Comment({
                 "",
                 "If true, URLs from player messages will be processed",
-                "and converted to clickable part.",
+                "and made clickable.",
                 "Check settings.yml for more parameters"
         })
         private boolean parseLinks = true;
+
+        @Comment({"",
+                "Permission for spy: chatty.spy.<chat>"
+        })
+        private ChatSpyConfig spy = new ChatSpyConfig(false, "");
 
     }
 
@@ -149,6 +145,20 @@ public class ChatsConfig extends OkaeriConfig {
         @Comment({"",
                 "If player has several permissions, chat with higher priority will be selected"})
         private int priority = 0;
+
+    }
+
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Names(strategy = NameStrategy.HYPHEN_CASE, modifier = NameModifier.TO_LOWER_CASE)
+    public static final class ChatSpyConfig extends OkaeriConfig {
+
+        @Comment({"Enable spy for the chat?"})
+        private boolean enable;
+
+        @Comment({"Custom format for spy message"})
+        private String format;
 
     }
 

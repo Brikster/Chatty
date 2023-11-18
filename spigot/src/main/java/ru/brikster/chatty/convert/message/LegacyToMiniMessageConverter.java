@@ -11,10 +11,13 @@ import java.util.regex.Pattern;
 @Singleton
 public final class LegacyToMiniMessageConverter implements MessageConverter {
 
-    private static final Pattern SIMPLE_COLOR_PATTERN = Pattern.compile("(?i)[§&][A-FK-OR\\d]");
-    private static final Pattern HEX_GRADIENT_PATTERN = Pattern.compile("(?i)\\{#([A-F\\d]{6})(:#([A-F\\d]{6}))+( )([^{}])*(})");
-    private static final Pattern HEX_COLOR_PATTERN = Pattern.compile("(?i)\\{#([A-F\\d]{6})}");
+    private static final Pattern BUKKIT_COLOR_PATTERN = Pattern.compile("(?i)[§&][A-FK-OR\\d]");
     private static final Pattern SPIGOT_HEX_COLOR_PATTERN = Pattern.compile("(?i)[§&]X([§&][A-F\\d]){6}");
+    private static final Pattern PAPER_HEX_COLOR_PATTERN = Pattern.compile("(?i)[§&]#([A-F\\d]){6}");
+
+    private static final Pattern CHATTY_HEX_COLOR_PATTERN = Pattern.compile("(?i)\\{#([A-F\\d]{6})}");
+    private static final Pattern CHATTY_HEX_GRADIENT_PATTERN = Pattern.compile("(?i)\\{#([A-F\\d]{6})(:#([A-F\\d]{6}))+( )([^{}])*(})");
+
     private static final Pattern COLOR_SYMBOLS_PATTERN = Pattern.compile("[§&]");
 
     private static final String RESET_TAGS = "<!bold><!italic><!strikethrough><!obfuscated><!underlined>";
@@ -49,15 +52,29 @@ public final class LegacyToMiniMessageConverter implements MessageConverter {
     @Override
     public @NotNull String convert(@NotNull String message) {
         String convertedMessage;
-        convertedMessage = convertHexLegacyGradients(message);
-        convertedMessage = convertHexLegacyCodes(convertedMessage);
-        convertedMessage = convertSpigotHexLegacyCodes(convertedMessage);
-        convertedMessage = convertSimpleLegacyCodes(convertedMessage);
+        convertedMessage = convertChattyCodes(message);
+        convertedMessage = convertChattyHexCodes(convertedMessage);
+        convertedMessage = convertPaperHexCodes(convertedMessage);
+        convertedMessage = convertSpigotHexCodes(convertedMessage);
+        convertedMessage = convertBukkitCodes(convertedMessage);
         return convertedMessage;
     }
 
-    private @NotNull String convertHexLegacyGradients(@NotNull String message) {
-        Matcher matcher = HEX_GRADIENT_PATTERN.matcher(message);
+    private @NotNull String convertPaperHexCodes(@NotNull String message) {
+        Matcher matcher = PAPER_HEX_COLOR_PATTERN.matcher(message);
+
+        StringBuffer buffer = new StringBuffer();
+        while (matcher.find()) {
+            String hex = matcher.group().substring(2);
+            matcher.appendReplacement(buffer, RESET_TAGS + "<color:#" + hex + ">");
+        }
+        matcher.appendTail(buffer);
+
+        return buffer.toString();
+    }
+
+    private @NotNull String convertChattyCodes(@NotNull String message) {
+        Matcher matcher = CHATTY_HEX_GRADIENT_PATTERN.matcher(message);
 
         StringBuffer buffer = new StringBuffer();
         while (matcher.find()) {
@@ -72,8 +89,8 @@ public final class LegacyToMiniMessageConverter implements MessageConverter {
         return buffer.toString();
     }
 
-    private @NotNull String convertHexLegacyCodes(@NotNull String message) {
-        Matcher matcher = HEX_COLOR_PATTERN.matcher(message);
+    private @NotNull String convertChattyHexCodes(@NotNull String message) {
+        Matcher matcher = CHATTY_HEX_COLOR_PATTERN.matcher(message);
 
         StringBuffer buffer = new StringBuffer();
         while (matcher.find()) {
@@ -84,7 +101,7 @@ public final class LegacyToMiniMessageConverter implements MessageConverter {
         return buffer.toString();
     }
 
-    private @NotNull String convertSpigotHexLegacyCodes(@NotNull String message) {
+    private @NotNull String convertSpigotHexCodes(@NotNull String message) {
         Matcher matcher = SPIGOT_HEX_COLOR_PATTERN.matcher(message);
 
         StringBuffer buffer = new StringBuffer();
@@ -97,8 +114,8 @@ public final class LegacyToMiniMessageConverter implements MessageConverter {
         return buffer.toString();
     }
 
-    private @NotNull String convertSimpleLegacyCodes(@NotNull String message) {
-        Matcher matcher = SIMPLE_COLOR_PATTERN.matcher(message);
+    private @NotNull String convertBukkitCodes(@NotNull String message) {
+        Matcher matcher = BUKKIT_COLOR_PATTERN.matcher(message);
 
         StringBuffer buffer = new StringBuffer();
         while (matcher.find()) {

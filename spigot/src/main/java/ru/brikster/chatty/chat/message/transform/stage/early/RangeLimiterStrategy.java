@@ -10,7 +10,8 @@ import ru.brikster.chatty.api.chat.range.Ranges;
 import ru.brikster.chatty.chat.message.transform.result.MessageTransformResultBuilder;
 
 import javax.inject.Singleton;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Singleton
@@ -18,13 +19,28 @@ public final class RangeLimiterStrategy implements MessageTransformStrategy<Stri
 
     @Override
     public @NotNull MessageTransformResult<String> handle(MessageContext<String> context) {
-        Set<Player> recipients = Bukkit.getOnlinePlayers()
+        List<Player> recipients = Bukkit.getOnlinePlayers()
                 .stream()
                 .filter(recipient -> Ranges.isApplicable(context.getSender(), recipient, context.getChat().getRange()))
-                .collect(Collectors.toSet());
-        return MessageTransformResultBuilder.<String>fromContext(context)
-                .withRecipients(recipients)
-                .build();
+                .collect(Collectors.toList());
+
+        MessageTransformResultBuilder<String> builder = MessageTransformResultBuilder.<String>fromContext(context)
+                .withRecipients(recipients);
+
+        List<Player> spies = new ArrayList<>();
+        if (context.getChat().isEnableSpy()) {
+            for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                if (onlinePlayer.hasPermission("chatty.spy." + context.getChat().getName())
+                    && !recipients.contains(onlinePlayer)) {
+                    recipients.add(onlinePlayer);
+                    spies.add(onlinePlayer);
+                }
+            }
+
+            builder.withMetadata("spy-recipients", spies);
+        }
+
+        return builder.build();
     }
 
     @Override

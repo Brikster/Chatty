@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import ru.brikster.chatty.api.chat.Chat;
 
 import java.util.Collection;
+import java.util.Map;
 
 public interface MessageContext<MessageT> {
 
@@ -37,6 +38,9 @@ public interface MessageContext<MessageT> {
 
     @Nullable
     Player getTarget();
+
+    @NotNull
+    Map<String, Object> getMetadata();
 
     void setTarget(@NotNull Player player);
 

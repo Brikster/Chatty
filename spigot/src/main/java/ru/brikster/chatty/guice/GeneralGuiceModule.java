@@ -30,7 +30,7 @@ import ru.brikster.chatty.chat.component.impl.PlaceholdersComponentTransformer;
 import ru.brikster.chatty.chat.component.impl.RelationalPlaceholdersComponentTransformer;
 import ru.brikster.chatty.chat.component.impl.dummy.DummyPlaceholdersComponentTransformer;
 import ru.brikster.chatty.chat.component.impl.dummy.DummyRelationalPlaceholdersComponentTransformer;
-import ru.brikster.chatty.chat.component.impl.papi.PlaceholderApiComponentTransformer;
+import ru.brikster.chatty.chat.component.impl.papi.CommonChatPlaceholderApiComponentTransformer;
 import ru.brikster.chatty.chat.component.impl.papi.PlaceholderApiRelationalComponentTransformer;
 import ru.brikster.chatty.chat.construct.ComponentFromContextConstructor;
 import ru.brikster.chatty.chat.construct.ComponentFromContextConstructorImpl;
@@ -40,6 +40,9 @@ import ru.brikster.chatty.chat.message.transform.processor.MessageTransformStrat
 import ru.brikster.chatty.chat.message.transform.processor.MessageTransformStrategiesProcessorImpl;
 import ru.brikster.chatty.chat.message.transform.stage.early.RangeLimiterStrategy;
 import ru.brikster.chatty.chat.message.transform.stage.early.RemoveChatSymbolStrategy;
+import ru.brikster.chatty.chat.message.transform.stage.early.moderation.AdModerationStrategyModeration;
+import ru.brikster.chatty.chat.message.transform.stage.early.moderation.CapsModerationStrategy;
+import ru.brikster.chatty.chat.message.transform.stage.early.moderation.SwearModerationStrategyModeration;
 import ru.brikster.chatty.chat.message.transform.stage.late.papi.PlaceholdersStrategy;
 import ru.brikster.chatty.chat.message.transform.stage.late.prefix.PrefixStrategy;
 import ru.brikster.chatty.chat.message.transform.stage.middle.LinkParserTransformStrategy;
@@ -60,6 +63,8 @@ import ru.brikster.chatty.prefix.LuckpermsPrefixProvider;
 import ru.brikster.chatty.prefix.NullPrefixProvider;
 import ru.brikster.chatty.prefix.PrefixProvider;
 import ru.brikster.chatty.prefix.VaultPrefixProvider;
+import ru.brikster.chatty.repository.swear.FileSwearRepository;
+import ru.brikster.chatty.repository.swear.SwearRepository;
 
 import javax.inject.Singleton;
 import java.nio.charset.StandardCharsets;
@@ -110,13 +115,28 @@ public final class GeneralGuiceModule extends AbstractModule {
         bind(ChatsConfig.class).toInstance(createConfig(ChatsConfig.class, "chats.yml"));
         bind(MessagesConfig.class).toInstance(createConfig(MessagesConfig.class, "messages.yml"));
         bind(VanillaConfig.class).toInstance(createConfig(VanillaConfig.class, "vanilla.yml"));
-        bind(ModerationConfig.class).toInstance(createConfig(ModerationConfig.class, "moderation.yml"));
+        ModerationConfig moderationConfig = createConfig(ModerationConfig.class, "moderation.yml");
+        bind(ModerationConfig.class).toInstance(moderationConfig);
         bind(NotificationsConfig.class).toInstance(createConfig(NotificationsConfig.class, "notifications.yml"));
 
         Multibinder<MessageTransformStrategy<?>> strategyMultibinder = Multibinder.newSetBinder(binder(), new TypeLiteral<MessageTransformStrategy<?>>() {});
         // Early
         strategyMultibinder.addBinding().to(RemoveChatSymbolStrategy.class);
         strategyMultibinder.addBinding().to(RangeLimiterStrategy.class);
+
+        if (moderationConfig.getAdvertisement().isEnable()) {
+            strategyMultibinder.addBinding().to(AdModerationStrategyModeration.class);
+        }
+
+        if (moderationConfig.getCaps().isEnable()) {
+            strategyMultibinder.addBinding().to(CapsModerationStrategy.class);
+        }
+
+        if (moderationConfig.getSwear().isEnable()) {
+            bind(SwearRepository.class).toInstance(new FileSwearRepository(dataFolderPath));
+            strategyMultibinder.addBinding().to(SwearModerationStrategyModeration.class);
+        }
+
         // Middle
         strategyMultibinder.addBinding().to(LinkParserTransformStrategy.class);
         // Late
@@ -147,7 +167,7 @@ public final class GeneralGuiceModule extends AbstractModule {
     @Singleton
     public PlaceholdersComponentTransformer placeholdersComponentTransformer(ComponentStringConverter componentStringConverter) {
         return Bukkit.getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")
-                ? new PlaceholderApiComponentTransformer(componentStringConverter)
+                ? new CommonChatPlaceholderApiComponentTransformer(componentStringConverter)
                 : new DummyPlaceholdersComponentTransformer();
     }
 

@@ -49,7 +49,7 @@ public class ModerationConfig extends OkaeriConfig {
         private boolean enable = true;
 
         private Pattern ipPattern = Pattern.compile("\\b((\\d{1,2}|2(5[0-5]|[0-4]\\d))[._,)(-]+){3}(\\d{1,2}|2(5[0-5]|[0-4]\\d))(:\\d{2,7})?");
-        private Pattern linkPattern = Pattern.compile("\\b((\\d{1,2}|2(5[0-5]|[0-4]\\d))[._,)(-]+){3}(\\d{1,2}|2(5[0-5]|[0-4]\\d))(:\\d{2,7})?");
+        private Pattern linkPattern = Pattern.compile("\\bhttps?://(?:www\\.)?[^\\s/$.?#].\\S*\\b");
 
         private boolean block = true;
 

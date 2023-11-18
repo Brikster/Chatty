@@ -28,6 +28,7 @@ public final class MessageTransformStrategiesProcessorImpl implements MessageTra
         MessageContext<?> newContext = context;
 
         List<Player> removedRecipients = new ArrayList<>();
+        List<Player> addedRecipients = new ArrayList<>();
 
         boolean formatUpdated = false;
         boolean messageUpdated = false;
@@ -47,6 +48,7 @@ public final class MessageTransformStrategiesProcessorImpl implements MessageTra
             becameCancelled |= messageTransformResult.isBecameCancelled();
 
             removedRecipients.addAll(messageTransformResult.getRemovedRecipients());
+            addedRecipients.addAll(messageTransformResult.getAddedRecipients());
         }
 
         if (becameCancelled && stage.hasRule(TransformRule.DENY_CANCEL)) {
@@ -64,6 +66,7 @@ public final class MessageTransformStrategiesProcessorImpl implements MessageTra
         //noinspection unchecked
         return new MessageTransformResultImpl<>((MessageContext<MessageT>) newContext,
                 removedRecipients,
+                addedRecipients,
                 formatUpdated, messageUpdated, becameCancelled);
     }
 

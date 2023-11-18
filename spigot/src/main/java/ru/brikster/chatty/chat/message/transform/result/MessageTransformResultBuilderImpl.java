@@ -3,16 +3,18 @@ package ru.brikster.chatty.chat.message.transform.result;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import ru.brikster.chatty.api.chat.message.context.MessageContext;
 import ru.brikster.chatty.api.chat.message.strategy.result.MessageTransformResult;
 import ru.brikster.chatty.chat.message.context.MessageContextImpl;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Stream;
 
 final class MessageTransformResultBuilderImpl<MessageT> implements MessageTransformResultBuilder<MessageT> {
+
+    private final Map<String, Object> metadata = new HashMap<>();
 
     private final MessageContext<?> oldContext;
     private Collection<Player> recipients;
@@ -52,6 +54,12 @@ final class MessageTransformResultBuilderImpl<MessageT> implements MessageTransf
         return this;
     }
 
+    @Contract(value = "_, _ -> this")
+    public MessageTransformResultBuilder<MessageT> withMetadata(@NotNull String key, @Nullable Object value) {
+        this.metadata.put(key, value);
+        return this;
+    }
+
     @Override
     public MessageTransformResult<MessageT> build() {
         MessageContext<MessageT> newContext = new MessageContextImpl<>(oldContext);
@@ -63,6 +71,7 @@ final class MessageTransformResultBuilderImpl<MessageT> implements MessageTransf
         }
 
         Collection<Player> removedRecipients = new HashSet<>();
+        Collection<Player> addedRecipients = new HashSet<>();
         if (recipients != null) {
             Stream.concat(recipients.stream(), oldContext.getRecipients().stream())
                     .distinct()
@@ -71,7 +80,7 @@ final class MessageTransformResultBuilderImpl<MessageT> implements MessageTransf
                         boolean inOldCollection = oldContext.getRecipients().contains(recipient);
                         if (inNewCollection) {
                             if (!inOldCollection) {
-                                throw new IllegalStateException("Strategy cannot add new recipients");
+                                addedRecipients.add(recipient);
                             }
                         } else {
                             if (inOldCollection) {
@@ -97,8 +106,11 @@ final class MessageTransformResultBuilderImpl<MessageT> implements MessageTransf
             newContext.setCancelled(true);
         }
 
+        newContext.getMetadata().putAll(metadata);
+
         return new MessageTransformResultImpl<>(newContext,
                 removedRecipients,
+                addedRecipients,
                 formatUpdated, messageUpdated, becomeCancelled);
     }
 

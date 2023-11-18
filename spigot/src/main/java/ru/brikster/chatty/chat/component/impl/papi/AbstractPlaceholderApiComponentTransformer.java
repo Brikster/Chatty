@@ -9,21 +9,21 @@ import ru.brikster.chatty.chat.component.impl.PlaceholdersComponentTransformer;
 import ru.brikster.chatty.convert.component.ComponentStringConverter;
 import ru.brikster.chatty.util.AdventureUtil;
 
-import javax.inject.Singleton;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 
-@Singleton
 @RequiredArgsConstructor
-public final class PlaceholderApiComponentTransformer extends PlaceholdersComponentTransformer {
-
-    private static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("[%]([^%]+)[%]");
+public abstract class AbstractPlaceholderApiComponentTransformer extends PlaceholdersComponentTransformer {
 
     private final ComponentStringConverter componentStringConverter;
+    private final Pattern placeholderPattern;
+    private final Function<String, String> matchedStringTransformFunction;
 
     @Override
     public @NotNull Component transform(@NotNull Component formatComponent, @NotNull SinglePlayerTransformContext context) {
-        return AdventureUtil.replaceWithEndingSpace(formatComponent, PLACEHOLDER_PATTERN, matchedString -> {
-            String matchedWithPlaceholders = PlaceholderAPI.setPlaceholders(context.getPlayer(), matchedString);
+        return AdventureUtil.replaceWithEndingSpace(formatComponent, placeholderPattern, matchedString -> {
+            String matchedTransformed = matchedStringTransformFunction.apply(matchedString);
+            String matchedWithPlaceholders = PlaceholderAPI.setPlaceholders(context.getPlayer(), matchedTransformed);
             if (matchedWithPlaceholders.equals(matchedString)) {
                 return null;
             } else {

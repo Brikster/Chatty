@@ -59,6 +59,10 @@ public interface Chat {
 
     boolean isParseLinks();
 
+    boolean isEnableSpy();
+
+    Component getSpyFormat();
+
     @NotNull Set<@NotNull MessageTransformStrategy<?>> getStrategies();
 
     void addStrategy(@NotNull MessageTransformStrategy<?> strategy);

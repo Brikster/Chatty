@@ -4,10 +4,11 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.entity.Player;
 
+@Getter
 @RequiredArgsConstructor(staticName = "of")
 public final class TwoPlayersTransformContext implements TransformContext {
 
-    private final @Getter Player one;
-    private final @Getter Player two;
+    private final Player one;
+    private final Player two;
 
 }

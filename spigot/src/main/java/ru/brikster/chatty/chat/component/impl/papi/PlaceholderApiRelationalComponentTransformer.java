@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 public final class PlaceholderApiRelationalComponentTransformer extends RelationalPlaceholdersComponentTransformer {
 
-    private static final Pattern RELATIONAL_PLACEHOLDER_PATTERN = Pattern.compile("[%](rel_)([^%]+)[%]");
+    private static final Pattern RELATIONAL_PLACEHOLDER_PATTERN = Pattern.compile("%(rel_)([^%]+)%");
 
     private final ComponentStringConverter componentStringConverter;
 

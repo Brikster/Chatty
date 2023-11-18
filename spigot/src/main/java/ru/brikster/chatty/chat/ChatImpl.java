@@ -50,6 +50,12 @@ public final class ChatImpl implements Chat {
     @Getter
     private final boolean parseLinks;
 
+    @Getter
+    private final boolean enableSpy;
+
+    @Getter
+    private final Component spyFormat;
+
     private final Set<MessageTransformStrategy<?>> strategies
             = new HashSet<>();
 

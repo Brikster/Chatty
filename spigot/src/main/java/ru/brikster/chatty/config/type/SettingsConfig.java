@@ -47,9 +47,18 @@ public class SettingsConfig extends OkaeriConfig {
     private boolean respectForeignRecipients = true;
 
     @Comment({"",
+        "Should Chatty ignore vanished recipients?",
+        "This setting only affects \"no recipients\" message:",
+        "if true, and everybody is vanished, Chatty will send it.",
+        "Supports vanished players from Essentials any many others plugins, ",
+        "that hides players with native Bukkit mechanism"
+    })
+    private boolean hideVanishedRecipients = true;
+
+    @Comment({"",
             "Order for handling relational placeholders",
             "from PlaceholderAPI (%rel_<placeholder>%).",
-            "Values: SENDER_AND_TARGET, TARGET_AND_SENDER."
+            "Values: SENDER_AND_TARGET, TARGET_AND_SENDER"
     })
     private RelationalPlaceholdersOrder relationalPlaceholdersOrder = RelationalPlaceholdersOrder.SENDER_AND_TARGET;
 
@@ -75,7 +84,7 @@ public class SettingsConfig extends OkaeriConfig {
         )
         private Pattern pattern = Pattern.compile("(?i)\\bhttps?://\\S+\\b");
 
-        @Comment({"", "Hover message for parsed URLs"})
+        @Comment({"", "Hover message for parsed links"})
         private String hoverMessage = "&bClick to follow the link";
 
     }

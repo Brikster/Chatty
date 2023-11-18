@@ -37,7 +37,9 @@ public final class ConfigsLoader {
                                     styleEntry.getValue().getPriority()))
                             .collect(Collectors.toSet()),
                     chatConfig.isNotifyNobodyHeard(),
-                    chatConfig.isParseLinks());
+                    chatConfig.isParseLinks(),
+                    chatConfig.getSpy().isEnable(),
+                    componentConverter.stringToComponent(chatConfig.getSpy().getFormat()));
             registry.register(chat);
         });
     }

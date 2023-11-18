@@ -1,5 +1,6 @@
 package ru.brikster.chatty.chat.message.transform.stage.early.moderation;
 
+import com.google.inject.Singleton;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.jetbrains.annotations.NotNull;
 import ru.brikster.chatty.api.chat.message.context.MessageContext;
@@ -12,18 +13,21 @@ import ru.brikster.chatty.config.type.ModerationConfig.CapsModerationConfig;
 
 import javax.inject.Inject;
 
+@Singleton
 public final class CapsModerationStrategy implements MessageTransformStrategy<String> {
+
+    private final BukkitAudiences audiences;
+    private final MessagesConfig messages;
 
     private final int percent;
     private final int length;
     private final boolean useBlock;
 
-    @Inject private BukkitAudiences audiences;
+    @Inject
+    public CapsModerationStrategy(BukkitAudiences audiences, MessagesConfig messages, ModerationConfig moderationConfig) {
+        this.audiences = audiences;
+        this.messages = messages;
 
-    @Inject private MessagesConfig messages;
-    @Inject private ModerationConfig moderationConfig;
-
-    private CapsModerationStrategy() {
         CapsModerationConfig config = moderationConfig.getCaps();
         this.useBlock = config.isBlock();
         this.percent = config.getPercent();

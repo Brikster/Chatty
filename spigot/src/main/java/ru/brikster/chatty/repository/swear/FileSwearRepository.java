@@ -1,5 +1,7 @@
 package ru.brikster.chatty.repository.swear;
 
+import lombok.SneakyThrows;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -12,13 +14,14 @@ public class FileSwearRepository implements SwearRepository {
     private final List<String> words = new ArrayList<>();
     private final List<String> whitelist = new ArrayList<>();
 
-    public FileSwearRepository(Path dataFolderPath) throws IOException {
+    @SneakyThrows(IOException.class)
+    public FileSwearRepository(Path dataFolderPath) {
         Path swearsDirectory = dataFolderPath.resolve("swears");
         Path swearsFile = swearsDirectory.resolve("swears.txt");
         Path whitelistFile = swearsDirectory.resolve("whitelist.txt");
 
         if (!Files.exists(swearsDirectory)) {
-            Files.createDirectory(swearsFile);
+            Files.createDirectory(swearsDirectory);
         }
 
         if (!Files.exists(swearsFile)) {
@@ -29,12 +32,12 @@ public class FileSwearRepository implements SwearRepository {
             Files.createFile(whitelistFile);
         }
 
-        for (String swear : Files.readAllLines(swearsFile, StandardCharsets.UTF_8)) {
-            if (swear.isEmpty()) {
+        for (String swearPattern : Files.readAllLines(swearsFile, StandardCharsets.UTF_8)) {
+            if (swearPattern.isEmpty()) {
                 continue;
             }
 
-            words.add(swear);
+            words.add(swearPattern);
         }
 
         whitelist.addAll(Files.readAllLines(whitelistFile, StandardCharsets.UTF_8));

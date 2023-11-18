@@ -9,7 +9,7 @@ import java.util.Collection;
 public interface MessageTransformResult<MessageT> {
 
     default boolean wasUpdated() {
-        return getRemovedRecipients().size() != 0
+        return !getRemovedRecipients().isEmpty()
                 || isFormatUpdated()
                 || isMessageUpdated()
                 || isBecameCancelled();
@@ -19,6 +19,8 @@ public interface MessageTransformResult<MessageT> {
 
     @NotNull
     Collection<? extends @NotNull Player> getRemovedRecipients();
+    @NotNull
+    Collection<? extends @NotNull Player> getAddedRecipients();
 
     boolean isFormatUpdated();
 

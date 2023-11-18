@@ -84,6 +84,7 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
         MessageContext<String> context = new MessageContextImpl<>(
                 chat,
                 event.getPlayer(),
+                new HashMap<>(),
                 event.isCancelled(),
                 chat.getFormat(),
                 recipients,
@@ -95,14 +96,11 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
         try {
             MessageContext<String> earlyContext = processor.handle(context, Stage.EARLY).getNewContext();
 
-            if (earlyContext.isCancelled()) {
-                event.setCancelled(true);
-            } else {
-                event.getRecipients().clear();
-                event.getRecipients().addAll(earlyContext.getRecipients());
-                event.setMessage(earlyContext.getMessage());
-                pendingMessages.put(System.identityHashCode(event), context);
-            }
+            event.getRecipients().clear();
+            event.getRecipients().addAll(earlyContext.getRecipients());
+            event.setMessage(earlyContext.getMessage());
+            pendingMessages.put(System.identityHashCode(event), earlyContext);
+
             processed = true;
         } catch (Throwable t) {
             logger.log(Level.SEVERE, "Cannot handle chat event", t);
@@ -114,12 +112,16 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void handleFinishedEvent(AsyncPlayerChatEvent event) {
+    public void handleFinishedEarlyContextEvent(AsyncPlayerChatEvent event) {
         MessageContext<String> earlyContext = pendingMessages.remove(System.identityHashCode(event));
         if (earlyContext == null) {
             logger.log(Level.WARNING, "Cannot handle chat event from {0} with format {1} and message {2} due to hashcode idempotency error",
                     new Object[] { event.getPlayer().getName(), event.getFormat(), event.getMessage() });
             return;
+        }
+
+        if (earlyContext.isCancelled()) {
+            event.setCancelled(true);
         }
 
         if (event.isCancelled()) return;
@@ -153,9 +155,21 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
                 }
             }
 
-            if (earlyContext.getChat().isSendNobodyHeardYou()) {
-                if (middleContext.getRecipients().size() == 0
-                        || (middleContext.getRecipients().size() == 1 && middleContext.getRecipients().contains(event.getPlayer()))) {
+            if (middleContext.getChat().isSendNobodyHeardYou()) {
+                Set<Player> allowedRecipients = new HashSet<>();
+                allowedRecipients.add(event.getPlayer());
+
+                if (middleContext.getChat().isEnableSpy() && middleContext.getMetadata().containsKey("spy-recipients")) {
+                    //noinspection unchecked
+                    allowedRecipients.addAll((List<Player>) middleContext.getMetadata().get("spy-recipients"));
+                }
+
+                if (settings.isHideVanishedRecipients()) {
+                    allowedRecipients.removeIf(player -> player != event.getPlayer()
+                            && !event.getPlayer().canSee(player));
+                }
+
+                if (allowedRecipients.containsAll(middleContext.getRecipients())) {
                     audiences.player(event.getPlayer()).sendMessage(messages.getNobodyHeard());
                 }
             }
@@ -182,6 +196,18 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
                     }
                 }
             }
+        }
+
+        if (context.getChat().isEnableSpy() && context.getMetadata().containsKey("spy-recipients")) {
+            @SuppressWarnings("unchecked")
+            List<Player> players = (List<Player>) context.getMetadata().get("spy-recipients");
+
+            ChatStyle spyStyle = new ChatStyle(
+                    null,
+                    context.getChat().getSpyFormat(),
+                    Integer.MAX_VALUE);
+
+            players.forEach(spyPlayer -> playerStyleMap.put(spyPlayer, spyStyle));
         }
 
         Map<ChatStyle, List<Player>> stylePlayersMap = new HashMap<>();
