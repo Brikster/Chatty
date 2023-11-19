@@ -10,6 +10,8 @@ import ru.brikster.chatty.Chatty;
 import ru.brikster.chatty.util.SqliteUtil;
 
 import javax.inject.Singleton;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -25,8 +27,14 @@ public final class SqlitePlayerDataRepository implements PlayerDataRepository {
     private final HikariDataSource dataSource;
 
     public SqlitePlayerDataRepository(Path dataFolder) {
+        try {
+            Files.createDirectories(dataFolder);
+        } catch (IOException e) {
+            throw new IllegalStateException("Cannot create data folder", e);
+        }
+
         HikariConfig config = new HikariConfig();
-        config.setJdbcUrl("jdbc:sqlite:" + dataFolder.resolve("database.sqlite").toAbsolutePath());
+        config.setJdbcUrl("jdbc:sqlite:" + dataFolder.resolve("database.sqlite"));
         config.setPoolName("Chatty");
         config.setMaximumPoolSize(8);
 
