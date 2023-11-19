@@ -56,6 +56,9 @@ public final class ChatImpl implements Chat {
     @Getter
     private final Component spyFormat;
 
+    @Getter
+    private final int cooldown;
+
     private final Set<MessageTransformStrategy<?>> strategies
             = new HashSet<>();
 

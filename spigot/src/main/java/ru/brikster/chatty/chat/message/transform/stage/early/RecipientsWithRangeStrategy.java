@@ -8,14 +8,20 @@ import ru.brikster.chatty.api.chat.message.strategy.MessageTransformStrategy;
 import ru.brikster.chatty.api.chat.message.strategy.result.MessageTransformResult;
 import ru.brikster.chatty.api.chat.range.Ranges;
 import ru.brikster.chatty.chat.message.transform.result.MessageTransformResultBuilder;
+import ru.brikster.chatty.repository.player.PlayerDataRepository;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Singleton
-public final class RangeLimiterStrategy implements MessageTransformStrategy<String> {
+public final class RecipientsWithRangeStrategy implements MessageTransformStrategy<String> {
+
+    @Inject private PlayerDataRepository repository;
 
     @Override
     public @NotNull MessageTransformResult<String> handle(MessageContext<String> context) {
@@ -39,6 +45,11 @@ public final class RangeLimiterStrategy implements MessageTransformStrategy<Stri
 
             builder.withMetadata("spy-recipients", spies);
         }
+
+        Set<UUID> whoIgnoreUuids = repository.getWhoIgnoreUuids(context.getSender());
+        recipients.removeIf(recipient -> whoIgnoreUuids.contains(recipient.getUniqueId()));
+
+        repository.createOrUpdateUser(context.getSender().getUniqueId(), context.getSender().getName());
 
         return builder.build();
     }

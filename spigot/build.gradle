@@ -7,7 +7,15 @@ tasks {
     shadowJar {
         archiveFileName = "Chatty-${rootProject.version}.jar"
         destinationDirectory = rootProject.layout.buildDirectory.dir('libs')
-        def relocations = ['ru.mrbrikster.baseplugin', 'org.bstats', 'com.google.gson', 'com.google.guava', 'com.google.common', 'org.yaml.snakeyaml']
+        def relocations = ['org.bstats',
+                           'com.google.gson',
+                           'com.google.guava',
+                           'com.google.common',
+                           'org.yaml.snakeyaml',
+                           'cloud.commandframework',
+                           'eu.okaeri',
+                           'com.zaxxer',
+                           'net.kyori']
         relocations.forEach {
             relocate it, "ru.brikster.chatty.shaded.${it}"
         }
@@ -54,6 +62,10 @@ dependencies {
 
     implementation "cloud.commandframework:cloud-core:$cloudVersion"
     implementation "cloud.commandframework:cloud-bukkit:$cloudVersion"
+    implementation "cloud.commandframework:cloud-minecraft-extras:$cloudVersion"
+
+    implementation 'com.zaxxer:HikariCP:5.1.0'
+    implementation 'org.flywaydb:flyway-core:10.0.1'
 
     compileOnly 'net.milkbowl.vault:VaultAPI:1.7'
     compileOnly 'me.clip:placeholderapi:2.10.6'

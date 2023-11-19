@@ -13,7 +13,7 @@ import java.util.function.Function;
 import java.util.regex.Pattern;
 
 @RequiredArgsConstructor
-public abstract class AbstractPlaceholderApiComponentTransformer extends PlaceholdersComponentTransformer {
+public abstract class AbstractPlaceholderApiComponentTransformer implements PlaceholdersComponentTransformer {
 
     private final ComponentStringConverter componentStringConverter;
     private final Pattern placeholderPattern;

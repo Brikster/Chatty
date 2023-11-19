@@ -12,7 +12,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import ru.brikster.chatty.chat.component.context.SinglePlayerTransformContext;
 import ru.brikster.chatty.chat.component.impl.PlaceholdersComponentTransformer;
-import ru.brikster.chatty.chat.component.impl.PrefixComponentTransformer;
+import ru.brikster.chatty.chat.component.impl.prefix.PrefixComponentTransformer;
 import ru.brikster.chatty.config.type.VanillaConfig;
 import ru.brikster.chatty.config.type.VanillaConfig.DeathVanillaConfig;
 import ru.brikster.chatty.config.type.VanillaConfig.JoinVanillaConfig;

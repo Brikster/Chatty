@@ -2,9 +2,18 @@ package ru.brikster.chatty;
 
 import cloud.commandframework.Command;
 import cloud.commandframework.Command.Builder;
+import cloud.commandframework.CommandManager.ManagerSettings;
+import cloud.commandframework.CommandTree.Node;
+import cloud.commandframework.arguments.CommandArgument;
+import cloud.commandframework.arguments.standard.StringArgument;
 import cloud.commandframework.bukkit.BukkitCommandManager;
+import cloud.commandframework.exceptions.ArgumentParseException;
+import cloud.commandframework.exceptions.InvalidSyntaxException;
+import cloud.commandframework.execution.AsynchronousCommandExecutionCoordinator;
 import cloud.commandframework.execution.CommandExecutionCoordinator;
 import cloud.commandframework.meta.CommandMeta;
+import cloud.commandframework.minecraft.extras.MinecraftExceptionHandler;
+import cloud.commandframework.minecraft.extras.MinecraftExceptionHandler.ExceptionType;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import lombok.SneakyThrows;
@@ -21,12 +30,23 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import ru.brikster.chatty.api.event.ChattyInitEvent;
 import ru.brikster.chatty.chat.executor.LegacyEventExecutor;
+import ru.brikster.chatty.command.ProxyCommandHandler;
+import ru.brikster.chatty.config.type.MessagesConfig;
+import ru.brikster.chatty.config.type.PmConfig;
 import ru.brikster.chatty.config.type.SettingsConfig;
 import ru.brikster.chatty.guice.ConfigsLoader;
 import ru.brikster.chatty.guice.GeneralGuiceModule;
 import ru.brikster.chatty.misc.VanillaListener;
 import ru.brikster.chatty.notification.NotificationTicker;
 import ru.brikster.chatty.papi.PapiExpansionInstaller;
+import ru.brikster.chatty.pm.MsgCommandHandler;
+import ru.brikster.chatty.pm.PrivateMessageSuggestionsProvider;
+import ru.brikster.chatty.pm.ReplyCommandHandler;
+import ru.brikster.chatty.pm.ignore.AddIgnoreCommandHandler;
+import ru.brikster.chatty.pm.ignore.IgnoreListCommandHandler;
+import ru.brikster.chatty.pm.ignore.RemoveIgnoreCommandHandler;
+import ru.brikster.chatty.repository.player.PlayerDataRepository;
+import ru.brikster.chatty.util.AdventureUtil;
 import ru.brikster.chatty.util.ListenerUtil;
 
 import java.util.function.Function;
@@ -34,7 +54,17 @@ import java.util.logging.Level;
 
 public final class Chatty extends JavaPlugin {
 
+    private Injector injector;
+
     private NotificationTicker notificationTicker;
+    private BukkitCommandManager<CommandSender> syncCommandManager;
+    private BukkitCommandManager<CommandSender> asyncCommandManager;
+
+    private ProxyCommandHandler<MsgCommandHandler, CommandSender> msgProxiedCommandHandler;
+    private ProxyCommandHandler<ReplyCommandHandler, CommandSender> replyProxiedCommandHandler;
+    private ProxyCommandHandler<AddIgnoreCommandHandler, CommandSender> addIgnoreProxiedCommandHandler;
+    private ProxyCommandHandler<RemoveIgnoreCommandHandler, CommandSender> removeIgnoreProxiedCommandHandler;
+    private ProxyCommandHandler<IgnoreListCommandHandler, CommandSender> ignoreListProxiedCommandHandler;
 
     @SneakyThrows
     @Override
@@ -46,11 +76,8 @@ public final class Chatty extends JavaPlugin {
     }
 
     private void registerChattyCommand(ChattyInitEvent initEvent) throws Exception {
-        BukkitCommandManager<CommandSender> syncCommandManager = new BukkitCommandManager<>(this,
+        this.syncCommandManager = new BukkitCommandManager<>(this,
                 CommandExecutionCoordinator.simpleCoordinator(),
-//                AsynchronousCommandExecutionCoordinator.<CommandSender>builder()
-//                        .withAsynchronousParsing()
-//                        .build(),
                 Function.identity(),
                 Function.identity());
 
@@ -72,6 +99,7 @@ public final class Chatty extends JavaPlugin {
                 .permission("chatty.reload")
                 .handler(handler -> {
                     try {
+                        injector.getInstance(PlayerDataRepository.class).close();
                         ListenerUtil.unregister(PlayerJoinEvent.class, this);
                         ListenerUtil.unregister(PlayerQuitEvent.class, this);
                         ListenerUtil.unregister(PlayerDeathEvent.class, this);
@@ -80,7 +108,7 @@ public final class Chatty extends JavaPlugin {
                         initialize(initEvent);
                         handler.getSender().sendMessage("§aPlugin successfully reloaded!");
                     } catch (Throwable t) {
-                        handler.getSender().sendMessage("§cError while reloading plugin: " + t.getCause().getMessage() + ". See console for more details.");
+                        handler.getSender().sendMessage("§cError while reloading plugin: " + t.getClass().getSimpleName() + ". See console for more details.");
                     }
                 })
                 .build();
@@ -90,8 +118,8 @@ public final class Chatty extends JavaPlugin {
                 .command(reloadCommand);
     }
 
-    private void initialize(ChattyInitEvent initEvent) {
-        Injector injector = Guice.createInjector(new GeneralGuiceModule(
+    private void initialize(ChattyInitEvent initEvent) throws Exception {
+        this.injector = Guice.createInjector(new GeneralGuiceModule(
                         Chatty.this,
                         initEvent.getAudienceProvider(),
                         getDataFolder().toPath()));
@@ -118,11 +146,128 @@ public final class Chatty extends JavaPlugin {
         if (Bukkit.getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
             PapiExpansionInstaller.install(injector);
         }
+
+        PmConfig pmConfig = injector.getInstance(PmConfig.class);
+
+        if (pmConfig.isEnable()) {
+            PrivateMessageSuggestionsProvider pmSuggestionsProvider = injector.getInstance(PrivateMessageSuggestionsProvider.class);
+            MsgCommandHandler msgCommandHandler = injector.getInstance(MsgCommandHandler.class);
+            ReplyCommandHandler replyCommandHandler = injector.getInstance(ReplyCommandHandler.class);
+            AddIgnoreCommandHandler addIgnoreCommandHandler = injector.getInstance(AddIgnoreCommandHandler.class);
+            RemoveIgnoreCommandHandler removeIgnoreCommandHandler = injector.getInstance(RemoveIgnoreCommandHandler.class);
+            IgnoreListCommandHandler ignoreListCommandHandler = injector.getInstance(IgnoreListCommandHandler.class);
+
+            if (this.asyncCommandManager == null) {
+                msgProxiedCommandHandler = new ProxyCommandHandler<>(msgCommandHandler);
+                replyProxiedCommandHandler = new ProxyCommandHandler<>(replyCommandHandler);
+                addIgnoreProxiedCommandHandler = new ProxyCommandHandler<>(addIgnoreCommandHandler);
+                removeIgnoreProxiedCommandHandler = new ProxyCommandHandler<>(removeIgnoreCommandHandler);
+                ignoreListProxiedCommandHandler = new ProxyCommandHandler<>(ignoreListCommandHandler);
+
+                this.asyncCommandManager = new BukkitCommandManager<>(this,
+                        AsynchronousCommandExecutionCoordinator.<CommandSender>builder()
+                                .withAsynchronousParsing()
+                                .build(),
+                        Function.identity(),
+                        Function.identity());
+
+                MessagesConfig messagesConfig = injector.getInstance(MessagesConfig.class);
+
+                //noinspection resource
+                new MinecraftExceptionHandler<CommandSender>()
+                        .withHandler(ExceptionType.ARGUMENT_PARSING, (e) -> {
+                            String argument = ((ArgumentParseException) e).getCause().toString();
+                            return messagesConfig.getCmdArgumentParsingError()
+                                    .replaceText(AdventureUtil.createReplacement("{argument}", argument));
+                        })
+                        .withHandler(ExceptionType.INVALID_SYNTAX, (e) -> {
+                            String correctSyntax = ((InvalidSyntaxException) e).getCorrectSyntax();
+                            return messagesConfig.getCmdUsageError()
+                                    .replaceText(AdventureUtil.createReplacement("{usage}", "/" + correctSyntax));
+                        })
+                        .withHandler(ExceptionType.INVALID_SENDER, (e) -> messagesConfig.getCmdSenderTypeError())
+                        .withHandler(ExceptionType.NO_PERMISSION, (e) -> messagesConfig.getCmdNoPermissionError())
+                        .withHandler(ExceptionType.COMMAND_EXECUTION, (e) -> {
+                            //noinspection CallToPrintStackTrace
+                            e.printStackTrace();
+                            return messagesConfig.getCmdExecutionError();
+                        })
+                        .apply(asyncCommandManager, BukkitAudiences.create(this)::sender);
+
+                asyncCommandManager.setSetting(ManagerSettings.ALLOW_UNSAFE_REGISTRATION, true);
+
+                Command<CommandSender> msgCommand = asyncCommandManager.commandBuilder("msg", "message", "m", "w", "pm", "dm")
+                        .permission("chatty.pm")
+                        .argument(StringArgument.<CommandSender>builder("target")
+                                .single()
+                                .withSuggestionsProvider(pmSuggestionsProvider)
+                                .build())
+                        .argument(StringArgument.greedy("message"))
+                        .handler(msgProxiedCommandHandler)
+                        .build();
+
+                Command<CommandSender> replyCommand = asyncCommandManager.commandBuilder("reply", "r")
+                        .permission("chatty.pm")
+                        .argument(StringArgument.greedy("message"))
+                        .handler(replyProxiedCommandHandler)
+                        .build();
+
+                asyncCommandManager
+                        .command(msgCommand)
+                        .command(replyCommand);
+
+                 Builder<CommandSender> ignoreCommandBuilder = asyncCommandManager
+                         .commandBuilder("ignore")
+                         .permission("chatty.pm");
+
+                Command<CommandSender> ignoreAddCommand = ignoreCommandBuilder
+                        .literal("add")
+                        .argument(StringArgument.<CommandSender>builder("target")
+                                .single()
+                                .withSuggestionsProvider(pmSuggestionsProvider)
+                                .build())
+                        .handler(addIgnoreProxiedCommandHandler)
+                        .build();
+
+                Command<CommandSender> ignoreRemoveCommand = ignoreCommandBuilder
+                        .literal("remove", "rem", "rm", "delete")
+                        .argument(StringArgument.<CommandSender>builder("target")
+                                .single()
+                                .withSuggestionsProvider(pmSuggestionsProvider)
+                                .build())
+                        .handler(removeIgnoreProxiedCommandHandler)
+                        .build();
+
+                Command<CommandSender> ignoreListCommand = ignoreCommandBuilder
+                        .handler(ignoreListProxiedCommandHandler)
+                        .build();
+
+                asyncCommandManager
+                        .command(ignoreAddCommand)
+                        .command(ignoreRemoveCommand)
+                        .command(ignoreListCommand);
+            } else {
+                msgProxiedCommandHandler.setExecutionHandler(msgCommandHandler);
+                replyProxiedCommandHandler.setExecutionHandler(replyCommandHandler);
+                addIgnoreProxiedCommandHandler.setExecutionHandler(addIgnoreCommandHandler);
+                removeIgnoreProxiedCommandHandler.setExecutionHandler(removeIgnoreCommandHandler);
+                ignoreListProxiedCommandHandler.setExecutionHandler(ignoreListCommandHandler);
+            }
+        }
     }
 
     @Override
     public void onDisable() {
         this.getServer().getScheduler().cancelTasks(this);
+        unregisterAllCommands(syncCommandManager);
+        unregisterAllCommands(asyncCommandManager);
+    }
+
+    private static void unregisterAllCommands(BukkitCommandManager<CommandSender> commandManager) {
+        for (Node<CommandArgument<CommandSender, ?>> node : commandManager.commandTree().getRootNodes()) {
+            //noinspection DataFlowIssue
+            commandManager.deleteRootCommand(node.getValue().getName());
+        }
     }
 
 }

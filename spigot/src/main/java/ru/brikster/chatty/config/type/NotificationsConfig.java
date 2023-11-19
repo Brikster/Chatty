@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import net.kyori.adventure.text.Component;
+import ru.brikster.chatty.BuildConstants;
 import ru.brikster.chatty.convert.component.ComponentStringConverter;
 
 import java.util.LinkedHashMap;
@@ -16,12 +17,19 @@ import java.util.Map;
 
 @Getter
 @SuppressWarnings("FieldMayBeFinal")
+@Header("################################################################")
+@Header("#")
+@Header("#    Chatty (version " + BuildConstants.VERSION + ")")
+@Header("#    Author: Brikster")
+@Header("#")
+@Header("################################################################")
 @Names(strategy = NameStrategy.HYPHEN_CASE, modifier = NameModifier.TO_LOWER_CASE)
 public class NotificationsConfig extends OkaeriConfig {
 
     @Exclude
     public static ComponentStringConverter converter;
 
+    @Comment
     private ChatNotificationsConfig chat = new ChatNotificationsConfig();
 
     @Comment

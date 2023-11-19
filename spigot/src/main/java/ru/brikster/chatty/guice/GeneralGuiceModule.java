@@ -32,13 +32,18 @@ import ru.brikster.chatty.chat.component.impl.dummy.DummyPlaceholdersComponentTr
 import ru.brikster.chatty.chat.component.impl.dummy.DummyRelationalPlaceholdersComponentTransformer;
 import ru.brikster.chatty.chat.component.impl.papi.CommonChatPlaceholderApiComponentTransformer;
 import ru.brikster.chatty.chat.component.impl.papi.PlaceholderApiRelationalComponentTransformer;
+import ru.brikster.chatty.chat.component.impl.pm.placeholders.PmFromPlaceholderApiComponentTransformer;
+import ru.brikster.chatty.chat.component.impl.pm.placeholders.PmFromPlaceholdersComponentTransformer;
+import ru.brikster.chatty.chat.component.impl.pm.placeholders.PmToPlaceholderApiComponentTransformer;
+import ru.brikster.chatty.chat.component.impl.pm.placeholders.PmToPlaceholdersComponentTransformer;
 import ru.brikster.chatty.chat.construct.ComponentFromContextConstructor;
 import ru.brikster.chatty.chat.construct.ComponentFromContextConstructorImpl;
 import ru.brikster.chatty.chat.message.transform.intermediary.IntermediateMessageTransformer;
 import ru.brikster.chatty.chat.message.transform.intermediary.IntermediateMessageTransformerImpl;
 import ru.brikster.chatty.chat.message.transform.processor.MessageTransformStrategiesProcessor;
 import ru.brikster.chatty.chat.message.transform.processor.MessageTransformStrategiesProcessorImpl;
-import ru.brikster.chatty.chat.message.transform.stage.early.RangeLimiterStrategy;
+import ru.brikster.chatty.chat.message.transform.stage.early.CooldownStrategy;
+import ru.brikster.chatty.chat.message.transform.stage.early.RecipientsWithRangeStrategy;
 import ru.brikster.chatty.chat.message.transform.stage.early.RemoveChatSymbolStrategy;
 import ru.brikster.chatty.chat.message.transform.stage.early.moderation.AdModerationStrategyModeration;
 import ru.brikster.chatty.chat.message.transform.stage.early.moderation.CapsModerationStrategy;
@@ -63,6 +68,8 @@ import ru.brikster.chatty.prefix.LuckpermsPrefixProvider;
 import ru.brikster.chatty.prefix.NullPrefixProvider;
 import ru.brikster.chatty.prefix.PrefixProvider;
 import ru.brikster.chatty.prefix.VaultPrefixProvider;
+import ru.brikster.chatty.repository.player.PlayerDataRepository;
+import ru.brikster.chatty.repository.player.SqlitePlayerDataRepository;
 import ru.brikster.chatty.repository.swear.FileSwearRepository;
 import ru.brikster.chatty.repository.swear.SwearRepository;
 
@@ -101,6 +108,8 @@ public final class GeneralGuiceModule extends AbstractModule {
         bind(Plugin.class).toInstance(plugin);
         bind(ChatRegistry.class).toInstance(chatRegistry);
 
+        bind(PlayerDataRepository.class).toInstance(new SqlitePlayerDataRepository(dataFolderPath));
+
         bind(MessageTransformStrategiesProcessor.class).to(MessageTransformStrategiesProcessorImpl.class);
         bind(ComponentStringConverter.class).toInstance(internalMiniMessageStringConverter);
         bind(MessageConverter.class).to(LegacyToMiniMessageConverter.class);
@@ -113,6 +122,7 @@ public final class GeneralGuiceModule extends AbstractModule {
 
         bind(SettingsConfig.class).toInstance(createConfig(SettingsConfig.class, "settings.yml"));
         bind(ChatsConfig.class).toInstance(createConfig(ChatsConfig.class, "chats.yml"));
+        bind(PmConfig.class).toInstance(createConfig(PmConfig.class, "pm.yml"));
         bind(MessagesConfig.class).toInstance(createConfig(MessagesConfig.class, "messages.yml"));
         bind(VanillaConfig.class).toInstance(createConfig(VanillaConfig.class, "vanilla.yml"));
         ModerationConfig moderationConfig = createConfig(ModerationConfig.class, "moderation.yml");
@@ -122,7 +132,8 @@ public final class GeneralGuiceModule extends AbstractModule {
         Multibinder<MessageTransformStrategy<?>> strategyMultibinder = Multibinder.newSetBinder(binder(), new TypeLiteral<MessageTransformStrategy<?>>() {});
         // Early
         strategyMultibinder.addBinding().to(RemoveChatSymbolStrategy.class);
-        strategyMultibinder.addBinding().to(RangeLimiterStrategy.class);
+        strategyMultibinder.addBinding().to(RecipientsWithRangeStrategy.class);
+        strategyMultibinder.addBinding().to(CooldownStrategy.class);
 
         if (moderationConfig.getAdvertisement().isEnable()) {
             strategyMultibinder.addBinding().to(AdModerationStrategyModeration.class);
@@ -168,6 +179,22 @@ public final class GeneralGuiceModule extends AbstractModule {
     public PlaceholdersComponentTransformer placeholdersComponentTransformer(ComponentStringConverter componentStringConverter) {
         return Bukkit.getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")
                 ? new CommonChatPlaceholderApiComponentTransformer(componentStringConverter)
+                : new DummyPlaceholdersComponentTransformer();
+    }
+
+    @Provides
+    @Singleton
+    public PmFromPlaceholdersComponentTransformer pmFromPlaceholdersComponentTransformer(ComponentStringConverter componentStringConverter) {
+        return Bukkit.getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")
+                ? new PmFromPlaceholderApiComponentTransformer(componentStringConverter)
+                : new DummyPlaceholdersComponentTransformer();
+    }
+
+    @Provides
+    @Singleton
+    public PmToPlaceholdersComponentTransformer pmToPlaceholdersComponentTransformer(ComponentStringConverter componentStringConverter) {
+        return Bukkit.getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")
+                ? new PmToPlaceholderApiComponentTransformer(componentStringConverter)
                 : new DummyPlaceholdersComponentTransformer();
     }
 

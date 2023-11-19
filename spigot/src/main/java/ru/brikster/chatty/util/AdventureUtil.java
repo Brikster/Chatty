@@ -8,6 +8,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.UtilityClass;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.flattener.ComponentFlattener;
@@ -302,6 +303,13 @@ public class AdventureUtil {
         }
 
         return resultComponent;
+    }
+
+    public TextReplacementConfig createReplacement(@NotNull String literal, @NotNull Object replacement) {
+        return TextReplacementConfig.builder()
+                .matchLiteral(literal)
+                .replacement(replacement.toString())
+                .build();
     }
 
 }

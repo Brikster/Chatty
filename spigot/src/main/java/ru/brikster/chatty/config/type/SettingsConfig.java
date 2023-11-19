@@ -25,12 +25,12 @@ public class SettingsConfig extends OkaeriConfig {
     @Exclude
     public static ComponentStringConverter converter;
 
-    @Comment({
-            "",
-            "Supported languages: en-us, ru-ru, de-de, zh-cn",
-            "You can create own language file and put it into \"lang/<language>.yml\""
-    })
-    private String language = "en-us";
+//    @Comment({
+//            "",
+//            "Supported languages: en-us, ru-ru, de-de, zh-cn",
+//            "You can create own language file and put it into \"lang/<language>.yml\""
+//    })
+//    private String language = "en-us";
 
     @Comment({"",
             "Chat listener priority",

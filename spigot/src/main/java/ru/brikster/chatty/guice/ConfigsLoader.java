@@ -39,7 +39,8 @@ public final class ConfigsLoader {
                     chatConfig.isNotifyNobodyHeard(),
                     chatConfig.isParseLinks(),
                     chatConfig.getSpy().isEnable(),
-                    componentConverter.stringToComponent(chatConfig.getSpy().getFormat()));
+                    componentConverter.stringToComponent(chatConfig.getSpy().getFormat()),
+                    chatConfig.getCooldown());
             registry.register(chat);
         });
     }

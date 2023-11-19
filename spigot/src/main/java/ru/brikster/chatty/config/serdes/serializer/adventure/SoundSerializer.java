@@ -4,20 +4,20 @@ import eu.okaeri.configs.schema.GenericsDeclaration;
 import eu.okaeri.configs.serdes.DeserializationData;
 import eu.okaeri.configs.serdes.ObjectSerializer;
 import eu.okaeri.configs.serdes.SerializationData;
-import lombok.NonNull;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.sound.Sound.Source;
+import org.jetbrains.annotations.NotNull;
 
 public final class SoundSerializer implements ObjectSerializer<Sound> {
 
     @Override
-    public boolean supports(@NonNull final Class<? super Sound> type) {
+    public boolean supports(@NotNull final Class<? super Sound> type) {
         return Sound.class.isAssignableFrom(type);
     }
 
     @Override
-    public void serialize(@NonNull final Sound sound, @NonNull final SerializationData data, @NonNull final GenericsDeclaration generics) {
+    public void serialize(@NotNull final Sound sound, @NotNull final SerializationData data, @NotNull final GenericsDeclaration generics) {
         data.add("name", sound.name().asString());
         data.add("source", sound.source());
         data.add("volume", sound.volume());
@@ -26,7 +26,7 @@ public final class SoundSerializer implements ObjectSerializer<Sound> {
 
     @SuppressWarnings("PatternValidation")
     @Override
-    public Sound deserialize(@NonNull final DeserializationData data, @NonNull final GenericsDeclaration generics) {
+    public Sound deserialize(@NotNull final DeserializationData data, @NotNull final GenericsDeclaration generics) {
         String key = data.get("name", String.class);
 
         Source source;

@@ -1,24 +1,29 @@
 package ru.brikster.chatty.config.type;
 
 import eu.okaeri.configs.OkaeriConfig;
-import eu.okaeri.configs.annotation.Comment;
-import eu.okaeri.configs.annotation.NameModifier;
-import eu.okaeri.configs.annotation.NameStrategy;
-import eu.okaeri.configs.annotation.Names;
+import eu.okaeri.configs.annotation.*;
 import eu.okaeri.validator.annotation.Min;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import ru.brikster.chatty.BuildConstants;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @Getter
 @SuppressWarnings("FieldMayBeFinal")
+@Header("################################################################")
+@Header("#")
+@Header("#    Chatty (version " + BuildConstants.VERSION + ")")
+@Header("#    Author: Brikster")
+@Header("#")
+@Header("################################################################")
 @Names(strategy = NameStrategy.HYPHEN_CASE, modifier = NameModifier.TO_LOWER_CASE)
 public class ChatsConfig extends OkaeriConfig {
 
-    @Comment({"List of chats.",
+    @Comment({"",
+            "List of chats.",
             "You can use declared or add you own chats"})
     private Map<String, ChatConfig> chats = new HashMap<String, ChatConfig>() {{
         put("local", new ChatConfig(
@@ -30,6 +35,7 @@ public class ChatsConfig extends OkaeriConfig {
                 false,
                 true,
                 true,
+                0,
                 new ChatSpyConfig(true, "&6[Spy (local)] &r{prefix}{player}{suffix}&8: &f{message}")));
         put("global", new ChatConfig(
                 "Global",
@@ -49,6 +55,7 @@ public class ChatsConfig extends OkaeriConfig {
                 false,
                 false,
                 true,
+                3,
                 new ChatSpyConfig(false, "")));
     }};
 
@@ -70,6 +77,7 @@ public class ChatsConfig extends OkaeriConfig {
                 "* MiniMessage interactive components (click handlers etc.)",
                 "* Vault or LuckPerms prefixes/suffixes ({prefix} and {suffix})",
                 "* Legacy color codes format (\"&c&lTHAT'S BOLD TEXT\")",
+                "* Various hex formats (&#ffffff, {#ffffff}, &x&f&f&f&f&f&f etc.)",
                 "",
                 "Use https://webui.advntr.dev/ for convenient format creation"
         })
@@ -125,6 +133,14 @@ public class ChatsConfig extends OkaeriConfig {
                 "Check settings.yml for more parameters"
         })
         private boolean parseLinks = true;
+
+        @Comment({
+              "",
+              "Cooldown in seconds for sending messages in chat.",
+              "Bypass permission: chatty.cooldown.<chat>"
+        })
+        @Min(0)
+        private int cooldown = 0;
 
         @Comment({"",
                 "Permission for spy: chatty.spy.<chat>"

@@ -1,4 +1,4 @@
-package ru.brikster.chatty.chat.component.impl.papi.pm;
+package ru.brikster.chatty.chat.component.impl.pm.placeholders;
 
 import ru.brikster.chatty.chat.component.impl.papi.AbstractPlaceholderApiComponentTransformer;
 import ru.brikster.chatty.convert.component.ComponentStringConverter;
@@ -8,7 +8,7 @@ import javax.inject.Singleton;
 import java.util.regex.Pattern;
 
 @Singleton
-public final class PmFromPlaceholderApiComponentTransformer extends AbstractPlaceholderApiComponentTransformer {
+public final class PmFromPlaceholderApiComponentTransformer extends AbstractPlaceholderApiComponentTransformer implements PmFromPlaceholdersComponentTransformer {
 
     private static final String FROM_PREFIX = Pattern.quote("%from:");
 

@@ -63,6 +63,8 @@ public interface Chat {
 
     Component getSpyFormat();
 
+    int getCooldown();
+
     @NotNull Set<@NotNull MessageTransformStrategy<?>> getStrategies();
 
     void addStrategy(@NotNull MessageTransformStrategy<?> strategy);

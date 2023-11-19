@@ -8,15 +8,23 @@ import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.sound.Sound.Source;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import ru.brikster.chatty.BuildConstants;
 
 @Getter
 @SuppressWarnings("FieldMayBeFinal")
+@Header("################################################################")
+@Header("#")
+@Header("#    Chatty (version " + BuildConstants.VERSION + ")")
+@Header("#    Author: Brikster")
+@Header("#")
+@Header("################################################################")
 @Names(strategy = NameStrategy.HYPHEN_CASE, modifier = NameModifier.TO_LOWER_CASE)
 public class VanillaConfig extends OkaeriConfig {
 
     @Exclude
     private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
 
+    @Comment
     private JoinVanillaConfig join = new JoinVanillaConfig();
 
     @Comment
