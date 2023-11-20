@@ -31,7 +31,7 @@ public class ActionbarNotification extends Notification {
                                   boolean permission, boolean random,
                                   BukkitAudiences audiences,
                                  PlaceholdersComponentTransformer placeholdersComponentTransformer) {
-        super(0.5, permission, messages.size(), random);
+        super(1, permission, messages.size(), random);
 
         this.audiences = audiences;
         this.placeholdersComponentTransformer = placeholdersComponentTransformer;
