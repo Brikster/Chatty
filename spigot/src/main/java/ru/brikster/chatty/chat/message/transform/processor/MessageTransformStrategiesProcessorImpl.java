@@ -59,8 +59,9 @@ public final class MessageTransformStrategiesProcessorImpl implements MessageTra
             throw new IllegalStateException("Strategy at stage " + stage + " cannot update format");
         }
 
-        if (!removedRecipients.isEmpty() && stage.hasRule(TransformRule.DENY_REMOVE_RECIPIENTS)) {
-            throw new IllegalStateException("Strategy at stage " + stage + " cannot remove recipients");
+        if ((!removedRecipients.isEmpty() || !addedRecipients.isEmpty())
+                && stage.hasRule(TransformRule.DENY_UPDATE_RECIPIENTS)) {
+            throw new IllegalStateException("Strategy at stage " + stage + " cannot update recipients");
         }
 
         //noinspection unchecked

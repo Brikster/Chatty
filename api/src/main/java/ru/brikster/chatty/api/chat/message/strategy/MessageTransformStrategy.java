@@ -17,7 +17,7 @@ public interface MessageTransformStrategy<MessageT> {
     enum TransformRule {
         DENY_CANCEL,
         DENY_FORMAT_UPDATE,
-        DENY_REMOVE_RECIPIENTS
+        DENY_UPDATE_RECIPIENTS
     }
 
     @Getter
@@ -27,9 +27,9 @@ public interface MessageTransformStrategy<MessageT> {
         // Ungrouped stage with component message
         MIDDLE(Component.class, DENY_CANCEL, DENY_FORMAT_UPDATE),
         // Grouped stage with component message
-        LATE(Component.class, DENY_CANCEL, DENY_REMOVE_RECIPIENTS),
+        LATE(Component.class, DENY_CANCEL, DENY_UPDATE_RECIPIENTS),
         // Personal stage with component message
-        POST(Component.class, DENY_CANCEL, DENY_REMOVE_RECIPIENTS);
+        POST(Component.class, DENY_CANCEL, DENY_UPDATE_RECIPIENTS);
 
         private final Class<?> messageType;
         private final TransformRule[] rules;
