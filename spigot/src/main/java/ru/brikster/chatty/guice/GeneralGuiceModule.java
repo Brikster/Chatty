@@ -51,6 +51,7 @@ import ru.brikster.chatty.chat.message.transform.stage.early.moderation.SwearMod
 import ru.brikster.chatty.chat.message.transform.stage.late.papi.PlaceholdersStrategy;
 import ru.brikster.chatty.chat.message.transform.stage.late.prefix.PrefixStrategy;
 import ru.brikster.chatty.chat.message.transform.stage.middle.LinkParserTransformStrategy;
+import ru.brikster.chatty.chat.message.transform.stage.post.MentionsTransformStrategy;
 import ru.brikster.chatty.chat.message.transform.stage.post.RelationalPlaceholdersStrategy;
 import ru.brikster.chatty.chat.registry.ChatRegistry;
 import ru.brikster.chatty.chat.registry.MemoryChatRegistry;
@@ -120,7 +121,8 @@ public final class GeneralGuiceModule extends AbstractModule {
 
         bind(BukkitAudiences.class).toInstance(audienceProvider);
 
-        bind(SettingsConfig.class).toInstance(createConfig(SettingsConfig.class, "settings.yml"));
+        SettingsConfig settingsConfig = createConfig(SettingsConfig.class, "settings.yml");
+        bind(SettingsConfig.class).toInstance(settingsConfig);
         bind(ChatsConfig.class).toInstance(createConfig(ChatsConfig.class, "chats.yml"));
         bind(PmConfig.class).toInstance(createConfig(PmConfig.class, "pm.yml"));
         bind(MessagesConfig.class).toInstance(createConfig(MessagesConfig.class, "messages.yml"));
@@ -155,6 +157,10 @@ public final class GeneralGuiceModule extends AbstractModule {
         strategyMultibinder.addBinding().to(PrefixStrategy.class);
         // Post
         strategyMultibinder.addBinding().to(RelationalPlaceholdersStrategy.class);
+
+        if (settingsConfig.getMentions().isEnable()) {
+            strategyMultibinder.addBinding().to(MentionsTransformStrategy.class);
+        }
 
         bind(IntermediateMessageTransformer.class).to(IntermediateMessageTransformerImpl.class);
     }

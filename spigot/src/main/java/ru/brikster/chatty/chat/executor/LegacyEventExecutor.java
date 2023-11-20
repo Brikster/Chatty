@@ -140,8 +140,10 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
             List<MessageContext<Component>> groupedByStyle = groupedByStyle(middleContext);
             for (int groupIndex = 0; groupIndex < groupedByStyle.size(); groupIndex++) {
                 MessageContext<Component> groupContext = groupedByStyle.get(groupIndex);
+                groupContext.getMetadata().put("all_recipients", middleContext.getRecipients());
+
                 MessageContext<Component> lateContext = processor.handle(groupContext, Stage.LATE).getNewContext();
-                sendProcessedMessage(lateContext);
+                sendProcessedMessage(lateContext, middleContext.getRecipients());
 
                 // Format console message without style
                 if (groupIndex == 0) {
@@ -248,10 +250,12 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
         return contexts;
     }
 
-    private void sendProcessedMessage(MessageContext<Component> lateContext) {
+    private void sendProcessedMessage(MessageContext<Component> lateContext,
+                                      Collection<? extends @NotNull Player> middleContextRecipients) {
         Identity senderIdentity = Identity.identity(lateContext.getSender().getUniqueId());
         for (Player recipient : lateContext.getRecipients()) {
             MessageContext<Component> personalLateContext = new MessageContextImpl<>(lateContext);
+            personalLateContext.getMetadata().put("all_recipients", middleContextRecipients);
             personalLateContext.setMessage(lateContext.getMessage());
             personalLateContext.setRecipients(Collections.singletonList(recipient));
             personalLateContext.setTarget(recipient);

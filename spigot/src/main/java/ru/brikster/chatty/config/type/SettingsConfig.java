@@ -3,6 +3,9 @@ package ru.brikster.chatty.config.type;
 import eu.okaeri.configs.OkaeriConfig;
 import eu.okaeri.configs.annotation.*;
 import lombok.Getter;
+import net.kyori.adventure.key.Key;
+import net.kyori.adventure.sound.Sound;
+import net.kyori.adventure.sound.Sound.Source;
 import org.bukkit.event.EventPriority;
 import ru.brikster.chatty.BuildConstants;
 import ru.brikster.chatty.convert.component.ComponentStringConverter;
@@ -80,12 +83,41 @@ public class SettingsConfig extends OkaeriConfig {
     public static class LinksParsingConfig extends OkaeriConfig {
 
         @Comment(
-                {"Pattern for URLs parsing"}
+                {"Pattern (regexp) for URLs parsing"}
         )
         private Pattern pattern = Pattern.compile("(?i)\\bhttps?://\\S+\\b");
 
         @Comment({"", "Hover message for parsed links"})
         private String hoverMessage = "&bClick to follow the link";
+
+    }
+
+    @Comment({"", "Settings for mentions"})
+    private MentionsConfig mentions = new MentionsConfig();
+
+    @Getter
+    @Names(strategy = NameStrategy.HYPHEN_CASE, modifier = NameModifier.TO_LOWER_CASE)
+    public static class MentionsConfig extends OkaeriConfig {
+
+        private boolean enable = true;
+
+        @Comment({"",
+                "Pattern (regexp) for searching mentioned username"})
+        private String pattern = "(?i)@{username}";
+
+        @Comment({"",
+                "Format of mentioned username for others"})
+        private String othersFormat = "<hover:show_text:'&aClick to PM {username}'><click:suggest_command:'/msg {username} '>&a@{username}</click></hover>";
+
+        @Comment({"",
+                "Format of mentioned username for it's owner"})
+        private String targetFormat = "&e&l@{username}";
+
+        @Comment
+        @Comment("Play sound on mention?")
+        private boolean playSound = true;
+
+        private Sound sound = Sound.sound(Key.key("entity.experience_orb.pickup"), Source.MASTER, 1f, 1f);
 
     }
 

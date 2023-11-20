@@ -14,6 +14,7 @@ public interface MessageTransformStrategy<MessageT> {
 
     @NotNull Stage getStage();
 
+    // TODO revert to allowed actions
     enum TransformRule {
         DENY_CANCEL,
         DENY_FORMAT_UPDATE,
