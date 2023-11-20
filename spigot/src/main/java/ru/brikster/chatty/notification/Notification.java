@@ -37,11 +37,15 @@ public abstract class Notification {
 
     protected int nextMessage() {
         if (random) {
-            currentMessage = RANDOM.nextInt(size);
-        } else if (size <= ++currentMessage) {
-            currentMessage = 0;
+            return RANDOM.nextInt(size);
+        } else {
+            int current = currentMessage;
+            currentMessage++;
+            if (currentMessage == size) {
+                currentMessage = 0;
+            }
+            return current;
         }
-        return currentMessage;
     }
 
 }
