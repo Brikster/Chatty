@@ -20,7 +20,6 @@ public final class PrivateMessageSuggestionsProvider implements CommandSuggestio
 
     @Override
     public @NotNull List<@NotNull String> provideSuggestions(@NotNull CommandContext<@NotNull CommandSender> commandContext, @NotNull String arg) {
-
         List<String> suggestions = new ArrayList<>();
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
             if (onlinePlayer.getName().toLowerCase().startsWith(arg.toLowerCase())) {
