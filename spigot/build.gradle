@@ -65,7 +65,7 @@ dependencies {
     implementation "cloud.commandframework:cloud-minecraft-extras:$cloudVersion"
 
     implementation 'com.zaxxer:HikariCP:5.1.0'
-    implementation 'org.flywaydb:flyway-core:10.0.1'
+    implementation 'org.flywaydb:flyway-core:9.22.3'
 
     compileOnly 'net.milkbowl.vault:VaultAPI:1.7'
     compileOnly 'me.clip:placeholderapi:2.10.6'

@@ -68,7 +68,7 @@ public class MentionsTransformStrategy implements MessageTransformStrategy<Compo
             Pattern pattern = patternForPlayer(onlinePlayer);
 
             Matcher matcher = pattern.matcher(plainTextMessage);
-            if (!matcher.hasMatch() && !matcher.matches()) {
+            if (!matcher.matches() && !matcher.find()) {
                 continue;
             }
 

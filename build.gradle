@@ -10,7 +10,13 @@ allprojects {
 subprojects {
     pluginManager.apply('java-library')
 
-    sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
+    java {
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(17))
+        }
+    }
+
+    sourceCompatibility = targetCompatibility = JavaVersion.VERSION_11
 
     tasks {
         compileJava {
