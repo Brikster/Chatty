@@ -252,16 +252,20 @@ public class AdventureUtil {
      * > inserted components uses previous click/hover events, fonts and insertion, if they don't have own <br>
      * > inserted components do NOT share their click/hover events, fonts and insertions with the following components <br>
      * <br>
-     * If replaceFunction returns null, matched string won't be replaced.
+     * If componentReplaceFunction returns null, matched string won't be replaced.
      * Processed component should have ending space as a trick for keeping ending styles (for example, component from
-     * legacy string "&6&lPrefix &e" will lose yellow color without ending space)
+     * legacy string "&6&lPrefix &e" will lose yellow color without ending space).
+     * stringReplaceFunction used for non-styled text sections in click event and shouldn't be end-spaced
      * @author Brikster
      * @param componentWithEndingSpace the component with ending space
      * @param pattern the pattern to match
-     * @param replaceFunction the function to process a matched string
+     * @param componentReplaceFunction the function to process a matched string into a component
+     * @param stringReplaceFunction the function to process a matched string into a string
      * @return the processed component
      */
-    public Component replaceWithEndingSpace(Component componentWithEndingSpace, Pattern pattern, Function<String, @Nullable Component> replaceFunction) {
+    public Component replaceWithEndingSpace(Component componentWithEndingSpace, Pattern pattern,
+                                            Function<String, @Nullable Component> componentReplaceFunction,
+                                            Function<String, @Nullable String> stringReplaceFunction) {
         List<ComponentPart> originalParts = parts(componentWithEndingSpace);
         Component resultComponent = Component.empty();
 
@@ -274,8 +278,32 @@ public class AdventureUtil {
                 hoverEvent = hoverEvent.value(replaceWithEndingSpace(
                         hoverEvent.value(),
                         pattern,
-                        replaceFunction));
+                        componentReplaceFunction,
+                        stringReplaceFunction));
                 part = part.hoverEvent(hoverEvent);
+            }
+
+            if (part.clickEvent != null) {
+                StringBuilder builder = new StringBuilder();
+
+                String clickEventValue = part.clickEvent.value();
+
+                int beginIndex = 0;
+                Matcher matcher = pattern.matcher(clickEventValue);
+                while (matcher.find()) {
+                    builder.append(clickEventValue, beginIndex, matcher.start());
+                    String group = matcher.group();
+                    String replacement = stringReplaceFunction.apply(group);
+                    builder.append(replacement == null ? group : replacement);
+                    beginIndex = matcher.end();
+                }
+
+                if (beginIndex != clickEventValue.length()) {
+                    builder.append(clickEventValue.substring(beginIndex));
+                }
+
+                part = part.clickEvent(ClickEvent
+                        .clickEvent(part.clickEvent.action(), builder.toString()));
             }
 
             state.apply(part);
@@ -284,7 +312,7 @@ public class AdventureUtil {
             Matcher matcher = pattern.matcher(part.text);
             while (matcher.find()) {
                 String group = matcher.group();
-                Component replaced = replaceFunction.apply(group);
+                Component replaced = componentReplaceFunction.apply(group);
                 if (replaced != null) {
                     String previousText = part.text.substring(beginIndex, matcher.start());
                     beginIndex = matcher.end();

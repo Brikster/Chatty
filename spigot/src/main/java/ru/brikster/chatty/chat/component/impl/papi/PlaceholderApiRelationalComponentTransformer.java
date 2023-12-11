@@ -29,6 +29,13 @@ public final class PlaceholderApiRelationalComponentTransformer extends Relation
             } else {
                 return componentStringConverter.stringToComponent(matchedWithPlaceholders + " ");
             }
+        }, matchedString -> {
+            String matchedWithPlaceholders = PlaceholderAPI.setRelationalPlaceholders(context.getOne(), context.getTwo(), matchedString);
+            if (matchedWithPlaceholders.equals(matchedString)) {
+                return null;
+            } else {
+                return matchedWithPlaceholders;
+            }
         });
     }
 

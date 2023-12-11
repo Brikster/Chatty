@@ -37,7 +37,7 @@ public final class LinkParserComponentTransformer implements ComponentTransforme
             } catch (MalformedURLException | URISyntaxException e) {
                 return null;
             }
-        });
+        }, __ -> null);
     }
 
 }

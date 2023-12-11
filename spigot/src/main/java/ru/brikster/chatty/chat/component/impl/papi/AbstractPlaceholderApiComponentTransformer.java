@@ -29,6 +29,14 @@ public abstract class AbstractPlaceholderApiComponentTransformer implements Plac
             } else {
                 return componentStringConverter.stringToComponent(matchedWithPlaceholders + " ");
             }
+        }, matchedString -> {
+            String matchedTransformed = matchedStringTransformFunction.apply(matchedString);
+            String matchedWithPlaceholders = PlaceholderAPI.setPlaceholders(context.getPlayer(), matchedTransformed);
+            if (matchedWithPlaceholders.equals(matchedString)) {
+                return null;
+            } else {
+                return matchedWithPlaceholders;
+            }
         });
     }
 

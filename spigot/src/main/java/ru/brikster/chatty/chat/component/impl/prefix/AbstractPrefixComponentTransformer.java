@@ -43,6 +43,14 @@ public abstract class AbstractPrefixComponentTransformer implements ComponentTra
            } else {
                throw new IllegalStateException("Illegal string matched: " + matchedString);
            }
+        }, matchedString -> {
+            if (matchedString.equals(prefixPlaceholder)) {
+                return ObjectUtil.requireNonNullElse(prefix, "");
+            } else if (matchedString.equals(suffixPlaceholder)) {
+                return ObjectUtil.requireNonNullElse(suffix, "");
+            } else {
+                throw new IllegalStateException("Illegal string matched: " + matchedString);
+            }
         });
     }
 
