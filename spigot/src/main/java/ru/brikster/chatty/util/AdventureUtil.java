@@ -1,8 +1,8 @@
 package ru.brikster.chatty.util;
 
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Value;
 import lombok.experimental.Accessors;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.UtilityClass;
@@ -29,7 +29,8 @@ import static net.kyori.adventure.text.format.TextDecoration.*;
 @UtilityClass
 public class AdventureUtil {
 
-    @Value
+    @Data
+    @AllArgsConstructor
     @Accessors(fluent = true)
     private static class ComponentPart {
         String text;
@@ -267,6 +268,16 @@ public class AdventureUtil {
         ComponentState state = new ComponentState();
 
         for (ComponentPart part : originalParts) {
+            if (part.hoverEvent != null && part.hoverEvent.action() == HoverEvent.Action.SHOW_TEXT) {
+                @SuppressWarnings("unchecked")
+                HoverEvent<Component> hoverEvent = (HoverEvent<Component>) part.hoverEvent;
+                hoverEvent = hoverEvent.value(replaceWithEndingSpace(
+                        hoverEvent.value(),
+                        pattern,
+                        replaceFunction));
+                part = part.hoverEvent(hoverEvent);
+            }
+
             state.apply(part);
 
             int beginIndex = 0;
