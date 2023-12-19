@@ -30,7 +30,9 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import ru.brikster.chatty.api.event.ChattyInitEvent;
 import ru.brikster.chatty.chat.executor.LegacyEventExecutor;
+import ru.brikster.chatty.command.CommandSuggestionsProvider;
 import ru.brikster.chatty.command.ProxyCommandHandler;
+import ru.brikster.chatty.command.ProxyCommandSuggestionsProvider;
 import ru.brikster.chatty.config.type.MessagesConfig;
 import ru.brikster.chatty.config.type.PmConfig;
 import ru.brikster.chatty.config.type.SettingsConfig;
@@ -60,11 +62,13 @@ public final class Chatty extends JavaPlugin {
     private BukkitCommandManager<CommandSender> syncCommandManager;
     private BukkitCommandManager<CommandSender> asyncCommandManager;
 
-    private ProxyCommandHandler<MsgCommandHandler, CommandSender> msgProxiedCommandHandler;
-    private ProxyCommandHandler<ReplyCommandHandler, CommandSender> replyProxiedCommandHandler;
-    private ProxyCommandHandler<AddIgnoreCommandHandler, CommandSender> addIgnoreProxiedCommandHandler;
-    private ProxyCommandHandler<RemoveIgnoreCommandHandler, CommandSender> removeIgnoreProxiedCommandHandler;
-    private ProxyCommandHandler<IgnoreListCommandHandler, CommandSender> ignoreListProxiedCommandHandler;
+    private ProxyCommandSuggestionsProvider<CommandSender> commandSuggestionsProvider;
+
+    private ProxyCommandHandler<CommandSender> msgProxiedCommandHandler;
+    private ProxyCommandHandler<CommandSender> replyProxiedCommandHandler;
+    private ProxyCommandHandler<CommandSender> addIgnoreProxiedCommandHandler;
+    private ProxyCommandHandler<CommandSender> removeIgnoreProxiedCommandHandler;
+    private ProxyCommandHandler<CommandSender> ignoreListProxiedCommandHandler;
 
     @SneakyThrows
     @Override
@@ -108,6 +112,7 @@ public final class Chatty extends JavaPlugin {
                         initialize(initEvent);
                         handler.getSender().sendMessage("§aPlugin successfully reloaded!");
                     } catch (Throwable t) {
+                        getLogger().log(Level.SEVERE, "Error while reloading Chatty", t);
                         handler.getSender().sendMessage("§cError while reloading plugin: " + t.getClass().getSimpleName() + ". See console for more details.");
                     }
                 })
@@ -150,16 +155,17 @@ public final class Chatty extends JavaPlugin {
         PmConfig pmConfig = injector.getInstance(PmConfig.class);
 
         PrivateMessageSuggestionsProvider pmSuggestionsProvider = injector.getInstance(PrivateMessageSuggestionsProvider.class);
+        if (commandSuggestionsProvider == null) {
+            commandSuggestionsProvider = new ProxyCommandSuggestionsProvider<>(pmSuggestionsProvider);
+        } else {
+            commandSuggestionsProvider.setBackendProvider(pmSuggestionsProvider);
+        }
 
         AddIgnoreCommandHandler addIgnoreCommandHandler = injector.getInstance(AddIgnoreCommandHandler.class);
         RemoveIgnoreCommandHandler removeIgnoreCommandHandler = injector.getInstance(RemoveIgnoreCommandHandler.class);
         IgnoreListCommandHandler ignoreListCommandHandler = injector.getInstance(IgnoreListCommandHandler.class);
 
         if (this.asyncCommandManager == null) {
-            addIgnoreProxiedCommandHandler = new ProxyCommandHandler<>(addIgnoreCommandHandler);
-            removeIgnoreProxiedCommandHandler = new ProxyCommandHandler<>(removeIgnoreCommandHandler);
-            ignoreListProxiedCommandHandler = new ProxyCommandHandler<>(ignoreListCommandHandler);
-
             initAsyncCommandManager();
 
             if (pmConfig.isEnable()) {
@@ -167,22 +173,25 @@ public final class Chatty extends JavaPlugin {
                 ReplyCommandHandler replyCommandHandler = injector.getInstance(ReplyCommandHandler.class);
                 msgProxiedCommandHandler = new ProxyCommandHandler<>(msgCommandHandler);
                 replyProxiedCommandHandler = new ProxyCommandHandler<>(replyCommandHandler);
-                registerPmCommands(pmSuggestionsProvider);
+                registerPmCommands(commandSuggestionsProvider);
             }
 
-            registerIgnoreCommand(pmSuggestionsProvider);
+            addIgnoreProxiedCommandHandler = new ProxyCommandHandler<>(addIgnoreCommandHandler);
+            removeIgnoreProxiedCommandHandler = new ProxyCommandHandler<>(removeIgnoreCommandHandler);
+            ignoreListProxiedCommandHandler = new ProxyCommandHandler<>(ignoreListCommandHandler);
+
+            registerIgnoreCommand(commandSuggestionsProvider);
         } else {
             if (pmConfig.isEnable()) {
                 MsgCommandHandler msgCommandHandler = injector.getInstance(MsgCommandHandler.class);
                 ReplyCommandHandler replyCommandHandler = injector.getInstance(ReplyCommandHandler.class);
-                msgProxiedCommandHandler.setExecutionHandler(msgCommandHandler);
-                replyProxiedCommandHandler.setExecutionHandler(replyCommandHandler);
-                registerPmCommands(pmSuggestionsProvider);
+                msgProxiedCommandHandler.setBackendHandler(msgCommandHandler);
+                replyProxiedCommandHandler.setBackendHandler(replyCommandHandler);
             }
 
-            addIgnoreProxiedCommandHandler.setExecutionHandler(addIgnoreCommandHandler);
-            removeIgnoreProxiedCommandHandler.setExecutionHandler(removeIgnoreCommandHandler);
-            ignoreListProxiedCommandHandler.setExecutionHandler(ignoreListCommandHandler);
+            addIgnoreProxiedCommandHandler.setBackendHandler(addIgnoreCommandHandler);
+            removeIgnoreProxiedCommandHandler.setBackendHandler(removeIgnoreCommandHandler);
+            ignoreListProxiedCommandHandler.setBackendHandler(ignoreListCommandHandler);
         }
     }
 
@@ -220,7 +229,7 @@ public final class Chatty extends JavaPlugin {
         asyncCommandManager.setSetting(ManagerSettings.ALLOW_UNSAFE_REGISTRATION, true);
     }
 
-    private void registerIgnoreCommand(PrivateMessageSuggestionsProvider pmSuggestionsProvider) {
+    private void registerIgnoreCommand(CommandSuggestionsProvider<CommandSender> pmSuggestionsProvider) {
         Builder<CommandSender> ignoreCommandBuilder = asyncCommandManager
                  .commandBuilder("ignore")
                  .permission("chatty.command.ignore");
@@ -253,7 +262,7 @@ public final class Chatty extends JavaPlugin {
                 .command(ignoreListCommand);
     }
 
-    private void registerPmCommands(PrivateMessageSuggestionsProvider pmSuggestionsProvider) {
+    private void registerPmCommands(CommandSuggestionsProvider<CommandSender> pmSuggestionsProvider) {
         Command<CommandSender> msgCommand = asyncCommandManager.commandBuilder("msg", "message", "m", "w", "pm", "dm")
                 .permission("chatty.pm")
                 .argument(StringArgument.<CommandSender>builder("target")

@@ -9,13 +9,13 @@ import org.jetbrains.annotations.NotNull;
 
 @Getter @Setter
 @AllArgsConstructor
-public final class ProxyCommandHandler<T, C> implements CommandExecutionHandler<C> {
+public final class ProxyCommandHandler<S> implements CommandExecutionHandler<S> {
 
-    private CommandExecutionHandler<C> executionHandler;
+    private CommandExecutionHandler<S> backendHandler;
 
     @Override
-    public void execute(@NotNull CommandContext<C> commandContext) {
-        executionHandler.execute(commandContext);
+    public void execute(@NotNull CommandContext<S> commandContext) {
+        backendHandler.execute(commandContext);
     }
 
 }
