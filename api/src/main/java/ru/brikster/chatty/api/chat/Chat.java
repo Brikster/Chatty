@@ -2,6 +2,7 @@ package ru.brikster.chatty.api.chat;
 
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -112,6 +113,16 @@ public interface Chat {
         Set<Player> onlinePlayers = new HashSet<>(Bukkit.getOnlinePlayers());
         onlinePlayers.removeIf(player -> !getRecipientPredicate(sender).test(player));
         return Collections.unmodifiableCollection(onlinePlayers);
+    }
+
+    /**
+     * This method let you send any message to the chat participants (without applying {@link Chat#getFormat()})
+     *
+     * @param plugin  plugin that uses Chatty API
+     * @param message legacy message with section symbol to send
+     */
+    default void sendMessage(Plugin plugin, String message) {
+        sendMessage(plugin, LegacyComponentSerializer.legacySection().deserialize(message), recipient -> true);
     }
 
     /**
