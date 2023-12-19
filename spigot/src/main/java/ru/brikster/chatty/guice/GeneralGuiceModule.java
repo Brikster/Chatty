@@ -153,8 +153,8 @@ public final class GeneralGuiceModule extends AbstractModule {
         // Middle
         strategyMultibinder.addBinding().to(LinkParserTransformStrategy.class);
         // Late
-        strategyMultibinder.addBinding().to(PlaceholdersStrategy.class);
         strategyMultibinder.addBinding().to(PrefixStrategy.class);
+        strategyMultibinder.addBinding().to(PlaceholdersStrategy.class);
         // Post
         strategyMultibinder.addBinding().to(RelationalPlaceholdersStrategy.class);
 
