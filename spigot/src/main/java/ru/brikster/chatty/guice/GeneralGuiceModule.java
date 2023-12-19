@@ -43,8 +43,8 @@ import ru.brikster.chatty.chat.message.transform.intermediary.IntermediateMessag
 import ru.brikster.chatty.chat.message.transform.processor.MessageTransformStrategiesProcessor;
 import ru.brikster.chatty.chat.message.transform.processor.MessageTransformStrategiesProcessorImpl;
 import ru.brikster.chatty.chat.message.transform.stage.early.CooldownStrategy;
-import ru.brikster.chatty.chat.message.transform.stage.early.RecipientsWithRangeStrategy;
 import ru.brikster.chatty.chat.message.transform.stage.early.RemoveChatSymbolStrategy;
+import ru.brikster.chatty.chat.message.transform.stage.early.SpyModeStrategy;
 import ru.brikster.chatty.chat.message.transform.stage.early.moderation.AdModerationStrategyModeration;
 import ru.brikster.chatty.chat.message.transform.stage.early.moderation.CapsModerationStrategy;
 import ru.brikster.chatty.chat.message.transform.stage.early.moderation.SwearModerationStrategyModeration;
@@ -134,7 +134,7 @@ public final class GeneralGuiceModule extends AbstractModule {
         Multibinder<MessageTransformStrategy<?>> strategyMultibinder = Multibinder.newSetBinder(binder(), new TypeLiteral<MessageTransformStrategy<?>>() {});
         // Early
         strategyMultibinder.addBinding().to(RemoveChatSymbolStrategy.class);
-        strategyMultibinder.addBinding().to(RecipientsWithRangeStrategy.class);
+        strategyMultibinder.addBinding().to(SpyModeStrategy.class);
         strategyMultibinder.addBinding().to(CooldownStrategy.class);
 
         if (moderationConfig.getAdvertisement().isEnable()) {
