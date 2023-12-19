@@ -28,18 +28,15 @@ public final class CooldownStrategy implements MessageTransformStrategy<String> 
     @SneakyThrows
     @Override
     public @NotNull MessageTransformResult<String> handle(MessageContext<String> context) {
+
         String chatName = context.getChat().getName();
 
         if (context.getChat().getCooldown() > 0
                 && !context.getSender().hasPermission("chatty.cooldown." + chatName)) {
-            if (!cooldownCachesMap.containsKey(chatName)) {
-                cooldownCachesMap.put(chatName, CacheBuilder.newBuilder()
-                        .maximumSize(1000)
-                        .weakKeys()
-                        .build());
-            }
-
-            Cache<CommandSender, Long> cache = cooldownCachesMap.get(chatName);
+            Cache<CommandSender, Long> cache = cooldownCachesMap.computeIfAbsent(chatName, (k) -> CacheBuilder.newBuilder()
+                    .maximumSize(1000)
+                    .weakKeys()
+                    .build());
 
             Long previousMillis = cache.getIfPresent(context.getSender());
             if (previousMillis != null) {
