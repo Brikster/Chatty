@@ -90,6 +90,9 @@ public class SettingsConfig extends OkaeriConfig {
         @Comment({"", "Hover message for parsed links"})
         private String hoverMessage = "&bClick to follow the link";
 
+        @Comment({"", "Permission check (chatty.parselinks)"})
+        private boolean permissionRequired = false;
+
     }
 
     @Comment({"", "Settings for mentions"})
