@@ -18,7 +18,8 @@ public final class RemoveChatSymbolStrategy implements MessageTransformStrategy<
             return MessageTransformResultBuilder.<String>fromContext(context).build();
         } else {
             String message = context.getMessage()
-                    .replaceFirst(Pattern.quote(context.getChat().getSymbol()), "");
+                    .replaceFirst(Pattern.quote(context.getChat().getSymbol()), "")
+                    .trim();
             return MessageTransformResultBuilder.<String>fromContext(context)
                     .withMessage(message)
                     .build();
