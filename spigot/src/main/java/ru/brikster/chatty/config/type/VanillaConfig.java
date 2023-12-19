@@ -127,7 +127,7 @@ public class VanillaConfig extends OkaeriConfig {
         @Comment("Texts for the death causes can be configured.")
         @Comment("See keys for \"causes\" section here: ")
         @Comment("https://hub.spigotmc.org/javadocs/spigot/org/bukkit/event/entity/EntityDamageEvent.DamageCause.html")
-        private String fallbackCause = "dead by something strange";
+        private String fallbackCause = "killed by something strange";
         private Map<DamageCause, String> causes = new HashMap<>() {{
             put(DamageCause.BLOCK_EXPLOSION, "caught in block explosion");
             put(DamageCause.CONTACT, "pricked by cactus, stalagmite, or berry bush");
@@ -158,7 +158,7 @@ public class VanillaConfig extends OkaeriConfig {
             put(DamageCause.THORNS, "harmed by Thorns enchantment");
             put(DamageCause.VOID, "fell into the void");
             put(DamageCause.WITHER, "withered away");
-            put(DamageCause.CUSTOM, "dead by something strange");
+            put(DamageCause.CUSTOM, "killed by something strange");
         }};
 
         @Comment
