@@ -54,6 +54,8 @@ import ru.brikster.chatty.repository.player.PlayerDataRepository;
 import ru.brikster.chatty.util.AdventureUtil;
 import ru.brikster.chatty.util.ListenerUtil;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -74,6 +76,13 @@ public final class Chatty extends JavaPlugin {
     @SneakyThrows
     @Override
     public void onEnable() {
+        Path dataFolderPath = Chatty.this.getDataFolder().toPath();
+        if (Files.exists(dataFolderPath.resolve("config.yml"))) {
+            String backupFolderName = "Chatty_old_" + System.currentTimeMillis();
+            Files.move(dataFolderPath, dataFolderPath.resolveSibling(backupFolderName));
+            getLogger().log(Level.WARNING, "Found legacy \"config.yml\" file in plugin directory. \"Chatty\" folder was renamed to \"{0}\".", backupFolderName);
+        }
+
         initialize();
         registerChattyCommand();
     }
