@@ -73,13 +73,11 @@ public final class Chatty extends JavaPlugin {
     @SneakyThrows
     @Override
     public void onEnable() {
-        ChattyInitEvent initEvent = new ChattyInitEvent(BukkitAudiences.create(this));
-        getServer().getPluginManager().callEvent(initEvent);
-        initialize(initEvent);
-        registerChattyCommand(initEvent);
+        initialize();
+        registerChattyCommand();
     }
 
-    private void registerChattyCommand(ChattyInitEvent initEvent) throws Exception {
+    private void registerChattyCommand() throws Exception {
         this.syncCommandManager = new BukkitCommandManager<>(this,
                 CommandExecutionCoordinator.simpleCoordinator(),
                 Function.identity(),
@@ -103,13 +101,14 @@ public final class Chatty extends JavaPlugin {
                 .permission("chatty.command.reload")
                 .handler(handler -> {
                     try {
+                        BukkitAudiences.create(this).close();
                         injector.getInstance(PlayerDataRepository.class).close();
                         ListenerUtil.unregister(PlayerJoinEvent.class, this);
                         ListenerUtil.unregister(PlayerQuitEvent.class, this);
                         ListenerUtil.unregister(PlayerDeathEvent.class, this);
                         ListenerUtil.unregister(AsyncPlayerChatEvent.class, this);
                         notificationTicker.cancelTicking();
-                        initialize(initEvent);
+                        initialize();
                         handler.getSender().sendMessage("§aPlugin successfully reloaded!");
                     } catch (Throwable t) {
                         getLogger().log(Level.SEVERE, "Error while reloading Chatty", t);
@@ -123,7 +122,10 @@ public final class Chatty extends JavaPlugin {
                 .command(reloadCommand);
     }
 
-    private void initialize(ChattyInitEvent initEvent) throws Exception {
+    private void initialize() throws Exception {
+        ChattyInitEvent initEvent = new ChattyInitEvent(BukkitAudiences.create(this));
+        getServer().getPluginManager().callEvent(initEvent);
+
         this.injector = Guice.createInjector(new GeneralGuiceModule(
                         Chatty.this,
                         initEvent.getAudienceProvider(),
