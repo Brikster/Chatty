@@ -18,7 +18,7 @@ public final class ChatSelectorImpl implements ChatSelector {
     public @Nullable Chat selectChat(String message, Predicate<Chat> allowedPredicate) {
         // TODO maybe add chats priorities ?
         Chat selected = null;
-        for (Chat chat : registry.getChats()) {
+        for (Chat chat : registry.getChats().values()) {
             if (!allowedPredicate.test(chat)) {
                 continue;
             }

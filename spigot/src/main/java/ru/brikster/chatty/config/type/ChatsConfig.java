@@ -6,6 +6,9 @@ import eu.okaeri.validator.annotation.Min;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import net.kyori.adventure.key.Key;
+import net.kyori.adventure.sound.Sound;
+import net.kyori.adventure.sound.Sound.Source;
 import ru.brikster.chatty.BuildConstants;
 
 import java.util.HashMap;
@@ -25,7 +28,7 @@ public class ChatsConfig extends OkaeriConfig {
     @Comment({"",
             "List of chats.",
             "You can use declared or add you own chats"})
-    private Map<String, ChatConfig> chats = new HashMap<String, ChatConfig>() {{
+    private Map<String, ChatConfig> chats = new HashMap<>() {{
         put("local", new ChatConfig(
                 "Local",
                 "&7[<hover:show_text:'&bRange: 200 blocks'>&bLocal</hover>&7] &r{prefix}{player}{suffix}&8: &f{message}",
@@ -36,6 +39,8 @@ public class ChatsConfig extends OkaeriConfig {
                 true,
                 true,
                 0,
+                false,
+                Sound.sound(Key.key("entity.experience_orb.pickup"), Source.MASTER, 1f, 1f),
                 new ChatSpyConfig(true, "&6[Spy (local)] &r{prefix}{player}{suffix}&8: &f{message}")));
         put("global", new ChatConfig(
                 "Global",
@@ -56,6 +61,8 @@ public class ChatsConfig extends OkaeriConfig {
                 false,
                 true,
                 3,
+                false,
+                Sound.sound(Key.key("entity.experience_orb.pickup"), Source.MASTER, 1f, 1f),
                 new ChatSpyConfig(false, "")));
     }};
 
@@ -141,6 +148,12 @@ public class ChatsConfig extends OkaeriConfig {
         })
         @Min(0)
         private int cooldown = 0;
+
+        @Comment
+        @Comment("Disable this, if you don't want to specify sound for this chat")
+        private boolean playSound = false;
+
+        private Sound sound = Sound.sound(Key.key("entity.experience_orb.pickup"), Source.MASTER, 1f, 1f);
 
         @Comment({"",
                 "Permission for spy: chatty.spy.<chat>"

@@ -3,6 +3,9 @@ package ru.brikster.chatty.config.type;
 import eu.okaeri.configs.OkaeriConfig;
 import eu.okaeri.configs.annotation.*;
 import lombok.Getter;
+import net.kyori.adventure.key.Key;
+import net.kyori.adventure.sound.Sound;
+import net.kyori.adventure.sound.Sound.Source;
 import ru.brikster.chatty.BuildConstants;
 
 @Getter
@@ -34,6 +37,12 @@ public class PmConfig extends OkaeriConfig {
     @Comment({"",
         "Same format, but displayed for receiver"})
     private String toFormat = "{from-prefix}{from-name}{from-suffix} &8-> &r{to-prefix}{to-name}{to-suffix}&8: &f{message}";
+
+    @Comment
+    @Comment("Disable this, if you don't want to specify sound for private messages")
+    private boolean playSound = false;
+
+    private Sound sound = Sound.sound(Key.key("entity.experience_orb.pickup"), Source.MASTER, 1f, 1f);
 
     @Comment({"", "Parse links in private messages?"})
     private boolean parseLinks = true;

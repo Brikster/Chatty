@@ -1,20 +1,18 @@
 package ru.brikster.chatty.api.chat;
 
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.brikster.chatty.api.chat.command.ChatCommand;
 import ru.brikster.chatty.api.chat.message.strategy.MessageTransformStrategy;
 import ru.brikster.chatty.api.chat.range.Ranges;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 
 public interface Chat {
@@ -65,7 +63,10 @@ public interface Chat {
 
     int getCooldown();
 
-    @NotNull Set<@NotNull MessageTransformStrategy<?>> getStrategies();
+    @Nullable
+    Sound getSound();
+
+    @NotNull List<@NotNull MessageTransformStrategy<?>> getStrategies();
 
     void addStrategy(@NotNull MessageTransformStrategy<?> strategy);
 
@@ -114,22 +115,24 @@ public interface Chat {
     }
 
     /**
-     * This method let you send any message to the chat participants (without {@link Chat#getFormat()})
+     * This method let you send any message to the chat participants (without applying {@link Chat#getFormat()})
      *
-     * @param audienceProvider audience provider to get audience
+     * @param plugin  plugin that uses Chatty API
      * @param message message to send
      */
-    default void sendMessage(BukkitAudiences audienceProvider, Component message) {
-        sendMessage(audienceProvider, message, (recipient -> true));
+    default void sendMessage(Plugin plugin, Component message) {
+        sendMessage(plugin, message, recipient -> true);
     }
 
     /**
-     * This method let you send any message to the chat participants (without {@link Chat#getFormat()})
+     * This method let you send any message to the chat participants (without applying {@link Chat#getFormat()}).
+     * Additional param (recipientPredicate) can be used for secondary filtration of recipients, for example, with
+     * your permission.
      *
-     * @param audienceProvider audience provider to get audience
+     * @param plugin             plugin that uses Chatty API
      * @param message            message to send
      * @param recipientPredicate predicate for message recipient
      */
-    void sendMessage(BukkitAudiences audienceProvider, Component message, Predicate<CommandSender> recipientPredicate);
+    void sendMessage(Plugin plugin, Component message, Predicate<CommandSender> recipientPredicate);
 
 }

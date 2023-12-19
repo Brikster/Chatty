@@ -3,9 +3,11 @@ package ru.brikster.chatty.chat;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.brikster.chatty.api.chat.Chat;
@@ -14,8 +16,9 @@ import ru.brikster.chatty.api.chat.command.ChatCommand;
 import ru.brikster.chatty.api.chat.message.strategy.MessageTransformStrategy;
 import ru.brikster.chatty.api.chat.range.Ranges;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -54,13 +57,16 @@ public final class ChatImpl implements Chat {
     private final boolean enableSpy;
 
     @Getter
+    private final Sound sound;
+
+    @Getter
     private final Component spyFormat;
 
     @Getter
     private final int cooldown;
 
-    private final Set<MessageTransformStrategy<?>> strategies
-            = new HashSet<>();
+    private final List<MessageTransformStrategy<?>> strategies
+            = new ArrayList<>();
 
 
     @Override
@@ -71,8 +77,8 @@ public final class ChatImpl implements Chat {
     }
 
     @Override
-    public @NotNull Set<@NotNull MessageTransformStrategy<?>> getStrategies() {
-        return Collections.unmodifiableSet(strategies);
+    public @NotNull List<@NotNull MessageTransformStrategy<?>> getStrategies() {
+        return Collections.unmodifiableList(strategies);
     }
 
     @Override
@@ -126,10 +132,18 @@ public final class ChatImpl implements Chat {
     }
 
     @Override
-    public void sendMessage(BukkitAudiences audienceProvider, Component message, Predicate<CommandSender> recipientPredicate) {
-        audienceProvider
-                .filter(recipientPredicate)
-                .sendMessage(message);
+    public void sendMessage(Plugin plugin, Component message, Predicate<CommandSender> recipientPredicate) {
+        @SuppressWarnings("resource")
+        var audience = BukkitAudiences
+                .create(plugin)
+                .filter(sender -> {
+                    if (sender instanceof Player) {
+                        boolean test = getRecipientPredicate(null).test((Player) sender);
+                        if (!test) return false;
+                    }
+                    return recipientPredicate.test(sender);
+                });
+        audience.sendMessage(message);
     }
 
 }

@@ -2,14 +2,14 @@ package ru.brikster.chatty.chat.registry;
 
 import ru.brikster.chatty.api.chat.Chat;
 
-import java.util.Collection;
+import java.util.Map;
 
 public interface ChatRegistry {
 
-    void register(Chat chat);
+    void register(String id, Chat chat);
 
     void unregisterAll();
 
-    Collection<Chat> getChats();
+    Map<String, Chat> getChats();
 
 }

@@ -8,7 +8,11 @@ import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.sound.Sound.Source;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import ru.brikster.chatty.BuildConstants;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Getter
 @SuppressWarnings("FieldMayBeFinal")
@@ -115,8 +119,47 @@ public class VanillaConfig extends OkaeriConfig {
         private boolean enable = true;
 
         @Comment
+        @Comment("Use {cause} placeholder and \"causes\" for custom causes handling.")
         @Comment("Set this to '', if you want to hide death message")
-        private Component message = MINI_MESSAGE.deserialize("<red>* <yellow>{player} dead.");
+        private Component message = MINI_MESSAGE.deserialize("<red>* <yellow>{player} {cause}.");
+
+        @Comment
+        @Comment("Texts for the death causes can be configured.")
+        @Comment("See keys for \"causes\" section here: ")
+        @Comment("https://hub.spigotmc.org/javadocs/spigot/org/bukkit/event/entity/EntityDamageEvent.DamageCause.html")
+        private String fallbackCause = "dead by something strange";
+        private Map<DamageCause, String> causes = new HashMap<>() {{
+            put(DamageCause.BLOCK_EXPLOSION, "caught in block explosion");
+            put(DamageCause.CONTACT, "pricked by cactus, stalagmite, or berry bush");
+            put(DamageCause.CRAMMING, "crammed by too many entities");
+            put(DamageCause.DRAGON_BREATH, "harmed by dragon's breath");
+            put(DamageCause.DROWNING, "drowned underwater");
+            put(DamageCause.DRYOUT, "dried out outside water");
+            put(DamageCause.ENTITY_ATTACK, "attacked by an entity");
+            put(DamageCause.ENTITY_EXPLOSION, "caught in entity explosion");
+            put(DamageCause.ENTITY_SWEEP_ATTACK, "hit by sweep attack");
+            put(DamageCause.FALL, "fell from a height");
+            put(DamageCause.FALLING_BLOCK, "hit by a falling block");
+            put(DamageCause.FIRE, "burned in fire");
+            put(DamageCause.FIRE_TICK, "suffered from fire burns");
+            put(DamageCause.FLY_INTO_WALL, "flew into a wall");
+            put(DamageCause.FREEZE, "froze to death");
+            put(DamageCause.HOT_FLOOR, "stepped on a hot floor");
+            put(DamageCause.LAVA, "swam in lava");
+            put(DamageCause.LIGHTNING, "struck by lightning");
+            put(DamageCause.MAGIC, "hit by a magic potion or spell");
+            put(DamageCause.MELTING, "melted away");
+            put(DamageCause.POISON, "poisoned");
+            put(DamageCause.PROJECTILE, "hit by a projectile");
+            put(DamageCause.SONIC_BOOM, "hit by Warden's sonic boom");
+            put(DamageCause.STARVATION, "starved to death");
+            put(DamageCause.SUFFOCATION, "suffocated in a block");
+            put(DamageCause.SUICIDE, "committed suicide");
+            put(DamageCause.THORNS, "harmed by Thorns enchantment");
+            put(DamageCause.VOID, "fell into the void");
+            put(DamageCause.WITHER, "withered away");
+            put(DamageCause.CUSTOM, "dead by something strange");
+        }};
 
         @Comment
         @Comment("Play sound on death?")

@@ -3,19 +3,18 @@ package ru.brikster.chatty.chat.registry;
 import ru.brikster.chatty.api.chat.Chat;
 
 import javax.inject.Singleton;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Singleton
 public class MemoryChatRegistry implements ChatRegistry {
 
-    private final List<Chat> chats = new ArrayList<>();
+    private final Map<String, Chat> chats = new ConcurrentHashMap<>();
 
     @Override
-    public void register(Chat chat) {
-        this.chats.add(chat);
+    public void register(String id, Chat chat) {
+        this.chats.put(id, chat);
     }
 
     @Override
@@ -24,8 +23,8 @@ public class MemoryChatRegistry implements ChatRegistry {
     }
 
     @Override
-    public Collection<Chat> getChats() {
-        return Collections.unmodifiableList(chats);
+    public Map<String, Chat> getChats() {
+        return Collections.unmodifiableMap(chats);
     }
 
 }

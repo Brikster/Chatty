@@ -11,6 +11,7 @@ import cloud.commandframework.exceptions.ArgumentParseException;
 import cloud.commandframework.exceptions.InvalidSyntaxException;
 import cloud.commandframework.execution.AsynchronousCommandExecutionCoordinator;
 import cloud.commandframework.execution.CommandExecutionCoordinator;
+import cloud.commandframework.execution.CommandExecutionHandler;
 import cloud.commandframework.meta.CommandMeta;
 import cloud.commandframework.minecraft.extras.MinecraftExceptionHandler;
 import cloud.commandframework.minecraft.extras.MinecraftExceptionHandler.ExceptionType;
@@ -28,11 +29,13 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+import ru.brikster.chatty.api.ChattyApiImpl;
 import ru.brikster.chatty.api.event.ChattyInitEvent;
 import ru.brikster.chatty.chat.executor.LegacyEventExecutor;
+import ru.brikster.chatty.chat.registry.ChatRegistry;
 import ru.brikster.chatty.command.CommandSuggestionsProvider;
-import ru.brikster.chatty.command.ProxyCommandHandler;
-import ru.brikster.chatty.command.ProxyCommandSuggestionsProvider;
+import ru.brikster.chatty.command.ProxyingCommandHandler;
+import ru.brikster.chatty.command.ProxyingCommandSuggestionsProvider;
 import ru.brikster.chatty.config.type.MessagesConfig;
 import ru.brikster.chatty.config.type.PmConfig;
 import ru.brikster.chatty.config.type.SettingsConfig;
@@ -51,10 +54,14 @@ import ru.brikster.chatty.repository.player.PlayerDataRepository;
 import ru.brikster.chatty.util.AdventureUtil;
 import ru.brikster.chatty.util.ListenerUtil;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.logging.Level;
 
 public final class Chatty extends JavaPlugin {
+
+    private final Map<String, ProxyingCommandHandler<CommandSender>> proxyingCommandHandlerMap = new ConcurrentHashMap<>();
 
     private Injector injector;
 
@@ -62,13 +69,7 @@ public final class Chatty extends JavaPlugin {
     private BukkitCommandManager<CommandSender> syncCommandManager;
     private BukkitCommandManager<CommandSender> asyncCommandManager;
 
-    private ProxyCommandSuggestionsProvider<CommandSender> commandSuggestionsProvider;
-
-    private ProxyCommandHandler<CommandSender> msgProxiedCommandHandler;
-    private ProxyCommandHandler<CommandSender> replyProxiedCommandHandler;
-    private ProxyCommandHandler<CommandSender> addIgnoreProxiedCommandHandler;
-    private ProxyCommandHandler<CommandSender> removeIgnoreProxiedCommandHandler;
-    private ProxyCommandHandler<CommandSender> ignoreListProxiedCommandHandler;
+    private ProxyingCommandSuggestionsProvider<CommandSender> commandSuggestionsProvider;
 
     @SneakyThrows
     @Override
@@ -92,8 +93,10 @@ public final class Chatty extends JavaPlugin {
                             "<gold><bold>Chatty</bold></gold> <gray>(v" + getDescription().getVersion() + ")</gray> - chat management system by <green>@Brikster</green>.<newline>" +
                             "Links: <click:open_url:'https://github.com/Brikster/Chatty'><aqua>GitHub</aqua></click><newline>" +
                             "Use <yellow>/chatty reload</yellow> to reload configuration.");
-                    //noinspection resource
-                    BukkitAudiences.create(this).sender(handler.getSender()).sendMessage(component);
+
+                    injector.getInstance(BukkitAudiences.class)
+                            .sender(handler.getSender())
+                            .sendMessage(component);
                 }).build();
 
         Command<CommandSender> reloadCommand = chattyBuilder
@@ -109,7 +112,9 @@ public final class Chatty extends JavaPlugin {
                         ListenerUtil.unregister(AsyncPlayerChatEvent.class, this);
                         notificationTicker.cancelTicking();
                         initialize();
-                        handler.getSender().sendMessage("§aPlugin successfully reloaded!");
+                        injector.getInstance(BukkitAudiences.class)
+                                .sender(handler.getSender())
+                                .sendMessage(injector.getInstance(MessagesConfig.class).getReloadCommandSuccess());
                     } catch (Throwable t) {
                         getLogger().log(Level.SEVERE, "Error while reloading Chatty", t);
                         handler.getSender().sendMessage("§cError while reloading plugin: " + t.getClass().getSimpleName() + ". See console for more details.");
@@ -158,7 +163,7 @@ public final class Chatty extends JavaPlugin {
 
         PrivateMessageSuggestionsProvider pmSuggestionsProvider = injector.getInstance(PrivateMessageSuggestionsProvider.class);
         if (commandSuggestionsProvider == null) {
-            commandSuggestionsProvider = new ProxyCommandSuggestionsProvider<>(pmSuggestionsProvider);
+            commandSuggestionsProvider = new ProxyingCommandSuggestionsProvider<>(pmSuggestionsProvider);
         } else {
             commandSuggestionsProvider.setBackendProvider(pmSuggestionsProvider);
         }
@@ -167,34 +172,24 @@ public final class Chatty extends JavaPlugin {
         RemoveIgnoreCommandHandler removeIgnoreCommandHandler = injector.getInstance(RemoveIgnoreCommandHandler.class);
         IgnoreListCommandHandler ignoreListCommandHandler = injector.getInstance(IgnoreListCommandHandler.class);
 
+        if (pmConfig.isEnable()) {
+            MsgCommandHandler msgCommandHandler = injector.getInstance(MsgCommandHandler.class);
+            ReplyCommandHandler replyCommandHandler = injector.getInstance(ReplyCommandHandler.class);
+            registerProxyingHandler("msg", msgCommandHandler);
+            registerProxyingHandler("reply", replyCommandHandler);
+        }
+
+        registerProxyingHandler("ignore add", addIgnoreCommandHandler);
+        registerProxyingHandler("ignore remove", removeIgnoreCommandHandler);
+        registerProxyingHandler("ignore list", ignoreListCommandHandler);
+
         if (this.asyncCommandManager == null) {
             initAsyncCommandManager();
-
-            if (pmConfig.isEnable()) {
-                MsgCommandHandler msgCommandHandler = injector.getInstance(MsgCommandHandler.class);
-                ReplyCommandHandler replyCommandHandler = injector.getInstance(ReplyCommandHandler.class);
-                msgProxiedCommandHandler = new ProxyCommandHandler<>(msgCommandHandler);
-                replyProxiedCommandHandler = new ProxyCommandHandler<>(replyCommandHandler);
-                registerPmCommands(commandSuggestionsProvider);
-            }
-
-            addIgnoreProxiedCommandHandler = new ProxyCommandHandler<>(addIgnoreCommandHandler);
-            removeIgnoreProxiedCommandHandler = new ProxyCommandHandler<>(removeIgnoreCommandHandler);
-            ignoreListProxiedCommandHandler = new ProxyCommandHandler<>(ignoreListCommandHandler);
-
+            registerPmCommands(commandSuggestionsProvider);
             registerIgnoreCommand(commandSuggestionsProvider);
-        } else {
-            if (pmConfig.isEnable()) {
-                MsgCommandHandler msgCommandHandler = injector.getInstance(MsgCommandHandler.class);
-                ReplyCommandHandler replyCommandHandler = injector.getInstance(ReplyCommandHandler.class);
-                msgProxiedCommandHandler.setBackendHandler(msgCommandHandler);
-                replyProxiedCommandHandler.setBackendHandler(replyCommandHandler);
-            }
-
-            addIgnoreProxiedCommandHandler.setBackendHandler(addIgnoreCommandHandler);
-            removeIgnoreProxiedCommandHandler.setBackendHandler(removeIgnoreCommandHandler);
-            ignoreListProxiedCommandHandler.setBackendHandler(ignoreListCommandHandler);
         }
+
+        ChattyApiImpl.updateInstance(new ChattyApiImpl(injector.getInstance(ChatRegistry.class).getChats()));
     }
 
     private void initAsyncCommandManager() throws Exception {
@@ -207,7 +202,6 @@ public final class Chatty extends JavaPlugin {
 
         MessagesConfig messagesConfig = injector.getInstance(MessagesConfig.class);
 
-        //noinspection resource
         new MinecraftExceptionHandler<CommandSender>()
                 .withHandler(ExceptionType.ARGUMENT_PARSING, (e) -> {
                     String argument = ((ArgumentParseException) e).getCause().toString();
@@ -226,7 +220,7 @@ public final class Chatty extends JavaPlugin {
                     e.printStackTrace();
                     return messagesConfig.getCmdExecutionError();
                 })
-                .apply(asyncCommandManager, BukkitAudiences.create(this)::sender);
+                .apply(asyncCommandManager, injector.getInstance(BukkitAudiences.class)::sender);
 
         asyncCommandManager.setSetting(ManagerSettings.ALLOW_UNSAFE_REGISTRATION, true);
     }
@@ -242,7 +236,7 @@ public final class Chatty extends JavaPlugin {
                         .single()
                         .withSuggestionsProvider(pmSuggestionsProvider)
                         .build())
-                .handler(addIgnoreProxiedCommandHandler)
+                .handler(proxyingCommandHandlerMap.get("ignore add"))
                 .build();
 
         Command<CommandSender> ignoreRemoveCommand = ignoreCommandBuilder
@@ -251,11 +245,11 @@ public final class Chatty extends JavaPlugin {
                         .single()
                         .withSuggestionsProvider(pmSuggestionsProvider)
                         .build())
-                .handler(removeIgnoreProxiedCommandHandler)
+                .handler(proxyingCommandHandlerMap.get("ignore remove"))
                 .build();
 
         Command<CommandSender> ignoreListCommand = ignoreCommandBuilder
-                .handler(ignoreListProxiedCommandHandler)
+                .handler(proxyingCommandHandlerMap.get("ignore list"))
                 .build();
 
         asyncCommandManager
@@ -272,18 +266,29 @@ public final class Chatty extends JavaPlugin {
                         .withSuggestionsProvider(pmSuggestionsProvider)
                         .build())
                 .argument(StringArgument.greedy("message"))
-                .handler(msgProxiedCommandHandler)
+                .handler(proxyingCommandHandlerMap.get("msg"))
                 .build();
 
         Command<CommandSender> replyCommand = asyncCommandManager.commandBuilder("reply", "r")
                 .permission("chatty.pm")
                 .argument(StringArgument.greedy("message"))
-                .handler(replyProxiedCommandHandler)
+                .handler(proxyingCommandHandlerMap.get("reply"))
                 .build();
 
         asyncCommandManager
                 .command(msgCommand)
                 .command(replyCommand);
+    }
+
+    private void registerProxyingHandler(String commandName, CommandExecutionHandler<CommandSender> executionHandler) {
+        proxyingCommandHandlerMap.compute(commandName, (k, v) -> {
+            if (v == null) {
+                return new ProxyingCommandHandler<>(executionHandler);
+            } else {
+                v.setBackendHandler(executionHandler);
+                return v;
+            }
+        });
     }
 
     @Override

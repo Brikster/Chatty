@@ -3,20 +3,24 @@ package ru.brikster.chatty.api;
 import org.jetbrains.annotations.NotNull;
 import ru.brikster.chatty.api.chat.Chat;
 
-import java.util.Collection;
+import java.util.Map;
 
-public class ChattyApiImpl implements ChattyApi {
+public final class ChattyApiImpl implements ChattyApi {
 
-    private final Collection<Chat> chats;
+    private final Map<String, Chat> chats;
 
-    public ChattyApiImpl(Collection<Chat> chats) {
+    public ChattyApiImpl(Map<String, Chat> chats) {
         this.chats = chats;
     }
 
     @Override
     @NotNull
-    public Collection<Chat> getChats() {
+    public Map<String, Chat> getChats() {
         return chats;
+    }
+
+    public static void updateInstance(ChattyApi chattyApi) {
+        ChattyApiInstanceContainer.API_INSTANCE = chattyApi;
     }
 
 }

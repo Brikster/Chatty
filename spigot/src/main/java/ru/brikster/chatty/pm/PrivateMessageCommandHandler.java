@@ -51,7 +51,11 @@ public final class PrivateMessageCommandHandler {
                 && playerDataRepository.isIgnoredPlayer((Player) target, ((Player) sender).getUniqueId());
 
         if (!ignored) {
-            audiences.sender(target).sendMessage(toComponentFormat);
+            var targetAudience = audiences.sender(target);
+            targetAudience.sendMessage(toComponentFormat);
+            if (pmConfig.isPlaySound()) {
+                targetAudience.playSound(pmConfig.getSound());
+            }
             pmMessageService.addConversation(target, sender);
         }
 

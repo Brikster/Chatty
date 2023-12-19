@@ -1,46 +1,23 @@
 package ru.brikster.chatty.api;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import ru.brikster.chatty.api.chat.Chat;
 
-import java.util.Collection;
+import java.util.Map;
+import java.util.Objects;
 
 public interface ChattyApi {
 
-    static ChattyApi get() {
-        return ChattyApiHolder.getApi();
+    static @NotNull ChattyApi instance() {
+        return Objects.requireNonNull(ChattyApiInstanceContainer.PROXYING_API_INSTANCE, "Chatty is not initialized yet");
     }
 
     /**
-     * Returns collection of chats
+     * Map of currently registered chats
      *
-     * @return collection of chats
+     * @return chats map
      */
     @NotNull
-    Collection<Chat> getChats();
-
-    /**
-     * Returns chat with given name, if exists
-     *
-     * @param name chat name
-     * @return chat with given name
-     */
-    @Nullable
-    default Chat getChat(String name) {
-        return getChats()
-                .stream()
-                .filter(chat -> chat.getName().equalsIgnoreCase(name))
-                .findAny()
-                .orElse(null);
-    }
-
-    class ChattyApiHolder {
-
-        private static @Getter @Setter ChattyApi api;
-
-    }
+    Map<String, Chat> getChats();
 
 }

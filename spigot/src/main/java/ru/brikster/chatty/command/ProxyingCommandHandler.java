@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 @Getter @Setter
 @AllArgsConstructor
-public final class ProxyCommandHandler<S> implements CommandExecutionHandler<S> {
+public final class ProxyingCommandHandler<S> implements CommandExecutionHandler<S> {
 
     private CommandExecutionHandler<S> backendHandler;
 

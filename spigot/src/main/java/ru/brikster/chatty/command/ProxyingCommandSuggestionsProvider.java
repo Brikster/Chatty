@@ -10,7 +10,7 @@ import java.util.List;
 
 @Getter @Setter
 @AllArgsConstructor
-public final class ProxyCommandSuggestionsProvider<S> implements CommandSuggestionsProvider<S> {
+public final class ProxyingCommandSuggestionsProvider<S> implements CommandSuggestionsProvider<S> {
 
     private CommandSuggestionsProvider<S> backendProvider;
 

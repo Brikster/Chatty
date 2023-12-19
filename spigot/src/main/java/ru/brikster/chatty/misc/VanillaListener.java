@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -17,6 +18,7 @@ import ru.brikster.chatty.config.type.VanillaConfig;
 import ru.brikster.chatty.config.type.VanillaConfig.DeathVanillaConfig;
 import ru.brikster.chatty.config.type.VanillaConfig.JoinVanillaConfig;
 import ru.brikster.chatty.config.type.VanillaConfig.QuitVanillaConfig;
+import ru.brikster.chatty.util.AdventureUtil;
 
 import javax.inject.Inject;
 
@@ -44,8 +46,7 @@ public final class VanillaListener implements Listener {
         }
 
         net.kyori.adventure.sound.Sound sound = null;
-        if (event.getPlayer().hasPlayedBefore() ||
-                (!joinConfig.getFirstJoin().isPlaySound() && joinConfig.isPlaySound())) {
+        if (event.getPlayer().hasPlayedBefore() && joinConfig.isPlaySound()) {
             sound = joinConfig.getSound();
         } else if (joinConfig.getFirstJoin().isPlaySound()) {
             sound = joinConfig.getFirstJoin().getSound();
@@ -122,7 +123,20 @@ public final class VanillaListener implements Listener {
                 return;
             } else {
                 event.setDeathMessage(null);
+
+                String deathCause;
+                var damageEvent = event.getEntity().getLastDamageCause();
+                if (damageEvent == null) {
+                    deathCause = deathConfig.getFallbackCause();
+                } else {
+                    DamageCause damageCause = damageEvent.getCause();
+                    deathCause = deathConfig.getCauses().getOrDefault(damageCause, deathConfig.getFallbackCause());
+                }
+
+                deathMessage = deathMessage.replaceText(AdventureUtil.createReplacement("{cause}", deathCause));
+
                 Component formatted = formatWithPlaceholders(deathMessage, event.getEntity());
+
                 audiences.all().sendMessage(formatted);
             }
         }

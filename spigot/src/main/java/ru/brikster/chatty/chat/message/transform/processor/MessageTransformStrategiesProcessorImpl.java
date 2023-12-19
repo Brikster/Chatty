@@ -34,11 +34,11 @@ public final class MessageTransformStrategiesProcessorImpl implements MessageTra
         boolean messageUpdated = false;
         boolean becameCancelled = false;
 
-        Set<MessageTransformStrategy<?>> strategySet = Stream.concat(strategies.stream(), context.getChat().getStrategies().stream())
+        List<MessageTransformStrategy<?>> strategies = Stream.concat(this.strategies.stream(), context.getChat().getStrategies().stream())
                 .filter(strategy -> strategy.getStage() == stage)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
 
-        for (MessageTransformStrategy<?> strategy : strategySet) {
+        for (MessageTransformStrategy<?> strategy : strategies) {
             @SuppressWarnings({"rawtypes", "unchecked"})
             MessageTransformResult<?> messageTransformResult = ((MessageTransformStrategy) strategy).handle(newContext);
 

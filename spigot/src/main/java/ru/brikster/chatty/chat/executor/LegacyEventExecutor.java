@@ -4,6 +4,8 @@ import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -16,6 +18,7 @@ import ru.brikster.chatty.api.chat.Chat;
 import ru.brikster.chatty.api.chat.ChatStyle;
 import ru.brikster.chatty.api.chat.message.context.MessageContext;
 import ru.brikster.chatty.api.chat.message.strategy.MessageTransformStrategy.Stage;
+import ru.brikster.chatty.api.event.ChattyMessageEvent;
 import ru.brikster.chatty.chat.construct.ComponentFromContextConstructor;
 import ru.brikster.chatty.chat.message.context.MessageContextImpl;
 import ru.brikster.chatty.chat.message.transform.intermediary.IntermediateMessageTransformer;
@@ -136,6 +139,21 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
         try {
             MessageContext<Component> earlyComponentContext = intermediateMessageTransformer.handle(earlyContext).getNewContext();
             MessageContext<Component> middleContext = processor.handle(earlyComponentContext, Stage.MIDDLE).getNewContext();
+
+            ChattyMessageEvent messageEvent = new ChattyMessageEvent(
+                    middleContext.getSender(),
+                    middleContext.getChat(),
+                    PlainTextComponentSerializer.plainText().serialize(middleContext.getMessage()),
+                    List.copyOf(middleContext.getRecipients())
+            );
+
+            Bukkit.getPluginManager().callEvent(messageEvent);
+
+            if (middleContext.getChat().getSound() != null) {
+                for (Player recipient : middleContext.getRecipients()) {
+                    audiences.player(recipient).playSound(middleContext.getChat().getSound());
+                }
+            }
 
             List<MessageContext<Component>> groupedByStyle = groupedByStyle(middleContext);
             for (int groupIndex = 0; groupIndex < groupedByStyle.size(); groupIndex++) {

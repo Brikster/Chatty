@@ -28,7 +28,6 @@ public final class CooldownStrategy implements MessageTransformStrategy<String> 
     @SneakyThrows
     @Override
     public @NotNull MessageTransformResult<String> handle(MessageContext<String> context) {
-
         String chatName = context.getChat().getName();
 
         if (context.getChat().getCooldown() > 0

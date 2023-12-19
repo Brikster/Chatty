@@ -6,19 +6,26 @@ import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 import ru.brikster.chatty.api.chat.Chat;
 
-public class ChattyMessageEvent extends Event {
+import java.util.List;
+
+public final class ChattyMessageEvent extends Event {
 
     private static final HandlerList HANDLER_LIST = new HandlerList();
 
     private final Player player;
     private final Chat chat;
-    private final String message;
+    private final String plainMessage;
+    private final List<Player> recipients;
 
-    public ChattyMessageEvent(@NotNull Player player, @NotNull Chat chat, @NotNull String message) {
+    public ChattyMessageEvent(@NotNull Player player,
+                              @NotNull Chat chat,
+                              @NotNull String plainMessage,
+                              @NotNull List<Player> recipients) {
         super(true);
         this.player = player;
         this.chat = chat;
-        this.message = message;
+        this.plainMessage = plainMessage;
+        this.recipients = recipients;
     }
 
     public static HandlerList getHandlerList() {
@@ -31,7 +38,7 @@ public class ChattyMessageEvent extends Event {
      * @return player that sends a message
      */
     @NotNull
-    public Player getPlayer() {
+    public Player getSender() {
         return player;
     }
 
@@ -46,13 +53,18 @@ public class ChattyMessageEvent extends Event {
     }
 
     /**
-     * Returns the message typed by player
+     * Returns the plain message text, typed by player
      *
-     * @return message typed by player
+     * @return plain message text
      */
     @NotNull
-    public String getMessage() {
-        return message;
+    public String getPlainMessage() {
+        return plainMessage;
+    }
+
+    @NotNull
+    public List<Player> getRecipients() {
+        return recipients;
     }
 
     @Override
