@@ -60,9 +60,9 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
     }
 
     private void onChat(AsyncPlayerChatEvent event) {
-        Chat chat = selector.selectChat(event.getMessage(), $ ->
-                !$.isPermissionRequired() ||
-                        $.hasSymbolWritePermission(event.getPlayer()));
+        Chat chat = selector.selectChat(event.getMessage(), chatCandidate ->
+                !chatCandidate.isPermissionRequired() ||
+                        chatCandidate.hasSymbolWritePermission(event.getPlayer()));
 
         if (chat == null) {
             audiences.player(event.getPlayer().getUniqueId())
