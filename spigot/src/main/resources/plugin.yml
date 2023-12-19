@@ -8,6 +8,6 @@ api-version: '1.13'
 
 # Essentials needed only for overwriting existing private-messaging commands.
 loadbefore: [ Essentials ]
-softdepend: [ Vault, PlaceholderAPI, NametagEdit ]
+softdepend: [ Vault, PlaceholderAPI ]
 
 folia-supported: true
