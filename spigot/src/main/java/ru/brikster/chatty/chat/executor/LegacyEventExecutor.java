@@ -151,7 +151,9 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
 
             if (middleContext.getChat().getSound() != null) {
                 for (Player recipient : middleContext.getRecipients()) {
-                    audiences.player(recipient).playSound(middleContext.getChat().getSound());
+                    if (recipient != middleContext.getSender()) {
+                        audiences.player(recipient).playSound(middleContext.getChat().getSound());
+                    }
                 }
             }
 
