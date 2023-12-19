@@ -212,7 +212,6 @@ public final class GeneralGuiceModule extends AbstractModule {
                 : new DummyRelationalPlaceholdersComponentTransformer();
     }
 
-    @SuppressWarnings("VulnerableCodeUsages")
     private <ConfigT extends OkaeriConfig> ConfigT createConfig(Class<ConfigT> configClass, String fileName) {
         try {
             configClass.getDeclaredField("converter").set(null, internalMiniMessageStringConverter);
