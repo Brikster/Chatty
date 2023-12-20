@@ -59,6 +59,16 @@ public final class PrivateMessageCommandHandler {
             pmMessageService.addConversation(target, sender);
         }
 
+        if (pmConfig.getSpy().isEnable()) {
+            Component spyComponentFormat = pmMessageService.transformFormat(
+                    pmConfig.getSpy().getFormat(),
+                    sender, target, message);
+            audiences.filter(spyCandidate -> spyCandidate.hasPermission("chatty.spy.pm")
+                            && spyCandidate != sender 
+                            && (spyCandidate != target || ignored))
+                    .sendMessage(spyComponentFormat);
+        }
+
         boolean consoleIsInConversation = sender instanceof ConsoleCommandSender || target instanceof ConsoleCommandSender;
 
         if (!consoleIsInConversation) {

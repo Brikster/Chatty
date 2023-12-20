@@ -2,7 +2,9 @@ package ru.brikster.chatty.config.type;
 
 import eu.okaeri.configs.OkaeriConfig;
 import eu.okaeri.configs.annotation.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.sound.Sound.Source;
@@ -46,5 +48,25 @@ public class PmConfig extends OkaeriConfig {
 
     @Comment({"", "Parse links in private messages?"})
     private boolean parseLinks = true;
+
+    @Comment({"",
+            "Permission for spy: chatty.spy.pm"
+    })
+    private PmSpyConfig spy = new PmSpyConfig(false,
+            "&8[&eSPY&8] &r{from-prefix}{from-name}{from-suffix} &8-> &r{to-prefix}{to-name}{to-suffix}&8: &f{message}");
+
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Names(strategy = NameStrategy.HYPHEN_CASE, modifier = NameModifier.TO_LOWER_CASE)
+    public static final class PmSpyConfig extends OkaeriConfig {
+
+        @Comment({"Enable spy for private messages?"})
+        private boolean enable;
+
+        @Comment({"Custom format for spy message"})
+        private String format;
+
+    }
 
 }
