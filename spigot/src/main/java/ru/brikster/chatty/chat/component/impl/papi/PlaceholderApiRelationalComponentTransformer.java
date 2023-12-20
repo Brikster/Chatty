@@ -23,20 +23,18 @@ public final class PlaceholderApiRelationalComponentTransformer extends Relation
     @Override
     public @NotNull Component transform(@NotNull Component formatComponent, @NotNull TwoPlayersTransformContext context) {
         return AdventureUtil.replaceWithEndingSpace(formatComponent, RELATIONAL_PLACEHOLDER_PATTERN, matchedString -> {
-            String matchedWithPlaceholders = PlaceholderAPI.setRelationalPlaceholders(context.getOne(), context.getTwo(), matchedString);
-            if (matchedWithPlaceholders.equals(matchedString)) {
-                return null;
-            } else {
-                return componentStringConverter.stringToComponent(matchedWithPlaceholders + " ");
-            }
-        }, matchedString -> {
-            String matchedWithPlaceholders = PlaceholderAPI.setRelationalPlaceholders(context.getOne(), context.getTwo(), matchedString);
-            if (matchedWithPlaceholders.equals(matchedString)) {
-                return null;
-            } else {
-                return matchedWithPlaceholders;
-            }
-        });
+            String result = replace(context, matchedString);
+            return result == null ? null : componentStringConverter.stringToComponent(result + " ");
+        }, matchedString -> replace(context, matchedString));
+    }
+
+    private String replace(TwoPlayersTransformContext context, String matchedString) {
+        String matchedWithPlaceholders = PlaceholderAPI.setRelationalPlaceholders(context.getOne(), context.getTwo(), matchedString);
+        if (matchedWithPlaceholders.equals(matchedString)) {
+            return null;
+        } else {
+            return matchedWithPlaceholders;
+        }
     }
 
 }

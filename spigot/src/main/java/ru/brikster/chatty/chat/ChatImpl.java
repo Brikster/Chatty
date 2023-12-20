@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -132,7 +134,18 @@ public final class ChatImpl implements Chat {
     }
 
     @Override
-    public void sendMessage(Plugin plugin, Component message, Predicate<CommandSender> recipientPredicate) {
+    public void sendLegacyMessage(Plugin plugin, String message, Predicate<CommandSender> recipientPredicate) {
+        var component = LegacyComponentSerializer.legacySection().deserialize(message);
+        sendComponent(plugin, component, recipientPredicate);
+    }
+
+    @Override
+    public void sendJsonComponent(Plugin plugin, String componentJson, Predicate<CommandSender> recipientPredicate) {
+        var component = GsonComponentSerializer.gson().deserialize(componentJson);
+        sendComponent(plugin, component, recipientPredicate);
+    }
+
+    private void sendComponent(Plugin plugin, Component component, Predicate<CommandSender> recipientPredicate) {
         @SuppressWarnings("resource")
         var audience = BukkitAudiences
                 .create(plugin)
@@ -143,7 +156,7 @@ public final class ChatImpl implements Chat {
                     }
                     return recipientPredicate.test(sender);
                 });
-        audience.sendMessage(message);
+        audience.sendMessage(component);
     }
 
 }

@@ -36,22 +36,19 @@ public abstract class AbstractPrefixComponentTransformer implements ComponentTra
         String prefix = prefixProvider.getPrefix(context.getPlayer());
         String suffix = prefixProvider.getSuffix(context.getPlayer());
         return AdventureUtil.replaceWithEndingSpace(formatComponent, prefixOrSuffixPattern, matchedString -> {
-           if (matchedString.equals(prefixPlaceholder)) {
-               return componentStringConverter.stringToComponent(ObjectUtil.requireNonNullElse(prefix, "") + " ");
-           } else if (matchedString.equals(suffixPlaceholder)) {
-               return componentStringConverter.stringToComponent(ObjectUtil.requireNonNullElse(suffix, "") + " ");
-           } else {
-               throw new IllegalStateException("Illegal string matched: " + matchedString);
-           }
-        }, matchedString -> {
-            if (matchedString.equals(prefixPlaceholder)) {
-                return ObjectUtil.requireNonNullElse(prefix, "");
-            } else if (matchedString.equals(suffixPlaceholder)) {
-                return ObjectUtil.requireNonNullElse(suffix, "");
-            } else {
-                throw new IllegalStateException("Illegal string matched: " + matchedString);
-            }
-        });
+            String result = replace(prefix, suffix, matchedString);
+            return componentStringConverter.stringToComponent(result + " ");
+        }, matchedString -> replace(prefix, suffix, matchedString));
+    }
+
+    private String replace(String prefix, String suffix, String matchedString) {
+        if (matchedString.equals(prefixPlaceholder)) {
+            return ObjectUtil.requireNonNullElse(prefix, "");
+        } else if (matchedString.equals(suffixPlaceholder)) {
+            return ObjectUtil.requireNonNullElse(suffix, "");
+        } else {
+            throw new IllegalStateException("Illegal string matched: " + matchedString);
+        }
     }
 
 }

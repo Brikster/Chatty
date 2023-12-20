@@ -81,7 +81,7 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
                     .filter(playerPredicate)
                     .collect(Collectors.toList());
         } else {
-            recipients = new ArrayList<>(chat.getRecipients(event.getPlayer()));
+            recipients = new ArrayList<>(chat.calculateRecipients(event.getPlayer()));
         }
 
         MessageContext<String> context = new MessageContextImpl<>(

@@ -45,13 +45,13 @@ public class ChatsConfig extends OkaeriConfig {
         put("global", new ChatConfig(
                 "Global",
                 "&7[<hover:show_text:'&aUse &2&l! &afor global chat'><click:suggest_command:!>&6Global</click></hover>&7] &r{prefix}{player}{suffix}&8: &f{message}",
-                new HashMap<String, ChatStyleConfig>() {{
+                new HashMap<>() {{
                     put("red", new ChatStyleConfig(
-                            "&7[&4Global&7] &r{prefix}{player}{suffix}&8: &c{message}",
+                            "&7[<hover:show_text:'&aUse &2&l! &afor global chat'><click:suggest_command:!>&4Global</click></hover>&7] &r{prefix}{player}{suffix}&8: &c{message}",
                             10
                     ));
                     put("green", new ChatStyleConfig(
-                            "&7[&2Global&7] &r{prefix}{player}{suffix}&8: &a{message}",
+                            "&7[<hover:show_text:'&aUse &2&l! &afor global chat'><click:suggest_command:!>&2Global</click></hover>&7] &r{prefix}{player}{suffix}&8: &a{message}",
                             20
                     ));
                 }},

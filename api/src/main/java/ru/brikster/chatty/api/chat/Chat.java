@@ -2,7 +2,6 @@ package ru.brikster.chatty.api.chat;
 
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -31,8 +30,9 @@ public interface Chat {
 
     /**
      * Chat format has the following variables:
-     * 1) {player} - player nickname
+     * 1) {player} - player username
      * 2) {prefix}, {suffix} - prefix and suffix of player
+     * 2) {message} - chat message
      * 3) %<placeholder>% - various placeholders from PlaceholderAPI
      *
      * @return chat format specified in configuration
@@ -75,7 +75,7 @@ public interface Chat {
 
     /**
      * Range param for the chat messages
-     * -3 is used for multiserver messaging (when "general.bungeecord" is true)
+     * -3 is used for cross-server messaging
      * -2 is used for cross-world chats
      * -1 is for global single-world chats
      * 0 and higher for ranged local-chats
@@ -109,30 +109,20 @@ public interface Chat {
      * @return collection of chat recipients
      */
     @NotNull
-    default Collection<? extends Player> getRecipients(@Nullable Player sender) {
+    default Collection<? extends Player> calculateRecipients(@Nullable Player sender) {
         Set<Player> onlinePlayers = new HashSet<>(Bukkit.getOnlinePlayers());
         onlinePlayers.removeIf(player -> !getRecipientPredicate(sender).test(player));
         return Collections.unmodifiableCollection(onlinePlayers);
     }
 
     /**
-     * This method let you send any message to the chat participants (without applying {@link Chat#getFormat()})
+     * This method let you send any message to the chat participants (without applying {@link Chat#getFormat()}).
      *
-     * @param plugin  plugin that uses Chatty API
-     * @param message legacy message with section symbol to send
+     * @param plugin             plugin that uses Chatty API
+     * @param message            legacy message with section symbol to send
      */
-    default void sendMessage(Plugin plugin, String message) {
-        sendMessage(plugin, LegacyComponentSerializer.legacySection().deserialize(message), recipient -> true);
-    }
-
-    /**
-     * This method let you send any message to the chat participants (without applying {@link Chat#getFormat()})
-     *
-     * @param plugin  plugin that uses Chatty API
-     * @param message message to send
-     */
-    default void sendMessage(Plugin plugin, Component message) {
-        sendMessage(plugin, message, recipient -> true);
+    default void sendLegacyMessage(Plugin plugin, String message) {
+        sendLegacyMessage(plugin, message, $ -> true);
     }
 
     /**
@@ -141,9 +131,30 @@ public interface Chat {
      * your permission.
      *
      * @param plugin             plugin that uses Chatty API
-     * @param message            message to send
+     * @param message            legacy message with section symbol to send
      * @param recipientPredicate predicate for message recipient
      */
-    void sendMessage(Plugin plugin, Component message, Predicate<CommandSender> recipientPredicate);
+    void sendLegacyMessage(Plugin plugin, String message, Predicate<CommandSender> recipientPredicate);
+
+    /**
+     * This method let you send any message to the chat participants (without applying {@link Chat#getFormat()}).
+     *
+     * @param plugin             plugin that uses Chatty API
+     * @param componentJson      JSON-component of message to send
+     */
+    default void sendJsonComponent(Plugin plugin, String componentJson) {
+        sendLegacyMessage(plugin, componentJson, $ -> true);
+    }
+
+    /**
+     * This method let you send any message to the chat participants (without applying {@link Chat#getFormat()}).
+     * Additional param (recipientPredicate) can be used for secondary filtration of recipients, for example, with
+     * your permission.
+     *
+     * @param plugin             plugin that uses Chatty API
+     * @param componentJson      JSON-component of message to send
+     * @param recipientPredicate predicate for message recipient
+     */
+    void sendJsonComponent(Plugin plugin, String componentJson, Predicate<CommandSender> recipientPredicate);
 
 }

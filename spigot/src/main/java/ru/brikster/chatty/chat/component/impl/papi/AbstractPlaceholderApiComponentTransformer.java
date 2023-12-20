@@ -22,22 +22,19 @@ public abstract class AbstractPlaceholderApiComponentTransformer implements Plac
     @Override
     public @NotNull Component transform(@NotNull Component formatComponent, @NotNull SinglePlayerTransformContext context) {
         return AdventureUtil.replaceWithEndingSpace(formatComponent, placeholderPattern, matchedString -> {
-            String matchedTransformed = matchedStringTransformFunction.apply(matchedString);
-            String matchedWithPlaceholders = PlaceholderAPI.setPlaceholders(context.getPlayer(), matchedTransformed);
-            if (matchedWithPlaceholders.equals(matchedString)) {
-                return null;
-            } else {
-                return componentStringConverter.stringToComponent(matchedWithPlaceholders + " ");
-            }
-        }, matchedString -> {
-            String matchedTransformed = matchedStringTransformFunction.apply(matchedString);
-            String matchedWithPlaceholders = PlaceholderAPI.setPlaceholders(context.getPlayer(), matchedTransformed);
-            if (matchedWithPlaceholders.equals(matchedString)) {
-                return null;
-            } else {
-                return matchedWithPlaceholders;
-            }
-        });
+            String result = replace(context, matchedString);
+            return result == null ? null : componentStringConverter.stringToComponent(result + " ");
+        }, matchedString -> replace(context, matchedString));
+    }
+
+    private String replace(SinglePlayerTransformContext context, String matchedString) {
+        String matchedTransformed = matchedStringTransformFunction.apply(matchedString);
+        String matchedWithPlaceholders = PlaceholderAPI.setPlaceholders(context.getPlayer(), matchedTransformed);
+        if (matchedWithPlaceholders.equals(matchedString)) {
+            return null;
+        } else {
+            return matchedWithPlaceholders;
+        }
     }
 
 }

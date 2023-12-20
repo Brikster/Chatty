@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 @UtilityClass
 public class Ranges {
 
-    public final int MULTI_SERVER = -3;
+    public final int CROSS_SERVER = -3;
     public final int CROSS_WORLD = -2;
     public final int SINGLE_WORLD = -1;
 
@@ -18,7 +18,7 @@ public class Ranges {
      * @return whether range is applicable or not
      */
     public boolean isApplicable(@NotNull Player firstPlayer, @NotNull Player secondPlayer, int range) {
-        if (range == CROSS_WORLD || range == MULTI_SERVER) {
+        if (range == CROSS_WORLD || range == CROSS_SERVER) {
             return true;
         }
 
