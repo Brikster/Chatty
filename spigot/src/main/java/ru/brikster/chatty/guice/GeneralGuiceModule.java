@@ -26,8 +26,10 @@ import org.yaml.snakeyaml.reader.StreamReader;
 import org.yaml.snakeyaml.representer.Representer;
 import org.yaml.snakeyaml.resolver.Resolver;
 import ru.brikster.chatty.api.chat.message.strategy.MessageTransformStrategy;
+import ru.brikster.chatty.chat.component.impl.ChainPlaceholdersComponentTransformer;
 import ru.brikster.chatty.chat.component.impl.PlaceholdersComponentTransformer;
 import ru.brikster.chatty.chat.component.impl.RelationalPlaceholdersComponentTransformer;
+import ru.brikster.chatty.chat.component.impl.ReplacementsComponentTransformer;
 import ru.brikster.chatty.chat.component.impl.dummy.DummyPlaceholdersComponentTransformer;
 import ru.brikster.chatty.chat.component.impl.dummy.DummyRelationalPlaceholdersComponentTransformer;
 import ru.brikster.chatty.chat.component.impl.papi.CommonChatPlaceholderApiComponentTransformer;
@@ -73,11 +75,16 @@ import ru.brikster.chatty.repository.player.PlayerDataRepository;
 import ru.brikster.chatty.repository.player.SqlitePlayerDataRepository;
 import ru.brikster.chatty.repository.swear.FileSwearRepository;
 import ru.brikster.chatty.repository.swear.SwearRepository;
+import ru.brikster.chatty.util.GraphUtil;
+import ru.brikster.chatty.util.GraphUtil.CycleAnalysisResult;
 
 import javax.inject.Singleton;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 public final class GeneralGuiceModule extends AbstractModule {
@@ -130,6 +137,7 @@ public final class GeneralGuiceModule extends AbstractModule {
         ModerationConfig moderationConfig = createConfig(ModerationConfig.class, "moderation.yml");
         bind(ModerationConfig.class).toInstance(moderationConfig);
         bind(NotificationsConfig.class).toInstance(createConfig(NotificationsConfig.class, "notifications.yml"));
+        bind(ReplacementsConfig.class).toInstance(createConfig(ReplacementsConfig.class, "replacements.yml"));
 
         Multibinder<MessageTransformStrategy<?>> strategyMultibinder = Multibinder.newSetBinder(binder(), new TypeLiteral<MessageTransformStrategy<?>>() {});
         // Early
@@ -182,10 +190,26 @@ public final class GeneralGuiceModule extends AbstractModule {
 
     @Provides
     @Singleton
-    public PlaceholdersComponentTransformer placeholdersComponentTransformer(ComponentStringConverter componentStringConverter) {
-        return Bukkit.getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")
-                ? new CommonChatPlaceholderApiComponentTransformer(componentStringConverter)
-                : new DummyPlaceholdersComponentTransformer();
+    public PlaceholdersComponentTransformer placeholdersComponentTransformer(ReplacementsConfig replacementsConfig,
+                                                                             ComponentStringConverter componentStringConverter,
+                                                                             Logger logger) {
+        List<PlaceholdersComponentTransformer> transformerList = new LinkedList<>();
+
+        CycleAnalysisResult cycleAnalysisResult = GraphUtil.analyseReplacementsForCycles(replacementsConfig);
+        if (!cycleAnalysisResult.getKeysWithCycles().isEmpty()) {
+            for (List<String> cycle : cycleAnalysisResult.getCycles()) {
+                logger.log(Level.SEVERE, "Found cycle in replacements: " + String.join(" -> ", cycle) + ". " +
+                        "These replacements won't work until cycling fix.");
+            }
+        }
+
+        transformerList.add(new ReplacementsComponentTransformer(replacementsConfig, componentStringConverter, cycleAnalysisResult.getKeysWithCycles()));
+
+        if (Bukkit.getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+            transformerList.add(new CommonChatPlaceholderApiComponentTransformer(componentStringConverter));
+        }
+
+        return new ChainPlaceholdersComponentTransformer(transformerList);
     }
 
     @Provides

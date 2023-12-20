@@ -45,7 +45,7 @@ public class NotificationsConfig extends OkaeriConfig {
 
         private boolean enable = true;
 
-        private Map<String, ChatNotificationChannelConfig> lists = new LinkedHashMap<String, ChatNotificationChannelConfig>() {{
+        private Map<String, ChatNotificationChannelConfig> lists = new LinkedHashMap<>() {{
             put("default", new ChatNotificationChannelConfig());
             put("donate", new ChatNotificationChannelConfig(
                     30,
@@ -109,7 +109,7 @@ public class NotificationsConfig extends OkaeriConfig {
 
         private boolean enable = true;
 
-        private Map<String, ActionbarNotificationChannelConfig> lists = new LinkedHashMap<String, ActionbarNotificationChannelConfig>() {{
+        private Map<String, ActionbarNotificationChannelConfig> lists = new LinkedHashMap<>() {{
             put("default", new ActionbarNotificationChannelConfig());
         }};
 
@@ -160,7 +160,7 @@ public class NotificationsConfig extends OkaeriConfig {
 
         private boolean enable = true;
 
-        private Map<String, TitleNotificationChannelConfig> lists = new LinkedHashMap<String, TitleNotificationChannelConfig>() {{
+        private Map<String, TitleNotificationChannelConfig> lists = new LinkedHashMap<>() {{
             put("default", new TitleNotificationChannelConfig());
         }};
 

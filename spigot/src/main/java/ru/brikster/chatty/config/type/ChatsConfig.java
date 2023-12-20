@@ -86,7 +86,9 @@ public class ChatsConfig extends OkaeriConfig {
                 "* Legacy color codes format (\"&c&lTHAT'S BOLD TEXT\")",
                 "* Various hex formats (&#ffffff, {#ffffff}, &x&f&f&f&f&f&f etc.)",
                 "",
-                "Use https://webui.advntr.dev/ for convenient format creation"
+                "Use https://webui.advntr.dev/ for convenient format creation.",
+                "",
+                "You can use replacements from \"replacements.yml\" here."
         })
         private String format = "<{player}>: {message}";
 
