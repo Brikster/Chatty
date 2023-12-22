@@ -146,7 +146,7 @@ public class PmMessageService {
     public @Nullable PmMessageTarget getLastConversation(@NotNull CommandSender sender) {
         String targetName;
         if (proxyConfig.isEnable()) {
-            targetName = null;
+            targetName = proxyService.getLastConversation(sender.getName());
         } else {
             targetName = lastConversations.getIfPresent(sender.getName());
         }
