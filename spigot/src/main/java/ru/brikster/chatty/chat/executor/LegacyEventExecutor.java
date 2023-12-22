@@ -196,7 +196,9 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
                 }
             }
 
-            sendNobodyHeardYou(event, middleContext);
+            if (middleContext.getChat().getRange() > -3) {
+                sendNobodyHeardYou(event, middleContext);
+            }
 
             processed = true;
         } catch (Throwable t) {
