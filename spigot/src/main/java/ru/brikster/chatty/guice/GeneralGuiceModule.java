@@ -249,7 +249,7 @@ public final class GeneralGuiceModule extends AbstractModule {
     @Singleton
     public PrefixProvider prefixProvider(ProxyConfig proxyConfig) {
         boolean hasLuckPerms = Bukkit.getPluginManager().isPluginEnabled("LuckPerms");
-        boolean hasVault = Bukkit.getPluginManager().isPluginEnabled("Vault");
+        boolean hasVault = Bukkit.getPluginManager().isPluginEnabled("Vault") && isVaultChatRegistered();
         if (hasLuckPerms && (!hasVault || !proxyConfig.isEnable())) {
             plugin.getLogger().log(Level.INFO, "Using LuckPerms as prefix provider");
             return new LuckpermsPrefixProvider();
@@ -260,6 +260,14 @@ public final class GeneralGuiceModule extends AbstractModule {
         }
         plugin.getLogger().log(Level.WARNING, "Cannot find corresponding prefix provider, try to install Vault to take prefixes from your permission management plugin");
         return new NullPrefixProvider();
+    }
+
+    private boolean isVaultChatRegistered() {
+        try {
+            return Bukkit.getServicesManager().getRegistration(Class.forName("net.milkbowl.vault.chat.Chat")) != null;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
     }
 
     @Provides
