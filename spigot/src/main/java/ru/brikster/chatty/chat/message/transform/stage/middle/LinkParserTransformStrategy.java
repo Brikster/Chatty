@@ -8,7 +8,7 @@ import ru.brikster.chatty.api.chat.message.strategy.result.MessageTransformResul
 import ru.brikster.chatty.chat.component.context.SinglePlayerTransformContext;
 import ru.brikster.chatty.chat.component.impl.LinkParserComponentTransformer;
 import ru.brikster.chatty.chat.message.transform.result.MessageTransformResultBuilder;
-import ru.brikster.chatty.config.type.SettingsConfig;
+import ru.brikster.chatty.config.file.SettingsConfig;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;

@@ -31,6 +31,7 @@ public class ChattyPlaceholderApiExpansion extends PlaceholderExpansion implemen
 
     @Override
     public String onPlaceholderRequest(Player one, Player two, String params) {
+        // TODO finish placeholders
         String[] args = params.split(Pattern.quote("_"));
         if (args.length == 0) {
             return null;

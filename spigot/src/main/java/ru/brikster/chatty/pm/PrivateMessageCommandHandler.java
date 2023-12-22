@@ -8,8 +8,10 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
-import ru.brikster.chatty.config.type.MessagesConfig;
-import ru.brikster.chatty.config.type.PmConfig;
+import ru.brikster.chatty.config.file.MessagesConfig;
+import ru.brikster.chatty.config.file.PmConfig;
+import ru.brikster.chatty.pm.targets.PmMessageTarget;
+import ru.brikster.chatty.proxy.ProxyService;
 import ru.brikster.chatty.repository.player.PlayerDataRepository;
 
 import javax.inject.Inject;
@@ -24,11 +26,12 @@ public final class PrivateMessageCommandHandler {
     @Inject private MessagesConfig messagesConfig;
     @Inject private BukkitAudiences audiences;
     @Inject private PlayerDataRepository playerDataRepository;
+    @Inject private ProxyService proxyService;
 
     public void handleCommand(@NotNull CommandContext<@NotNull CommandSender> commandContext,
                               @NotNull CommandSender sender,
-                              @NotNull CommandSender target) {
-        if (sender == target) {
+                              @NotNull PmMessageTarget target) {
+        if (target.isOnline() && sender == target.asCommandSender()) {
             audiences.sender(sender)
                     .sendMessage(messagesConfig.getPmCannotPmYourself());
             return;
@@ -45,34 +48,48 @@ public final class PrivateMessageCommandHandler {
                 sender, target, message);
 
         audiences.sender(sender).sendMessage(fromComponentFormat);
-        pmMessageService.addConversation(sender, target);
+        pmMessageService.addConversation(sender.getName(),
+                target instanceof ConsoleCommandSender ? "Console" : target.getName());
 
         boolean ignored = sender instanceof Player && target instanceof Player
                 && playerDataRepository.isIgnoredPlayer((Player) target, ((Player) sender).getUniqueId());
 
-        if (!ignored) {
-            var targetAudience = audiences.sender(target);
-            targetAudience.sendMessage(toComponentFormat);
-            if (pmConfig.isPlaySound()) {
-                targetAudience.playSound(pmConfig.getSound());
-            }
-            pmMessageService.addConversation(target, sender);
-        }
+        Component spyComponentFormat = null;
 
         if (pmConfig.getSpy().isEnable()) {
-            Component spyComponentFormat = pmMessageService.transformFormat(
+            spyComponentFormat = pmMessageService.transformFormat(
                     pmConfig.getSpy().getFormat(),
                     sender, target, message);
             audiences.filter(spyCandidate -> spyCandidate.hasPermission("chatty.spy.pm")
-                            && spyCandidate != sender 
-                            && (spyCandidate != target || ignored))
+                            && !(spyCandidate instanceof ConsoleCommandSender)
+                            && spyCandidate != sender
+                            && (!target.isOnline() || spyCandidate != target.asCommandSender()))
                     .sendMessage(spyComponentFormat);
+        }
+
+        String logMessage = "[PM] " + sender.getName() + " -> " + target.getName() + ": " + message;
+
+        if (!ignored) {
+            if (target.isOnline()) {
+                var targetAudience = audiences.sender(target.asCommandSender());
+                targetAudience.sendMessage(toComponentFormat);
+                if (pmConfig.isPlaySound()) {
+                    targetAudience.playSound(pmConfig.getSound());
+                }
+                pmMessageService.addConversation(target instanceof ConsoleCommandSender ? "Console" : target.getName(),
+                        sender.getName());
+            } else {
+                proxyService.sendPrivateMessage(target.getName(), toComponentFormat,
+                        spyComponentFormat,
+                        logMessage,
+                        pmConfig.isPlaySound() ? pmConfig.getSound() : null);
+            }
         }
 
         boolean consoleIsInConversation = sender instanceof ConsoleCommandSender || target instanceof ConsoleCommandSender;
 
         if (!consoleIsInConversation) {
-            plugin.getLogger().info("[PM] " + sender.getName() + " -> " + target.getName() + ": " + message);
+            plugin.getLogger().info(logMessage);
         }
     }
 

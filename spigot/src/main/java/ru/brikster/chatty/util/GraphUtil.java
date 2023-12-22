@@ -3,7 +3,7 @@ package ru.brikster.chatty.util;
 import lombok.Value;
 import lombok.experimental.UtilityClass;
 import ru.brikster.chatty.Constants;
-import ru.brikster.chatty.config.type.ReplacementsConfig;
+import ru.brikster.chatty.config.file.ReplacementsConfig;
 
 import java.util.*;
 

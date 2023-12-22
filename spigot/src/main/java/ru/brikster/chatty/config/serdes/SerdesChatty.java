@@ -8,7 +8,7 @@ import ru.brikster.chatty.config.serdes.serializer.adventure.ComponentSerializer
 import ru.brikster.chatty.config.serdes.serializer.adventure.SoundSerializer;
 import ru.brikster.chatty.convert.component.ComponentStringConverter;
 
-public class SerdesChatty implements OkaeriSerdesPack {
+public final class SerdesChatty implements OkaeriSerdesPack {
 
     private final ComponentStringConverter converter;
 

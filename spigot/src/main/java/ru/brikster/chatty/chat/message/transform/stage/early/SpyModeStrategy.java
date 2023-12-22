@@ -30,7 +30,7 @@ public final class SpyModeStrategy implements MessageTransformStrategy<String> {
         List<Player> spies = new ArrayList<>();
         if (context.getChat().isEnableSpy()) {
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                if (onlinePlayer.hasPermission("chatty.spy." + context.getChat().getName())
+                if (onlinePlayer.hasPermission("chatty.spy." + context.getChat().getId())
                     && !recipients.contains(onlinePlayer)) {
                     recipients.add(onlinePlayer);
                     spies.add(onlinePlayer);

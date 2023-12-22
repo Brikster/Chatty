@@ -107,3 +107,4 @@ build/
 !gradle-wrapper.jar
 
 spigot/run/
+compose.yaml

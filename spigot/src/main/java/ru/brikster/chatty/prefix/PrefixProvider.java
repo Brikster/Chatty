@@ -1,12 +1,12 @@
 package ru.brikster.chatty.prefix;
 
-import org.bukkit.entity.Player;
+import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.Nullable;
 
 public interface PrefixProvider {
 
-    @Nullable String getPrefix(Player player);
+    @Nullable String getPrefix(OfflinePlayer player);
 
-    @Nullable String getSuffix(Player player);
+    @Nullable String getSuffix(OfflinePlayer player);
 
 }

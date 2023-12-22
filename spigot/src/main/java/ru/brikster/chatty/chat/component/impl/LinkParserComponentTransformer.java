@@ -5,7 +5,7 @@ import net.kyori.adventure.text.event.ClickEvent;
 import org.jetbrains.annotations.NotNull;
 import ru.brikster.chatty.chat.component.ComponentTransformer;
 import ru.brikster.chatty.chat.component.context.SinglePlayerTransformContext;
-import ru.brikster.chatty.config.type.SettingsConfig;
+import ru.brikster.chatty.config.file.SettingsConfig;
 import ru.brikster.chatty.convert.component.ComponentStringConverter;
 import ru.brikster.chatty.util.AdventureUtil;
 

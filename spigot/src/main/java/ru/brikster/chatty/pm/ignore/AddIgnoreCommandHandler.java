@@ -6,8 +6,9 @@ import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import ru.brikster.chatty.config.type.MessagesConfig;
+import ru.brikster.chatty.config.file.MessagesConfig;
 import ru.brikster.chatty.pm.PmMessageService;
+import ru.brikster.chatty.pm.targets.PmMessageTarget;
 import ru.brikster.chatty.repository.player.PlayerDataRepository;
 
 import javax.inject.Inject;
@@ -30,11 +31,11 @@ public final class AddIgnoreCommandHandler implements CommandExecutionHandler<Co
 
         UUID targetUuid;
 
-        Player target = (Player) pmMessageService.resolveTarget(targetName, false);
+        PmMessageTarget target = pmMessageService.resolveTarget(targetName, false);
         if (target == null) {
             targetUuid = repository.getCachedUuid(targetName);
         } else {
-            targetUuid = target.getUniqueId();
+            targetUuid = target.getUuid();
         }
 
         if (targetUuid == null) {
@@ -42,12 +43,17 @@ public final class AddIgnoreCommandHandler implements CommandExecutionHandler<Co
             return;
         }
 
+        if (targetUuid.equals(sender.getUniqueId())) {
+            audiences.sender(sender).sendMessage(messagesConfig.getPmCannotIgnoreYourself());
+            return;
+        }
+
         if (repository.isIgnoredPlayer(sender, targetUuid)) {
             audiences.sender(sender).sendMessage(messagesConfig.getPmYouAlreadyIgnore());
         } else {
-            repository.createOrUpdateUser(sender.getUniqueId(), sender.getDisplayName());
+            repository.createOrUpdateUser(sender.getUniqueId(), sender.getName());
             if (target != null) {
-                repository.createOrUpdateUser(target.getUniqueId(), target.getDisplayName());
+                repository.createOrUpdateUser(target.getUuid(), target.getName());
             }
 
             repository.addIgnoredPlayer(sender, targetUuid);

@@ -28,7 +28,7 @@ import java.util.function.Predicate;
 public final class ChatImpl implements Chat {
 
     @Getter
-    private final @NotNull String name;
+    private final @NotNull String id;
     private final @Nullable String displayName;
 
     @Getter
@@ -74,7 +74,7 @@ public final class ChatImpl implements Chat {
     @Override
     public @NotNull String getDisplayName() {
         return displayName == null
-                ? name
+                ? id
                 : displayName;
     }
 
@@ -95,33 +95,33 @@ public final class ChatImpl implements Chat {
 
     @Override
     public boolean hasSymbolWritePermission(Player sender) {
-        return sender.hasPermission("chatty.chat." + getName())
-                || sender.hasPermission("chatty.chat." + getName() + ".write")
-                || sender.hasPermission("chatty.chat." + getName() + ".send")
-                || sender.hasPermission("chatty.chat." + getName() + ".write.symbol")
-                || sender.hasPermission("chatty.chat." + getName() + ".send.symbol");
+        return sender.hasPermission("chatty.chat." + getId())
+                || sender.hasPermission("chatty.chat." + getId() + ".write")
+                || sender.hasPermission("chatty.chat." + getId() + ".send")
+                || sender.hasPermission("chatty.chat." + getId() + ".write.symbol")
+                || sender.hasPermission("chatty.chat." + getId() + ".send.symbol");
     }
 
     @Override
     public boolean hasCommandWritePermission(Player sender) {
-        return sender.hasPermission("chatty.chat." + getName())
-                || sender.hasPermission("chatty.chat." + getName() + ".write")
-                || sender.hasPermission("chatty.chat." + getName() + ".send")
-                || sender.hasPermission("chatty.chat." + getName() + ".write.command")
-                || sender.hasPermission("chatty.chat." + getName() + ".send.command");
+        return sender.hasPermission("chatty.chat." + getId())
+                || sender.hasPermission("chatty.chat." + getId() + ".write")
+                || sender.hasPermission("chatty.chat." + getId() + ".send")
+                || sender.hasPermission("chatty.chat." + getId() + ".write.command")
+                || sender.hasPermission("chatty.chat." + getId() + ".send.command");
     }
 
     @Override
     public boolean hasReadPermission(Player sender) {
-        return sender.hasPermission("chatty.chat." + getName())
-                || sender.hasPermission("chatty.chat." + getName() + ".read")
-                || sender.hasPermission("chatty.chat." + getName() + ".see");
+        return sender.hasPermission("chatty.chat." + getId())
+                || sender.hasPermission("chatty.chat." + getId() + ".read")
+                || sender.hasPermission("chatty.chat." + getId() + ".see");
     }
 
     @Override
     public @NotNull Predicate<Player> getRecipientPredicate(@Nullable Player sender) {
         return player -> {
-            if (player.equals(sender)) {
+            if (player == sender || player.equals(sender)) {
                 return true;
             }
 

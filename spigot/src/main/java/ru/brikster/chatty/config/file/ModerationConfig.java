@@ -1,4 +1,4 @@
-package ru.brikster.chatty.config.type;
+package ru.brikster.chatty.config.file;
 
 import com.google.common.collect.Sets;
 import eu.okaeri.configs.OkaeriConfig;

@@ -19,6 +19,9 @@ tasks {
         relocations.forEach {
             relocate it, "ru.brikster.chatty.shaded.${it}"
         }
+        mergeServiceFiles {
+            setPath("META-INF/services/org.flywaydb.core.extensibility.Plugin")
+        }
     }
 
     build {
@@ -66,6 +69,11 @@ dependencies {
 
     implementation 'com.zaxxer:HikariCP:5.1.0'
     implementation 'org.flywaydb:flyway-core:9.22.3'
+    implementation 'org.flywaydb:flyway-mysql:9.22.3'
+    implementation 'org.postgresql:postgresql:42.7.1'
+    implementation('org.redisson:redisson:3.25.1') {
+        exclude group: 'org.yaml'
+    }
 
     compileOnly 'net.milkbowl.vault:VaultAPI:1.7'
     compileOnly 'me.clip:placeholderapi:2.10.6'

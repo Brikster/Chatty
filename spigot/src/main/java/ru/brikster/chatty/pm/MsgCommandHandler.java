@@ -5,7 +5,8 @@ import cloud.commandframework.execution.CommandExecutionHandler;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
-import ru.brikster.chatty.config.type.MessagesConfig;
+import ru.brikster.chatty.config.file.MessagesConfig;
+import ru.brikster.chatty.pm.targets.PmMessageTarget;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -23,7 +24,7 @@ public final class MsgCommandHandler implements CommandExecutionHandler<CommandS
         CommandSender sender = commandContext.getSender();
 
         String targetName = commandContext.get("target");
-        CommandSender target = pmMessageService.resolveTarget(targetName, true);
+        PmMessageTarget target = pmMessageService.resolveTarget(targetName, true);
         if (target == null) {
             audiences.sender(sender).sendMessage(messagesConfig.getPmPlayerNotFound());
             return;

@@ -1,4 +1,4 @@
-package ru.brikster.chatty.config.type;
+package ru.brikster.chatty.config.file;
 
 import eu.okaeri.configs.OkaeriConfig;
 import eu.okaeri.configs.annotation.*;

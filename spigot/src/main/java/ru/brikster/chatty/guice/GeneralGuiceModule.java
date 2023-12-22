@@ -13,6 +13,8 @@ import eu.okaeri.configs.yaml.snakeyaml.YamlSnakeYamlConfigurer;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
+import org.redisson.config.Config;
+import org.redisson.config.SingleServerConfig;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.DumperOptions.ScalarStyle;
 import org.yaml.snakeyaml.LoaderOptions;
@@ -59,8 +61,11 @@ import ru.brikster.chatty.chat.registry.ChatRegistry;
 import ru.brikster.chatty.chat.registry.MemoryChatRegistry;
 import ru.brikster.chatty.chat.selection.ChatSelector;
 import ru.brikster.chatty.chat.selection.ChatSelectorImpl;
+import ru.brikster.chatty.chat.style.ChatStylePlayerGrouper;
+import ru.brikster.chatty.chat.style.ChatStylePlayerGrouperImpl;
+import ru.brikster.chatty.config.file.*;
+import ru.brikster.chatty.config.file.ProxyConfig.DatabaseConfig.DatasourceType;
 import ru.brikster.chatty.config.serdes.SerdesChatty;
-import ru.brikster.chatty.config.type.*;
 import ru.brikster.chatty.convert.component.ComponentStringConverter;
 import ru.brikster.chatty.convert.component.InternalMiniMessageStringConverter;
 import ru.brikster.chatty.convert.message.LegacyToMiniMessageConverter;
@@ -71,7 +76,12 @@ import ru.brikster.chatty.prefix.LuckpermsPrefixProvider;
 import ru.brikster.chatty.prefix.NullPrefixProvider;
 import ru.brikster.chatty.prefix.PrefixProvider;
 import ru.brikster.chatty.prefix.VaultPrefixProvider;
+import ru.brikster.chatty.proxy.DummyProxyService;
+import ru.brikster.chatty.proxy.ProxyService;
+import ru.brikster.chatty.proxy.ProxyServiceImpl;
+import ru.brikster.chatty.repository.player.MysqlPlayerDataRepository;
 import ru.brikster.chatty.repository.player.PlayerDataRepository;
+import ru.brikster.chatty.repository.player.PostgresPlayerDataRepository;
 import ru.brikster.chatty.repository.player.SqlitePlayerDataRepository;
 import ru.brikster.chatty.repository.swear.FileSwearRepository;
 import ru.brikster.chatty.repository.swear.SwearRepository;
@@ -79,8 +89,11 @@ import ru.brikster.chatty.util.GraphUtil;
 import ru.brikster.chatty.util.GraphUtil.CycleAnalysisResult;
 
 import javax.inject.Singleton;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
@@ -116,8 +129,6 @@ public final class GeneralGuiceModule extends AbstractModule {
         bind(Plugin.class).toInstance(plugin);
         bind(ChatRegistry.class).toInstance(chatRegistry);
 
-        bind(PlayerDataRepository.class).toInstance(new SqlitePlayerDataRepository(dataFolderPath));
-
         bind(MessageTransformStrategiesProcessor.class).to(MessageTransformStrategiesProcessorImpl.class);
         bind(ComponentStringConverter.class).toInstance(internalMiniMessageStringConverter);
         bind(MessageConverter.class).to(LegacyToMiniMessageConverter.class);
@@ -138,8 +149,20 @@ public final class GeneralGuiceModule extends AbstractModule {
         bind(ModerationConfig.class).toInstance(moderationConfig);
         bind(NotificationsConfig.class).toInstance(createConfig(NotificationsConfig.class, "notifications.yml"));
         bind(ReplacementsConfig.class).toInstance(createConfig(ReplacementsConfig.class, "replacements.yml"));
+        ProxyConfig proxyConfig = createConfig(ProxyConfig.class, "proxy.yml");
+        bind(ProxyConfig.class).toInstance(proxyConfig);
+        bind(ChatStylePlayerGrouper.class).to(ChatStylePlayerGrouperImpl.class);
 
-        Multibinder<MessageTransformStrategy<?>> strategyMultibinder = Multibinder.newSetBinder(binder(), new TypeLiteral<MessageTransformStrategy<?>>() {});
+        if (proxyConfig.isEnable()) {
+            setupRedis(proxyConfig);
+            setupSharedDatabase(proxyConfig);
+            bind(ProxyService.class).to(ProxyServiceImpl.class);
+        } else {
+            bind(PlayerDataRepository.class).toInstance(new SqlitePlayerDataRepository(dataFolderPath));
+            bind(ProxyService.class).to(DummyProxyService.class);
+        }
+
+        Multibinder<MessageTransformStrategy<?>> strategyMultibinder = Multibinder.newSetBinder(binder(), new TypeLiteral<>() {});
         // Early
         strategyMultibinder.addBinding().to(RemoveChatSymbolStrategy.class);
         strategyMultibinder.addBinding().to(SpyModeStrategy.class);
@@ -173,14 +196,65 @@ public final class GeneralGuiceModule extends AbstractModule {
         bind(IntermediateMessageTransformer.class).to(IntermediateMessageTransformerImpl.class);
     }
 
+    private void setupRedis(ProxyConfig proxyConfig) {
+        Config redisConfig;
+        if (proxyConfig.isUseExternalRedisConfig()) {
+            Path redisConfigPath = dataFolderPath.resolve("redis_config.json");
+            if (Files.exists(redisConfigPath)) {
+                try {
+                    //noinspection deprecation
+                    redisConfig = Config.fromJSON(Files.newBufferedReader(redisConfigPath));
+                } catch (IOException e) {
+                    throw new IllegalStateException("Cannot read redis_config.json", e);
+                }
+            } else {
+                redisConfig = new Config();
+                redisConfig.useSingleServer()
+                        .setAddress("redis://localhost:6379");
+                try {
+                    //noinspection deprecation
+                    Files.writeString(redisConfigPath, redisConfig.toJSON(), StandardCharsets.UTF_8,
+                            StandardOpenOption.WRITE, StandardOpenOption.CREATE);
+                } catch (IOException e) {
+                    throw new IllegalStateException("Cannot write redis_config.json", e);
+                }
+            }
+        } else {
+            redisConfig = new Config();
+            SingleServerConfig singleServerConfig = redisConfig.useSingleServer();
+            singleServerConfig.setAddress(proxyConfig.getRedisConfig().getAddress());
+            if (proxyConfig.getRedisConfig().getUsername() != null && !proxyConfig.getRedisConfig().getUsername().isBlank()) {
+                singleServerConfig
+                        .setUsername(proxyConfig.getRedisConfig().getUsername())
+                        .setPassword(proxyConfig.getRedisConfig().getPassword());
+            }
+        }
+
+        bind(Config.class).toInstance(redisConfig);
+    }
+
+    private void setupSharedDatabase(ProxyConfig proxyConfig) {
+        if (proxyConfig.getDatabaseConfig().getType() == DatasourceType.POSTGRESQL) {
+            bind(PlayerDataRepository.class)
+                    .toInstance(new PostgresPlayerDataRepository(proxyConfig.getDatabaseConfig()));
+        } else if (proxyConfig.getDatabaseConfig().getType() == DatasourceType.MYSQL) {
+            bind(PlayerDataRepository.class)
+                    .toInstance(new MysqlPlayerDataRepository(proxyConfig.getDatabaseConfig()));
+        } else {
+            throw new IllegalArgumentException(proxyConfig.getDatabaseConfig().getType() + " database is not implemented yet");
+        }
+    }
+
     @Provides
     @Singleton
-    public PrefixProvider prefixProvider() {
-        if (Bukkit.getPluginManager().isPluginEnabled("LuckPerms")) {
+    public PrefixProvider prefixProvider(ProxyConfig proxyConfig) {
+        boolean hasLuckPerms = Bukkit.getPluginManager().isPluginEnabled("LuckPerms");
+        boolean hasVault = Bukkit.getPluginManager().isPluginEnabled("Vault");
+        if (hasLuckPerms && (!hasVault || !proxyConfig.isEnable())) {
             plugin.getLogger().log(Level.INFO, "Using LuckPerms as prefix provider");
             return new LuckpermsPrefixProvider();
         }
-        if (Bukkit.getPluginManager().isPluginEnabled("Vault")) {
+        if (hasVault) {
             plugin.getLogger().log(Level.INFO, "Using Vault as prefix provider");
             return new VaultPrefixProvider();
         }

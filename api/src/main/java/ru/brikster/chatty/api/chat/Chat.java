@@ -18,12 +18,12 @@ import java.util.function.Predicate;
 public interface Chat {
 
     /**
-     * Name of chat from plugin configuration
+     * ID of chat from plugin configuration
      *
-     * @return name of chat
+     * @return ID of chat
      */
     @NotNull
-    String getName();
+    String getId();
 
     @NotNull
     String getDisplayName();

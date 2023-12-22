@@ -12,6 +12,7 @@ public interface PlayerDataRepository extends AutoCloseable {
     @NotNull Set<@NotNull UUID> getWhoIgnoreUuids(@NotNull Player player);
 
     @NotNull Set<@NotNull UUID> getIgnoredPlayersByUuids(@NotNull Player player);
+
     @NotNull Set<@NotNull String> getIgnoredPlayersByUsernames(@NotNull Player player);
 
     void createOrUpdateUser(@NotNull UUID uuid, @NotNull String username);

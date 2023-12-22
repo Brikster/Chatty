@@ -7,12 +7,9 @@ import org.flywaydb.core.Flyway;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.brikster.chatty.Chatty;
-import ru.brikster.chatty.util.SqliteUtil;
+import ru.brikster.chatty.config.file.ProxyConfig.DatabaseConfig;
 
 import javax.inject.Singleton;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -22,26 +19,24 @@ import java.util.Set;
 import java.util.UUID;
 
 @Singleton
-public final class SqlitePlayerDataRepository implements PlayerDataRepository {
+public final class MysqlPlayerDataRepository implements PlayerDataRepository {
 
     private final HikariDataSource dataSource;
 
-    public SqlitePlayerDataRepository(Path dataFolder) {
-        try {
-            Files.createDirectories(dataFolder);
-        } catch (IOException e) {
-            throw new IllegalStateException("Cannot create data folder", e);
-        }
-
+    public MysqlPlayerDataRepository(DatabaseConfig databaseConfig) {
         HikariConfig config = new HikariConfig();
-        config.setJdbcUrl("jdbc:sqlite:" + dataFolder.resolve("database.sqlite"));
+        config.setDriverClassName("com.mysql.jdbc.Driver");
+        config.setJdbcUrl(String.format("jdbc:mysql://%s:%d/%s",
+                databaseConfig.getHostname(), databaseConfig.getPort(), databaseConfig.getDatabase()));
+        config.addDataSourceProperty("user", databaseConfig.getUsername());
+        config.addDataSourceProperty("password", databaseConfig.getPassword());
         config.setPoolName("Chatty");
         config.setMaximumPoolSize(8);
 
         this.dataSource = new HikariDataSource(config);
 
         Flyway flyway = Flyway.configure(Chatty.class.getClassLoader())
-                .locations("db/migration/sqlite")
+                .locations("db/migration/mysql")
                 .dataSource(dataSource)
                 .load();
         flyway.migrate();
@@ -52,15 +47,15 @@ public final class SqlitePlayerDataRepository implements PlayerDataRepository {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(
                      "SELECT player_uuid " +
-                             "FROM ignored_users " +
+                             "FROM chatty_ignored_users " +
                              "WHERE ignored_uuid = ?")) {
-            statement.setBytes(1, SqliteUtil.fromUUID(player.getUniqueId()));
+            statement.setString(1, player.getUniqueId().toString());
 
             ResultSet resultSet = statement.executeQuery();
 
             Set<UUID> ignoredPlayers = new HashSet<>();
             while (resultSet.next()) {
-                ignoredPlayers.add(SqliteUtil.toUUID(resultSet.getBytes(1)));
+                ignoredPlayers.add(UUID.fromString(resultSet.getString(1)));
             }
 
             return ignoredPlayers;
@@ -74,15 +69,15 @@ public final class SqlitePlayerDataRepository implements PlayerDataRepository {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(
                      "SELECT ignored_uuid " +
-                             "FROM ignored_users " +
+                             "FROM chatty_ignored_users " +
                              "WHERE player_uuid = ?")) {
-            statement.setBytes(1, SqliteUtil.fromUUID(player.getUniqueId()));
+            statement.setString(1, player.getUniqueId().toString());
 
             ResultSet resultSet = statement.executeQuery();
 
             Set<UUID> ignoredPlayers = new HashSet<>();
             while (resultSet.next()) {
-                ignoredPlayers.add(SqliteUtil.toUUID(resultSet.getBytes(1)));
+                ignoredPlayers.add(UUID.fromString(resultSet.getString(1)));
             }
 
             return ignoredPlayers;
@@ -96,9 +91,9 @@ public final class SqlitePlayerDataRepository implements PlayerDataRepository {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(
                      "SELECT username " +
-                             "FROM ignored_users iu JOIN users u ON iu.ignored_uuid = u.uuid " +
+                             "FROM chatty_ignored_users iu JOIN chatty_users u ON iu.ignored_uuid = u.uuid " +
                              "WHERE player_uuid = ?")) {
-            statement.setBytes(1, SqliteUtil.fromUUID(player.getUniqueId()));
+            statement.setString(1, player.getUniqueId().toString());
 
             ResultSet resultSet = statement.executeQuery();
 
@@ -117,8 +112,9 @@ public final class SqlitePlayerDataRepository implements PlayerDataRepository {
     public void createOrUpdateUser(@NotNull UUID uuid, @NotNull String username) {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(
-                     "INSERT INTO users (uuid, username) VALUES (?, ?) ON CONFLICT (uuid, username) DO UPDATE SET username = ?")) {
-            statement.setBytes(1, SqliteUtil.fromUUID(uuid));
+                     "INSERT INTO chatty_users (uuid, username) VALUES (?, ?) " +
+                             "ON DUPLICATE KEY UPDATE username = ?")) {
+            statement.setString(1, uuid.toString());
             statement.setString(2, username);
             statement.setString(3, username);
             statement.executeUpdate();
@@ -132,13 +128,13 @@ public final class SqlitePlayerDataRepository implements PlayerDataRepository {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(
                      "SELECT uuid " +
-                             "FROM users " +
+                             "FROM chatty_users " +
                              "WHERE lower(username) = lower(?)")) {
             statement.setString(1, playerName);
 
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
-                return SqliteUtil.toUUID(resultSet.getBytes(1));
+                return UUID.fromString(resultSet.getString(1));
             } else {
                 return null;
             }
@@ -152,9 +148,9 @@ public final class SqlitePlayerDataRepository implements PlayerDataRepository {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(
                      "SELECT username " +
-                             "FROM users " +
+                             "FROM chatty_users " +
                              "WHERE uuid = ?")) {
-            statement.setBytes(1, SqliteUtil.fromUUID(uuid));
+            statement.setString(1, uuid.toString());
 
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
@@ -171,9 +167,9 @@ public final class SqlitePlayerDataRepository implements PlayerDataRepository {
     public void addIgnoredPlayer(@NotNull Player player, @NotNull UUID uuid) {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(
-                     "INSERT INTO ignored_users (player_uuid, ignored_uuid) VALUES (?, ?)")) {
-            statement.setBytes(1, SqliteUtil.fromUUID(player.getUniqueId()));
-            statement.setBytes(2, SqliteUtil.fromUUID(uuid));
+                     "INSERT INTO chatty_ignored_users (player_uuid, ignored_uuid) VALUES (?, ?)")) {
+            statement.setString(1, player.getUniqueId().toString());
+            statement.setString(2, uuid.toString());
             statement.executeUpdate();
         } catch (SQLException sqlException) {
             throw new IllegalStateException("Cannot add ignored player", sqlException);
@@ -184,10 +180,10 @@ public final class SqlitePlayerDataRepository implements PlayerDataRepository {
     public void removeIgnoredPlayer(@NotNull Player player, @NotNull UUID uuid) {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(
-                     "DELETE FROM ignored_users" +
+                     "DELETE FROM chatty_ignored_users" +
                              " WHERE player_uuid = ? AND ignored_uuid = ?")) {
-            statement.setBytes(1, SqliteUtil.fromUUID(player.getUniqueId()));
-            statement.setBytes(2, SqliteUtil.fromUUID(uuid));
+            statement.setString(1, player.getUniqueId().toString());
+            statement.setString(2, uuid.toString());
             statement.executeUpdate();
         } catch (SQLException sqlException) {
             throw new IllegalStateException("Cannot remove ignored player", sqlException);
@@ -199,10 +195,10 @@ public final class SqlitePlayerDataRepository implements PlayerDataRepository {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(
                      "SELECT ignored_uuid " +
-                             "FROM ignored_users " +
+                             "FROM chatty_ignored_users " +
                              "WHERE player_uuid = ? AND ignored_uuid = ?")) {
-            statement.setBytes(1, SqliteUtil.fromUUID(player.getUniqueId()));
-            statement.setBytes(2, SqliteUtil.fromUUID(uuid));
+            statement.setString(1, player.getUniqueId().toString());
+            statement.setString(2, uuid.toString());
 
             ResultSet resultSet = statement.executeQuery();
             return resultSet.next();

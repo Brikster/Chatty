@@ -14,10 +14,10 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import ru.brikster.chatty.chat.component.context.SinglePlayerTransformContext;
 import ru.brikster.chatty.chat.component.impl.PlaceholdersComponentTransformer;
 import ru.brikster.chatty.chat.component.impl.prefix.PrefixComponentTransformer;
-import ru.brikster.chatty.config.type.VanillaConfig;
-import ru.brikster.chatty.config.type.VanillaConfig.DeathVanillaConfig;
-import ru.brikster.chatty.config.type.VanillaConfig.JoinVanillaConfig;
-import ru.brikster.chatty.config.type.VanillaConfig.QuitVanillaConfig;
+import ru.brikster.chatty.config.file.VanillaConfig;
+import ru.brikster.chatty.config.file.VanillaConfig.DeathVanillaConfig;
+import ru.brikster.chatty.config.file.VanillaConfig.JoinVanillaConfig;
+import ru.brikster.chatty.config.file.VanillaConfig.QuitVanillaConfig;
 import ru.brikster.chatty.util.AdventureUtil;
 
 import javax.inject.Inject;
@@ -27,7 +27,6 @@ public final class VanillaListener implements Listener {
     @Inject private PlaceholdersComponentTransformer placeholdersComponentTransformer;
     @Inject private PrefixComponentTransformer prefixComponentTransformer;
     @Inject private VanillaConfig vanillaConfig;
-
     @Inject private BukkitAudiences audiences;
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -130,7 +129,7 @@ public final class VanillaListener implements Listener {
                     deathCause = deathConfig.getFallbackCause();
                 } else {
                     DamageCause damageCause = damageEvent.getCause();
-                    deathCause = deathConfig.getCauses().getOrDefault(damageCause, deathConfig.getFallbackCause());
+                    deathCause = deathConfig.getCauses().getOrDefault(damageCause.name(), deathConfig.getFallbackCause());
                 }
 
                 deathMessage = deathMessage.replaceText(AdventureUtil.createReplacement("{cause}", deathCause));

@@ -5,9 +5,9 @@ import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.jetbrains.annotations.NotNull;
 import ru.brikster.chatty.api.chat.message.context.MessageContext;
 import ru.brikster.chatty.api.chat.message.strategy.result.MessageTransformResult;
-import ru.brikster.chatty.config.type.MessagesConfig;
-import ru.brikster.chatty.config.type.ModerationConfig;
-import ru.brikster.chatty.config.type.ModerationConfig.AdvertisementModerationConfig;
+import ru.brikster.chatty.config.file.MessagesConfig;
+import ru.brikster.chatty.config.file.ModerationConfig;
+import ru.brikster.chatty.config.file.ModerationConfig.AdvertisementModerationConfig;
 
 import javax.inject.Inject;
 import java.util.Set;
@@ -61,15 +61,15 @@ public final class AdModerationStrategyModeration implements ModerationMatcherSt
     private @NotNull String match(@NotNull String message, @NotNull Pattern pattern) {
         Matcher matcher = pattern.matcher(message);
 
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
         while (matcher.find()) {
             if (!this.whitelist.contains(matcher.group().trim())) {
-                matcher.appendReplacement(buffer, replacement);
+                matcher.appendReplacement(builder, replacement);
             }
         }
-        matcher.appendTail(buffer);
+        matcher.appendTail(builder);
 
-        return buffer.toString();
+        return builder.toString();
     }
 
 }

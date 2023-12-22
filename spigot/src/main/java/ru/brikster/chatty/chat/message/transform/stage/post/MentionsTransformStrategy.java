@@ -16,8 +16,8 @@ import ru.brikster.chatty.chat.component.context.TwoPlayersTransformContext;
 import ru.brikster.chatty.chat.component.impl.PlaceholdersComponentTransformer;
 import ru.brikster.chatty.chat.component.impl.RelationalPlaceholdersComponentTransformer;
 import ru.brikster.chatty.chat.message.transform.result.MessageTransformResultBuilder;
-import ru.brikster.chatty.config.type.SettingsConfig;
-import ru.brikster.chatty.config.type.SettingsConfig.RelationalPlaceholdersOrder;
+import ru.brikster.chatty.config.file.SettingsConfig;
+import ru.brikster.chatty.config.file.SettingsConfig.RelationalPlaceholdersOrder;
 import ru.brikster.chatty.convert.component.ComponentStringConverter;
 
 import javax.inject.Inject;

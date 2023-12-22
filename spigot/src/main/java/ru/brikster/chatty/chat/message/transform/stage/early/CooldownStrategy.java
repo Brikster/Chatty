@@ -10,7 +10,7 @@ import ru.brikster.chatty.api.chat.message.context.MessageContext;
 import ru.brikster.chatty.api.chat.message.strategy.MessageTransformStrategy;
 import ru.brikster.chatty.api.chat.message.strategy.result.MessageTransformResult;
 import ru.brikster.chatty.chat.message.transform.result.MessageTransformResultBuilder;
-import ru.brikster.chatty.config.type.MessagesConfig;
+import ru.brikster.chatty.config.file.MessagesConfig;
 import ru.brikster.chatty.util.AdventureUtil;
 
 import javax.inject.Inject;
@@ -28,7 +28,7 @@ public final class CooldownStrategy implements MessageTransformStrategy<String> 
     @SneakyThrows
     @Override
     public @NotNull MessageTransformResult<String> handle(MessageContext<String> context) {
-        String chatName = context.getChat().getName();
+        String chatName = context.getChat().getId();
 
         if (context.getChat().getCooldown() > 0
                 && !context.getSender().hasPermission("chatty.cooldown." + chatName)) {

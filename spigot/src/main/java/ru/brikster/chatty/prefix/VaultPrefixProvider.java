@@ -2,6 +2,7 @@ package ru.brikster.chatty.prefix;
 
 import net.milkbowl.vault.chat.Chat;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import javax.inject.Singleton;
@@ -14,13 +15,17 @@ public final class VaultPrefixProvider implements PrefixProvider {
             Objects.requireNonNull(Bukkit.getServicesManager().getRegistration(Chat.class)).getProvider();
 
     @Override
-    public String getPrefix(Player player) {
-        return vaultChatModule.getPlayerPrefix(player);
+    public String getPrefix(OfflinePlayer player) {
+        return vaultChatModule.getPlayerPrefix(player instanceof Player
+                ? ((Player) player).getWorld().getName()
+                : Bukkit.getWorlds().get(0).getName(), player);
     }
 
     @Override
-    public String getSuffix(Player player) {
-        return vaultChatModule.getPlayerSuffix(player);
+    public String getSuffix(OfflinePlayer player) {
+        return vaultChatModule.getPlayerSuffix(player instanceof Player
+                ? ((Player) player).getWorld().getName()
+                : Bukkit.getWorlds().get(0).getName(), player);
     }
 
 }

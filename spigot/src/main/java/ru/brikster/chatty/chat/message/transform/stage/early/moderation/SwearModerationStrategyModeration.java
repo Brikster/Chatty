@@ -6,9 +6,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.brikster.chatty.api.chat.message.context.MessageContext;
 import ru.brikster.chatty.api.chat.message.strategy.result.MessageTransformResult;
-import ru.brikster.chatty.config.type.MessagesConfig;
-import ru.brikster.chatty.config.type.ModerationConfig;
-import ru.brikster.chatty.config.type.ModerationConfig.SwearModerationConfig;
+import ru.brikster.chatty.config.file.MessagesConfig;
+import ru.brikster.chatty.config.file.ModerationConfig;
+import ru.brikster.chatty.config.file.ModerationConfig.SwearModerationConfig;
 import ru.brikster.chatty.repository.swear.SwearRepository;
 
 import javax.inject.Inject;
@@ -72,15 +72,15 @@ public final class SwearModerationStrategyModeration implements ModerationMatche
 
         Matcher matcher = pattern.matcher(message);
 
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
         while (matcher.find()) {
             if (!swearRepository.getWhitelist().contains(matcher.group().trim())) {
-                matcher.appendReplacement(buffer, replacement);
+                matcher.appendReplacement(builder, replacement);
             }
         }
-        matcher.appendTail(buffer);
+        matcher.appendTail(builder);
 
-        return buffer.toString();
+        return builder.toString();
     }
 
 }

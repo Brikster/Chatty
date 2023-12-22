@@ -1,4 +1,4 @@
-package ru.brikster.chatty.config.type;
+package ru.brikster.chatty.config.file;
 
 import eu.okaeri.configs.OkaeriConfig;
 import eu.okaeri.configs.annotation.*;
@@ -36,8 +36,9 @@ public class MessagesConfig extends OkaeriConfig {
     @Comment({"", "Messages for PM"})
     private Component pmPlayerNotFound = MINI_MESSAGE.deserialize("<red>Player not found.");
     private Component pmNobodyToReply = MINI_MESSAGE.deserialize("<red>Nobody to reply.");
-    private Component pmCannotPmYourself = MINI_MESSAGE.deserialize("<red>You cannot pm yourself.");
+    private Component pmCannotPmYourself = MINI_MESSAGE.deserialize("<red>You cannot PM yourself.");
     private Component pmYouNowIgnore = MINI_MESSAGE.deserialize("<green>You now ignore this player.");
+    private Component pmCannotIgnoreYourself = MINI_MESSAGE.deserialize("<red>You cannot ignore yourself.");
     private Component pmYouAlreadyIgnore = MINI_MESSAGE.deserialize("<red>You already ignore this player.");
     private Component pmYouDontNowIgnore = MINI_MESSAGE.deserialize("<green>You now don't ignore this player.");
     private Component pmYouDontIgnore = MINI_MESSAGE.deserialize("<red>You don't ignore this player.");

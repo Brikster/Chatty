@@ -3,6 +3,7 @@ package ru.brikster.chatty.chat.executor;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
@@ -24,12 +25,13 @@ import ru.brikster.chatty.chat.message.context.MessageContextImpl;
 import ru.brikster.chatty.chat.message.transform.intermediary.IntermediateMessageTransformer;
 import ru.brikster.chatty.chat.message.transform.processor.MessageTransformStrategiesProcessor;
 import ru.brikster.chatty.chat.selection.ChatSelector;
-import ru.brikster.chatty.config.type.MessagesConfig;
-import ru.brikster.chatty.config.type.SettingsConfig;
+import ru.brikster.chatty.chat.style.ChatStylePlayerGrouper;
+import ru.brikster.chatty.config.file.MessagesConfig;
+import ru.brikster.chatty.config.file.SettingsConfig;
+import ru.brikster.chatty.proxy.ProxyService;
 
 import javax.inject.Inject;
 import java.util.*;
-import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.logging.Level;
@@ -50,6 +52,8 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
     @Inject private MessageTransformStrategiesProcessor processor;
     @Inject private IntermediateMessageTransformer intermediateMessageTransformer;
     @Inject private Logger logger;
+    @Inject private ProxyService proxyService;
+    @Inject private ChatStylePlayerGrouper chatStylePlayerGrouper;
 
     @Override
     public void execute(@NotNull Listener listener, @NotNull Event event) {
@@ -63,41 +67,13 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
     }
 
     private void onChat(AsyncPlayerChatEvent event) {
-        Chat chat = selector.selectChat(event.getMessage(), chatCandidate ->
-                !chatCandidate.isPermissionRequired() ||
-                        chatCandidate.hasSymbolWritePermission(event.getPlayer()));
-
-        if (chat == null) {
-            audiences.player(event.getPlayer().getUniqueId())
-                    .sendMessage(messages.getChatNotFound());
-            event.setCancelled(true);
-            return;
-        }
-
-        List<Player> recipients;
-        if (settings.isRespectForeignRecipients()) {
-            Predicate<Player> playerPredicate = chat.getRecipientPredicate(event.getPlayer());
-            recipients = event.getRecipients().stream()
-                    .filter(playerPredicate)
-                    .collect(Collectors.toList());
-        } else {
-            recipients = new ArrayList<>(chat.calculateRecipients(event.getPlayer()));
-        }
-
-        MessageContext<String> context = new MessageContextImpl<>(
-                chat,
-                event.getPlayer(),
-                new HashMap<>(),
-                event.isCancelled(),
-                chat.getFormat(),
-                recipients,
-                event.getMessage(),
-                null);
-
         boolean processed = false;
 
         try {
-            MessageContext<String> earlyContext = processor.handle(context, Stage.EARLY).getNewContext();
+            MessageContext<String> unhandledEarlyContext = createEarlyContext(event);
+            if (unhandledEarlyContext == null) return;
+
+            MessageContext<String> earlyContext = processor.handle(unhandledEarlyContext, Stage.EARLY).getNewContext();
 
             event.getRecipients().clear();
             event.getRecipients().addAll(earlyContext.getRecipients());
@@ -112,6 +88,39 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
                 event.setCancelled(true);
             }
         }
+    }
+
+    private MessageContext<String> createEarlyContext(AsyncPlayerChatEvent event) {
+        Chat chat = selector.selectChat(event.getMessage(), chatCandidate ->
+                !chatCandidate.isPermissionRequired() ||
+                        chatCandidate.hasSymbolWritePermission(event.getPlayer()));
+
+        if (chat == null) {
+            audiences.player(event.getPlayer().getUniqueId())
+                    .sendMessage(messages.getChatNotFound());
+            event.setCancelled(true);
+            return null;
+        }
+
+        List<Player> recipients;
+        if (settings.isRespectForeignRecipients()) {
+            Predicate<Player> playerPredicate = chat.getRecipientPredicate(event.getPlayer());
+            recipients = event.getRecipients().stream()
+                    .filter(playerPredicate)
+                    .collect(Collectors.toList());
+        } else {
+            recipients = new ArrayList<>(chat.calculateRecipients(event.getPlayer()));
+        }
+
+        return new MessageContextImpl<>(
+                chat,
+                event.getPlayer(),
+                new HashMap<>(),
+                event.isCancelled(),
+                chat.getFormat(),
+                recipients,
+                event.getMessage(),
+                null);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -138,6 +147,12 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
 
         try {
             MessageContext<Component> earlyComponentContext = intermediateMessageTransformer.handle(earlyContext).getNewContext();
+
+            if (PlainTextComponentSerializer.plainText().serialize(earlyComponentContext.getMessage()).isBlank()) {
+                // will be cancelled in finally block
+                return;
+            }
+
             MessageContext<Component> middleContext = processor.handle(earlyComponentContext, Stage.MIDDLE).getNewContext();
 
             ChattyMessageEvent messageEvent = new ChattyMessageEvent(
@@ -155,6 +170,10 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
                         audiences.player(recipient).playSound(middleContext.getChat().getSound());
                     }
                 }
+            }
+
+            if (middleContext.getChat().getRange() <= -3) {
+                sendProxyMessage(middleContext);
             }
 
             List<MessageContext<Component>> groupedByStyle = groupedByStyle(middleContext);
@@ -177,24 +196,7 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
                 }
             }
 
-            if (middleContext.getChat().isSendNobodyHeardYou()) {
-                Set<Player> allowedRecipients = new HashSet<>();
-                allowedRecipients.add(event.getPlayer());
-
-                if (middleContext.getChat().isEnableSpy() && middleContext.getMetadata().containsKey("spy-recipients")) {
-                    //noinspection unchecked
-                    allowedRecipients.addAll((List<Player>) middleContext.getMetadata().get("spy-recipients"));
-                }
-
-                if (settings.isHideVanishedRecipients()) {
-                    allowedRecipients.removeIf(player -> player != event.getPlayer()
-                            && !event.getPlayer().canSee(player));
-                }
-
-                if (allowedRecipients.containsAll(middleContext.getRecipients())) {
-                    audiences.player(event.getPlayer()).sendMessage(messages.getNobodyHeard());
-                }
-            }
+            sendNobodyHeardYou(event, middleContext);
 
             processed = true;
         } catch (Throwable t) {
@@ -206,53 +208,74 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
         }
     }
 
-    private List<MessageContext<Component>> groupedByStyle(MessageContext<Component> context) {
-        Map<Player, ChatStyle> playerStyleMap = new HashMap<>();
+    private void sendProxyMessage(MessageContext<Component> middleContext) {
+        Chat chat = middleContext.getChat();
 
-        for (ChatStyle style : context.getChat().getStyles()) {
-            for (Player recipient : context.getRecipients()) {
-                ChatStyle currentStyle = playerStyleMap.get(recipient);
-                if (currentStyle == null || style.priority() > currentStyle.priority()) {
-                    if (recipient.hasPermission("chatty.style." + style.id())) {
-                        playerStyleMap.put(recipient, style);
-                    }
-                }
+        Component noStyleProxyMessage;
+        Map<String, ru.brikster.chatty.proxy.data.ChatStyle> proxyStyles = new HashMap<>();
+
+        MessageContext<Component> proxyNoStyleContext = new MessageContextImpl<>(middleContext);
+        proxyNoStyleContext.setFormat(chat.getFormat());
+        proxyNoStyleContext.setMessage(middleContext.getMessage());
+        proxyNoStyleContext.setRecipients(Collections.emptyList());
+        MessageContext<Component> proxyNoStyleLateContext = processor.handle(proxyNoStyleContext, Stage.LATE).getNewContext();
+        noStyleProxyMessage = componentFromContextConstructor.construct(proxyNoStyleLateContext).compact();
+
+        for (var style : chat.getStyles()) {
+            MessageContext<Component> proxyStyleContext = new MessageContextImpl<>(middleContext);
+            proxyStyleContext.setFormat(style.format());
+            proxyStyleContext.setMessage(middleContext.getMessage());
+            proxyStyleContext.setRecipients(Collections.emptyList());
+            MessageContext<Component> proxyLateContext = processor.handle(proxyStyleContext, Stage.LATE).getNewContext();
+            Component message = componentFromContextConstructor.construct(proxyLateContext).compact();
+
+            proxyStyles.put(style.id(), new ru.brikster.chatty.proxy.data.ChatStyle(
+                    style.priority(),
+                    GsonComponentSerializer.gson().serialize(message)
+            ));
+        }
+
+        proxyService.sendChatMessage(chat, noStyleProxyMessage, proxyStyles, chat.getSound());
+    }
+
+    private void sendNobodyHeardYou(AsyncPlayerChatEvent event, MessageContext<Component> middleContext) {
+        if (middleContext.getChat().isSendNobodyHeardYou()) {
+            Set<Player> allowedRecipients = new HashSet<>();
+            allowedRecipients.add(event.getPlayer());
+
+            if (middleContext.getChat().isEnableSpy() && middleContext.getMetadata().containsKey("spy-recipients")) {
+                //noinspection unchecked
+                allowedRecipients.addAll((List<Player>) middleContext.getMetadata().get("spy-recipients"));
+            }
+
+            if (settings.isHideVanishedRecipients()) {
+                allowedRecipients.removeIf(player -> player != event.getPlayer()
+                        && !event.getPlayer().canSee(player));
+            }
+
+            if (allowedRecipients.containsAll(middleContext.getRecipients())) {
+                audiences.player(event.getPlayer()).sendMessage(messages.getNobodyHeard());
             }
         }
+    }
 
-        if (context.getChat().isEnableSpy() && context.getMetadata().containsKey("spy-recipients")) {
-            @SuppressWarnings("unchecked")
-            List<Player> players = (List<Player>) context.getMetadata().get("spy-recipients");
+    private List<MessageContext<Component>> groupedByStyle(MessageContext<Component> context) {
+        Chat chat = context.getChat();
+        boolean useSpy = chat.isEnableSpy() && context.getMetadata().containsKey("spy-recipients");
 
-            ChatStyle spyStyle = new ChatStyle(
-                    null,
-                    context.getChat().getSpyFormat(),
-                    Integer.MAX_VALUE);
+        //noinspection unchecked
+        var grouping = chatStylePlayerGrouper.makeGrouping(context.getRecipients(), chat.getStyles(),
+                useSpy ? (List<Player>) context.getMetadata().get("spy-recipients") : null,
+                useSpy ? new ChatStyle(
+                        "internal-spy-style",
+                        chat.getSpyFormat(),
+                        Integer.MAX_VALUE) : null);
 
-            players.forEach(spyPlayer -> playerStyleMap.put(spyPlayer, spyStyle));
-        }
-
-        Map<ChatStyle, List<Player>> stylePlayersMap = new HashMap<>();
-
-        for (Entry<Player, ChatStyle> entry : playerStyleMap.entrySet()) {
-            stylePlayersMap.compute(entry.getValue(), (k, v) -> {
-                List<Player> players = v;
-                if (players == null) {
-                    players = new ArrayList<>();
-                }
-                players.add(entry.getKey());
-                return players;
-            });
-        }
+        Map<ChatStyle, List<Player>> stylePlayersMap = grouping.getStylesMap();
 
         List<MessageContext<Component>> contexts = new ArrayList<>();
 
-        List<Player> noStyleRecipients = new ArrayList<>();
-        for (Player recipient : context.getRecipients()) {
-            if (!playerStyleMap.containsKey(recipient)) {
-                noStyleRecipients.add(recipient);
-            }
-        }
+        List<Player> noStyleRecipients = grouping.getNoStylePlayers();
 
         MessageContext<Component> noStyleContext = new MessageContextImpl<>(context);
         noStyleContext.setMessage(context.getMessage());
