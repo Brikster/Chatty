@@ -165,11 +165,11 @@ public final class PostgresPlayerDataRepository implements PlayerDataRepository 
     }
 
     @Override
-    public void addIgnoredPlayer(@NotNull Player player, @NotNull UUID uuid) {
+    public void addIgnoredPlayer(@NotNull UUID playerUuid, @NotNull UUID uuid) {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(
                      "INSERT INTO chatty_ignored_users (player_uuid, ignored_uuid) VALUES (?, ?)")) {
-            statement.setObject(1, player.getUniqueId());
+            statement.setObject(1, playerUuid);
             statement.setObject(2, uuid);
             statement.executeUpdate();
         } catch (SQLException sqlException) {
@@ -178,12 +178,12 @@ public final class PostgresPlayerDataRepository implements PlayerDataRepository 
     }
 
     @Override
-    public void removeIgnoredPlayer(@NotNull Player player, @NotNull UUID uuid) {
+    public void removeIgnoredPlayer(@NotNull UUID playerUuid, @NotNull UUID uuid) {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(
                      "DELETE FROM chatty_ignored_users" +
                              " WHERE player_uuid = ? AND ignored_uuid = ?")) {
-            statement.setObject(1, player.getUniqueId());
+            statement.setObject(1, playerUuid);
             statement.setObject(2, uuid);
             statement.executeUpdate();
         } catch (SQLException sqlException) {
@@ -192,13 +192,13 @@ public final class PostgresPlayerDataRepository implements PlayerDataRepository 
     }
 
     @Override
-    public boolean isIgnoredPlayer(@NotNull Player player, @NotNull UUID uuid) {
+    public boolean isIgnoredPlayer(@NotNull UUID playerUuid, @NotNull UUID uuid) {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(
                      "SELECT ignored_uuid " +
                              "FROM chatty_ignored_users " +
                              "WHERE player_uuid = ? AND ignored_uuid = ?")) {
-            statement.setObject(1, player.getUniqueId());
+            statement.setObject(1, playerUuid);
             statement.setObject(2, uuid);
 
             ResultSet resultSet = statement.executeQuery();

@@ -43,13 +43,13 @@ public final class RemoveIgnoreCommandHandler implements CommandExecutionHandler
             return;
         }
 
-        if (repository.isIgnoredPlayer(sender, targetUuid)) {
+        if (repository.isIgnoredPlayer(sender.getUniqueId(), targetUuid)) {
             repository.createOrUpdateUser(sender.getUniqueId(), sender.getName());
             if (target != null) {
                 repository.createOrUpdateUser(target.getUuid(), target.getName());
             }
 
-            repository.removeIgnoredPlayer(sender, targetUuid);
+            repository.removeIgnoredPlayer(sender.getUniqueId(), targetUuid);
             audiences.sender(sender).sendMessage(messagesConfig.getPmYouDontNowIgnore());
         } else {
             audiences.sender(sender).sendMessage(messagesConfig.getPmYouDontIgnore());

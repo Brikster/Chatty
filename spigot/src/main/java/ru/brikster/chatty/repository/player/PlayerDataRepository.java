@@ -21,10 +21,10 @@ public interface PlayerDataRepository extends AutoCloseable {
 
     @Nullable String getCachedUsername(@NotNull UUID uuid);
 
-    void addIgnoredPlayer(@NotNull Player player, @NotNull UUID uuid);
+    void addIgnoredPlayer(@NotNull UUID playerUuid, @NotNull UUID uuid);
 
-    void removeIgnoredPlayer(@NotNull Player player, @NotNull UUID uuid);
+    void removeIgnoredPlayer(@NotNull UUID playerUuid, @NotNull UUID uuid);
 
-    boolean isIgnoredPlayer(@NotNull Player player, @NotNull UUID uuid);
+    boolean isIgnoredPlayer(@NotNull UUID playerUuid, @NotNull UUID uuid);
 
 }

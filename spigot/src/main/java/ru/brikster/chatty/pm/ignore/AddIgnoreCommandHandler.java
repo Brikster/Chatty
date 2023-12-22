@@ -48,7 +48,7 @@ public final class AddIgnoreCommandHandler implements CommandExecutionHandler<Co
             return;
         }
 
-        if (repository.isIgnoredPlayer(sender, targetUuid)) {
+        if (repository.isIgnoredPlayer(sender.getUniqueId(), targetUuid)) {
             audiences.sender(sender).sendMessage(messagesConfig.getPmYouAlreadyIgnore());
         } else {
             repository.createOrUpdateUser(sender.getUniqueId(), sender.getName());
@@ -56,7 +56,7 @@ public final class AddIgnoreCommandHandler implements CommandExecutionHandler<Co
                 repository.createOrUpdateUser(target.getUuid(), target.getName());
             }
 
-            repository.addIgnoredPlayer(sender, targetUuid);
+            repository.addIgnoredPlayer(sender.getUniqueId(), targetUuid);
             audiences.sender(sender).sendMessage(messagesConfig.getPmYouNowIgnore());
         }
     }
