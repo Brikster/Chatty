@@ -117,7 +117,7 @@ public final class SqlitePlayerDataRepository implements PlayerDataRepository {
     public void createOrUpdateUser(@NotNull UUID uuid, @NotNull String username) {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(
-                     "INSERT INTO users (uuid, username) VALUES (?, ?) ON CONFLICT (uuid, username) DO UPDATE SET username = ?")) {
+                     "INSERT INTO users (uuid, username) VALUES (?, ?) ON CONFLICT (uuid) DO UPDATE SET username = ?")) {
             statement.setBytes(1, SqliteUtil.fromUUID(uuid));
             statement.setString(2, username);
             statement.setString(3, username);
