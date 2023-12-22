@@ -76,14 +76,14 @@ public final class PrivateMessageCommandHandler {
                 if (pmConfig.isPlaySound()) {
                     targetAudience.playSound(pmConfig.getSound());
                 }
-                pmMessageService.addConversation(target instanceof ConsoleCommandSender ? "Console" : target.getName(),
-                        sender.getName());
             } else {
                 proxyService.sendPrivateMessage(target.getName(), toComponentFormat,
                         spyComponentFormat,
                         logMessage,
                         pmConfig.isPlaySound() ? pmConfig.getSound() : null);
             }
+            pmMessageService.addConversation(target instanceof ConsoleCommandSender ? "Console" : target.getName(),
+                    sender.getName());
         }
 
         boolean consoleIsInConversation = sender instanceof ConsoleCommandSender || target instanceof ConsoleCommandSender;

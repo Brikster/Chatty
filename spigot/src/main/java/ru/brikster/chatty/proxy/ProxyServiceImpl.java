@@ -161,12 +161,18 @@ public final class ProxyServiceImpl implements ProxyService, Closeable {
 
     @Override
     public void addConversation(@NotNull String firstSender, @NotNull String secondSender) {
-        pmReplyCache.put(firstSender, secondSender, 10, TimeUnit.MINUTES);
+        pmReplyCache.put(firstSender.toLowerCase(), secondSender.toLowerCase(), 10, TimeUnit.MINUTES);
     }
 
     @Override
     public @Nullable String getLastConversation(@NotNull String sender) {
-        return pmReplyCache.get(sender);
+        String playerName = pmReplyCache.get(sender.toLowerCase());
+
+        if (playerName == null) return null;
+        ProxyPlayer proxyPlayer = playersCache.get(playerName);
+
+        if (proxyPlayer == null) return null;
+        return proxyPlayer.getUsername();
     }
 
     @Override
