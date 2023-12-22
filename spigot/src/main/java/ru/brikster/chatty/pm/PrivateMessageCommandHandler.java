@@ -51,7 +51,7 @@ public final class PrivateMessageCommandHandler {
         pmMessageService.addConversation(sender.getName(),
                 target instanceof ConsoleCommandSender ? "Console" : target.getName());
 
-        boolean ignored = sender instanceof Player && target.isConsole()
+        boolean ignored = sender instanceof Player && !target.isConsole()
                 && playerDataRepository.isIgnoredPlayer(target.getUuid(), ((Player) sender).getUniqueId());
 
         Component spyComponentFormat = null;
