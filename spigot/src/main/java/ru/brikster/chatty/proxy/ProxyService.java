@@ -7,12 +7,13 @@ import org.jetbrains.annotations.Nullable;
 import ru.brikster.chatty.api.chat.Chat;
 import ru.brikster.chatty.proxy.data.ChatStyle;
 
+import java.io.Closeable;
 import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public interface ProxyService {
+public interface ProxyService extends Closeable {
 
     @NotNull Collection<String> getOnlinePlayers();
 

@@ -50,10 +50,12 @@ import ru.brikster.chatty.pm.ReplyCommandHandler;
 import ru.brikster.chatty.pm.ignore.AddIgnoreCommandHandler;
 import ru.brikster.chatty.pm.ignore.IgnoreListCommandHandler;
 import ru.brikster.chatty.pm.ignore.RemoveIgnoreCommandHandler;
+import ru.brikster.chatty.proxy.ProxyService;
 import ru.brikster.chatty.repository.player.PlayerDataRepository;
 import ru.brikster.chatty.util.AdventureUtil;
 import ru.brikster.chatty.util.ListenerUtil;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
@@ -113,13 +115,7 @@ public final class Chatty extends JavaPlugin {
                 .permission("chatty.command.reload")
                 .handler(handler -> {
                     try {
-                        BukkitAudiences.create(this).close();
-                        injector.getInstance(PlayerDataRepository.class).close();
-                        ListenerUtil.unregister(PlayerJoinEvent.class, this);
-                        ListenerUtil.unregister(PlayerQuitEvent.class, this);
-                        ListenerUtil.unregister(PlayerDeathEvent.class, this);
-                        ListenerUtil.unregister(AsyncPlayerChatEvent.class, this);
-                        notificationTicker.cancelTicking();
+                        closeResources();
                         initialize();
                         injector.getInstance(BukkitAudiences.class)
                                 .sender(handler.getSender())
@@ -199,6 +195,17 @@ public final class Chatty extends JavaPlugin {
         }
 
         ChattyApiImpl.updateInstance(new ChattyApiImpl(injector.getInstance(ChatRegistry.class).getChats()));
+    }
+
+    private void closeResources() throws IOException {
+        BukkitAudiences.create(this).close();
+        injector.getInstance(PlayerDataRepository.class).close();
+        injector.getInstance(ProxyService.class).close();
+        ListenerUtil.unregister(PlayerJoinEvent.class, this);
+        ListenerUtil.unregister(PlayerQuitEvent.class, this);
+        ListenerUtil.unregister(PlayerDeathEvent.class, this);
+        ListenerUtil.unregister(AsyncPlayerChatEvent.class, this);
+        notificationTicker.cancelTicking();
     }
 
     private void initAsyncCommandManager() throws Exception {
@@ -305,6 +312,11 @@ public final class Chatty extends JavaPlugin {
         this.getServer().getScheduler().cancelTasks(this);
         unregisterAllCommands(syncCommandManager);
         unregisterAllCommands(asyncCommandManager);
+        try {
+            closeResources();
+        } catch (IOException e) {
+            getLogger().log(Level.SEVERE, "Cannot gracefully shutdown Chatty", e);
+        }
     }
 
     private static void unregisterAllCommands(BukkitCommandManager<CommandSender> commandManager) {

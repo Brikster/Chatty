@@ -27,7 +27,6 @@ import ru.brikster.chatty.proxy.data.ProxyPlayer;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.io.Closeable;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -38,7 +37,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Singleton
-public final class ProxyServiceImpl implements ProxyService, Closeable {
+public final class ProxyServiceImpl implements ProxyService {
 
     private static final GsonComponentSerializer GSON_COMPONENT_SERIALIZER = GsonComponentSerializer.gson();
 

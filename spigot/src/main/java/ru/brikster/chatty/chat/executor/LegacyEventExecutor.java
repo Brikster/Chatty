@@ -20,6 +20,7 @@ import ru.brikster.chatty.api.chat.ChatStyle;
 import ru.brikster.chatty.api.chat.message.context.MessageContext;
 import ru.brikster.chatty.api.chat.message.strategy.MessageTransformStrategy.Stage;
 import ru.brikster.chatty.api.event.ChattyMessageEvent;
+import ru.brikster.chatty.api.event.ChattyPreMessageEvent;
 import ru.brikster.chatty.chat.construct.ComponentFromContextConstructor;
 import ru.brikster.chatty.chat.message.context.MessageContextImpl;
 import ru.brikster.chatty.chat.message.transform.intermediary.IntermediateMessageTransformer;
@@ -155,10 +156,22 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
 
             MessageContext<Component> middleContext = processor.handle(earlyComponentContext, Stage.MIDDLE).getNewContext();
 
+            ChattyPreMessageEvent preMessageEvent = new ChattyPreMessageEvent(
+                    middleContext.getSender(),
+                    middleContext.getChat(),
+                    middleContext.getFormat(),
+                    middleContext.getMessage(),
+                    List.copyOf(middleContext.getRecipients())
+            );
+
+            Bukkit.getPluginManager().callEvent(preMessageEvent);
+            middleContext.setFormat(preMessageEvent.getFormat());
+            middleContext.setFormat(preMessageEvent.getMessage());
+
             ChattyMessageEvent messageEvent = new ChattyMessageEvent(
                     middleContext.getSender(),
                     middleContext.getChat(),
-                    PlainTextComponentSerializer.plainText().serialize(middleContext.getMessage()),
+                    PlainTextComponentSerializer.plainText().serialize(preMessageEvent.getMessage()),
                     List.copyOf(middleContext.getRecipients())
             );
 

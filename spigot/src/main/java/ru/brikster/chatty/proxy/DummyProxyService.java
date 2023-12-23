@@ -46,4 +46,9 @@ public final class DummyProxyService implements ProxyService {
 
     }
 
+    @Override
+    public void close() {
+
+    }
+
 }
