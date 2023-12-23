@@ -159,6 +159,7 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
             ChattyPreMessageEvent preMessageEvent = new ChattyPreMessageEvent(
                     middleContext.getSender(),
                     middleContext.getChat(),
+                    middleContext.getChat().getStyles(),
                     middleContext.getFormat(),
                     middleContext.getMessage(),
                     List.copyOf(middleContext.getRecipients())
@@ -166,7 +167,9 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
 
             Bukkit.getPluginManager().callEvent(preMessageEvent);
             middleContext.setFormat(preMessageEvent.getFormat());
-            middleContext.setFormat(preMessageEvent.getMessage());
+            middleContext.setMessage(preMessageEvent.getMessage());
+
+            Set<ChatStyle> styles = preMessageEvent.getStyles();
 
             ChattyMessageEvent messageEvent = new ChattyMessageEvent(
                     middleContext.getSender(),
@@ -189,7 +192,7 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
                 sendProxyMessage(middleContext);
             }
 
-            List<MessageContext<Component>> groupedByStyle = groupedByStyle(middleContext);
+            List<MessageContext<Component>> groupedByStyle = groupedByStyle(middleContext, styles);
             for (int groupIndex = 0; groupIndex < groupedByStyle.size(); groupIndex++) {
                 MessageContext<Component> groupContext = groupedByStyle.get(groupIndex);
                 groupContext.getMetadata().put("all_recipients", middleContext.getRecipients());
@@ -274,12 +277,12 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
         }
     }
 
-    private List<MessageContext<Component>> groupedByStyle(MessageContext<Component> context) {
+    private List<MessageContext<Component>> groupedByStyle(MessageContext<Component> context, Set<ChatStyle> styles) {
         Chat chat = context.getChat();
         boolean useSpy = chat.isEnableSpy() && context.getMetadata().containsKey("spy-recipients");
 
         //noinspection unchecked
-        var grouping = chatStylePlayerGrouper.makeGrouping(context.getRecipients(), chat.getStyles(),
+        var grouping = chatStylePlayerGrouper.makeGrouping(context.getRecipients(), styles,
                 useSpy ? (List<Player>) context.getMetadata().get("spy-recipients") : null,
                 useSpy ? new ChatStyle(
                         "internal-spy-style",

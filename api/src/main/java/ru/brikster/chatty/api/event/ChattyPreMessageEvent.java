@@ -6,8 +6,10 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 import ru.brikster.chatty.api.chat.Chat;
+import ru.brikster.chatty.api.chat.ChatStyle;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Event for external changing format and message
@@ -18,18 +20,21 @@ public final class ChattyPreMessageEvent extends Event {
 
     private final Player player;
     private final Chat chat;
+    private Set<ChatStyle> styles;
     private Component format;
     private Component message;
     private final List<Player> recipients;
 
     public ChattyPreMessageEvent(@NotNull Player player,
                                  @NotNull Chat chat,
+                                 @NotNull Set<ChatStyle> styles,
                                  @NotNull Component format,
                                  @NotNull Component message,
                                  @NotNull List<Player> recipients) {
         super(true);
         this.player = player;
         this.chat = chat;
+        this.styles = styles;
         this.format = format;
         this.message = message;
         this.recipients = recipients;
@@ -77,6 +82,14 @@ public final class ChattyPreMessageEvent extends Event {
     @NotNull
     public Component getMessage() {
         return message;
+    }
+
+    public @NotNull Set<ChatStyle> getStyles() {
+        return styles;
+    }
+
+    public void setStyles(@NotNull Set<ChatStyle> styles) {
+        this.styles = styles;
     }
 
     public void setFormat(@NotNull Component format) {
