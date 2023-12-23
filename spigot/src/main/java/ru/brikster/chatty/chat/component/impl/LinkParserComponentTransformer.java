@@ -1,13 +1,13 @@
 package ru.brikster.chatty.chat.component.impl;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.event.ClickEvent;
 import org.jetbrains.annotations.NotNull;
 import ru.brikster.chatty.chat.component.ComponentTransformer;
 import ru.brikster.chatty.chat.component.context.SinglePlayerTransformContext;
 import ru.brikster.chatty.config.file.SettingsConfig;
 import ru.brikster.chatty.convert.component.ComponentStringConverter;
-import ru.brikster.chatty.util.AdventureUtil;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -28,16 +28,19 @@ public final class LinkParserComponentTransformer implements ComponentTransforme
     @Override
     public @NotNull Component transform(@NotNull Component formatComponent,
                                         @NotNull SinglePlayerTransformContext context) {
-        return AdventureUtil.replaceWithEndingSpace(formatComponent, settingsConfig.getLinksParsing().getPattern(), (matchedString) -> {
-            try {
-                URL url = new URI(matchedString).toURL();
-                return Component.text(url + " ")
-                        .clickEvent(ClickEvent.openUrl(url))
-                        .hoverEvent(componentStringConverter.stringToComponent(settingsConfig.getLinksParsing().getHoverMessage()));
-            } catch (MalformedURLException | URISyntaxException e) {
-                return null;
-            }
-        }, __ -> null);
+        return formatComponent.replaceText(TextReplacementConfig.builder()
+                .match(settingsConfig.getLinksParsing().getPattern())
+                .replacement(((matchResult, builder) -> {
+                    try {
+                        URL url = new URI(matchResult.group()).toURL();
+                        return Component.text(url.toString())
+                                .clickEvent(ClickEvent.openUrl(url))
+                                .hoverEvent(componentStringConverter.stringToComponent(settingsConfig.getLinksParsing().getHoverMessage()));
+                    } catch (MalformedURLException | URISyntaxException e) {
+                        return null;
+                    }
+                }))
+                .build());
     }
 
 }
