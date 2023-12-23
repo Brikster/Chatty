@@ -30,7 +30,7 @@ public final class LegacyToMiniMessageConverter implements MessageConverter {
         put('e', RESET_TAGS + "<color:yellow>");
         put('f', RESET_TAGS + "<color:white>");
 
-        put('0', RESET_TAGS + "<color:dark_black>");
+        put('0', RESET_TAGS + "<color:black>");
         put('1', RESET_TAGS + "<color:dark_blue>");
         put('2', RESET_TAGS + "<color:dark_green>");
         put('3', RESET_TAGS + "<color:dark_aqua>");
