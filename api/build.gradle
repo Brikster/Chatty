@@ -1,5 +1,25 @@
 plugins {
     id 'maven-publish'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+}
+
+tasks {
+    jar {
+        archiveClassifier = 'original'
+    }
+    shadowJar {
+        archiveClassifier = null
+        relocate 'net.kyori', 'ru.brikster.chatty.shaded.net.kyori'
+        dependencies {
+            include(dependency("net.kyori:adventure-api"))
+            include(dependency("net.kyori:adventure-text-minimessage"))
+            include(dependency("net.kyori:adventure-text-serializer-gson"))
+            include(dependency("net.kyori:adventure-platform-bukkit"))
+        }
+    }
+    assemble {
+        dependsOn shadowJar
+    }
 }
 
 publishing {
