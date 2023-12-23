@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import ru.brikster.chatty.api.chat.message.context.MessageContext;
 import ru.brikster.chatty.api.chat.message.strategy.MessageTransformStrategy;
 import ru.brikster.chatty.api.chat.message.strategy.result.MessageTransformResult;
-import ru.brikster.chatty.chat.component.context.SinglePlayerTransformContext;
+import ru.brikster.chatty.chat.component.context.EmptyTransformContext;
 import ru.brikster.chatty.chat.component.impl.LinkParserComponentTransformer;
 import ru.brikster.chatty.chat.message.transform.result.MessageTransformResultBuilder;
 import ru.brikster.chatty.config.file.SettingsConfig;
@@ -31,7 +31,7 @@ public final class LinkParserTransformStrategy implements MessageTransformStrate
         return MessageTransformResultBuilder.<Component>fromContext(context)
                 .withMessage(linkParserComponentTransformer.transform(
                         context.getMessage(),
-                        SinglePlayerTransformContext.of(context.getSender())))
+                        EmptyTransformContext.of()))
                 .build();
     }
 

@@ -5,7 +5,7 @@ import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.event.ClickEvent;
 import org.jetbrains.annotations.NotNull;
 import ru.brikster.chatty.chat.component.ComponentTransformer;
-import ru.brikster.chatty.chat.component.context.SinglePlayerTransformContext;
+import ru.brikster.chatty.chat.component.context.EmptyTransformContext;
 import ru.brikster.chatty.config.file.SettingsConfig;
 import ru.brikster.chatty.convert.component.ComponentStringConverter;
 
@@ -17,7 +17,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 @Singleton
-public final class LinkParserComponentTransformer implements ComponentTransformer<SinglePlayerTransformContext> {
+public final class LinkParserComponentTransformer implements ComponentTransformer<EmptyTransformContext> {
 
     @Inject
     private SettingsConfig settingsConfig;
@@ -27,7 +27,7 @@ public final class LinkParserComponentTransformer implements ComponentTransforme
 
     @Override
     public @NotNull Component transform(@NotNull Component formatComponent,
-                                        @NotNull SinglePlayerTransformContext context) {
+                                        @NotNull EmptyTransformContext context) {
         return formatComponent.replaceText(TextReplacementConfig.builder()
                 .match(settingsConfig.getLinksParsing().getPattern())
                 .replacement(((matchResult, builder) -> {

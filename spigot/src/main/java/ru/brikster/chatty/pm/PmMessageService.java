@@ -11,6 +11,7 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import ru.brikster.chatty.chat.component.context.EmptyTransformContext;
 import ru.brikster.chatty.chat.component.context.SinglePlayerTransformContext;
 import ru.brikster.chatty.chat.component.context.TwoPlayersTransformContext;
 import ru.brikster.chatty.chat.component.impl.LinkParserComponentTransformer;
@@ -92,7 +93,7 @@ public class PmMessageService {
         Component messageComponent = decorationsFormatter.formatMessageWithDecorations(sender, message);
         if (pmConfig.isParseLinks()) {
             messageComponent = linkParserComponentTransformer.transform(messageComponent,
-                    SinglePlayerTransformContext.of((Player) sender));
+                    EmptyTransformContext.of());
         }
         return component.replaceText(TextReplacementConfig.builder()
                 .matchLiteral("{message}")
