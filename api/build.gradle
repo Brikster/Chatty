@@ -11,10 +11,8 @@ tasks {
         archiveClassifier = null
         relocate 'net.kyori', 'ru.brikster.chatty.shaded.net.kyori'
         dependencies {
-            include(dependency("net.kyori:adventure-api"))
-            include(dependency("net.kyori:adventure-text-minimessage"))
-            include(dependency("net.kyori:adventure-text-serializer-gson"))
-            include(dependency("net.kyori:adventure-platform-bukkit"))
+            exclude(dependency("com.google.guava:guava"))
+            exclude(dependency("com.google.inject:guice"))
         }
     }
     assemble {
