@@ -28,15 +28,17 @@ public class SettingsConfig extends OkaeriConfig {
     @Exclude
     public static ComponentStringConverter converter;
 
-//    @Comment({
-//            "",
-//            "Supported languages: en-us, ru-ru, de-de, zh-cn",
-//            "You can create own language file and put it into \"lang/<language>.yml\""
-//    })
-//    private String language = "en-us";
-
-    @Comment({"", "Enable debug messages"})
-    private boolean debug = false;
+    @Comment(value = {
+            "",
+            "Supported languages: en-US, ru-RU, de-DE, zh-CN",
+            "You can create own language file and put it into \"lang/<language>.yml\""
+    }, language = "en-US")
+    @Comment(value = {
+            "",
+            "Поддерживаемые языки: en-us, ru-RU, de-DE, zh-CN",
+            "Вы можете создать собственный языковой файл и положить его в папку \"lang/<language>.yml\""
+    }, language = "ru-RU")
+    private String language = "en-US";
 
     @Comment({"",
             "Chat listener priority",
@@ -75,6 +77,9 @@ public class SettingsConfig extends OkaeriConfig {
             "Send unsigned chat messages with sender's UUID.",
             "Helpful for enabling in-game ignore feature, but may cause newer client CRASHES"})
     private boolean sendIdentifiedMessages = false;
+
+    @Comment({"", "Enable debug messages"})
+    private boolean debug = false;
 
     public enum RelationalPlaceholdersOrder {
         SENDER_AND_TARGET,

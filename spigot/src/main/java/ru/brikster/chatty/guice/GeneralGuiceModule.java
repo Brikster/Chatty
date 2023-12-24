@@ -96,11 +96,14 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 public final class GeneralGuiceModule extends AbstractModule {
+
+    private static final Set<String> ALLOWED_LANGUAGES = Set.of("en-US", "ru-RU");
 
     private final Plugin plugin;
     private final BukkitAudiences audienceProvider;
@@ -140,6 +143,15 @@ public final class GeneralGuiceModule extends AbstractModule {
         bind(BukkitAudiences.class).toInstance(audienceProvider);
 
         SettingsConfig settingsConfig = createConfig(SettingsConfig.class, "settings.yml");
+
+        String language = settingsConfig.getLanguage();
+        if (!ALLOWED_LANGUAGES.contains(language)) {
+            language = "en-US";
+        }
+        OkaeriConfig.LANGUAGE = language;
+
+        settingsConfig = createConfig(SettingsConfig.class, "settings.yml");
+
         bind(SettingsConfig.class).toInstance(settingsConfig);
         bind(ChatsConfig.class).toInstance(createConfig(ChatsConfig.class, "chats.yml"));
         bind(PmConfig.class).toInstance(createConfig(PmConfig.class, "pm.yml"));
