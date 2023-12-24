@@ -33,7 +33,7 @@ subprojects {
         maven { url = 'https://hub.spigotmc.org/nexus/content/groups/public/' }
     }
 
-    def adventureVersion = "4.14.0"
+    def adventureVersion = "4.15.0"
     def adventureBukkitPlatformVersion = "4.3.1"
 
     dependencies {
