@@ -35,6 +35,9 @@ public class SettingsConfig extends OkaeriConfig {
 //    })
 //    private String language = "en-us";
 
+    @Comment({"", "Enable debug messages"})
+    private boolean debug = false;
+
     @Comment({"",
             "Chat listener priority",
             "May be useful if Chatty conflicts with another plugin",

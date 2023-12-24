@@ -71,15 +71,25 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
         boolean processed = false;
 
         try {
+            long millisStart = System.currentTimeMillis();
+
             MessageContext<String> unhandledEarlyContext = createEarlyContext(event);
             if (unhandledEarlyContext == null) return;
 
             MessageContext<String> earlyContext = processor.handle(unhandledEarlyContext, Stage.EARLY).getNewContext();
 
+            int eventHashcode = System.identityHashCode(event);
             event.getRecipients().clear();
             event.getRecipients().addAll(earlyContext.getRecipients());
             event.setMessage(earlyContext.getMessage());
-            pendingMessages.put(System.identityHashCode(event), earlyContext);
+            pendingMessages.put(eventHashcode, earlyContext);
+
+            long millisEnd = System.currentTimeMillis();
+            long millisDelta = millisEnd - millisStart;
+
+            if (settings.isDebug()) {
+                logger.log(Level.INFO, "Early context processed for " + millisDelta + "ms (event: " + eventHashcode + ")");
+            }
 
             processed = true;
         } catch (Throwable t) {
@@ -126,7 +136,9 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void handleFinishedEarlyContextEvent(AsyncPlayerChatEvent event) {
-        MessageContext<String> earlyContext = pendingMessages.remove(System.identityHashCode(event));
+        int eventHashcode = System.identityHashCode(event);
+
+        MessageContext<String> earlyContext = pendingMessages.remove(eventHashcode);
         if (earlyContext == null) {
             logger.log(Level.WARNING, "Cannot handle chat event from {0} with format {1} and message {2} due to hashcode idempotency error",
                     new Object[] { event.getPlayer().getName(), event.getFormat(), event.getMessage() });
@@ -147,6 +159,8 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
         boolean processed = false;
 
         try {
+            long millisStart = System.currentTimeMillis();
+
             MessageContext<Component> earlyComponentContext = intermediateMessageTransformer.handle(earlyContext).getNewContext();
 
             if (PlainTextComponentSerializer.plainText().serialize(earlyComponentContext.getMessage()).isBlank()) {
@@ -214,6 +228,13 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
 
             if (middleContext.getChat().getRange() > -3) {
                 sendNobodyHeardYou(event, middleContext);
+            }
+
+            long millisEnd = System.currentTimeMillis();
+            long millisDelta = millisEnd - millisStart;
+
+            if (settings.isDebug()) {
+                logger.log(Level.INFO, "Later contexts processed for " + millisDelta + "ms (event: " + eventHashcode + ")");
             }
 
             processed = true;
