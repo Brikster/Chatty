@@ -36,6 +36,7 @@ import ru.brikster.chatty.chat.registry.ChatRegistry;
 import ru.brikster.chatty.command.CommandSuggestionsProvider;
 import ru.brikster.chatty.command.ProxyingCommandHandler;
 import ru.brikster.chatty.command.ProxyingCommandSuggestionsProvider;
+import ru.brikster.chatty.command.handler.ClearChatCommandHandler;
 import ru.brikster.chatty.config.file.MessagesConfig;
 import ru.brikster.chatty.config.file.PmConfig;
 import ru.brikster.chatty.config.file.SettingsConfig;
@@ -176,6 +177,9 @@ public final class Chatty extends JavaPlugin {
         AddIgnoreCommandHandler addIgnoreCommandHandler = injector.getInstance(AddIgnoreCommandHandler.class);
         RemoveIgnoreCommandHandler removeIgnoreCommandHandler = injector.getInstance(RemoveIgnoreCommandHandler.class);
         IgnoreListCommandHandler ignoreListCommandHandler = injector.getInstance(IgnoreListCommandHandler.class);
+        registerProxyingHandler("ignore add", addIgnoreCommandHandler);
+        registerProxyingHandler("ignore remove", removeIgnoreCommandHandler);
+        registerProxyingHandler("ignore list", ignoreListCommandHandler);
 
         if (pmConfig.isEnable()) {
             MsgCommandHandler msgCommandHandler = injector.getInstance(MsgCommandHandler.class);
@@ -184,14 +188,14 @@ public final class Chatty extends JavaPlugin {
             registerProxyingHandler("reply", replyCommandHandler);
         }
 
-        registerProxyingHandler("ignore add", addIgnoreCommandHandler);
-        registerProxyingHandler("ignore remove", removeIgnoreCommandHandler);
-        registerProxyingHandler("ignore list", ignoreListCommandHandler);
+        ClearChatCommandHandler clearChatCommandHandler = injector.getInstance(ClearChatCommandHandler.class);
+        registerProxyingHandler("clearchat", clearChatCommandHandler);
 
         if (this.asyncCommandManager == null) {
             initAsyncCommandManager();
             registerPmCommands(commandSuggestionsProvider);
             registerIgnoreCommand(commandSuggestionsProvider);
+            registerClearChatCommand();
         }
 
         ChattyApiImpl.updateInstance(new ChattyApiImpl(injector.getInstance(ChatRegistry.class).getChats()));
@@ -239,6 +243,15 @@ public final class Chatty extends JavaPlugin {
                 .apply(asyncCommandManager, injector.getInstance(BukkitAudiences.class)::sender);
 
         asyncCommandManager.setSetting(ManagerSettings.ALLOW_UNSAFE_REGISTRATION, true);
+    }
+
+    private void registerClearChatCommand() {
+        var command = asyncCommandManager
+                .commandBuilder("clearchat")
+                .permission("chatty.command.clearchat")
+                .handler(proxyingCommandHandlerMap.get("clearchat"))
+                .build();
+        asyncCommandManager.command(command);
     }
 
     private void registerIgnoreCommand(CommandSuggestionsProvider<CommandSender> pmSuggestionsProvider) {

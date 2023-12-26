@@ -51,6 +51,8 @@ public class MessagesConfig extends OkaeriConfig {
     private Component cmdSenderTypeError = MINI_MESSAGE.deserialize("<red>You cannot use this command.");
     private Component cmdNoPermissionError = MINI_MESSAGE.deserialize("<red>You don't have permission.");
     private Component cmdExecutionError = MINI_MESSAGE.deserialize("<red>Error while command execution, report it to the server admin.");
+
     private Component reloadCommandSuccess = MINI_MESSAGE.deserialize("<green>Plugin successfully reloaded!");
+    private Component clearchatCommandSuccess = MINI_MESSAGE.deserialize("<green>Chat cleared.");
 
 }
