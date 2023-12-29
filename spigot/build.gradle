@@ -13,7 +13,7 @@ tasks {
                            'com.google.common',
                            'org.yaml.snakeyaml',
                            'cloud.commandframework',
-//                           'eu.okaeri',
+                           'eu.okaeri',
                            'com.zaxxer',
                            'net.kyori']
         relocations.forEach {
