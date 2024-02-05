@@ -33,6 +33,7 @@ import ru.brikster.chatty.proxy.ProxyService;
 
 import javax.inject.Inject;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.logging.Level;
@@ -177,7 +178,17 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
                     List.copyOf(middleContext.getRecipients())
             );
 
-            Bukkit.getPluginManager().callEvent(preMessageEvent);
+            Runnable callEventRunnable = () -> Bukkit.getPluginManager().callEvent(preMessageEvent);
+            if (Bukkit.isPrimaryThread()) {
+                CompletableFuture.runAsync(callEventRunnable)
+                        .exceptionally(e -> {
+                            logger.log(Level.SEVERE, "Error while calling ChattyPreMessageEvent", e);
+                            return null;
+                        });
+            } else {
+                callEventRunnable.run();
+            }
+
             middleContext.setFormat(preMessageEvent.getFormat());
             middleContext.setMessage(preMessageEvent.getMessage());
 
