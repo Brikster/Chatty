@@ -22,7 +22,7 @@ public class ReplacementsConfig extends OkaeriConfig {
     @Comment("You can use it as placeholder in any config with {r_key}, e.g. {r_player_info}.")
     private Map<String, String> replacements = Map.of(
             "player_info",
-            "<hover:'&2Click here to PM %player%'><click:'suggest_command':'/msg %player% '>%player%</click><hover>"
+            "<hover:'&2Click here to PM %player%'><click:'suggest_command':'/msg %player% '>%player%</click></hover>"
     );
 
 }
