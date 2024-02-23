@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS chatty_users (
     uuid VARCHAR(36) PRIMARY KEY,
-    username VARCHAR(32) NOT NULL
+    username VARCHAR(32) NOT NULL,
+    spy BOOLEAN DEFAULT true
 );
 
 CREATE TABLE IF NOT EXISTS chatty_ignored_users (

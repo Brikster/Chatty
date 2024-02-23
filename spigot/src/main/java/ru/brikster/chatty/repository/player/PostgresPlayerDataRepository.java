@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.brikster.chatty.Chatty;
 import ru.brikster.chatty.config.file.ProxyConfig.DatabaseConfig;
+import ru.brikster.chatty.util.SqliteUtil;
 
 import javax.inject.Singleton;
 import java.sql.Connection;
@@ -207,6 +208,41 @@ public final class PostgresPlayerDataRepository implements PlayerDataRepository 
             throw new IllegalStateException("Cannot check ignored player", sqlException);
         }
     }
+
+    @Override
+    public boolean isPlayerSpyReceive(@NotNull UUID playerUuid) {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(
+                     "SELECT spy " +
+                             "FROM chatty_users " +
+                             "WHERE uuid = ?")) {
+            statement.setBytes(1, SqliteUtil.fromUUID(playerUuid));
+
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getBoolean(1);
+            }
+            return true;
+        } catch (SQLException sqlException) {
+            throw new IllegalStateException("Cannot check spy receive of player", sqlException);
+        }
+    }
+
+    @Override
+    public void setPlayerSpyReceive(@NotNull UUID playerUuid, boolean receive) {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(
+                     "UPDATE chatty_users " +
+                             "SET spy = ? " +
+                             "WHERE uuid = ?")) {
+            statement.setBoolean(1, receive);
+            statement.setBytes(2, SqliteUtil.fromUUID(playerUuid));
+            statement.executeUpdate();
+        } catch (SQLException sqlException) {
+            throw new IllegalStateException("Cannot set spy receive for player", sqlException);
+        }
+    }
+
 
     @Override
     public void close() {

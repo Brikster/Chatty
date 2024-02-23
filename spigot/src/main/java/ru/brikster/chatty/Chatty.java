@@ -37,6 +37,7 @@ import ru.brikster.chatty.command.CommandSuggestionsProvider;
 import ru.brikster.chatty.command.ProxyingCommandHandler;
 import ru.brikster.chatty.command.ProxyingCommandSuggestionsProvider;
 import ru.brikster.chatty.command.handler.ClearChatCommandHandler;
+import ru.brikster.chatty.config.file.ChatsConfig;
 import ru.brikster.chatty.config.file.MessagesConfig;
 import ru.brikster.chatty.config.file.PmConfig;
 import ru.brikster.chatty.config.file.SettingsConfig;
@@ -53,6 +54,7 @@ import ru.brikster.chatty.pm.ignore.IgnoreListCommandHandler;
 import ru.brikster.chatty.pm.ignore.RemoveIgnoreCommandHandler;
 import ru.brikster.chatty.proxy.ProxyService;
 import ru.brikster.chatty.repository.player.PlayerDataRepository;
+import ru.brikster.chatty.spy.SpyCommandHandler;
 import ru.brikster.chatty.util.AdventureUtil;
 import ru.brikster.chatty.util.ListenerUtil;
 
@@ -188,6 +190,9 @@ public final class Chatty extends JavaPlugin {
             registerProxyingHandler("reply", replyCommandHandler);
         }
 
+        SpyCommandHandler spyCommandHandler = injector.getInstance(SpyCommandHandler.class);
+        registerProxyingHandler("spy", spyCommandHandler);
+
         ClearChatCommandHandler clearChatCommandHandler = injector.getInstance(ClearChatCommandHandler.class);
         registerProxyingHandler("clearchat", clearChatCommandHandler);
 
@@ -196,6 +201,7 @@ public final class Chatty extends JavaPlugin {
             registerPmCommands(commandSuggestionsProvider);
             registerIgnoreCommand(commandSuggestionsProvider);
             registerClearChatCommand();
+            registerSpyCommand();
         }
 
         ChattyApiImpl.updateInstance(new ChattyApiImpl(injector.getInstance(ChatRegistry.class).getChats()));
@@ -243,6 +249,15 @@ public final class Chatty extends JavaPlugin {
                 .apply(asyncCommandManager, injector.getInstance(BukkitAudiences.class)::sender);
 
         asyncCommandManager.setSetting(ManagerSettings.ALLOW_UNSAFE_REGISTRATION, true);
+    }
+
+    private void registerSpyCommand() {
+        var command = asyncCommandManager
+                .commandBuilder("spy")
+                .permission("chatty.command.spy")
+                .handler(proxyingCommandHandlerMap.get("spy"))
+                .build();
+        asyncCommandManager.command(command);
     }
 
     private void registerClearChatCommand() {
