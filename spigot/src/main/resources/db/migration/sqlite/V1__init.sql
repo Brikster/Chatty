@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS users (
     uuid UUID PRIMARY KEY,
-    username VARCHAR(32) NOT NULL
+    username VARCHAR(32) NOT NULL,
+    spy BOOLEAN DEFAULT true
 );
 
 CREATE TABLE IF NOT EXISTS ignored_users (

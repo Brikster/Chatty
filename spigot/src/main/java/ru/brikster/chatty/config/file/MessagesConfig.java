@@ -55,4 +55,8 @@ public class MessagesConfig extends OkaeriConfig {
     private Component reloadCommandSuccess = MINI_MESSAGE.deserialize("<green>Plugin successfully reloaded!");
     private Component clearchatCommandSuccess = MINI_MESSAGE.deserialize("<green>Chat cleared.");
 
+    @Comment({"", "Messages for spy"})
+    private Component spyEnabled = MINI_MESSAGE.deserialize("<green>Spy enabled.");
+    private Component spyDisabled = MINI_MESSAGE.deserialize("<red>Spy disabled.");
+
 }
