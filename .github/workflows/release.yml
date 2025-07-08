@@ -16,8 +16,8 @@ jobs:
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
-          java-version: '17'
+          distribution: 'oracle'
+          java-version: '21'
 
       - name: Grant execute permission to Gradle
         run: chmod +x ./gradlew
