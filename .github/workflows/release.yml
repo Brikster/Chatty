@@ -22,10 +22,10 @@ jobs:
       - name: Grant execute permission to Gradle
         run: chmod +x ./gradlew
 
-      - name: Build plugin with ShadowJar
-        run: ./gradlew shadowJar
+      - name: Build plugin
+        run: ./gradlew build
 
-      - name: Upload ShadowJar artifact
+      - name: Upload Plugin artifact
         uses: actions/upload-artifact@v4
         with:
           name: plugin-jar
