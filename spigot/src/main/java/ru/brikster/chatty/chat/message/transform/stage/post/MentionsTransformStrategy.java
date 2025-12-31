@@ -57,9 +57,14 @@ public class MentionsTransformStrategy implements MessageTransformStrategy<Compo
         Component message = context.getMessage();
         String plainTextMessage = plainTextComponentSerializer.serialize(message);
 
+        Object recipientsMetadata = context.getMetadata().get("all_recipients");
+        if (!(recipientsMetadata instanceof Collection)) {
+            return MessageTransformResultBuilder.<Component>fromContext(context).build();
+        }
+
         // TODO optimize
         //noinspection unchecked
-        for (Player onlinePlayer : ((Collection<? extends Player>) context.getMetadata().get("all_recipients"))) {
+        for (Player onlinePlayer : ((Collection<? extends Player>) recipientsMetadata)) {
             // Cannot mention yourself
             if (onlinePlayer == context.getSender()) {
                 continue;
@@ -121,7 +126,7 @@ public class MentionsTransformStrategy implements MessageTransformStrategy<Compo
     private Pattern patternForPlayer(Player player) {
         try {
             String patternString = settingsConfig.getMentions().getPattern()
-                    .replace("{username}", Pattern.quote(player.getDisplayName()));
+                    .replace("{username}", Pattern.quote(player.getName()));
             return playerPatternCache.get(player, () -> Pattern.compile(patternString));
         } catch (ExecutionException e) {
             throw new IllegalStateException("Cannot compile mention pattern", e);

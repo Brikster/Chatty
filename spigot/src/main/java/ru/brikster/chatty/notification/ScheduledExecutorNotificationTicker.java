@@ -1,20 +1,26 @@
 package ru.brikster.chatty.notification;
 
+import org.bukkit.Bukkit;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitTask;
+
+import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Singleton
 public final class ScheduledExecutorNotificationTicker implements NotificationTicker {
 
-    private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-    private ScheduledFuture<?> future;
+    private final Plugin plugin;
+    private BukkitTask task;
 
-    private final List<Notification> notificationList = new ArrayList<>();
+    private final List<Notification> notificationList = new CopyOnWriteArrayList<>();
+
+    @Inject
+    public ScheduledExecutorNotificationTicker(Plugin plugin) {
+        this.plugin = plugin;
+    }
 
     @Override
     public void addNotification(Notification notification) {
@@ -28,7 +34,10 @@ public final class ScheduledExecutorNotificationTicker implements NotificationTi
 
     @Override
     public void startTicking() {
-        this.future = executor.scheduleAtFixedRate(() -> {
+        if (task != null) {
+            task.cancel();
+        }
+        task = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             try {
                 for (Notification notification : notificationList) {
                     notification.tick();
@@ -37,12 +46,15 @@ public final class ScheduledExecutorNotificationTicker implements NotificationTi
                 //noinspection CallToPrintStackTrace
                 t.printStackTrace();
             }
-        }, 1, 1, TimeUnit.SECONDS);
+        }, 20L, 20L);
     }
 
     @Override
     public void cancelTicking() {
-        future.cancel(false);
+        if (task != null) {
+            task.cancel();
+            task = null;
+        }
     }
 
 }

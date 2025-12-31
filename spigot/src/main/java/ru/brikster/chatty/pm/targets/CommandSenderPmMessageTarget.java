@@ -1,6 +1,7 @@
 package ru.brikster.chatty.pm.targets;
 
 import lombok.RequiredArgsConstructor;
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -37,7 +38,10 @@ public final class CommandSenderPmMessageTarget implements PmMessageTarget {
 
     @Override
     public OfflinePlayer asOfflinePlayer() {
-        return (OfflinePlayer) commandSender;
+        if (commandSender instanceof OfflinePlayer) {
+            return (OfflinePlayer) commandSender;
+        }
+        return Bukkit.getOfflinePlayer(commandSender.getName());
     }
 
     @Override

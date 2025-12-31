@@ -3,11 +3,9 @@ version: '${version}'
 main: ru.brikster.chatty.Chatty
 authors: [ Brikster ]
 
-# This doesn't mean that plugin works only on 1.13+
-api-version: '1.13'
+# Bukkit only accepts major.minor here; Chatty targets Minecraft 1.21.11.
+api-version: '1.21'
 
 # Essentials needed only for overwriting existing private-messaging commands.
 loadbefore: [ Essentials ]
 softdepend: [ Vault, PlaceholderAPI ]
-
-folia-supported: true

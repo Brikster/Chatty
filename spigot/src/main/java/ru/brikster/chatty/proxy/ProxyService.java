@@ -11,7 +11,6 @@ import java.io.Closeable;
 import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public interface ProxyService extends Closeable {
 
@@ -26,9 +25,7 @@ public interface ProxyService extends Closeable {
     default boolean isOnline(@NotNull String playerName) {
         return getOnlinePlayers()
                 .stream()
-                .map(String::toLowerCase)
-                .collect(Collectors.toSet())
-                .contains(playerName.toLowerCase());
+                .anyMatch(name -> name.equalsIgnoreCase(playerName));
     }
 
     void sendChatMessage(@NotNull Chat chat,

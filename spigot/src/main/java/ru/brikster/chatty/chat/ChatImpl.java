@@ -7,6 +7,7 @@ import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -17,6 +18,7 @@ import ru.brikster.chatty.api.chat.ChatStyle;
 import ru.brikster.chatty.api.chat.command.ChatCommand;
 import ru.brikster.chatty.api.chat.message.strategy.MessageTransformStrategy;
 import ru.brikster.chatty.api.chat.range.Ranges;
+import ru.brikster.chatty.util.EventUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -149,17 +151,31 @@ public final class ChatImpl implements Chat {
     }
 
     private void sendComponent(Plugin plugin, Component component, Predicate<CommandSender> recipientPredicate) {
-        @SuppressWarnings("resource")
-        var audience = BukkitAudiences
-                .create(plugin)
-                .filter(sender -> {
-                    if (sender instanceof Player) {
-                        boolean test = getRecipientPredicate(null).test((Player) sender);
-                        if (!test) return false;
-                    }
-                    return recipientPredicate.test(sender);
-                });
-        audience.sendMessage(component);
+        if (!Bukkit.isPrimaryThread()) {
+            EventUtil.callSynchronously(plugin, () -> {
+                sendComponentSync(plugin, component, recipientPredicate);
+                return null;
+            });
+            return;
+        }
+        sendComponentSync(plugin, component, recipientPredicate);
+    }
+
+    private void sendComponentSync(Plugin plugin, Component component, Predicate<CommandSender> recipientPredicate) {
+        var audience = BukkitAudiences.create(plugin);
+        try {
+            audience
+                    .filter(sender -> {
+                        if (sender instanceof Player) {
+                            boolean test = getRecipientPredicate(null).test((Player) sender);
+                            if (!test) return false;
+                        }
+                        return recipientPredicate.test(sender);
+                    })
+                    .sendMessage(component);
+        } finally {
+            audience.close();
+        }
     }
 
 }

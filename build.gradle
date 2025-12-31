@@ -2,6 +2,11 @@ plugins {
     id 'org.jetbrains.gradle.plugin.idea-ext' version '1.0.1'
 }
 
+ext {
+    minecraftVersion = (findProperty('minecraftVersion') ?: '1.21.11').toString()
+    paperApiVersion = (findProperty('paperApiVersion') ?: "${minecraftVersion}-R0.1-SNAPSHOT").toString()
+}
+
 allprojects {
     group = 'ru.brikster'
     version = '3.0.0-SNAPSHOT'
@@ -16,7 +21,7 @@ subprojects {
         }
     }
 
-    sourceCompatibility = targetCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = targetCompatibility = JavaVersion.VERSION_21
 
     tasks {
         compileJava {
@@ -31,6 +36,7 @@ subprojects {
     repositories {
         mavenCentral()
         maven { url = 'https://hub.spigotmc.org/nexus/content/groups/public/' }
+        maven { url = 'https://repo.papermc.io/repository/maven-public/' }
         maven {
             name = "sonatype-oss-snapshots1"
             url = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
@@ -46,9 +52,10 @@ subprojects {
         implementation "net.kyori:adventure-api:$adventureVersion"
         implementation "net.kyori:adventure-text-minimessage:$adventureVersion"
         implementation "net.kyori:adventure-text-serializer-gson:$adventureVersion"
+        implementation "net.kyori:adventure-text-serializer-legacy:$adventureVersion"
         implementation "net.kyori:adventure-platform-bukkit:$adventureBukkitPlatformVersion"
 
-        compileOnly 'org.spigotmc:spigot-api:1.19-R0.1-SNAPSHOT'
+        compileOnly "io.papermc.paper:paper-api:${rootProject.ext.paperApiVersion}"
 
         implementation 'com.google.inject:guice:5.1.0'
         implementation 'com.google.guava:guava:30.1-jre'

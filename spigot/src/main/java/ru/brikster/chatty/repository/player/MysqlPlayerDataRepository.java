@@ -25,7 +25,7 @@ public final class MysqlPlayerDataRepository implements PlayerDataRepository {
 
     public MysqlPlayerDataRepository(DatabaseConfig databaseConfig) {
         HikariConfig config = new HikariConfig();
-        config.setDriverClassName("com.mysql.jdbc.Driver");
+        config.setDriverClassName("com.mysql.cj.jdbc.Driver");
         config.setJdbcUrl(String.format("jdbc:mysql://%s:%d/%s",
                 databaseConfig.getHostname(), databaseConfig.getPort(), databaseConfig.getDatabase()));
         config.addDataSourceProperty("user", databaseConfig.getUsername());

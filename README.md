@@ -13,6 +13,9 @@
 Chatty is the modern chat management system for Bukkit-compatible servers. It's based on-top of Kyori's Adventure library, 
 that makes it so powerful and stable.
 
+**Target Version:** 1.21.11 (built against Paper API `1.21.11-R0.1-SNAPSHOT`)
+**Compatibility:** 1.21.x may work, but only 1.21.11 is explicitly targeted.
+
 **Key features**:
 - Chat channels ("local" and "global" by default)
 - Private messaging
@@ -23,7 +26,7 @@ that makes it so powerful and stable.
 
 ## Building
 
-Chatty uses Gradle to handle dependencies & building. You need JDK 11 or higher to compile Chatty.
+Chatty uses Gradle to handle dependencies & building. You need JDK 21 or higher to compile Chatty.
 
 ### Compiling from source
 

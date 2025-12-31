@@ -1,5 +1,5 @@
 plugins {
-    id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id 'com.gradleup.shadow' version '8.3.0'
     id 'xyz.jpenilla.run-paper' version '2.3.0'
 }
 
@@ -32,7 +32,7 @@ tasks {
     }
 
     runServer {
-        minecraftVersion('1.21')
+        minecraftVersion(rootProject.ext.minecraftVersion)
     }
 }
 
@@ -90,7 +90,8 @@ def templateSource = file('src/main/templates')
 def templateDest = layout.buildDirectory.dir('generated/sources/templates')
 def generateTemplates = tasks.register('generateTemplates', Copy) { task ->
     def props = [
-            'version': project.version
+            'version': project.version,
+            'minecraftVersion': rootProject.ext.minecraftVersion
     ]
     task.inputs.properties props
 

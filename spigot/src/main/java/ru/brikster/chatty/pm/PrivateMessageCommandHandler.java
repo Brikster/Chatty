@@ -49,7 +49,7 @@ public final class PrivateMessageCommandHandler {
 
         audiences.sender(sender).sendMessage(fromComponentFormat);
         pmMessageService.addConversation(sender.getName(),
-                target instanceof ConsoleCommandSender ? "Console" : target.getName());
+                target.isConsole() ? "Console" : target.getName());
 
         boolean ignored = sender instanceof Player && !target.isConsole()
                 && playerDataRepository.isIgnoredPlayer(target.getUuid(), ((Player) sender).getUniqueId());
@@ -61,7 +61,7 @@ public final class PrivateMessageCommandHandler {
                     pmConfig.getSpy().getFormat(),
                     sender, target, message);
             audiences.filter(spyCandidate -> spyCandidate.hasPermission("chatty.spy.pm")
-                            && !(spyCandidate instanceof ConsoleCommandSender)
+                            && spyCandidate instanceof Player
                             && playerDataRepository.isEnableSpy(((Player) spyCandidate).getUniqueId())
                             && spyCandidate != sender
                             && (!target.isOnline() || spyCandidate != target.asCommandSender()))
@@ -83,11 +83,11 @@ public final class PrivateMessageCommandHandler {
                         logMessage,
                         pmConfig.isPlaySound() ? pmConfig.getSound() : null);
             }
-            pmMessageService.addConversation(target instanceof ConsoleCommandSender ? "Console" : target.getName(),
+            pmMessageService.addConversation(target.isConsole() ? "Console" : target.getName(),
                     sender.getName());
         }
 
-        boolean consoleIsInConversation = sender instanceof ConsoleCommandSender || target instanceof ConsoleCommandSender;
+        boolean consoleIsInConversation = sender instanceof ConsoleCommandSender || target.isConsole();
 
         if (!consoleIsInConversation) {
             plugin.getLogger().info(logMessage);

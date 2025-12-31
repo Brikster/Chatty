@@ -305,6 +305,7 @@ public final class GeneralGuiceModule extends AbstractModule {
     public PlaceholdersComponentTransformer placeholdersComponentTransformer(ReplacementsConfig replacementsConfig,
                                                                              ComponentStringConverter componentStringConverter,
                                                                              ReplacementsStringTransformer replacementsStringTransformer,
+                                                                             SettingsConfig settingsConfig,
                                                                              Logger logger) {
         List<PlaceholdersComponentTransformer> transformerList = new LinkedList<>();
 
@@ -316,10 +317,10 @@ public final class GeneralGuiceModule extends AbstractModule {
             }
         }
 
-        transformerList.add(new ReplacementsComponentTransformer(replacementsConfig, componentStringConverter, replacementsStringTransformer, cycleAnalysisResult.getKeysWithCycles()));
+        transformerList.add(new ReplacementsComponentTransformer(replacementsConfig, componentStringConverter, replacementsStringTransformer, cycleAnalysisResult.getKeysWithCycles(), settingsConfig));
 
         if (Bukkit.getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
-            transformerList.add(new CommonChatPlaceholderApiComponentTransformer(componentStringConverter));
+            transformerList.add(new CommonChatPlaceholderApiComponentTransformer(componentStringConverter, settingsConfig));
         }
 
         return new ChainPlaceholdersComponentTransformer(transformerList);
@@ -327,25 +328,28 @@ public final class GeneralGuiceModule extends AbstractModule {
 
     @Provides
     @Singleton
-    public PmFromPlaceholdersComponentTransformer pmFromPlaceholdersComponentTransformer(ComponentStringConverter componentStringConverter) {
+    public PmFromPlaceholdersComponentTransformer pmFromPlaceholdersComponentTransformer(ComponentStringConverter componentStringConverter,
+                                                                                         SettingsConfig settingsConfig) {
         return Bukkit.getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")
-                ? new PmFromPlaceholderApiComponentTransformer(componentStringConverter)
+                ? new PmFromPlaceholderApiComponentTransformer(componentStringConverter, settingsConfig)
                 : new DummyPlaceholdersComponentTransformer();
     }
 
     @Provides
     @Singleton
-    public PmToPlaceholdersComponentTransformer pmToPlaceholdersComponentTransformer(ComponentStringConverter componentStringConverter) {
+    public PmToPlaceholdersComponentTransformer pmToPlaceholdersComponentTransformer(ComponentStringConverter componentStringConverter,
+                                                                                     SettingsConfig settingsConfig) {
         return Bukkit.getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")
-                ? new PmToPlaceholderApiComponentTransformer(componentStringConverter)
+                ? new PmToPlaceholderApiComponentTransformer(componentStringConverter, settingsConfig)
                 : new DummyPlaceholdersComponentTransformer();
     }
 
     @Provides
     @Singleton
-    public RelationalPlaceholdersComponentTransformer relationalPlaceholdersComponentTransformer(ComponentStringConverter componentStringConverter) {
+    public RelationalPlaceholdersComponentTransformer relationalPlaceholdersComponentTransformer(ComponentStringConverter componentStringConverter,
+                                                                                                 SettingsConfig settingsConfig) {
         return Bukkit.getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")
-                ? new PlaceholderApiRelationalComponentTransformer(componentStringConverter)
+                ? new PlaceholderApiRelationalComponentTransformer(componentStringConverter, settingsConfig)
                 : new DummyRelationalPlaceholdersComponentTransformer();
     }
 
@@ -357,11 +361,15 @@ public final class GeneralGuiceModule extends AbstractModule {
         } catch (NoSuchFieldException ignored) {}
 
         return ConfigManager.create(configClass, config -> {
+            LoaderOptions loaderOptions = new LoaderOptions();
+            DumperOptions dumperOptions = new DumperOptions();
+            dumperOptions.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+            dumperOptions.setSplitLines(false);
+
             config.withConfigurer(new OkaeriValidator(new YamlSnakeYamlConfigurer(new Yaml(
-                    new Constructor(),
-                    new Representer() {
+                    new Constructor(loaderOptions),
+                    new Representer(dumperOptions) {
                         {
-                            setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
                             this.representers.put(String.class, new RepresentString() {
 
                                 private final Pattern MULTILINE_PATTERN = Pattern.compile("[\n\u0085\u2028\u2029]");
@@ -398,13 +406,8 @@ public final class GeneralGuiceModule extends AbstractModule {
                             });
                         }
                     },
-                    new DumperOptions() {
-                        {
-                            setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
-                            setSplitLines(false);
-                        }
-                    },
-                    new LoaderOptions(),
+                    dumperOptions,
+                    loaderOptions,
                     new Resolver())), true),
                     new SerdesCommons(), new SerdesBukkit(), serdesChatty);
             config.withBindFile(dataFolderPath.resolve(fileName));
