@@ -13,8 +13,8 @@
 Chatty is the modern chat management system for Bukkit-compatible servers. It's based on-top of Kyori's Adventure library, 
 that makes it so powerful and stable.
 
-**Target Version:** 1.21.11 (built against Paper API `1.21.11-R0.1-SNAPSHOT`)
-**Compatibility:** 1.21.x may work, but only 1.21.11 is explicitly targeted.
+**Build target:** 1.21.11 (built against Paper API `1.21.11-R0.1-SNAPSHOT`)
+**Compatibility:** Chatty is intended to be multi-version; check release notes for tested versions and report issues on older/newer servers.
 
 **Key features**:
 - Chat channels ("local" and "global" by default)

@@ -21,11 +21,19 @@ import java.util.UUID;
 @Singleton
 public final class MysqlPlayerDataRepository implements PlayerDataRepository {
 
+    private static final String[] DRIVER_CLASS_NAMES = {
+            "com.mysql.cj.jdbc.Driver",
+            "com.mysql.jdbc.Driver"
+    };
+
     private final HikariDataSource dataSource;
 
     public MysqlPlayerDataRepository(DatabaseConfig databaseConfig) {
         HikariConfig config = new HikariConfig();
-        config.setDriverClassName("com.mysql.cj.jdbc.Driver");
+        String driverClassName = resolveDriverClassName();
+        if (driverClassName != null) {
+            config.setDriverClassName(driverClassName);
+        }
         config.setJdbcUrl(String.format("jdbc:mysql://%s:%d/%s",
                 databaseConfig.getHostname(), databaseConfig.getPort(), databaseConfig.getDatabase()));
         config.addDataSourceProperty("user", databaseConfig.getUsername());
@@ -40,6 +48,18 @@ public final class MysqlPlayerDataRepository implements PlayerDataRepository {
                 .dataSource(dataSource)
                 .load();
         flyway.migrate();
+    }
+
+    private static @Nullable String resolveDriverClassName() {
+        for (String driverClassName : DRIVER_CLASS_NAMES) {
+            try {
+                Class.forName(driverClassName);
+                return driverClassName;
+            } catch (ClassNotFoundException ignored) {
+                // Try next driver candidate.
+            }
+        }
+        return null;
     }
 
     @Override

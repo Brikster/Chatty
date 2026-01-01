@@ -64,7 +64,8 @@ public class MentionsTransformStrategy implements MessageTransformStrategy<Compo
 
         // TODO optimize
         //noinspection unchecked
-        for (Player onlinePlayer : ((Collection<? extends Player>) recipientsMetadata)) {
+        Collection<? extends Player> recipients = (Collection<? extends Player>) recipientsMetadata;
+        for (Player onlinePlayer : recipients) {
             // Cannot mention yourself
             if (onlinePlayer == context.getSender()) {
                 continue;

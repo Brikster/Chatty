@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
 
 public final class LegacyEventExecutor implements Listener, EventExecutor {
 
-    private final Map<AsyncPlayerChatEvent, MessageContext<String>> pendingMessages = new ConcurrentHashMap<>();
+    private final Map<Integer, MessageContext<String>> pendingMessages = new ConcurrentHashMap<>();
 
     @Inject private ChatSelector selector;
     @Inject private ComponentFromContextConstructor componentFromContextConstructor;
@@ -81,7 +81,7 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
                 event.setMessage(earlyContext.getMessage());
             }
 
-            pendingMessages.put(event, earlyContext);
+            pendingMessages.put(eventHashcode, earlyContext);
 
             long millisEnd = System.currentTimeMillis();
             long millisDelta = millisEnd - millisStart;
@@ -142,7 +142,7 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
     private void handleFinishedEarlyContextEventSync(AsyncPlayerChatEvent event) {
         int eventHashcode = System.identityHashCode(event);
 
-        MessageContext<String> earlyContext = pendingMessages.remove(event);
+        MessageContext<String> earlyContext = pendingMessages.remove(eventHashcode);
         if (earlyContext == null) {
             if (settings.isDebug()) {
                 logger.log(Level.WARNING, "Cannot handle unprocessed chat event from \"{0}\" with format \"{1}\" and message \"{2}\"",

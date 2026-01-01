@@ -1,26 +1,20 @@
 package ru.brikster.chatty.notification;
 
-import org.bukkit.Bukkit;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitTask;
-
-import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 @Singleton
 public final class ScheduledExecutorNotificationTicker implements NotificationTicker {
 
-    private final Plugin plugin;
-    private BukkitTask task;
+    private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+    private ScheduledFuture<?> future;
 
     private final List<Notification> notificationList = new CopyOnWriteArrayList<>();
-
-    @Inject
-    public ScheduledExecutorNotificationTicker(Plugin plugin) {
-        this.plugin = plugin;
-    }
 
     @Override
     public void addNotification(Notification notification) {
@@ -34,10 +28,10 @@ public final class ScheduledExecutorNotificationTicker implements NotificationTi
 
     @Override
     public void startTicking() {
-        if (task != null) {
-            task.cancel();
+        if (future != null) {
+            future.cancel(false);
         }
-        task = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+        future = executor.scheduleAtFixedRate(() -> {
             try {
                 for (Notification notification : notificationList) {
                     notification.tick();
@@ -46,14 +40,14 @@ public final class ScheduledExecutorNotificationTicker implements NotificationTi
                 //noinspection CallToPrintStackTrace
                 t.printStackTrace();
             }
-        }, 20L, 20L);
+        }, 1, 1, TimeUnit.SECONDS);
     }
 
     @Override
     public void cancelTicking() {
-        if (task != null) {
-            task.cancel();
-            task = null;
+        if (future != null) {
+            future.cancel(false);
+            future = null;
         }
     }
 
