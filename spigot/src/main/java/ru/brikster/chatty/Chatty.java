@@ -10,7 +10,6 @@ import cloud.commandframework.arguments.standard.StringArgument;
 import cloud.commandframework.bukkit.BukkitCommandManager;
 import cloud.commandframework.exceptions.ArgumentParseException;
 import cloud.commandframework.exceptions.InvalidSyntaxException;
-import cloud.commandframework.execution.AsynchronousCommandExecutionCoordinator;
 import cloud.commandframework.execution.CommandExecutionCoordinator;
 import cloud.commandframework.execution.CommandExecutionHandler;
 import cloud.commandframework.meta.CommandMeta;
@@ -79,6 +78,7 @@ public final class Chatty extends JavaPlugin {
     private NotificationTicker notificationTicker;
     private BukkitCommandManager<CommandSender> syncCommandManager;
     private BukkitCommandManager<CommandSender> asyncCommandManager;
+    private BukkitAudiences audiences;
 
     private ProxyingCommandSuggestionsProvider<CommandSender> commandSuggestionsProvider;
 
@@ -92,6 +92,7 @@ public final class Chatty extends JavaPlugin {
             getLogger().log(Level.WARNING, "Found legacy \"config.yml\" file in plugin directory. \"Chatty\" folder was renamed to \"{0}\".", backupFolderName);
         }
 
+        logServerCompatibility();
         initialize();
         registerChattyCommand();
     }
@@ -140,7 +141,6 @@ public final class Chatty extends JavaPlugin {
     }
 
     private void initialize() throws Exception {
-        BukkitAudiences audiences;
         if (isUseNativeAdventurePlatform()) {
             getLogger().log(Level.INFO, "Using native Adventure audience provider");
             audiences = new NativeBukkitAudienceProvider();
@@ -148,6 +148,7 @@ public final class Chatty extends JavaPlugin {
             getLogger().log(Level.INFO, "Using bundled Adventure audience provider");
             audiences = BukkitAudiences.create(this);
         }
+        this.audiences = audiences;
 
         ChattyInitEvent initEvent = new ChattyInitEvent(audiences);
         getServer().getPluginManager().callEvent(initEvent);
@@ -165,10 +166,32 @@ public final class Chatty extends JavaPlugin {
             getLogger().log(Level.WARNING, "Cannot use monitor priority for listener. HIGHEST priority usage will be forced");
         }
 
-        LegacyEventExecutor chatListener = injector.getInstance(LegacyEventExecutor.class);
+        if (PaperUtil.isPaper()) {
+            getLogger().info("Paper detected. Using modern AsyncChatEvent listener.");
+            try {
+                Class<?> modernClass = Class.forName("ru.brikster.chatty.chat.executor.ModernEventExecutor");
+                org.bukkit.event.Listener modernListener = (org.bukkit.event.Listener) injector.getInstance(modernClass);
+                this.getServer().getPluginManager().registerEvents(modernListener, this);
 
-        this.getServer().getPluginManager().registerEvents(chatListener, this);
-        this.getServer().getPluginManager().registerEvent(AsyncPlayerChatEvent.class, chatListener, priority, chatListener, this, true);
+                Class<? extends org.bukkit.event.Event> asyncChatEventClass = Class.forName("io.papermc.paper.event.player.AsyncChatEvent").asSubclass(org.bukkit.event.Event.class);
+
+                this.getServer().getPluginManager().registerEvent(asyncChatEventClass, modernListener, priority, (listener, event) -> {
+                    if (asyncChatEventClass.isInstance(event)) {
+                        try {
+                            modernClass.getMethod("onChat", asyncChatEventClass).invoke(listener, event);
+                        } catch (Exception e) {
+                            getLogger().log(Level.SEVERE, "Error invoking ModernEventExecutor.onChat", e);
+                        }
+                    }
+                }, this, true);
+            } catch (Exception e) {
+                getLogger().log(Level.SEVERE, "Failed to register modern chat listener", e);
+            }
+        } else {
+            LegacyEventExecutor chatListener = injector.getInstance(LegacyEventExecutor.class);
+            this.getServer().getPluginManager().registerEvents(chatListener, this);
+            this.getServer().getPluginManager().registerEvent(AsyncPlayerChatEvent.class, chatListener, priority, chatListener, this, true);
+        }
 
         VanillaListener miscListener = injector.getInstance(VanillaListener.class);
         this.getServer().getPluginManager().registerEvents(miscListener, this);
@@ -226,23 +249,36 @@ public final class Chatty extends JavaPlugin {
     }
 
     private void closeResources() throws IOException {
-        if (!isUseNativeAdventurePlatform()) {
-            BukkitAudiences.create(this).close();
+        if (audiences != null) {
+            audiences.close();
+            audiences = null;
         }
-        injector.getInstance(PlayerDataRepository.class).close();
-        injector.getInstance(ProxyService.class).close();
-        EventUtil.unregisterListeners(PlayerJoinEvent.class, this);
-        EventUtil.unregisterListeners(PlayerQuitEvent.class, this);
-        EventUtil.unregisterListeners(PlayerDeathEvent.class, this);
-        EventUtil.unregisterListeners(AsyncPlayerChatEvent.class, this);
-        notificationTicker.cancelTicking();
+        if (injector != null) {
+            injector.getInstance(PlayerDataRepository.class).close();
+            injector.getInstance(ProxyService.class).close();
+        }
+        try {
+            EventUtil.unregisterListeners(PlayerJoinEvent.class, this);
+            EventUtil.unregisterListeners(PlayerQuitEvent.class, this);
+            EventUtil.unregisterListeners(PlayerDeathEvent.class, this);
+            EventUtil.unregisterListeners(AsyncPlayerChatEvent.class, this);
+            if (PaperUtil.isPaper()) {
+                try {
+                    Class<? extends org.bukkit.event.Event> asyncChatEventClass = Class.forName("io.papermc.paper.event.player.AsyncChatEvent").asSubclass(org.bukkit.event.Event.class);
+                    EventUtil.unregisterListeners(asyncChatEventClass, this);
+                } catch (ClassNotFoundException ignored) {}
+            }
+        } catch (RuntimeException e) {
+            getLogger().log(Level.WARNING, "Failed to unregister listeners cleanly", e);
+        }
+        if (notificationTicker != null) {
+            notificationTicker.cancelTicking();
+        }
     }
 
     private void initAsyncCommandManager() throws Exception {
         this.asyncCommandManager = new BukkitCommandManager<>(this,
-                AsynchronousCommandExecutionCoordinator.<CommandSender>builder()
-                        .withAsynchronousParsing()
-                        .build(),
+                CommandExecutionCoordinator.simpleCoordinator(),
                 Function.identity(),
                 Function.identity());
 
@@ -294,6 +330,7 @@ public final class Chatty extends JavaPlugin {
     private void registerIgnoreCommand(CommandSuggestionsProvider<CommandSender> pmSuggestionsProvider) {
         Builder<CommandSender> ignoreCommandBuilder = asyncCommandManager
                  .commandBuilder("ignore")
+                 .senderType(Player.class)
                  .permission("chatty.command.ignore");
 
         Command<CommandSender> ignoreAddCommand = ignoreCommandBuilder
@@ -369,6 +406,9 @@ public final class Chatty extends JavaPlugin {
     }
 
     private static void unregisterAllCommands(BukkitCommandManager<CommandSender> commandManager) {
+        if (commandManager == null) {
+            return;
+        }
         for (Node<CommandArgument<CommandSender, ?>> node : commandManager.commandTree().getRootNodes()) {
             //noinspection DataFlowIssue
             commandManager.deleteRootCommand(node.getValue().getName());
@@ -377,6 +417,72 @@ public final class Chatty extends JavaPlugin {
 
     private static boolean isUseNativeAdventurePlatform() {
         return PaperUtil.isPaper() && PaperUtil.isSupportAdventure();
+    }
+
+    private void logServerCompatibility() {
+        String targetVersion = BuildConstants.TARGET_MINECRAFT_VERSION;
+        String runningVersion = Bukkit.getMinecraftVersion();
+        if (targetVersion == null || targetVersion.isBlank()) {
+            return;
+        }
+        if (runningVersion == null || runningVersion.isBlank()) {
+            getLogger().log(Level.INFO, "Chatty targets Minecraft {0}.", targetVersion);
+            return;
+        }
+
+        int comparison = compareMinecraftVersions(runningVersion, targetVersion);
+        if (comparison < 0) {
+            getLogger().log(Level.WARNING, "Chatty targets Minecraft {0} but the server is {1}. Some features may not work.",
+                    new Object[] {targetVersion, runningVersion});
+        } else if (comparison > 0) {
+            getLogger().log(Level.INFO, "Chatty targets Minecraft {0}. You are running {1}; report issues if you see regressions.",
+                    new Object[] {targetVersion, runningVersion});
+        } else {
+            getLogger().log(Level.INFO, "Chatty targets Minecraft {0}.", targetVersion);
+        }
+    }
+
+    private static int compareMinecraftVersions(String left, String right) {
+        int[] leftParts = parseMinecraftVersion(left);
+        int[] rightParts = parseMinecraftVersion(right);
+        int max = Math.max(leftParts.length, rightParts.length);
+        for (int i = 0; i < max; i++) {
+            int leftValue = i < leftParts.length ? leftParts[i] : 0;
+            int rightValue = i < rightParts.length ? rightParts[i] : 0;
+            if (leftValue != rightValue) {
+                return Integer.compare(leftValue, rightValue);
+            }
+        }
+        return 0;
+    }
+
+    private static int[] parseMinecraftVersion(String version) {
+        if (version == null) {
+            return new int[0];
+        }
+        String trimmed = version.trim();
+        int end = 0;
+        while (end < trimmed.length()) {
+            char c = trimmed.charAt(end);
+            if ((c >= '0' && c <= '9') || c == '.') {
+                end++;
+            } else {
+                break;
+            }
+        }
+        if (end == 0) {
+            return new int[0];
+        }
+        String[] parts = trimmed.substring(0, end).split("\\.");
+        int[] numbers = new int[parts.length];
+        for (int i = 0; i < parts.length; i++) {
+            try {
+                numbers[i] = Integer.parseInt(parts[i]);
+            } catch (NumberFormatException ignored) {
+                numbers[i] = 0;
+            }
+        }
+        return numbers;
     }
 
 }

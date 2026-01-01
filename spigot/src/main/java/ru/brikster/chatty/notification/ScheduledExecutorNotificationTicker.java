@@ -1,8 +1,8 @@
 package ru.brikster.chatty.notification;
 
 import javax.inject.Singleton;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -14,7 +14,7 @@ public final class ScheduledExecutorNotificationTicker implements NotificationTi
     private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
     private ScheduledFuture<?> future;
 
-    private final List<Notification> notificationList = new ArrayList<>();
+    private final List<Notification> notificationList = new CopyOnWriteArrayList<>();
 
     @Override
     public void addNotification(Notification notification) {
@@ -28,7 +28,10 @@ public final class ScheduledExecutorNotificationTicker implements NotificationTi
 
     @Override
     public void startTicking() {
-        this.future = executor.scheduleAtFixedRate(() -> {
+        if (future != null) {
+            future.cancel(false);
+        }
+        future = executor.scheduleAtFixedRate(() -> {
             try {
                 for (Notification notification : notificationList) {
                     notification.tick();
@@ -42,7 +45,10 @@ public final class ScheduledExecutorNotificationTicker implements NotificationTi
 
     @Override
     public void cancelTicking() {
-        future.cancel(false);
+        if (future != null) {
+            future.cancel(false);
+            future = null;
+        }
     }
 
 }

@@ -11,10 +11,15 @@ public class PaperUtil {
     public boolean isPaper() {
         if (IS_PAPER != null) return IS_PAPER;
         try {
-            Class.forName("com.destroystokyo.paper.PaperConfig");
+            Class.forName("io.papermc.paper.configuration.GlobalConfiguration");
             IS_PAPER = true;
-        } catch (Throwable t) {
-            IS_PAPER = false;
+        } catch (ClassNotFoundException e) {
+            try {
+                Class.forName("com.destroystokyo.paper.PaperConfig");
+                IS_PAPER = true;
+            } catch (ClassNotFoundException ignored) {
+                IS_PAPER = false;
+            }
         }
         return IS_PAPER;
     }

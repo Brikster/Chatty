@@ -11,7 +11,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Predicate;
 
@@ -43,8 +42,8 @@ public final class NativeBukkitAudienceProvider implements BukkitAudiences {
 
     @Override
     public @NotNull Audience player(@NotNull UUID playerId) {
-        return new NativeAudienceAdapter(Objects.requireNonNull(Bukkit.getPlayer(playerId),
-                "Cannot find player"));
+        Player player = Bukkit.getPlayer(playerId);
+        return player == null ? Audience.empty() : new NativeAudienceAdapter(player);
     }
 
     @Override

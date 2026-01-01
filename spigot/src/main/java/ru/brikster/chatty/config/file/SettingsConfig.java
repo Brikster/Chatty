@@ -97,11 +97,22 @@ public class SettingsConfig extends OkaeriConfig {
             "Helpful for enabling in-game ignore feature, but may cause newer client CRASHES"})
     private boolean sendIdentifiedMessages = false;
 
+    @Comment({"",
+            "Use Paper's AsyncChatEvent renderer to deliver chat messages.",
+            "This keeps chat in Paper's pipeline and improves compatibility with other chat viewers.",
+            "If false, Chatty sends messages directly (system messages)."})
+    private boolean usePaperChatRenderer = true;
+
     @Comment({"", "Enable debug messages"})
     private boolean debug = false;
 
     @Comment({"", "Enable bStats metrics (anonymous)"})
     private boolean sendMetrics = true;
+
+    @Comment({"",
+            "Allow MiniMessage tags in PlaceholderAPI outputs.",
+            "If false, placeholders are treated as legacy text only."})
+    private boolean allowPlaceholderMiniMessage = false;
 
     public enum RelationalPlaceholdersOrder {
         SENDER_AND_TARGET,

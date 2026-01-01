@@ -12,6 +12,7 @@ import ru.brikster.chatty.config.file.ModerationConfig;
 import ru.brikster.chatty.config.file.ModerationConfig.CapsModerationConfig;
 
 import javax.inject.Inject;
+import java.util.Locale;
 
 @Singleton
 public final class CapsModerationStrategy implements MessageTransformStrategy<String> {
@@ -45,9 +46,9 @@ public final class CapsModerationStrategy implements MessageTransformStrategy<St
 
         String message = context.getMessage();
 
-        if (message.length() >= length
+            if (message.length() >= length
                 && calculateUppercasePercent(message) >= percent) {
-            message = message.toLowerCase();
+            message = message.toLowerCase(Locale.ROOT);
 
             audiences.player(context.getSender()).sendMessage(messages.getCapsFound());
 
@@ -81,6 +82,9 @@ public final class CapsModerationStrategy implements MessageTransformStrategy<St
                     capsLength++;
                 }
             }
+        }
+        if (totalLength == 0) {
+            return 0;
         }
         return (int) ((double) capsLength / (double) totalLength * 100);
     }

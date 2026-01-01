@@ -6,6 +6,9 @@ import ru.brikster.chatty.chat.registry.ChatRegistry;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.function.Predicate;
 
 @Singleton
@@ -17,24 +20,33 @@ public final class ChatSelectorImpl implements ChatSelector {
     @Override
     public @Nullable Chat selectChat(String message, Predicate<Chat> allowedPredicate) {
         // TODO maybe add chats priorities ?
+        List<Chat> chats = new ArrayList<>(registry.getChats().values());
+        chats.sort(Comparator.comparing(Chat::getId));
+
         Chat selected = null;
-        for (Chat chat : registry.getChats().values()) {
+        Chat fallback = null;
+        int selectedSymbolLength = -1;
+
+        for (Chat chat : chats) {
             if (!allowedPredicate.test(chat)) {
                 continue;
             }
 
-            if (chat.getSymbol().isEmpty()
-                    && (selected == null || selected.getSymbol().isEmpty())) {
-                selected = chat;
+            String symbol = chat.getSymbol();
+            if (symbol.isEmpty()) {
+                if (fallback == null) {
+                    fallback = chat;
+                }
                 continue;
             }
 
-            if (!chat.getSymbol().isEmpty() && message.startsWith(chat.getSymbol())) {
+            if (message.startsWith(symbol) && symbol.length() > selectedSymbolLength) {
                 selected = chat;
+                selectedSymbolLength = symbol.length();
             }
         }
 
-        return selected;
+        return selected != null ? selected : fallback;
     }
 
 }

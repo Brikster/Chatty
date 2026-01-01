@@ -8,14 +8,14 @@ import ru.brikster.chatty.api.chat.message.strategy.MessageTransformStrategy.Sta
 import ru.brikster.chatty.api.chat.message.strategy.MessageTransformStrategy.TransformRule;
 import ru.brikster.chatty.api.chat.message.strategy.result.MessageTransformResult;
 import ru.brikster.chatty.chat.message.transform.result.MessageTransformResultImpl;
+import ru.brikster.chatty.chat.message.transform.result.MessageTransformResultBuilder;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Singleton
 public final class MessageTransformStrategiesProcessorImpl implements MessageTransformStrategiesProcessor {
@@ -25,6 +25,9 @@ public final class MessageTransformStrategiesProcessorImpl implements MessageTra
 
     @Override
     public <MessageT> @NotNull MessageTransformResult<MessageT> handle(MessageContext<MessageT> context, Stage stage) {
+        if (context.getChat() == null) {
+            return MessageTransformResultBuilder.<MessageT>fromContext(context).build();
+        }
         MessageContext<?> newContext = context;
 
         List<Player> removedRecipients = new ArrayList<>();
@@ -34,9 +37,14 @@ public final class MessageTransformStrategiesProcessorImpl implements MessageTra
         boolean messageUpdated = false;
         boolean becameCancelled = false;
 
-        List<MessageTransformStrategy<?>> strategies = Stream.concat(this.strategies.stream(), context.getChat().getStrategies().stream())
+        List<MessageTransformStrategy<?>> strategies = new ArrayList<>();
+        this.strategies.stream()
                 .filter(strategy -> strategy.getStage() == stage)
-                .collect(Collectors.toList());
+                .sorted(Comparator.comparing(strategy -> strategy.getClass().getName()))
+                .forEach(strategies::add);
+        context.getChat().getStrategies().stream()
+                .filter(strategy -> strategy.getStage() == stage)
+                .forEach(strategies::add);
 
         for (MessageTransformStrategy<?> strategy : strategies) {
             @SuppressWarnings({"rawtypes", "unchecked"})

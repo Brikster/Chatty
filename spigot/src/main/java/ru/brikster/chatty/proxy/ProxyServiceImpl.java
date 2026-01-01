@@ -5,7 +5,6 @@ import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.bukkit.Bukkit;
-import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
@@ -15,6 +14,7 @@ import org.redisson.api.RMapCache;
 import org.redisson.api.RTopic;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
+import org.bukkit.scheduler.BukkitTask;
 import ru.brikster.chatty.api.chat.Chat;
 import ru.brikster.chatty.api.chat.ChatStyle;
 import ru.brikster.chatty.chat.registry.ChatRegistry;
@@ -29,11 +29,10 @@ import ru.brikster.chatty.repository.player.PlayerDataRepository;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Collection;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -48,7 +47,8 @@ public final class ProxyServiceImpl implements ProxyService {
     private final RMapCache<String, String> pmReplyCache;
     private final RTopic chatTopic;
     private final RTopic pmTopic;
-    private final ScheduledExecutorService scheduledExecutor;
+    private final RedissonClient redissonClient;
+    private BukkitTask presenceTask;
 
     @Inject
     public ProxyServiceImpl(Config redissonConfig,
@@ -58,92 +58,101 @@ public final class ProxyServiceImpl implements ProxyService {
                             ChatStylePlayerGrouper stylePlayerGrouper,
                             PlayerDataRepository playerDataRepository,
                             Plugin plugin) {
-        RedissonClient redissonClient = Redisson.create(redissonConfig);
-        this.playersCache = redissonClient.getMapCache("chatty_players");
-        this.pmReplyCache = redissonClient.getMapCache("chatty_pm_reply");
-        this.chatTopic = redissonClient.getTopic("chatty_chat");
-        this.pmTopic = redissonClient.getTopic("chatty_pm");
+        this.redissonClient = Redisson.create(redissonConfig);
+        this.playersCache = this.redissonClient.getMapCache("chatty_players");
+        this.pmReplyCache = this.redissonClient.getMapCache("chatty_pm_reply");
+        this.chatTopic = this.redissonClient.getTopic("chatty_chat");
+        this.pmTopic = this.redissonClient.getTopic("chatty_pm");
 
         chatTopic.addListener(ChatMessage.class, (channel, redisMessage) -> {
             if (redisMessage.getClientId().equals(clientId)) return;
-
-            Chat chat = chatRegistry.getChats().get(redisMessage.getChatId());
-            if (chat.getRange() > -3) return; // not cross-proxy chat
-
-            Component noStyleComponent = GSON_COMPONENT_SERIALIZER.deserialize(redisMessage.getNoStyleComponentJson());
-
-            var recipients = chat.calculateRecipients(null);
-
-            Set<ChatStyle> styles = redisMessage.getStyleComponentJsonMap()
-                    .entrySet()
-                    .stream()
-                    .map(entry -> new ChatStyle(entry.getKey(),
-                            GSON_COMPONENT_SERIALIZER.deserialize(entry.getValue().getComponentJson()),
-                            entry.getValue().getMessageFormat(),
-                            entry.getValue().getPriority()))
-                    .collect(Collectors.toSet());
-
-            Grouping grouping = stylePlayerGrouper.makeGrouping(recipients, styles, null, null);
-
-            Sound sound = redisMessage.getSound();
-
-            for (Player noStylePlayer : grouping.getNoStylePlayers()) {
-                var playerAudience = audiences.player(noStylePlayer);
-                playerAudience.sendMessage(noStyleComponent);
-                if (sound != null) {
-                    playerAudience.playSound(sound);
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                Chat chat = chatRegistry.getChats().get(redisMessage.getChatId());
+                if (chat == null) {
+                    return;
                 }
-            }
+                if (chat.getRange() > -3) return; // not cross-proxy chat
 
-            grouping.getStylesMap().forEach((style, players) -> {
-                for (Player player : players) {
-                    var playerAudience = audiences.player(player);
-                    playerAudience.sendMessage(style.format());
+                Component noStyleComponent = GSON_COMPONENT_SERIALIZER.deserialize(redisMessage.getNoStyleComponentJson());
+
+                var recipients = chat.calculateRecipients(null);
+
+                Set<ChatStyle> styles = redisMessage.getStyleComponentJsonMap()
+                        .entrySet()
+                        .stream()
+                        .map(entry -> new ChatStyle(entry.getKey(),
+                                GSON_COMPONENT_SERIALIZER.deserialize(entry.getValue().getComponentJson()),
+                                entry.getValue().getMessageFormat(),
+                                entry.getValue().getPriority()))
+                        .collect(Collectors.toSet());
+
+                Grouping grouping = stylePlayerGrouper.makeGrouping(recipients, styles, null, null);
+
+                Sound sound = redisMessage.getSound();
+
+                for (Player noStylePlayer : grouping.getNoStylePlayers()) {
+                    var playerAudience = audiences.player(noStylePlayer);
+                    playerAudience.sendMessage(noStyleComponent);
                     if (sound != null) {
                         playerAudience.playSound(sound);
                     }
                 }
-            });
 
-            audiences.console().sendMessage(noStyleComponent);
+                grouping.getStylesMap().forEach((style, players) -> {
+                    for (Player player : players) {
+                        var playerAudience = audiences.player(player);
+                        playerAudience.sendMessage(style.format());
+                        if (sound != null) {
+                            playerAudience.playSound(sound);
+                        }
+                    }
+                });
+
+                audiences.console().sendMessage(noStyleComponent);
+            });
         });
 
         if (pmConfig.isEnable()) {
             pmTopic.addListener(PrivateMessage.class, (channel, redisMessage) -> {
                 if (redisMessage.getClientId().equals(clientId)) return;
+                Bukkit.getScheduler().runTask(plugin, () -> {
+                    if (redisMessage.getSpyComponentJson() != null) {
+                        Component spyMessage = GSON_COMPONENT_SERIALIZER.deserialize(redisMessage.getSpyComponentJson());
+                        audiences.filter(spyCandidate ->
+                                        spyCandidate instanceof Player
+                                                && spyCandidate.hasPermission("chatty.spy.pm")
+                                                && playerDataRepository.isEnableSpy(((Player) spyCandidate).getUniqueId())
+                                                && !spyCandidate.getName().equalsIgnoreCase(redisMessage.getTargetName()))
+                                .sendMessage(spyMessage);
+                    }
 
-                if (redisMessage.getSpyComponentJson() != null) {
-                    Component spyMessage = GSON_COMPONENT_SERIALIZER.deserialize(redisMessage.getSpyComponentJson());
-                    audiences.filter(spyCandidate ->
-                                    spyCandidate.hasPermission("chatty.spy.pm")
-                                            && !(spyCandidate instanceof ConsoleCommandSender)
-                                            && playerDataRepository.isEnableSpy(((Player) spyCandidate).getUniqueId())
-                                            && !spyCandidate.getName().equalsIgnoreCase(redisMessage.getTargetName()))
-                            .sendMessage(spyMessage);
-                }
+                    Player targetPlayer = Bukkit.getPlayerExact(redisMessage.getTargetName());
+                    if (targetPlayer == null) return;
 
-                Player targetPlayer = Bukkit.getPlayerExact(redisMessage.getTargetName());
-                if (targetPlayer == null) return;
+                    Component message = GSON_COMPONENT_SERIALIZER.deserialize(redisMessage.getComponentJson());
 
-                Component message = GSON_COMPONENT_SERIALIZER.deserialize(redisMessage.getComponentJson());
+                    var targetPlayerAudience = audiences.player(targetPlayer);
 
-                var targetPlayerAudience = audiences.player(targetPlayer);
+                    targetPlayerAudience.sendMessage(message);
+                    if (pmConfig.isPlaySound()) {
+                        targetPlayerAudience.playSound(pmConfig.getSound());
+                    }
 
-                targetPlayerAudience.sendMessage(message);
-                if (pmConfig.isPlaySound()) {
-                    targetPlayerAudience.playSound(pmConfig.getSound());
-                }
-
-                plugin.getLogger().info(redisMessage.getLogMessage());
+                    plugin.getLogger().info(redisMessage.getLogMessage());
+                });
             });
         }
 
-        this.scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
-        this.scheduledExecutor.scheduleWithFixedDelay(() -> {
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                playersCache.put(player.getName().toLowerCase(), new ProxyPlayer(player.getName(), player.getUniqueId()), 8, TimeUnit.SECONDS);
-            }
-        }, 0, 5, TimeUnit.SECONDS);
+        this.presenceTask = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+            var snapshot = Bukkit.getOnlinePlayers().stream()
+                    .map(player -> new ProxyPlayer(player.getName(), player.getUniqueId()))
+                    .collect(Collectors.toList());
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                for (ProxyPlayer player : snapshot) {
+                    playersCache.put(player.getUsername().toLowerCase(Locale.ROOT), player, 8, TimeUnit.SECONDS);
+                }
+            });
+        }, 0L, 100L);
     }
 
     @Override
@@ -157,19 +166,19 @@ public final class ProxyServiceImpl implements ProxyService {
 
     @Override
     public @Nullable UUID getUuidByUsername(@NotNull String username) {
-        ProxyPlayer player = playersCache.get(username.toLowerCase());
+        ProxyPlayer player = playersCache.get(username.toLowerCase(Locale.ROOT));
         if (player != null) return player.getUuid();
         return null;
     }
 
     @Override
     public void addConversation(@NotNull String firstSender, @NotNull String secondSender) {
-        pmReplyCache.put(firstSender.toLowerCase(), secondSender.toLowerCase(), 10, TimeUnit.MINUTES);
+        pmReplyCache.put(firstSender.toLowerCase(Locale.ROOT), secondSender.toLowerCase(Locale.ROOT), 10, TimeUnit.MINUTES);
     }
 
     @Override
     public @Nullable String getLastConversation(@NotNull String sender) {
-        String playerName = pmReplyCache.get(sender.toLowerCase());
+        String playerName = pmReplyCache.get(sender.toLowerCase(Locale.ROOT));
 
         if (playerName == null) return null;
         ProxyPlayer proxyPlayer = playersCache.get(playerName);
@@ -180,7 +189,7 @@ public final class ProxyServiceImpl implements ProxyService {
 
     @Override
     public boolean isOnline(@NotNull String playerName) {
-        return playersCache.containsKey(playerName.toLowerCase());
+        return playersCache.containsKey(playerName.toLowerCase(Locale.ROOT));
     }
 
     @Override
@@ -210,9 +219,13 @@ public final class ProxyServiceImpl implements ProxyService {
 
     @Override
     public void close() {
-        this.scheduledExecutor.shutdown();
+        if (presenceTask != null) {
+            presenceTask.cancel();
+            presenceTask = null;
+        }
         this.chatTopic.removeAllListeners();
         this.pmTopic.removeAllListeners();
+        this.redissonClient.shutdown();
     }
 
 }

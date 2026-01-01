@@ -14,6 +14,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 
 @UtilityClass
 public class EventUtil {
@@ -24,21 +25,30 @@ public class EventUtil {
             .build();
 
     @SneakyThrows
-    public void callAsynchronously(Event event) {
-        if (Bukkit.isPrimaryThread()) {
-            Throwable throwable = CompletableFuture
-                    .supplyAsync(() -> {
-                        Bukkit.getPluginManager().callEvent(event);
-                        return (Throwable) null;
-                    })
-                    .exceptionally(t -> t)
-                    .join();
-            if (throwable != null) {
-                throw throwable;
-            }
-            return;
-        }
+    public void callAsynchronously(Plugin plugin, Event event) {
         Bukkit.getPluginManager().callEvent(event);
+    }
+
+    public void callSynchronously(Plugin plugin, Runnable runnable) {
+        callSynchronously(plugin, () -> {
+            runnable.run();
+            return null;
+        });
+    }
+
+    public <T> T callSynchronously(Plugin plugin, Supplier<T> supplier) {
+        if (Bukkit.isPrimaryThread()) {
+            return supplier.get();
+        }
+        CompletableFuture<T> future = new CompletableFuture<>();
+        Bukkit.getScheduler().runTask(plugin, () -> {
+            try {
+                future.complete(supplier.get());
+            } catch (Throwable t) {
+                future.completeExceptionally(t);
+            }
+        });
+        return future.join();
     }
 
     public void unregisterListeners(Class<?> eventClass, Plugin plugin) {

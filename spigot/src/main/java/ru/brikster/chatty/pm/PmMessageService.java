@@ -74,7 +74,10 @@ public class PmMessageService {
         if (target == null) {
             for (String onlinePlayerName : proxyService.getOnlinePlayers()) {
                 if (onlinePlayerName.equalsIgnoreCase(targetName)) {
-                    return new RemotePmMessageTarget(onlinePlayerName, proxyService.getUuidByUsername(onlinePlayerName));
+                    var uuid = proxyService.getUuidByUsername(onlinePlayerName);
+                    if (uuid != null) {
+                        return new RemotePmMessageTarget(onlinePlayerName, uuid);
+                    }
                 }
             }
         }
@@ -110,7 +113,7 @@ public class PmMessageService {
 
     public @NotNull Component formatFromPlaceholders(@NotNull Component component, @NotNull CommandSender sender) {
         Component updatedComponent;
-        if (sender instanceof ConsoleCommandSender) {
+        if (sender instanceof ConsoleCommandSender || !(sender instanceof OfflinePlayer)) {
             updatedComponent = component
                     .replaceText(AdventureUtil.createReplacement("{from-prefix}", ""))
                     .replaceText(AdventureUtil.createReplacement("{from-suffix}", ""))
@@ -172,7 +175,10 @@ public class PmMessageService {
 
         if (target == null && proxyConfig.isEnable()) {
             if (proxyService.isOnline(targetName)) {
-                return new RemotePmMessageTarget(targetName, proxyService.getUuidByUsername(targetName));
+                var uuid = proxyService.getUuidByUsername(targetName);
+                if (uuid != null) {
+                    return new RemotePmMessageTarget(targetName, uuid);
+                }
             }
         }
 

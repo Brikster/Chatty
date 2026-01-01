@@ -1,18 +1,15 @@
 package ru.brikster.chatty.chat.executor;
 
+import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.plugin.EventExecutor;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import ru.brikster.chatty.api.chat.Chat;
@@ -29,6 +26,7 @@ import ru.brikster.chatty.chat.selection.ChatSelector;
 import ru.brikster.chatty.chat.style.ChatStylePlayerGrouper;
 import ru.brikster.chatty.config.file.MessagesConfig;
 import ru.brikster.chatty.config.file.SettingsConfig;
+import ru.brikster.chatty.convert.component.ComponentStringConverter;
 import ru.brikster.chatty.proxy.ProxyService;
 import ru.brikster.chatty.util.EventUtil;
 
@@ -38,13 +36,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public final class LegacyEventExecutor implements Listener, EventExecutor {
+public final class ModernEventExecutor implements Listener {
 
-    private final Map<Integer, MessageContext<String>> pendingMessages = new ConcurrentHashMap<>();
+    private final Map<AsyncChatEvent, MessageContext<String>> pendingMessages = new ConcurrentHashMap<>();
 
     @Inject private ChatSelector selector;
     @Inject private ComponentFromContextConstructor componentFromContextConstructor;
@@ -56,16 +52,15 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
     @Inject private Logger logger;
     @Inject private ProxyService proxyService;
     @Inject private ChatStylePlayerGrouper chatStylePlayerGrouper;
+    @Inject private ComponentStringConverter componentStringConverter;
     @Inject private Plugin plugin;
 
-    @Override
-    public void execute(@NotNull Listener listener, @NotNull Event event) {
-        if (listener == this && event instanceof AsyncPlayerChatEvent) {
-            EventUtil.callSynchronously(plugin, () -> this.onChat((AsyncPlayerChatEvent) event));
-        }
+    // This method will be registered manually with the configured priority
+    public void onChat(AsyncChatEvent event) {
+        EventUtil.callSynchronously(plugin, () -> handleOnChat(event));
     }
 
-    private void onChat(AsyncPlayerChatEvent event) {
+    private void handleOnChat(AsyncChatEvent event) {
         int eventHashcode = System.identityHashCode(event);
         boolean processed = false;
 
@@ -76,12 +71,20 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
             MessageContext<String> earlyContext = processor.handle(unhandledEarlyContext, Stage.EARLY).getNewContext();
 
             if (!earlyContext.isCancelled()) {
-                event.getRecipients().clear();
-                event.getRecipients().addAll(earlyContext.getRecipients());
-                event.setMessage(earlyContext.getMessage());
+                var nonPlayerViewers = event.viewers().stream()
+                        .filter(viewer -> !(viewer instanceof Player))
+                        .collect(Collectors.toList());
+                event.viewers().clear();
+                event.viewers().addAll(nonPlayerViewers);
+                event.viewers().addAll(earlyContext.getRecipients());
+                try {
+                    event.message(componentStringConverter.stringToComponent(earlyContext.getMessage()));
+                } catch (Throwable t) {
+                    event.message(Component.text(earlyContext.getMessage()));
+                }
             }
 
-            pendingMessages.put(eventHashcode, earlyContext);
+            pendingMessages.put(event, earlyContext);
 
             long millisEnd = System.currentTimeMillis();
             long millisDelta = millisEnd - millisStart;
@@ -100,8 +103,10 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
         }
     }
 
-    private MessageContext<String> createEarlyContext(AsyncPlayerChatEvent event) {
-        Chat chat = selector.selectChat(event.getMessage(), chatCandidate ->
+    private MessageContext<String> createEarlyContext(AsyncChatEvent event) {
+        String message = componentStringConverter.componentToString(event.message());
+        
+        Chat chat = selector.selectChat(message, chatCandidate ->
                 !chatCandidate.isPermissionRequired() ||
                         chatCandidate.hasSymbolWritePermission(event.getPlayer()));
 
@@ -114,7 +119,9 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
         } else {
             if (settings.isRespectForeignRecipients()) {
                 Predicate<Player> playerPredicate = chat.getRecipientPredicate(event.getPlayer());
-                recipients = event.getRecipients().stream()
+                recipients = event.viewers().stream()
+                        .filter(audience -> audience instanceof Player)
+                        .map(audience -> (Player) audience)
                         .filter(playerPredicate)
                         .collect(Collectors.toList());
             } else {
@@ -130,24 +137,21 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
                 chat == null ? Component.text("") : chat.getFormat(),
                 chat == null ? "{original-message}" : chat.getMessageFormat(),
                 recipients,
-                event.getMessage(),
+                message,
                 null);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void handleFinishedEarlyContextEvent(AsyncPlayerChatEvent event) {
+    public void handleFinishedEarlyContextEvent(AsyncChatEvent event) {
         EventUtil.callSynchronously(plugin, () -> handleFinishedEarlyContextEventSync(event));
     }
 
-    private void handleFinishedEarlyContextEventSync(AsyncPlayerChatEvent event) {
+    private void handleFinishedEarlyContextEventSync(AsyncChatEvent event) {
         int eventHashcode = System.identityHashCode(event);
 
-        MessageContext<String> earlyContext = pendingMessages.remove(eventHashcode);
+        MessageContext<String> earlyContext = pendingMessages.remove(event);
         if (earlyContext == null) {
-            if (settings.isDebug()) {
-                logger.log(Level.WARNING, "Cannot handle unprocessed chat event from \"{0}\" with format \"{1}\" and message \"{2}\"",
-                        new Object[]{event.getPlayer().getName(), event.getFormat(), event.getMessage()});
-            }
+            // It might be that we didn't process it in onChat (e.g. cancelled before us?)
             return;
         }
 
@@ -157,11 +161,20 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
 
         if (event.isCancelled()) return;
 
-        earlyContext.setRecipients(new ArrayList<>(event.getRecipients()));
-        earlyContext.setMessage(event.getMessage());
+        // Update recipients from event viewers (in case other plugins changed it)
+        List<Player> currentRecipients = event.viewers().stream()
+                .filter(a -> a instanceof Player)
+                .map(a -> (Player) a)
+                .collect(Collectors.toList());
+        earlyContext.setRecipients(new ArrayList<>(currentRecipients));
+        
+        // Update message from event (in case other plugins changed it)
+        earlyContext.setMessage(componentStringConverter.componentToString(event.message()));
 
-        event.getRecipients().clear();
-
+        if (!settings.isUsePaperChatRenderer()) {
+            event.viewers().removeIf(viewer -> viewer instanceof Player);
+        }
+        
         boolean processed = false;
 
         try {
@@ -170,7 +183,6 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
             MessageContext<Component> earlyComponentContext = intermediateMessageTransformer.handle(earlyContext).getNewContext();
 
             if (PlainTextComponentSerializer.plainText().serialize(earlyComponentContext.getMessage()).isBlank()) {
-                // will be cancelled in finally block
                 return;
             }
 
@@ -215,23 +227,42 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
                 sendProxyMessage(middleContext);
             }
 
+            Map<UUID, Component> renderedMessages = settings.isUsePaperChatRenderer()
+                    ? new HashMap<>()
+                    : null;
+
             List<MessageContext<Component>> groupedByStyle = groupedByStyle(middleContext, styles);
+            Component[] consoleMessageHolder = new Component[1];
             for (int groupIndex = 0; groupIndex < groupedByStyle.size(); groupIndex++) {
                 MessageContext<Component> groupContext = groupedByStyle.get(groupIndex);
                 groupContext.getMetadata().put("all_recipients", middleContext.getRecipients());
 
                 MessageContext<Component> lateContext = processor.handle(groupContext, Stage.LATE).getNewContext();
-                sendProcessedMessage(lateContext, middleContext.getRecipients());
+                sendProcessedMessage(lateContext, middleContext.getRecipients(), renderedMessages);
 
-                // Format console message without style
                 if (groupIndex == 0) {
-                    String stringFormat = LegacyComponentSerializer.legacySection().serialize(lateContext.getFormat());
-                    String stringMessage = LegacyComponentSerializer.legacySection().serialize(lateContext.getMessage());
-                    stringFormat = stringFormat.replaceFirst(Pattern.quote("{player}"), Matcher.quoteReplacement(lateContext.getSender().getDisplayName()));
-                    stringFormat = stringFormat.replaceFirst(Pattern.quote("{message}"), Matcher.quoteReplacement(stringMessage));
-                    stringFormat = stringFormat.replace("%", "%%");
-                    event.setFormat(stringFormat);
-                    event.setMessage(stringMessage);
+                    consoleMessageHolder[0] = componentFromContextConstructor.construct(lateContext).compact();
+                }
+            }
+
+            if (consoleMessageHolder[0] != null) {
+                Component consoleMessage = consoleMessageHolder[0];
+                event.viewers().add(audiences.console());
+                if (settings.isUsePaperChatRenderer()) {
+                    Map<UUID, Component> finalRenderedMessages = renderedMessages == null
+                            ? Collections.emptyMap()
+                            : renderedMessages;
+                    event.renderer((source, sourceDisplayName, message, viewer) -> {
+                        if (viewer instanceof Player viewerPlayer) {
+                            Component personal = finalRenderedMessages.get(viewerPlayer.getUniqueId());
+                            if (personal != null) {
+                                return personal;
+                            }
+                        }
+                        return consoleMessage;
+                    });
+                } else {
+                    event.renderer((source, sourceDisplayName, message, viewer) -> consoleMessage);
                 }
             }
 
@@ -289,7 +320,7 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
         proxyService.sendChatMessage(chat, noStyleProxyMessage, proxyStyles, chat.getSound());
     }
 
-    private void sendNobodyHeardYou(AsyncPlayerChatEvent event, MessageContext<Component> middleContext) {
+    private void sendNobodyHeardYou(AsyncChatEvent event, MessageContext<Component> middleContext) {
         if (middleContext.getChat().isSendNobodyHeardYou()) {
             Set<Player> allowedRecipients = new HashSet<>();
             allowedRecipients.add(event.getPlayer());
@@ -347,8 +378,11 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
     }
 
     private void sendProcessedMessage(MessageContext<Component> lateContext,
-                                      Collection<? extends @NotNull Player> middleContextRecipients) {
-        Identity senderIdentity = Identity.identity(lateContext.getSender().getUniqueId());
+                                      Collection<? extends @NotNull Player> middleContextRecipients,
+                                      Map<UUID, Component> renderedMessages) {
+        Identity senderIdentity = renderedMessages == null && settings.isSendIdentifiedMessages()
+                ? Identity.identity(lateContext.getSender().getUniqueId())
+                : null;
         for (Player recipient : lateContext.getRecipients()) {
             MessageContext<Component> personalLateContext = new MessageContextImpl<>(lateContext);
             personalLateContext.getMetadata().put("all_recipients", middleContextRecipients);
@@ -359,8 +393,9 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
             MessageContext<Component> postContext = processor.handle(personalLateContext, Stage.POST).getNewContext();
 
             Component message = componentFromContextConstructor.construct(postContext).compact();
-            if (settings.isSendIdentifiedMessages()) {
-                //noinspection deprecation
+            if (renderedMessages != null) {
+                renderedMessages.put(recipient.getUniqueId(), message);
+            } else if (senderIdentity != null) {
                 audiences.player(recipient).sendMessage(senderIdentity, message);
             } else {
                 audiences.player(recipient).sendMessage(message);

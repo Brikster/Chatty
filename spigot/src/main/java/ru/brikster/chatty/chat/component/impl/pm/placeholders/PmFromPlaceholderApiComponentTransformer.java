@@ -1,6 +1,7 @@
 package ru.brikster.chatty.chat.component.impl.pm.placeholders;
 
 import ru.brikster.chatty.chat.component.impl.papi.AbstractPlaceholderApiComponentTransformer;
+import ru.brikster.chatty.config.file.SettingsConfig;
 import ru.brikster.chatty.convert.component.ComponentStringConverter;
 
 import javax.inject.Inject;
@@ -13,8 +14,9 @@ public final class PmFromPlaceholderApiComponentTransformer extends AbstractPlac
     private static final String FROM_PREFIX = Pattern.quote("%from:");
 
     @Inject
-    public PmFromPlaceholderApiComponentTransformer(ComponentStringConverter componentStringConverter) {
-        super(componentStringConverter, Pattern.compile("%from:([^%]+)%"), matchedString ->
+    public PmFromPlaceholderApiComponentTransformer(ComponentStringConverter componentStringConverter,
+                                                    SettingsConfig settingsConfig) {
+        super(componentStringConverter, settingsConfig, Pattern.compile("%from:([^%]+)%"), matchedString ->
                 matchedString.replaceFirst(FROM_PREFIX, "%"));
     }
 

@@ -2,10 +2,12 @@ package ru.brikster.chatty.chat.component.impl;
 
 import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.jetbrains.annotations.NotNull;
 import ru.brikster.chatty.Constants;
 import ru.brikster.chatty.chat.component.context.SinglePlayerTransformContext;
 import ru.brikster.chatty.config.file.ReplacementsConfig;
+import ru.brikster.chatty.config.file.SettingsConfig;
 import ru.brikster.chatty.convert.component.ComponentStringConverter;
 import ru.brikster.chatty.util.AdventureUtil;
 
@@ -18,6 +20,12 @@ public final class ReplacementsComponentTransformer implements PlaceholdersCompo
     private final ComponentStringConverter componentStringConverter;
     private final ReplacementsStringTransformer replacementsStringTransformer;
     private final Set<String> cycledReplacements;
+    private final SettingsConfig settingsConfig;
+
+    private static final LegacyComponentSerializer REPLACEMENTS_SERIALIZER = LegacyComponentSerializer.builder()
+            .character('&')
+            .hexColors()
+            .build();
 
     @Override
     public @NotNull Component transform(@NotNull Component formatComponent, @NotNull SinglePlayerTransformContext context) {
@@ -30,8 +38,11 @@ public final class ReplacementsComponentTransformer implements PlaceholdersCompo
             matches[0] = 0;
             componentWithReplacements = AdventureUtil.replaceWithEndingSpace(componentWithReplacements, Constants.REPLACEMENTS_PATTERN, matchedString -> {
                 String result = replace(matchedString, context);
-                Component component = componentStringConverter.stringToComponent(result + " ");
                 if (result != null) {
+                    Component component = settingsConfig.isAllowPlaceholderMiniMessage()
+                            ? componentStringConverter.stringToComponent(result)
+                            : REPLACEMENTS_SERIALIZER.deserialize(result.replace('§', '&'));
+                    component = component.append(Component.text(" "));
                     matches[0]++;
                     return component;
                 }
@@ -40,7 +51,9 @@ public final class ReplacementsComponentTransformer implements PlaceholdersCompo
                 String result = replace(matchedString, context);
                 if (result != null) {
                     matches[0]++;
-                    return result;
+                    return settingsConfig.isAllowPlaceholderMiniMessage()
+                            ? result
+                            : result.replace('§', '&');
                 }
                 return null;
             });
@@ -53,6 +66,9 @@ public final class ReplacementsComponentTransformer implements PlaceholdersCompo
         String replacementKey = matchedString.substring(3, matchedString.length() - 1);
         if (cycledReplacements.contains(replacementKey)) return null;
         String replacementText = replacementsConfig.getReplacements().get(replacementKey);
+        if (replacementText == null) {
+            return null;
+        }
         return replacementsStringTransformer.transform(context.getPlayer(), replacementText);
     }
 
