@@ -220,6 +220,9 @@ public final class NativeAudienceAdapter implements Audience {
             try {
                 return run();
             } catch (Throwable e) {
+                if (e instanceof RuntimeException) {
+                    throw (RuntimeException) e;
+                }
                 throw new RuntimeException(e);
             }
         }
