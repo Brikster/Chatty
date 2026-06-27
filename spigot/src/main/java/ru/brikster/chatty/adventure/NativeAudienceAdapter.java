@@ -31,7 +31,7 @@ public final class NativeAudienceAdapter implements Audience {
                     .maximumSize(1024)
                     .build();
 
-    private static final String NET_KYORI_ADVENTURE = "net.".concat("kyori.adventure.");
+    private static final String NET_KYORI_ADVENTURE = "net.kyori.adventure.";
     private static final String AUDIENCE_CLASS_NAME = NET_KYORI_ADVENTURE.concat("audience.Audience");
     private static final String COMPONENT_CLASS_NAME = NET_KYORI_ADVENTURE.concat("text.Component");
     private static final String IDENTITY_CLASS_NAME = NET_KYORI_ADVENTURE.concat("identity.Identity");
@@ -90,8 +90,14 @@ public final class NativeAudienceAdapter implements Audience {
 
             SEND_MESSAGE_METHOD = LOOKUP.findVirtual(audienceClass, "sendMessage",
                     MethodType.methodType(void.class, componentClass));
-            SEND_MESSAGE_WITH_IDENTITY_METHOD = LOOKUP.findVirtual(audienceClass, "sendMessage",
-                    MethodType.methodType(void.class, identityClass, componentClass));
+            MethodHandle sendMessageWithIdentity;
+            try {
+                sendMessageWithIdentity = LOOKUP.findVirtual(audienceClass, "sendMessage",
+                        MethodType.methodType(void.class, identityClass, componentClass));
+            } catch (NoSuchMethodException e) {
+                sendMessageWithIdentity = null;
+            }
+            SEND_MESSAGE_WITH_IDENTITY_METHOD = sendMessageWithIdentity;
             SEND_ACTION_BAR_METHOD = LOOKUP.findVirtual(audienceClass, "sendActionBar",
                     MethodType.methodType(void.class, componentClass));
             PLAY_SOUND_METHOD = LOOKUP.findVirtual(audienceClass, "playSound",
@@ -142,6 +148,10 @@ public final class NativeAudienceAdapter implements Audience {
     @SuppressWarnings("deprecation")
     @Override
     public void sendMessage(@NotNull Identity source, @NotNull Component message) {
+        if (SEND_MESSAGE_WITH_IDENTITY_METHOD == null) {
+            sendMessage(message);
+            return;
+        }
         Object identity = getCachedOrConvert(source, () -> IDENTITY_FACTORY_METHOD.invoke(source.uuid()));
         Object convertedComponent = getCachedOrConvert(message, () -> convertComponent(message));
         SEND_MESSAGE_WITH_IDENTITY_METHOD.invoke(target, identity, convertedComponent);
