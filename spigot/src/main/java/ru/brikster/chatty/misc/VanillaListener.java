@@ -117,6 +117,7 @@ public final class VanillaListener implements Listener {
             return;
         }
         if (event.getEntity().hasMetadata("vanished")) {
+            event.setDeathMessage(null);
             return;
         }
 
