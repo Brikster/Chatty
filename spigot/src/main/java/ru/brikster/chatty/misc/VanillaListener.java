@@ -37,6 +37,7 @@ public final class VanillaListener implements Listener {
             return;
         }
         if (event.getPlayer().hasMetadata("vanished")) {
+            event.setJoinMessage(null);
             return;
         }
 
@@ -81,6 +82,7 @@ public final class VanillaListener implements Listener {
             return;
         }
         if (event.getPlayer().hasMetadata("vanished")) {
+            event.setQuitMessage(null);
             return;
         }
 
