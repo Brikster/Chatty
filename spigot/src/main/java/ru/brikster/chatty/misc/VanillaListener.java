@@ -36,7 +36,7 @@ public final class VanillaListener implements Listener {
         if (!joinConfig.isEnable()) {
             return;
         }
-        if (event.getPlayer().hasMetadata("vanished")) {
+        if (isVanished(event.getPlayer())) {
             event.setJoinMessage(null);
             return;
         }
@@ -81,7 +81,7 @@ public final class VanillaListener implements Listener {
         if (!quitConfig.isEnable()) {
             return;
         }
-        if (event.getPlayer().hasMetadata("vanished")) {
+        if (isVanished(event.getPlayer())) {
             event.setQuitMessage(null);
             return;
         }
@@ -116,7 +116,7 @@ public final class VanillaListener implements Listener {
         if (!deathConfig.isEnable()) {
             return;
         }
-        if (event.getEntity().hasMetadata("vanished")) {
+        if (isVanished(event.getEntity())) {
             event.setDeathMessage(null);
             return;
         }
@@ -155,6 +155,15 @@ public final class VanillaListener implements Listener {
         if (hasPermission && sound != null) {
             audiences.all().playSound(sound);
         }
+    }
+
+    private boolean isVanished(Player player) {
+        for (org.bukkit.metadata.MetadataValue meta : player.getMetadata("vanished")) {
+            if (meta.asBoolean()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private Component formatWithPlaceholders(Component message, Player player) {
