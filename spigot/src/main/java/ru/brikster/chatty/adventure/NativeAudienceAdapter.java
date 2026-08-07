@@ -31,7 +31,8 @@ public final class NativeAudienceAdapter implements Audience {
                     .maximumSize(1024)
                     .build();
 
-    private static final String NET_KYORI_ADVENTURE = "net.kyori.adventure.";
+    // concat it to avoid shadow relocate rule
+    private static final String NET_KYORI_ADVENTURE = "net.".concat("kyori.adventure.");
     private static final String AUDIENCE_CLASS_NAME = NET_KYORI_ADVENTURE.concat("audience.Audience");
     private static final String COMPONENT_CLASS_NAME = NET_KYORI_ADVENTURE.concat("text.Component");
     private static final String IDENTITY_CLASS_NAME = NET_KYORI_ADVENTURE.concat("identity.Identity");
