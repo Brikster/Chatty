@@ -66,6 +66,7 @@ import ru.brikster.chatty.util.PaperUtil;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -89,10 +90,19 @@ public final class Chatty extends JavaPlugin {
         Path dataFolderPath = Chatty.this.getDataFolder().toPath();
 
         Map<String, Object> legacyConfig = null;
+        String backupFolderName = null;
         if (Files.exists(dataFolderPath.resolve("config.yml"))) {
-            String backupFolderName = "Chatty_old_" + System.currentTimeMillis();
+            backupFolderName = "Chatty_old_" + System.currentTimeMillis();
             Path backupFolder = dataFolderPath.resolveSibling(backupFolderName);
-            Files.move(dataFolderPath, backupFolder);
+            try {
+                Files.move(dataFolderPath, backupFolder);
+            } catch (IOException e) {
+                getLogger().log(Level.SEVERE, "Could not move the plugin folder aside to \""
+                        + backupFolderName + "\" before migrating the legacy configuration."
+                        + " Chatty will not start, so your v2 files stay untouched.", e);
+                getServer().getPluginManager().disablePlugin(this);
+                return;
+            }
             getLogger().log(Level.WARNING, "Found legacy \"config.yml\" file in plugin directory. \"Chatty\" folder was renamed to \"{0}\".", backupFolderName);
             legacyConfig = V2ConfigMigrator.readLegacyConfig(backupFolder.resolve("config.yml"));
             if (legacyConfig == null) {
@@ -109,11 +119,41 @@ public final class Chatty extends JavaPlugin {
                 closeResources();
                 initialize();
             } catch (Throwable t) {
-                getLogger().log(Level.SEVERE, "Failed to migrate legacy configuration — using defaults", t);
+                getLogger().log(Level.SEVERE, "Failed to migrate the legacy configuration."
+                        + " Your v2 files are preserved in \"" + backupFolderName + "\": fix the problem"
+                        + " reported below, move its config.yml back into the plugin folder and restart.", t);
+                if (!startWithDefaultConfiguration(dataFolderPath)) {
+                    getLogger().severe("Chatty is loaded but will NOT process chat:"
+                            + " it could not start even with a default configuration."
+                            + " Fix the errors above and restart the server.");
+                    return;
+                }
+                getLogger().warning("Chatty started with a default configuration instead.");
             }
         }
 
         registerChattyCommand();
+    }
+
+    private boolean startWithDefaultConfiguration(Path dataFolderPath) {
+        try {
+            closeResources();
+        } catch (Throwable ignored) {
+        }
+        try {
+            if (Files.exists(dataFolderPath)) {
+                Path quarantine = dataFolderPath.resolveSibling(
+                        "Chatty_failed_migration_" + System.currentTimeMillis());
+                Files.move(dataFolderPath, quarantine);
+                getLogger().log(Level.WARNING,
+                        "The half-migrated configuration was moved to \"{0}\".", quarantine.getFileName());
+            }
+            initialize();
+            return true;
+        } catch (Throwable t) {
+            getLogger().log(Level.SEVERE, "Could not start with a default configuration", t);
+            return false;
+        }
     }
 
     private void registerChattyCommand() throws Exception {
@@ -249,13 +289,17 @@ public final class Chatty extends JavaPlugin {
         if (!isUseNativeAdventurePlatform()) {
             BukkitAudiences.create(this).close();
         }
-        injector.getInstance(PlayerDataRepository.class).close();
-        injector.getInstance(ProxyService.class).close();
+        if (injector != null) {
+            injector.getInstance(PlayerDataRepository.class).close();
+            injector.getInstance(ProxyService.class).close();
+        }
         EventUtil.unregisterListeners(PlayerJoinEvent.class, this);
         EventUtil.unregisterListeners(PlayerQuitEvent.class, this);
         EventUtil.unregisterListeners(PlayerDeathEvent.class, this);
         EventUtil.unregisterListeners(AsyncPlayerChatEvent.class, this);
-        notificationTicker.cancelTicking();
+        if (notificationTicker != null) {
+            notificationTicker.cancelTicking();
+        }
     }
 
     private void initAsyncCommandManager() throws Exception {
@@ -383,15 +427,26 @@ public final class Chatty extends JavaPlugin {
         unregisterAllCommands(asyncCommandManager);
         try {
             closeResources();
-        } catch (IOException e) {
-            getLogger().log(Level.SEVERE, "Cannot gracefully shutdown Chatty", e);
+        } catch (Throwable t) {
+            getLogger().log(Level.SEVERE, "Cannot gracefully shutdown Chatty", t);
         }
     }
 
-    private static void unregisterAllCommands(BukkitCommandManager<CommandSender> commandManager) {
-        for (Node<CommandArgument<CommandSender, ?>> node : commandManager.commandTree().getRootNodes()) {
-            //noinspection DataFlowIssue
-            commandManager.deleteRootCommand(node.getValue().getName());
+    private void unregisterAllCommands(BukkitCommandManager<CommandSender> commandManager) {
+        if (commandManager == null) {
+            return;
+        }
+        for (Node<CommandArgument<CommandSender, ?>> node
+                : new ArrayList<>(commandManager.commandTree().getRootNodes())) {
+            CommandArgument<CommandSender, ?> argument = node.getValue();
+            if (argument == null) {
+                continue;
+            }
+            try {
+                commandManager.deleteRootCommand(argument.getName());
+            } catch (Throwable t) {
+                getLogger().log(Level.WARNING, "Could not unregister command /" + argument.getName(), t);
+            }
         }
     }
 

@@ -277,8 +277,8 @@ public final class V2ConfigMigrator {
             Map<String, Object> v3caps = asMap(root.get("caps"));
             if (caps != null && v3caps != null) {
                 copyBool(caps, "enable", v3caps, "enable");
-                copyInt(caps, "length", v3caps, "length");
-                copyInt(caps, "percent", v3caps, "percent");
+                copyClampedInt(caps, "length", v3caps, "length", 1, Integer.MAX_VALUE, "caps.length");
+                copyClampedInt(caps, "percent", v3caps, "percent", 0, 100, "caps.percent");
                 copyBool(caps, "block", v3caps, "block");
             }
 
@@ -404,11 +404,19 @@ public final class V2ConfigMigrator {
         }
     }
 
-    private static void copyInt(Map<String, Object> from, String fromKey,
-                                Map<String, Object> to, String toKey) {
-        if (from.get(fromKey) instanceof Number) {
-            to.put(toKey, ((Number) from.get(fromKey)).intValue());
+    private void copyClampedInt(Map<String, Object> from, String fromKey,
+                                Map<String, Object> to, String toKey,
+                                int min, int max, String label) {
+        if (!(from.get(fromKey) instanceof Number)) {
+            return;
         }
+        int value = ((Number) from.get(fromKey)).intValue();
+        int clamped = Math.min(Math.max(value, min), max);
+        if (clamped != value) {
+            notes.add(label + " " + value + " is outside the range v3 accepts"
+                    + " and was clamped to " + clamped + ".");
+        }
+        to.put(toKey, clamped);
     }
 
     private static void copyStr(Map<String, Object> from, String fromKey,

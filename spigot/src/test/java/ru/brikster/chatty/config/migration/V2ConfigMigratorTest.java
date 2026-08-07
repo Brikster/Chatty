@@ -266,6 +266,17 @@ class V2ConfigMigratorTest {
     }
 
     @Test
+    void clampsCapsValuesV3WouldReject() throws Exception {
+        runMigration(LEGACY_CONFIG
+                .replace("    length: 10", "    length: 0")
+                .replace("    percent: 70", "    percent: 700"));
+
+        Map<String, Object> caps = childMap(read("moderation.yml"), "caps");
+        assertEquals(1, caps.get("length"), "@Positive rejects a length of 0");
+        assertEquals(100, caps.get("percent"), "@Max(100) rejects a percent above 100");
+    }
+
+    @Test
     void migratesPmWithTranslatedPlaceholders() throws Exception {
         runMigration();
         Map<String, Object> pm = read("pm.yml");
