@@ -26,6 +26,7 @@ public final class ConfigsLoader {
                              ComponentStringConverter componentConverter,
                              BukkitAudiences audiences) {
         config.getChats().forEach((chatId, chatConfig) -> {
+            String spyFormat = chatConfig.getSpy().getFormat();
             Chat chat = new ChatImpl(chatId,
                     chatConfig.getDisplayName(),
                     audiences,
@@ -45,7 +46,7 @@ public final class ConfigsLoader {
                     chatConfig.isParseLinks(),
                     chatConfig.getSpy().isEnable(),
                     chatConfig.isPlaySound() ? chatConfig.getSound() : null,
-                    componentConverter.stringToComponent(chatConfig.getSpy().getFormat()),
+                    componentConverter.stringToComponent(spyFormat == null ? "" : spyFormat),
                     chatConfig.getCooldown());
             registry.register(chatId, chat);
         });

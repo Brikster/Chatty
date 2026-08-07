@@ -146,8 +146,12 @@ class V2ConfigMigratorTest {
     }
 
     private V2ConfigMigratorTest runMigration() throws Exception {
+        return runMigration(LEGACY_CONFIG);
+    }
+
+    private V2ConfigMigratorTest runMigration(String legacyConfig) throws Exception {
         Path legacyFile = dataFolder.resolve("config.yml");
-        write("config.yml", LEGACY_CONFIG);
+        write("config.yml", legacyConfig);
         Map<String, Object> legacy = V2ConfigMigrator.readLegacyConfig(legacyFile);
         assertNotNull(legacy, "legacy config should be readable");
         new V2ConfigMigrator(Logger.getLogger("test")).migrate(legacy, dataFolder);
@@ -184,6 +188,25 @@ class V2ConfigMigratorTest {
         Map<String, Object> chats = childMap(read("chats.yml"), "chats");
         Map<String, Object> spy = childMap(childMap(chats, "local"), "spy");
         assertEquals("&6[Spy] &r&e[Local] {player}: {message}", spy.get("format"));
+    }
+
+    @Test
+    void writesASpyFormatEvenWhenV2HadNoSpySection() throws Exception {
+        runMigration(LEGACY_CONFIG.replace(
+                String.join("\n",
+                        "spy:",
+                        "  format:",
+                        "    chat: '&6[Spy] &r{format}'"),
+                ""));
+
+        Map<String, Object> chats = childMap(read("chats.yml"), "chats");
+        for (String chatId : List.of("local", "global")) {
+            Map<String, Object> spy = childMap(childMap(chats, chatId), "spy");
+            Object format = spy.get("format");
+            assertNotNull(format, "chat \"" + chatId + "\" migrated with a null spy format");
+            assertFalse(String.valueOf(format).isBlank(),
+                    "chat \"" + chatId + "\" migrated with a blank spy format");
+        }
     }
 
     @Test

@@ -35,6 +35,10 @@ public final class V2ConfigMigrator {
     private static final Set<String> VALID_PRIORITIES =
             Set.of("LOWEST", "LOW", "NORMAL", "HIGH", "HIGHEST", "MONITOR");
 
+    private static final String DEFAULT_SPY_FORMAT = "&6[Spy] &r{format}";
+
+    private static final String DEFAULT_SPIED_FORMAT = "{prefix}{player}{suffix}&8: &f{message}";
+
     private final Logger logger;
     private final List<String> notes = new ArrayList<>();
 
@@ -139,9 +143,8 @@ public final class V2ConfigMigrator {
             Map<String, Object> spy = new LinkedHashMap<>();
             spy.put("enable", boolValue(legacyChat.get("spy"), true));
             String format = str(legacyChat.get("format"));
-            if (legacySpyChatFormat != null && format != null) {
-                spy.put("format", legacySpyChatFormat.replace("{format}", format));
-            }
+            String spyTemplate = legacySpyChatFormat != null ? legacySpyChatFormat : DEFAULT_SPY_FORMAT;
+            spy.put("format", spyTemplate.replace("{format}", format != null ? format : DEFAULT_SPIED_FORMAT));
             chat.put("spy", spy);
 
             if (legacyChat.get("command") != null || legacyChat.get("aliases") != null) {

@@ -203,7 +203,7 @@ public class ChatsConfig extends OkaeriConfig {
         private boolean enable;
 
         @Comment({"Custom format for spy message"})
-        private String format;
+        private String format = "";
 
     }
 
