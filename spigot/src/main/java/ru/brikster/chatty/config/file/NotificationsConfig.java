@@ -7,6 +7,9 @@ import eu.okaeri.validator.annotation.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import net.kyori.adventure.key.Key;
+import net.kyori.adventure.sound.Sound;
+import net.kyori.adventure.sound.Sound.Source;
 import net.kyori.adventure.text.Component;
 import ru.brikster.chatty.BuildConstants;
 import ru.brikster.chatty.convert.component.ComponentStringConverter;
@@ -55,6 +58,8 @@ public class NotificationsConfig extends OkaeriConfig {
                                     "<yellow>spigotmc.org</yellow>" +
                                     "</click></rainbow>")),
                     false,
+                    Sound.sound(Key.key("entity.experience_orb.pickup"), Source.MASTER, 1f, 1f),
+                    false,
                     false
             ));
         }};
@@ -89,6 +94,14 @@ public class NotificationsConfig extends OkaeriConfig {
                                     "&eSecond message from default channel\n" +
                                     "&8===================================")
             );
+
+            @Comment
+            @Comment("Enable this, if you want to play a sound along with the message")
+            private boolean playSound = false;
+
+            // Must not be the last field: okaeri fails to write a config whose
+            // final entry is a nested section. ConfigGenerationTest guards this.
+            private Sound sound = Sound.sound(Key.key("entity.experience_orb.pickup"), Source.MASTER, 1f, 1f);
 
             @Comment
             @Comment("Enable this, if you want to restrict channel by permission")
@@ -142,6 +155,12 @@ public class NotificationsConfig extends OkaeriConfig {
             );
 
             @Comment
+            @Comment("Enable this, if you want to play a sound when the message appears")
+            private boolean playSound = false;
+
+            private Sound sound = Sound.sound(Key.key("entity.experience_orb.pickup"), Source.MASTER, 1f, 1f);
+
+            @Comment
             @Comment("Enable this, if you want to restrict channel by permission")
             private boolean permissionRequired = false;
 
@@ -182,6 +201,12 @@ public class NotificationsConfig extends OkaeriConfig {
                     "You can use convenient WebUI: https://webui.advntr.dev/"
             })
             private List<TitleNotificationMessageConfig> messages = Lists.newArrayList(new TitleNotificationMessageConfig());
+
+            @Comment
+            @Comment("Enable this, if you want to play a sound along with the title")
+            private boolean playSound = false;
+
+            private Sound sound = Sound.sound(Key.key("entity.experience_orb.pickup"), Source.MASTER, 1f, 1f);
 
             @Comment
             @Comment("Enable this, if you want to restrict channel by permission")

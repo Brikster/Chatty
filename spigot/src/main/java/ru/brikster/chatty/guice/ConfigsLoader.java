@@ -68,6 +68,7 @@ public final class ConfigsLoader {
                                 .collect(Collectors.toList()),
                         channelConfig.isPermissionRequired(),
                         channelConfig.isRandomOrder(),
+                        channelConfig.isPlaySound() ? channelConfig.getSound() : null,
                         audiences,
                         placeholdersComponentTransformer);
                 ticker.addNotification(titleNotification);
@@ -86,6 +87,7 @@ public final class ConfigsLoader {
                         channelId, channelConfig.getPeriod(),
                         channelConfig.getMessages(),
                         channelConfig.isPermissionRequired(), channelConfig.isRandomOrder(),
+                        channelConfig.isPlaySound() ? channelConfig.getSound() : null,
                         audiences,
                         placeholdersComponentTransformer);
                 ticker.addNotification(chatNotification);
@@ -105,6 +107,7 @@ public final class ConfigsLoader {
                                 channelId, channelConfig.getPeriod(), channelConfig.getStay(),
                                 channelConfig.getMessages(),
                                 channelConfig.isPermissionRequired(), channelConfig.isRandomOrder(),
+                                channelConfig.isPlaySound() ? channelConfig.getSound() : null,
                                 audiences,
                                 placeholdersComponentTransformer);
                         ticker.addNotification(actionbarNotification);

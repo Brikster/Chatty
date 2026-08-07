@@ -1,11 +1,14 @@
 package ru.brikster.chatty.notification;
 
 import lombok.Value;
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 import ru.brikster.chatty.chat.component.context.SinglePlayerTransformContext;
 import ru.brikster.chatty.chat.component.impl.PlaceholdersComponentTransformer;
 
@@ -22,12 +25,14 @@ public class TitleNotification extends Notification {
     private static final String PERMISSION_NODE = NOTIFICATION_PERMISSION_NODE + "title.%s";
     private final String name;
     private final List<TitleNotificationMessage> messages;
+    private final @Nullable Sound sound;
 
     private final BukkitAudiences audiences;
     private final PlaceholdersComponentTransformer placeholdersComponentTransformer;
 
     public TitleNotification(String name, int period, List<TitleNotificationMessage> messages,
                               boolean permission, boolean random,
+                             @Nullable Sound sound,
                               BukkitAudiences audiences,
                              PlaceholdersComponentTransformer placeholdersComponentTransformer) {
         super(period, permission, messages.size(), random);
@@ -37,6 +42,7 @@ public class TitleNotification extends Notification {
 
         this.name = name;
         this.messages = messages;
+        this.sound = sound;
     }
 
     @Override
@@ -52,7 +58,11 @@ public class TitleNotification extends Notification {
                 SinglePlayerTransformContext context = SinglePlayerTransformContext.of(player);
                 Component title = placeholdersComponentTransformer.transform(message.getTitle(), context);
                 Component subtitle = placeholdersComponentTransformer.transform(message.getSubtitle(), context);
-                audiences.player(player).showTitle(Title.title(title, subtitle));
+                Audience audience = audiences.player(player);
+                audience.showTitle(Title.title(title, subtitle));
+                if (sound != null) {
+                    audience.playSound(sound);
+                }
             }
         }
     }
