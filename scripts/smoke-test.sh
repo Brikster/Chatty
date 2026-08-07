@@ -51,13 +51,20 @@ mkdir -p "$WORK"
 step() { printf '\n\033[1m=== %s ===\033[0m\n' "$1"; }
 fail() { printf '\n\033[31m✗ SMOKE TEST FAILED: %s\033[0m\n' "$*" >&2; exit 1; }
 
+# PaperMC asks API clients to identify themselves with a descriptive agent.
+PAPER_USER_AGENT="User-Agent: Chatty-smoke-test (+https://github.com/Brikster/Chatty)"
+
 # Downloads the latest Paper build for a version.  $1 = version, $2 = output jar.
+# Uses the v3 ("fill") API — the v2 API was sunset and now answers 410 Gone.
+# Builds come back newest first; prefer a stable one, falling back to the
+# newest of any channel for versions that have no stable build yet.
 download_paper() {
-    local version="$1" out="$2" build
-    build="$(curl -fsSL "https://api.papermc.io/v2/projects/paper/versions/$version" \
-        | python3 -c 'import sys, json; print(json.load(sys.stdin)["builds"][-1])')"
-    curl -fsSL -o "$out" \
-        "https://api.papermc.io/v2/projects/paper/versions/$version/builds/$build/downloads/paper-$version-$build.jar"
+    local version="$1" out="$2" build url
+    build="$(curl -fsSL -H "$PAPER_USER_AGENT" "https://fill.papermc.io/v3/projects/paper/versions/$version/builds" \
+        | python3 -c 'import sys, json; builds = json.load(sys.stdin); build = next((b for b in builds if b["channel"] == "STABLE"), builds[0]); print(build["id"], build["downloads"]["server:default"]["url"])')"
+    url="${build#* }"
+    build="${build%% *}"
+    curl -fsSL -H "$PAPER_USER_AGENT" -o "$out" "$url"
     echo "Paper $version build $build"
 }
 
