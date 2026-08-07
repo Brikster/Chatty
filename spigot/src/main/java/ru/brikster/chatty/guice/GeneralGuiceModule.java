@@ -101,8 +101,6 @@ import java.util.regex.Pattern;
 
 public final class GeneralGuiceModule extends AbstractModule {
 
-    private static final Set<String> ALLOWED_LANGUAGES = Set.of("en-US", "ru-RU", "de-DE", "es-ES", "zh-CN");
-
     private final Plugin plugin;
     private final BukkitAudiences audienceProvider;
 
@@ -142,9 +140,13 @@ public final class GeneralGuiceModule extends AbstractModule {
 
         SettingsConfig settingsConfig = createConfig(SettingsConfig.class, "settings.yml");
 
-        String language = settingsConfig.getLanguage();
-        if (!ALLOWED_LANGUAGES.contains(language)) {
+        String configuredLanguage = settingsConfig.getLanguage();
+        String language = SettingsConfig.matchSupportedLanguage(configuredLanguage);
+        if (language == null) {
             language = "en-US";
+            plugin.getLogger().log(Level.WARNING,
+                    "Unsupported language \"{0}\" in settings.yml — falling back to en-US. Supported: {1}",
+                    new Object[]{configuredLanguage, String.join(", ", SettingsConfig.SUPPORTED_LANGUAGES)});
         }
         OkaeriConfig.LANGUAGE = language;
 
@@ -357,7 +359,7 @@ public final class GeneralGuiceModule extends AbstractModule {
      * bundled resource — that case is ignored.
      */
     private void copyBundledLanguages() {
-        for (String language : ALLOWED_LANGUAGES) {
+        for (String language : SettingsConfig.SUPPORTED_LANGUAGES) {
             String resourcePath = "lang/" + language + ".yml";
             if (Files.exists(dataFolderPath.resolve(resourcePath))) {
                 continue;

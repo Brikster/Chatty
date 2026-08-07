@@ -3,6 +3,7 @@ package ru.brikster.chatty.config.migration;
 import org.jetbrains.annotations.Nullable;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
+import ru.brikster.chatty.config.file.SettingsConfig;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -177,6 +178,16 @@ public final class V2ConfigMigrator {
 
         editYaml(dataFolder.resolve("settings.yml"), root -> {
             if (general != null) {
+                if (general.get("locale") != null) {
+                    String legacyLocale = str(general.get("locale"));
+                    String language = SettingsConfig.matchSupportedLanguage(legacyLocale);
+                    if (language != null) {
+                        root.put("language", language);
+                    } else {
+                        notes.add("locale \"" + legacyLocale + "\" has no v3 translation —"
+                                + " settings.yml keeps the default language.");
+                    }
+                }
                 Object priority = general.get("priority");
                 if (priority != null) {
                     String name = str(priority).toUpperCase(Locale.ROOT);

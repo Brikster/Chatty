@@ -222,6 +222,31 @@ class V2ConfigMigratorTest {
     }
 
     @Test
+    void migratesLocaleToTheV3LanguageCode() throws Exception {
+        runMigration(LEGACY_CONFIG.replace(
+                "general:\n  priority: high",
+                "general:\n  locale: ru\n  priority: high"));
+        assertEquals("ru-RU", read("settings.yml").get("language"));
+    }
+
+    @Test
+    void migratesUnderscoredAndBareLocales() throws Exception {
+        runMigration(LEGACY_CONFIG.replace(
+                "general:\n  priority: high",
+                "general:\n  locale: zh_CN\n  priority: high"));
+        assertEquals("zh-CN", read("settings.yml").get("language"));
+    }
+
+    @Test
+    void leavesTheLanguageAloneForAnUnknownLocale() throws Exception {
+        runMigration(LEGACY_CONFIG.replace(
+                "general:\n  priority: high",
+                "general:\n  locale: kl_GL\n  priority: high"));
+        assertFalse(read("settings.yml").containsKey("language"),
+                "an unmappable locale must not be written as a bogus language");
+    }
+
+    @Test
     void migratesModeration() throws Exception {
         runMigration();
         Map<String, Object> moderation = read("moderation.yml");

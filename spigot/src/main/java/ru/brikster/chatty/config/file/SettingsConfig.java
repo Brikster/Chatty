@@ -10,6 +10,7 @@ import org.bukkit.event.EventPriority;
 import ru.brikster.chatty.BuildConstants;
 import ru.brikster.chatty.convert.component.ComponentStringConverter;
 
+import java.util.Set;
 import java.util.regex.Pattern;
 
 @Getter
@@ -27,6 +28,28 @@ public class SettingsConfig extends OkaeriConfig {
 
     @Exclude
     public static ComponentStringConverter converter;
+
+    @Exclude
+    public static final Set<String> SUPPORTED_LANGUAGES =
+            Set.of("en-US", "ru-RU", "de-DE", "es-ES", "zh-CN");
+
+    public static String matchSupportedLanguage(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        String normalized = value.trim().replace('_', '-');
+        for (String supported : SUPPORTED_LANGUAGES) {
+            if (supported.equalsIgnoreCase(normalized)) {
+                return supported;
+            }
+        }
+        for (String supported : SUPPORTED_LANGUAGES) {
+            if (supported.substring(0, supported.indexOf('-')).equalsIgnoreCase(normalized)) {
+                return supported;
+            }
+        }
+        return null;
+    }
 
     @Comment(value = {
             "",
