@@ -46,7 +46,7 @@ public final class MuteStrategy implements MessageTransformStrategy<String> {
 
         audiences.player(context.getSender()).sendMessage(messages.getMuted()
                 .replaceText(AdventureUtil.createReplacement("{duration}",
-                        MuteFormatter.describe(mute)))
+                        MuteFormatter.describe(mute, messages)))
                 .replaceText(AdventureUtil.createReplacement("{reason}",
                         mute.getReason() == null ? "" : mute.getReason())));
 

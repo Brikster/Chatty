@@ -2,6 +2,7 @@ package ru.brikster.chatty.util;
 
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.Nullable;
+import ru.brikster.chatty.config.file.MessagesConfig;
 import ru.brikster.chatty.repository.player.Mute;
 
 import java.util.concurrent.TimeUnit;
@@ -29,24 +30,31 @@ public class MuteFormatter {
         }
     }
 
-    public String describe(Mute mute) {
+    public String describe(Mute mute, MessagesConfig messages) {
         if (mute.isPermanent()) {
-            return "permanently";
+            return messages.getMutePermanently();
         }
         long left = Math.max(0, mute.getUntil() - System.currentTimeMillis());
         long days = TimeUnit.MILLISECONDS.toDays(left);
         if (days > 0) {
-            return days + "d " + (TimeUnit.MILLISECONDS.toHours(left) % 24) + "h";
+            return messages.getMuteDurationDays()
+                    .replace("{days}", Long.toString(days))
+                    .replace("{hours}", Long.toString(TimeUnit.MILLISECONDS.toHours(left) % 24));
         }
         long hours = TimeUnit.MILLISECONDS.toHours(left);
         if (hours > 0) {
-            return hours + "h " + (TimeUnit.MILLISECONDS.toMinutes(left) % 60) + "m";
+            return messages.getMuteDurationHours()
+                    .replace("{hours}", Long.toString(hours))
+                    .replace("{minutes}", Long.toString(TimeUnit.MILLISECONDS.toMinutes(left) % 60));
         }
         long minutes = TimeUnit.MILLISECONDS.toMinutes(left);
         if (minutes > 0) {
-            return minutes + "m " + (TimeUnit.MILLISECONDS.toSeconds(left) % 60) + "s";
+            return messages.getMuteDurationMinutes()
+                    .replace("{minutes}", Long.toString(minutes))
+                    .replace("{seconds}", Long.toString(TimeUnit.MILLISECONDS.toSeconds(left) % 60));
         }
-        return TimeUnit.MILLISECONDS.toSeconds(left) + "s";
+        return messages.getMuteDurationSeconds()
+                .replace("{seconds}", Long.toString(TimeUnit.MILLISECONDS.toSeconds(left)));
     }
 
 }

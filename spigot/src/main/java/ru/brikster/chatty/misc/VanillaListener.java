@@ -15,6 +15,7 @@ import ru.brikster.chatty.chat.component.context.SinglePlayerTransformContext;
 import ru.brikster.chatty.chat.component.impl.PlaceholdersComponentTransformer;
 import ru.brikster.chatty.chat.component.impl.prefix.PrefixComponentTransformer;
 import ru.brikster.chatty.chat.selection.ChatSelectionState;
+import ru.brikster.chatty.config.file.MessagesConfig;
 import ru.brikster.chatty.config.file.VanillaConfig;
 import ru.brikster.chatty.config.file.VanillaConfig.DeathVanillaConfig;
 import ru.brikster.chatty.config.file.VanillaConfig.JoinVanillaConfig;
@@ -28,6 +29,7 @@ public final class VanillaListener implements Listener {
     @Inject private PlaceholdersComponentTransformer placeholdersComponentTransformer;
     @Inject private PrefixComponentTransformer prefixComponentTransformer;
     @Inject private VanillaConfig vanillaConfig;
+    @Inject private MessagesConfig messages;
     @Inject private BukkitAudiences audiences;
     @Inject private ChatSelectionState chatSelectionState;
 
@@ -139,10 +141,11 @@ public final class VanillaListener implements Listener {
                 String deathCause;
                 var damageEvent = event.getEntity().getLastDamageCause();
                 if (damageEvent == null) {
-                    deathCause = deathConfig.getFallbackCause();
+                    deathCause = messages.getDeathFallbackCause();
                 } else {
                     DamageCause damageCause = damageEvent.getCause();
-                    deathCause = deathConfig.getCauses().getOrDefault(damageCause.name(), deathConfig.getFallbackCause());
+                    deathCause = messages.getDeathCauses()
+                            .getOrDefault(damageCause.name(), messages.getDeathFallbackCause());
                 }
 
                 deathMessage = deathMessage.replaceText(AdventureUtil.createReplacement("{cause}", deathCause));

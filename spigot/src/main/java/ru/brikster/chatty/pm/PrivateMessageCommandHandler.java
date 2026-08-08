@@ -45,7 +45,7 @@ public final class PrivateMessageCommandHandler {
             if (mute != null && !mute.isExpired(System.currentTimeMillis())) {
                 audiences.sender(sender).sendMessage(messagesConfig.getMuted()
                         .replaceText(AdventureUtil.createReplacement("{duration}",
-                                MuteFormatter.describe(mute)))
+                                MuteFormatter.describe(mute, messagesConfig)))
                         .replaceText(AdventureUtil.createReplacement("{reason}",
                                 mute.getReason() == null ? "" : mute.getReason())));
                 return;

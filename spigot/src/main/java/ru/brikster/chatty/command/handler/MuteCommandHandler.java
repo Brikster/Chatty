@@ -70,7 +70,7 @@ public final class MuteCommandHandler implements CommandExecutionHandler<Command
         repository.setMute(targetUuid, mute);
 
         audiences.sender(sender).sendMessage(withPlayer(messages.getMuteCommandSuccess(), targetName)
-                .replaceText(AdventureUtil.createReplacement("{duration}", MuteFormatter.describe(mute))));
+                .replaceText(AdventureUtil.createReplacement("{duration}", MuteFormatter.describe(mute, messages))));
     }
 
     private UUID resolve(String name) {
