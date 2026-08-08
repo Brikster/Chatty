@@ -11,3 +11,68 @@ loadbefore: [ Essentials ]
 softdepend: [ Vault, PlaceholderAPI ]
 
 folia-supported: true
+
+permissions:
+  chatty.pm:
+    description: Use private messaging commands
+    default: true
+  chatty.command.ignore:
+    description: Manage your own ignore list
+    default: true
+  chatty.mentions:
+    description: Mention other players in chat
+    default: true
+  chatty.parselinks:
+    description: Post clickable links (only checked when settings.yml requires it)
+    default: op
+  chatty.decoration:
+    description: Use every formatting code, including hex colours
+    default: op
+  chatty.decoration.color:
+    description: Use colour codes in messages
+    default: op
+  chatty.decoration.hex:
+    description: Use hex colours in messages
+    default: op
+  chatty.bypass.cooldown:
+    description: Ignore the chat cooldown in every chat
+    default: op
+  chatty.bypass.moderation:
+    description: Bypass every moderation filter
+    default: op
+  chatty.bypass.moderation.caps:
+    description: Bypass the caps filter
+    default: op
+  chatty.bypass.moderation.swear:
+    description: Bypass the swear filter
+    default: op
+  chatty.bypass.moderation.ads:
+    description: Bypass the advertisement filter
+    default: op
+  chatty.spy.pm:
+    description: See other players' private messages
+    default: op
+  chatty.command.spy:
+    description: Toggle spy mode
+    default: op
+  chatty.command.clearchat:
+    description: Clear chat on your own screen
+    default: op
+  chatty.command.clearchat.all:
+    description: Clear chat for everyone
+    default: op
+  chatty.command.broadcast:
+    description: Send a message into a specific chat
+    default: op
+  chatty.command.reload:
+    description: Reload the plugin configuration
+    default: op
+  chatty.misc.joinmessage:
+    description: Show your join message (only checked when vanilla.yml requires it)
+    default: op
+  chatty.misc.quitmessage:
+    description: Show your quit message (only checked when vanilla.yml requires it)
+    default: op
+  chatty.misc.deathmessage:
+    description: Show your death message (only checked when vanilla.yml requires it)
+    default: op
