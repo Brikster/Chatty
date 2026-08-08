@@ -294,6 +294,9 @@ public final class Chatty extends JavaPlugin {
         SpyCommandHandler spyCommandHandler = injector.getInstance(SpyCommandHandler.class);
         registerProxyingHandler("spy", spyCommandHandler);
 
+        MuteCommandHandler muteCommandHandler = injector.getInstance(MuteCommandHandler.class);
+        registerProxyingHandler("mute", muteCommandHandler);
+
         if (this.asyncCommandManager == null) {
             initAsyncCommandManager();
             if (pmConfig.isEnable()) {
@@ -401,7 +404,7 @@ public final class Chatty extends JavaPlugin {
     }
 
     private void registerMuteCommands() {
-        MuteCommandHandler handler = injector.getInstance(MuteCommandHandler.class);
+        ProxyingCommandHandler<CommandSender> handler = proxyingCommandHandlerMap.get("mute");
 
         asyncCommandManager.command(asyncCommandManager
                 .commandBuilder("mute")
