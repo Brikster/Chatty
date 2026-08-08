@@ -339,6 +339,9 @@ public final class Chatty extends JavaPlugin {
         var clearChatCommand = asyncCommandManager
                 .commandBuilder("clearchat")
                 .permission("chatty.command.clearchat")
+                .argument(StringArgument.<CommandSender>builder("all")
+                        .asOptional()
+                        .build())
                 .handler(proxyingCommandHandlerMap.get("clearchat"))
                 .build();
         asyncCommandManager.command(clearChatCommand);
