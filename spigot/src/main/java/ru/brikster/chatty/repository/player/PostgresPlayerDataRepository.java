@@ -242,6 +242,26 @@ public final class PostgresPlayerDataRepository implements PlayerDataRepository 
     }
 
     @Override
+    public @NotNull Set<@NotNull UUID> getSpyEnabledUuids() {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(
+                     "SELECT uuid " +
+                             "FROM chatty_users " +
+                             "WHERE spy = true")) {
+            ResultSet resultSet = statement.executeQuery();
+
+            Set<UUID> spies = new HashSet<>();
+            while (resultSet.next()) {
+                spies.add((UUID) resultSet.getObject(1));
+            }
+
+            return spies;
+        } catch (SQLException sqlException) {
+            throw new IllegalStateException("Cannot retrieve spies", sqlException);
+        }
+    }
+
+    @Override
     public void close() {
         dataSource.close();
     }

@@ -30,6 +30,8 @@ public interface PlayerDataRepository extends Closeable {
 
     boolean isEnableSpy(@NotNull UUID playerUuid);
 
+    @NotNull Set<@NotNull UUID> getSpyEnabledUuids();
+
     void setEnableSpy(@NotNull UUID playerUuid, boolean spy);
 
 }

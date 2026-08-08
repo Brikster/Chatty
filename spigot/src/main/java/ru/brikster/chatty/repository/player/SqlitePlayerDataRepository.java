@@ -250,6 +250,26 @@ public final class SqlitePlayerDataRepository implements PlayerDataRepository {
     }
 
     @Override
+    public @NotNull Set<@NotNull UUID> getSpyEnabledUuids() {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(
+                     "SELECT uuid " +
+                             "FROM users " +
+                             "WHERE spy = 1")) {
+            ResultSet resultSet = statement.executeQuery();
+
+            Set<UUID> spies = new HashSet<>();
+            while (resultSet.next()) {
+                spies.add(SqliteUtil.toUUID(resultSet.getBytes(1)));
+            }
+
+            return spies;
+        } catch (SQLException sqlException) {
+            throw new IllegalStateException("Cannot retrieve spies", sqlException);
+        }
+    }
+
+    @Override
     public void close() {
         dataSource.close();
     }
