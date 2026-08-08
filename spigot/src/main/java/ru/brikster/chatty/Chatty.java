@@ -41,6 +41,7 @@ import ru.brikster.chatty.chat.registry.ChatRegistry;
 import ru.brikster.chatty.command.CommandSuggestionsProvider;
 import ru.brikster.chatty.command.ProxyingCommandHandler;
 import ru.brikster.chatty.command.ProxyingCommandSuggestionsProvider;
+import ru.brikster.chatty.command.handler.BroadcastCommandHandler;
 import ru.brikster.chatty.command.handler.ClearChatCommandHandler;
 import ru.brikster.chatty.command.handler.SpyCommandHandler;
 import ru.brikster.chatty.config.file.MessagesConfig;
@@ -173,7 +174,8 @@ public final class Chatty extends JavaPlugin {
                     Component component = MiniMessage.miniMessage().deserialize(
                             "<gold><bold>Chatty</bold></gold> <gray>(v" + getDescription().getVersion() + ")</gray> - chat management system by <green>@Brikster</green>.<newline>" +
                             "Links: <click:open_url:'https://github.com/Brikster/Chatty'><aqua>GitHub</aqua></click><newline>" +
-                            "Use <yellow>/chatty reload</yellow> to reload configuration.");
+                            "Use <yellow>/chatty reload</yellow> to reload configuration,<newline>" +
+                            "or <yellow>/chatty broadcast <chat> <message></yellow> to send a message into a chat.");
 
                     injector.getInstance(BukkitAudiences.class)
                             .sender(handler.getSender())
@@ -197,9 +199,22 @@ public final class Chatty extends JavaPlugin {
                 })
                 .build();
 
+        Command<CommandSender> broadcastCommand = chattyBuilder
+                .literal("broadcast")
+                .permission("chatty.command.broadcast")
+                .argument(StringArgument.<CommandSender>builder("chat")
+                        .single()
+                        .withSuggestionsProvider((context, input) ->
+                                new ArrayList<>(injector.getInstance(ChatRegistry.class).getChats().keySet()))
+                        .build())
+                .argument(StringArgument.greedy("message"))
+                .handler(handler -> injector.getInstance(BroadcastCommandHandler.class).execute(handler))
+                .build();
+
         syncCommandManager
                 .command(infoCommand)
-                .command(reloadCommand);
+                .command(reloadCommand)
+                .command(broadcastCommand);
     }
 
     private void initialize() throws Exception {
