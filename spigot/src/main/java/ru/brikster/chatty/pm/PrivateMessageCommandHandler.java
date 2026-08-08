@@ -12,7 +12,10 @@ import ru.brikster.chatty.config.file.MessagesConfig;
 import ru.brikster.chatty.config.file.PmConfig;
 import ru.brikster.chatty.pm.targets.PmMessageTarget;
 import ru.brikster.chatty.proxy.ProxyService;
+import ru.brikster.chatty.repository.player.Mute;
 import ru.brikster.chatty.repository.player.PlayerDataRepository;
+import ru.brikster.chatty.util.AdventureUtil;
+import ru.brikster.chatty.util.MuteFormatter;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -35,6 +38,18 @@ public final class PrivateMessageCommandHandler {
             audiences.sender(sender)
                     .sendMessage(messagesConfig.getPmCannotPmYourself());
             return;
+        }
+
+        if (sender instanceof Player && !sender.hasPermission("chatty.bypass.mute")) {
+            Mute mute = playerDataRepository.getMute(((Player) sender).getUniqueId());
+            if (mute != null && !mute.isExpired(System.currentTimeMillis())) {
+                audiences.sender(sender).sendMessage(messagesConfig.getMuted()
+                        .replaceText(AdventureUtil.createReplacement("{duration}",
+                                MuteFormatter.describe(mute)))
+                        .replaceText(AdventureUtil.createReplacement("{reason}",
+                                mute.getReason() == null ? "" : mute.getReason())));
+                return;
+            }
         }
 
         String message = commandContext.get("message");

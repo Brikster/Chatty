@@ -56,6 +56,10 @@ public class MessagesConfig extends OkaeriConfig {
     private Component reloadCommandSuccess = MINI_MESSAGE.deserialize("<green>Plugin successfully reloaded!");
     private Component clearchatCommandSuccess = MINI_MESSAGE.deserialize("<green>Chat cleared.");
     private Component clearchatCommandClearedForAll = MINI_MESSAGE.deserialize("<green>Chat cleared by {player}.");
+    private Component muted = MINI_MESSAGE.deserialize("<red>You are muted {duration}. {reason}");
+    private Component muteCommandSuccess = MINI_MESSAGE.deserialize("<green>{player} has been muted {duration}.");
+    private Component muteCommandUnmuted = MINI_MESSAGE.deserialize("<green>{player} is no longer muted.");
+    private Component muteCommandNotMuted = MINI_MESSAGE.deserialize("<red>{player} is not muted.");
     private Component chatCommandSwitched = MINI_MESSAGE.deserialize("<green>You are now writing in {chat}.");
     private Component spyCommandSpyIsNowEnabled = MINI_MESSAGE.deserialize("<green>Spy mode is now enabled.");
     private Component spyCommandSpyIsNowDisabled = MINI_MESSAGE.deserialize("<red>Spy mode is now disabled.");

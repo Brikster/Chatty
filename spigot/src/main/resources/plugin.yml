@@ -61,6 +61,12 @@ permissions:
   chatty.command.clearchat.all:
     description: Clear chat for everyone
     default: op
+  chatty.command.mute:
+    description: Mute and unmute players
+    default: op
+  chatty.bypass.mute:
+    description: Speak while muted
+    default: op
   chatty.command.broadcast:
     description: Send a message into a specific chat
     default: op

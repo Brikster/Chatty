@@ -33,6 +33,20 @@ that makes it so powerful and stable.
 - "Vanilla" messages configuring (join/quit/death)
 - MiniMessage both legacy (&) styling format
 
+## Moderation
+
+Caps, advertisement and swear filters, plus mute:
+
+```
+/mute <player> [10m|2h|3d|1w] [reason]    # no duration means permanent
+/unmute <player>
+```
+
+Mutes are stored with the player, so they survive a restart and apply on every
+server sharing the database. A muted player cannot use public chats or private
+messages. `chatty.command.mute` grants the commands, `chatty.bypass.mute` exempts
+a player — operators hold both by default.
+
 ## Placeholders
 
 With PlaceholderAPI installed, Chatty exposes its own data so TAB, scoreboards,

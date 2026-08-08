@@ -32,6 +32,12 @@ public interface PlayerDataRepository extends Closeable {
 
     @NotNull Set<@NotNull UUID> getSpyEnabledUuids();
 
+    @Nullable Mute getMute(@NotNull UUID playerUuid);
+
+    void setMute(@NotNull UUID playerUuid, @NotNull Mute mute);
+
+    void clearMute(@NotNull UUID playerUuid);
+
     void setEnableSpy(@NotNull UUID playerUuid, boolean spy);
 
 }

@@ -46,6 +46,7 @@ import ru.brikster.chatty.command.ProxyingCommandSuggestionsProvider;
 import ru.brikster.chatty.command.handler.BroadcastCommandHandler;
 import ru.brikster.chatty.command.handler.ChatCommandHandler;
 import ru.brikster.chatty.command.handler.ClearChatCommandHandler;
+import ru.brikster.chatty.command.handler.MuteCommandHandler;
 import ru.brikster.chatty.command.handler.SpyCommandHandler;
 import ru.brikster.chatty.config.file.MessagesConfig;
 import ru.brikster.chatty.config.file.PmConfig;
@@ -77,6 +78,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.logging.Level;
 
 public final class Chatty extends JavaPlugin {
@@ -298,6 +300,7 @@ public final class Chatty extends JavaPlugin {
             }
             registerIgnoreCommand(commandSuggestionsProvider);
             registerMiscCommands();
+            registerMuteCommands();
         }
 
         ChattyApiImpl.updateInstance(new ChattyApiImpl(injector.getInstance(ChatRegistry.class).getChats()));
@@ -356,6 +359,34 @@ public final class Chatty extends JavaPlugin {
                 .apply(asyncCommandManager, injector.getInstance(BukkitAudiences.class)::sender);
 
         asyncCommandManager.setSetting(ManagerSettings.ALLOW_UNSAFE_REGISTRATION, true);
+    }
+
+    private void registerMuteCommands() {
+        MuteCommandHandler handler = injector.getInstance(MuteCommandHandler.class);
+
+        asyncCommandManager.command(asyncCommandManager
+                .commandBuilder("mute")
+                .permission("chatty.command.mute")
+                .argument(StringArgument.<CommandSender>builder("player").single()
+                        .withSuggestionsProvider((context, input) -> Bukkit.getOnlinePlayers().stream()
+                                .map(Player::getName).collect(Collectors.toList()))
+                        .build())
+                .argument(StringArgument.<CommandSender>builder("options").greedy().asOptional().build())
+                .handler(handler)
+                .build());
+
+        asyncCommandManager.command(asyncCommandManager
+                .commandBuilder("unmute")
+                .permission("chatty.command.mute")
+                .argument(StringArgument.<CommandSender>builder("player").single()
+                        .withSuggestionsProvider((context, input) -> Bukkit.getOnlinePlayers().stream()
+                                .map(Player::getName).collect(Collectors.toList()))
+                        .build())
+                .handler(context -> {
+                    context.set("unmute", Boolean.TRUE);
+                    handler.execute(context);
+                })
+                .build());
     }
 
     private void registerChatCommands() {

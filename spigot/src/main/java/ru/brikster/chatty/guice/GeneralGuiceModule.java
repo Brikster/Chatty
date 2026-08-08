@@ -46,6 +46,7 @@ import ru.brikster.chatty.chat.message.transform.processor.MessageTransformStrat
 import ru.brikster.chatty.chat.message.transform.processor.MessageTransformStrategiesProcessorImpl;
 import ru.brikster.chatty.chat.message.transform.stage.early.CooldownStrategy;
 import ru.brikster.chatty.chat.message.transform.stage.early.RemoveChatSymbolStrategy;
+import ru.brikster.chatty.chat.message.transform.stage.early.MuteStrategy;
 import ru.brikster.chatty.chat.message.transform.stage.early.SpyModeStrategy;
 import ru.brikster.chatty.chat.message.transform.stage.early.moderation.AdModerationStrategyModeration;
 import ru.brikster.chatty.chat.message.transform.stage.early.moderation.CapsModerationStrategy;
@@ -180,6 +181,7 @@ public final class GeneralGuiceModule extends AbstractModule {
 
         Multibinder<MessageTransformStrategy<?>> strategyMultibinder = Multibinder.newSetBinder(binder(), new TypeLiteral<>() {});
         // Early
+        strategyMultibinder.addBinding().to(MuteStrategy.class);
         strategyMultibinder.addBinding().to(RemoveChatSymbolStrategy.class);
         strategyMultibinder.addBinding().to(SpyModeStrategy.class);
         strategyMultibinder.addBinding().to(CooldownStrategy.class);

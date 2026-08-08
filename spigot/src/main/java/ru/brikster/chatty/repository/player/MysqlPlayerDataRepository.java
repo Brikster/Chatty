@@ -261,6 +261,53 @@ public final class MysqlPlayerDataRepository implements PlayerDataRepository {
     }
 
     @Override
+    public @Nullable Mute getMute(@NotNull UUID playerUuid) {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(
+                     "SELECT muted_until, mute_reason FROM chatty_users WHERE uuid = ?")) {
+            statement.setString(1, playerUuid.toString());
+
+            ResultSet resultSet = statement.executeQuery();
+            if (!resultSet.next()) {
+                return null;
+            }
+            long until = resultSet.getLong(1);
+            if (resultSet.wasNull()) {
+                return null;
+            }
+            return new Mute(until, resultSet.getString(2));
+        } catch (SQLException sqlException) {
+            throw new IllegalStateException("Cannot read player mute", sqlException);
+        }
+    }
+
+    @Override
+    public void setMute(@NotNull UUID playerUuid, @NotNull Mute mute) {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(
+                     "UPDATE chatty_users SET muted_until = ?, mute_reason = ? WHERE uuid = ?")) {
+            statement.setLong(1, mute.getUntil());
+            statement.setString(2, mute.getReason());
+            statement.setString(3, playerUuid.toString());
+            statement.executeUpdate();
+        } catch (SQLException sqlException) {
+            throw new IllegalStateException("Cannot store player mute", sqlException);
+        }
+    }
+
+    @Override
+    public void clearMute(@NotNull UUID playerUuid) {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(
+                     "UPDATE chatty_users SET muted_until = NULL, mute_reason = NULL WHERE uuid = ?")) {
+            statement.setString(1, playerUuid.toString());
+            statement.executeUpdate();
+        } catch (SQLException sqlException) {
+            throw new IllegalStateException("Cannot clear player mute", sqlException);
+        }
+    }
+
+    @Override
     public void close() {
         dataSource.close();
     }
