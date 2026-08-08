@@ -35,7 +35,9 @@ public final class RemotePmMessageTarget implements PmMessageTarget {
 
     @Override
     public OfflinePlayer asOfflinePlayer() {
-        return Bukkit.getOfflinePlayer(targetUuid);
+        return targetUuid == null
+                ? Bukkit.getOfflinePlayer(targetName)
+                : Bukkit.getOfflinePlayer(targetUuid);
     }
 
     @Override
