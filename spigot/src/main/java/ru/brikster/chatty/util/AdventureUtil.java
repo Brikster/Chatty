@@ -8,11 +8,13 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.UtilityClass;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.flattener.ComponentFlattener;
 import net.kyori.adventure.text.flattener.FlattenerListener;
+import net.kyori.adventure.text.format.ShadowColor;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -34,7 +36,9 @@ public class AdventureUtil {
     @Accessors(fluent = true)
     private static class ComponentPart {
         String text;
+        Component opaque;
         TextColor color;
+        ShadowColor shadowColor;
         Boolean obfuscated;
         Boolean bold;
         Boolean strikethrough;
@@ -50,6 +54,7 @@ public class AdventureUtil {
     @FieldDefaults(level = AccessLevel.PRIVATE)
     private static class ComponentState {
         TextColor color;
+        ShadowColor shadowColor;
         Boolean obfuscated;
         Boolean bold;
         Boolean strikethrough;
@@ -85,6 +90,7 @@ public class AdventureUtil {
         }
 
         private void applyColorAndDecorations(ComponentPart part) {
+            this.shadowColor = part.shadowColor;
             if (part.color != null) {
                 this.color = part.color;
                 this.obfuscated = null;
@@ -120,6 +126,7 @@ public class AdventureUtil {
             if (italic != null && italic) decorations.add(ITALIC);
 
             return Style.style(color, decorations)
+                    .shadowColor(shadowColor)
                     .clickEvent(clickEvent)
                     .hoverEvent(hoverEvent)
                     .insertion(insertion)
@@ -130,6 +137,7 @@ public class AdventureUtil {
     private static class ComponentPartsExtractionFlattener implements FlattenerListener {
 
         private final Deque<TextColor> color = new LinkedList<>();
+        private final Deque<ShadowColor> shadowColor = new LinkedList<>();
 
         private final Deque<Boolean> obfuscated = new LinkedList<>();
         private final Deque<Boolean> bold = new LinkedList<>();
@@ -147,7 +155,9 @@ public class AdventureUtil {
         @Override
         public void component(@NotNull String text) {
             ComponentPart part = new ComponentPart(text,
+                    null,
                     color.peekLast(),
+                    shadowColor.peekLast(),
                     obfuscated.peekLast(),
                     bold.peekLast(),
                     strikethrough.peekLast(),
@@ -160,10 +170,30 @@ public class AdventureUtil {
             parts.add(part);
         }
 
+        void opaque(@NotNull Component node) {
+            parts.add(new ComponentPart(null,
+                    node,
+                    color.peekLast(),
+                    shadowColor.peekLast(),
+                    obfuscated.peekLast(),
+                    bold.peekLast(),
+                    strikethrough.peekLast(),
+                    underlined.peekLast(),
+                    italic.peekLast(),
+                    clickEvent.peekLast(),
+                    hoverEvent.peekLast(),
+                    insertion.peekLast(),
+                    font.peekLast()));
+        }
+
         @Override
         public void pushStyle(@NotNull Style style) {
             if (style.color() != null) {
                 this.color.add(style.color());
+            }
+
+            if (style.shadowColor() != null) {
+                this.shadowColor.add(style.shadowColor());
             }
 
             pushDecoration(obfuscated, style.decorations().get(OBFUSCATED));
@@ -204,6 +234,10 @@ public class AdventureUtil {
                 this.color.removeLast();
             }
 
+            if (style.shadowColor() != null) {
+                this.shadowColor.removeLast();
+            }
+
             popDecoration(obfuscated, style.decorations().get(OBFUSCATED));
             popDecoration(bold, style.decorations().get(BOLD));
             popDecoration(strikethrough, style.decorations().get(STRIKETHROUGH));
@@ -241,8 +275,49 @@ public class AdventureUtil {
 
     private List<ComponentPart> parts(Component component) {
         ComponentPartsExtractionFlattener flattener = new ComponentPartsExtractionFlattener();
-        ComponentFlattener.basic().flatten(component, flattener);
+        walk(component, flattener);
         return flattener.parts();
+    }
+
+    private void walk(Component component, ComponentPartsExtractionFlattener listener) {
+        listener.pushStyle(component.style());
+
+        if (component instanceof TextComponent) {
+            String content = ((TextComponent) component).content();
+            if (!content.isEmpty()) {
+                listener.component(content);
+            }
+        } else {
+            listener.opaque(component.children(Collections.emptyList()));
+        }
+
+        for (Component child : component.children()) {
+            walk(child, listener);
+        }
+
+        listener.popStyle(component.style());
+    }
+
+    private boolean matchesAnywhere(Component component, Pattern pattern) {
+        if (component instanceof TextComponent
+                && pattern.matcher(((TextComponent) component).content()).find()) {
+            return true;
+        }
+        ClickEvent clickEvent = component.clickEvent();
+        if (clickEvent != null && pattern.matcher(clickEvent.value()).find()) {
+            return true;
+        }
+        HoverEvent<?> hoverEvent = component.hoverEvent();
+        if (hoverEvent != null && hoverEvent.action() == HoverEvent.Action.SHOW_TEXT
+                && matchesAnywhere((Component) hoverEvent.value(), pattern)) {
+            return true;
+        }
+        for (Component child : component.children()) {
+            if (matchesAnywhere(child, pattern)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -266,6 +341,10 @@ public class AdventureUtil {
     public Component replaceWithEndingSpace(Component componentWithEndingSpace, Pattern pattern,
                                             Function<String, @Nullable Component> componentReplaceFunction,
                                             Function<String, @Nullable String> stringReplaceFunction) {
+        if (!matchesAnywhere(componentWithEndingSpace, pattern)) {
+            return componentWithEndingSpace;
+        }
+
         List<ComponentPart> originalParts = parts(componentWithEndingSpace);
         Component resultComponent = Component.empty();
 
@@ -308,6 +387,12 @@ public class AdventureUtil {
 
             state.apply(part);
 
+            if (part.opaque != null) {
+                resultComponent = resultComponent.append(part.opaque.style(
+                        part.opaque.style().merge(state.toStyle(), Style.Merge.Strategy.IF_ABSENT_ON_TARGET)));
+                continue;
+            }
+
             int beginIndex = 0;
             Matcher matcher = pattern.matcher(part.text);
             while (matcher.find()) {
@@ -322,6 +407,10 @@ public class AdventureUtil {
                     for (int i = 0; i < parts.size(); i++) {
                         ComponentPart replacedComponentPart = parts.get(i);
                         state.applyForeign(replacedComponentPart);
+                        if (replacedComponentPart.opaque != null) {
+                            resultComponent = resultComponent.append(replacedComponentPart.opaque);
+                            continue;
+                        }
                         String text = replacedComponentPart.text;
                         if (i == parts.size() - 1) {
                             if (text.equals(" ")) {
