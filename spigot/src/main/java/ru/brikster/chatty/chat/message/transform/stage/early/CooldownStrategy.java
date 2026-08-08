@@ -32,7 +32,8 @@ public final class CooldownStrategy implements MessageTransformStrategy<String> 
 
         if (context.getChat().getCooldown() > 0
                 && !context.getSender().hasPermission("chatty.bypass.cooldown")
-                && !context.getSender().hasPermission("chatty.bypass.cooldown." + chatName)) {
+                && !context.getSender().hasPermission("chatty.bypass.cooldown." + chatName)
+                && !context.getSender().hasPermission("chatty.cooldown." + chatName)) {
             Cache<CommandSender, Long> cache = cooldownCachesMap.computeIfAbsent(chatName, (k) -> CacheBuilder.newBuilder()
                     .maximumSize(1000)
                     .weakKeys()

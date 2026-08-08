@@ -84,7 +84,8 @@ public class ActionbarNotification extends Notification {
         boolean playSound = soundPending && sound != null;
 
         for (Player player : Bukkit.getOnlinePlayers()) {
-            if (!isPermission() || player.hasPermission(PERMISSION_NODE + "." + name)) {
+            if (!isPermission() || player.hasPermission(PERMISSION_NODE)
+                    || player.hasPermission(PERMISSION_NODE + "." + name)) {
                 Audience audience = audiences.player(player);
                 audience.sendActionBar(placeholdersComponentTransformer
                                 .transform(messages.get(currentMessage), SinglePlayerTransformContext.of(player)));

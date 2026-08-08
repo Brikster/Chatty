@@ -54,7 +54,8 @@ public final class SwearModerationStrategyModeration implements ModerationMatche
     @Override
     public @NotNull MessageTransformResult<String> handle(MessageContext<String> context) {
         if (context.getSender().hasPermission("chatty.bypass.moderation")
-                || context.getSender().hasPermission("chatty.bypass.moderation.swear")) {
+                || context.getSender().hasPermission("chatty.bypass.moderation.swear")
+                || context.getSender().hasPermission("chatty.moderation.swear")) {
             return MessageTransformResultBuilder
                     .<String>fromContext(context)
                     .build();

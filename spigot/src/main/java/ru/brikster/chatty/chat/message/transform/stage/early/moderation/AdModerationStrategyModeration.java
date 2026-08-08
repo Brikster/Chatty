@@ -46,7 +46,8 @@ public final class AdModerationStrategyModeration implements ModerationMatcherSt
     @Override
     public @NotNull MessageTransformResult<String> handle(MessageContext<String> context) {
         if (context.getSender().hasPermission("chatty.bypass.moderation")
-                || context.getSender().hasPermission("chatty.bypass.moderation.ads")) {
+                || context.getSender().hasPermission("chatty.bypass.moderation.ads")
+                || context.getSender().hasPermission("chatty.moderation.advertisement")) {
             return MessageTransformResultBuilder
                     .<String>fromContext(context)
                     .build();

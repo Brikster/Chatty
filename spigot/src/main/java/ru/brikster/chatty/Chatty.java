@@ -14,6 +14,8 @@ import cloud.commandframework.execution.AsynchronousCommandExecutionCoordinator;
 import cloud.commandframework.execution.CommandExecutionCoordinator;
 import cloud.commandframework.execution.CommandExecutionHandler;
 import cloud.commandframework.meta.CommandMeta;
+import cloud.commandframework.permission.OrPermission;
+import cloud.commandframework.permission.Permission;
 import cloud.commandframework.minecraft.extras.MinecraftExceptionHandler;
 import cloud.commandframework.minecraft.extras.MinecraftExceptionHandler.ExceptionType;
 import com.google.inject.Guice;
@@ -67,6 +69,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -393,7 +396,8 @@ public final class Chatty extends JavaPlugin {
 
     private void registerPmCommands(CommandSuggestionsProvider<CommandSender> pmSuggestionsProvider) {
         Command<CommandSender> msgCommand = asyncCommandManager.commandBuilder("msg", "message", "m", "w", "pm", "dm")
-                .permission("chatty.pm")
+                .permission(OrPermission.of(List.of(
+                        Permission.of("chatty.pm"), Permission.of("chatty.command.msg"))))
                 .argument(StringArgument.<CommandSender>builder("target")
                         .single()
                         .withSuggestionsProvider(pmSuggestionsProvider)
@@ -403,7 +407,8 @@ public final class Chatty extends JavaPlugin {
                 .build();
 
         Command<CommandSender> replyCommand = asyncCommandManager.commandBuilder("reply", "r")
-                .permission("chatty.pm")
+                .permission(OrPermission.of(List.of(
+                        Permission.of("chatty.pm"), Permission.of("chatty.command.reply"))))
                 .argument(StringArgument.greedy("message"))
                 .handler(proxyingCommandHandlerMap.get("reply"))
                 .build();
