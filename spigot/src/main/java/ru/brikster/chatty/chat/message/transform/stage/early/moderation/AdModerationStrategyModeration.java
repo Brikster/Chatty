@@ -72,7 +72,7 @@ public final class AdModerationStrategyModeration implements ModerationMatcherSt
         StringBuilder builder = new StringBuilder();
         while (matcher.find()) {
             if (!this.whitelist.contains(matcher.group().trim())) {
-                matcher.appendReplacement(builder, replacement);
+                matcher.appendReplacement(builder, Matcher.quoteReplacement(replacement));
             }
         }
         matcher.appendTail(builder);

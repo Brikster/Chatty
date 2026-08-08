@@ -83,7 +83,7 @@ public final class SwearModerationStrategyModeration implements ModerationMatche
         StringBuilder builder = new StringBuilder();
         while (matcher.find()) {
             if (!swearRepository.getWhitelist().contains(matcher.group().trim())) {
-                matcher.appendReplacement(builder, replacement);
+                matcher.appendReplacement(builder, Matcher.quoteReplacement(replacement));
             }
         }
         matcher.appendTail(builder);
