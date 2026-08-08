@@ -36,6 +36,7 @@ public class ChatsConfig extends OkaeriConfig {
                 "&7[<hover:show_text:'&bRange: 200 blocks'>&bLocal</hover>&7] &r{prefix}{player}{suffix}&8: &f{message}",
                 "{original-message}",
                 new HashMap<>(),
+                new HashMap<>(),
                 "",
                 200,
                 false,
@@ -49,7 +50,6 @@ public class ChatsConfig extends OkaeriConfig {
                 new ArrayList<>(),
                 true,
                 false,
-                new HashMap<>(),
                 ""));
         put("global", new ChatConfig(
                 "Global",
@@ -67,6 +67,23 @@ public class ChatsConfig extends OkaeriConfig {
                             20
                     ));
                 }},
+                new HashMap<>() {{
+                    put("vip", new SenderFormatConfig(
+                            10,
+                            "&7[<hover:show_text:'&aUse &2&l! &afor global chat'><click:suggest_command:!>&6Global</click></hover>&7] &e[VIP] &r{prefix}{player}{suffix}&8: &f{message}",
+                            "{original-message}",
+                            new HashMap<>()));
+                    put("admin", new SenderFormatConfig(
+                            20,
+                            "&7[<hover:show_text:'&aUse &2&l! &afor global chat'><click:suggest_command:!>&6Global</click></hover>&7] &c[Admin] &r{prefix}{player}{suffix}&8: &f{message}",
+                            "{original-message}",
+                            new HashMap<>() {{
+                                put("red", new ChatStyleConfig(
+                                        "&7[<hover:show_text:'&aUse &2&l! &afor global chat'><click:suggest_command:!>&4Global</click></hover>&7] &c[Admin] &r{prefix}{player}{suffix}&8: &c{message}",
+                                        "<gradient:#B14444:#972929>{original-message}</gradient>",
+                                        10));
+                            }}));
+                }},
                 "!",
                 -2,
                 false,
@@ -80,7 +97,6 @@ public class ChatsConfig extends OkaeriConfig {
                 new ArrayList<>(),
                 true,
                 false,
-                new HashMap<>(),
                 ""));
     }};
 
@@ -123,6 +139,26 @@ public class ChatsConfig extends OkaeriConfig {
                 "Permission: chatty.style.<style-name>, for example: chatty.style.red"
         })
         private Map<String, ChatStyleConfig> styles = new HashMap<>();
+
+        @Comment(value = {"",
+                "Per-rank appearance of THIS player's messages for everyone else.",
+                "Chosen by the sender's permission, highest priority wins:",
+                "  chatty.chat.<chat-id>.sender-format.<id>  (this chat only)",
+                "  chatty.sender-format.<id>                 (every chat)",
+                "Do not confuse with \"styles\" above: styles change how a chat",
+                "looks to the player reading it, these change how a player looks",
+                "to everybody. Each entry may carry its own styles."},
+                language = "en-US")
+        @Comment(value = {"",
+                "Вид сообщений ЭТОГО игрока для всех остальных, по рангам.",
+                "Выбирается по правам отправителя, побеждает высший приоритет:",
+                "  chatty.chat.<chat-id>.sender-format.<id>  (только этот чат)",
+                "  chatty.sender-format.<id>                 (все чаты)",
+                "Не путайте со \"styles\" выше: styles меняют то, как чат видит",
+                "читающий, а это — как выглядит сам игрок для остальных.",
+                "У каждой записи могут быть свои styles."},
+                language = "ru-RU")
+        private Map<String, SenderFormatConfig> senderFormats = new HashMap<>();
 
         @Comment({"",
                 "Symbol (or prefix) that should be placed before message",
@@ -213,26 +249,6 @@ public class ChatsConfig extends OkaeriConfig {
                 "Deliver this chat only to players who switched into it?",
                 "Useful for an opt-in chat nobody sees until they join it."})
         private boolean readOnlySwitched = false;
-
-        @Comment(value = {"",
-                "Per-rank appearance of THIS player's messages for everyone else.",
-                "Chosen by the sender's permission, highest priority wins:",
-                "  chatty.chat.<chat-id>.sender-format.<id>  (this chat only)",
-                "  chatty.sender-format.<id>                 (every chat)",
-                "Do not confuse with \"styles\" above: styles change how a chat",
-                "looks to the player reading it, these change how a player looks",
-                "to everybody. Each entry may carry its own styles."},
-                language = "en-US")
-        @Comment(value = {"",
-                "Вид сообщений ЭТОГО игрока для всех остальных, по рангам.",
-                "Выбирается по правам отправителя, побеждает высший приоритет:",
-                "  chatty.chat.<chat-id>.sender-format.<id>  (только этот чат)",
-                "  chatty.sender-format.<id>                 (все чаты)",
-                "Не путайте со \"styles\" выше: styles меняют то, как чат видит",
-                "читающий, а это — как выглядит сам игрок для остальных.",
-                "У каждой записи могут быть свои styles."},
-                language = "ru-RU")
-        private Map<String, SenderFormatConfig> senderFormats = new HashMap<>();
 
         @Comment(value = {"",
                 "Deliver only to players whose placeholder value equals the sender's.",

@@ -61,6 +61,18 @@ permissions:
   chatty.command.clearchat.all:
     description: Clear chat for everyone
     default: op
+  chatty.sender-format.vip:
+    description: Show the shipped VIP example format in chat
+    default: false
+  chatty.sender-format.admin:
+    description: Show the shipped Admin example format in chat
+    default: false
+  chatty.chat.global.sender-format.vip:
+    description: Show the shipped VIP example format in the global chat
+    default: false
+  chatty.chat.global.sender-format.admin:
+    description: Show the shipped Admin example format in the global chat
+    default: false
   chatty.command.mute:
     description: Mute and unmute players
     default: op
