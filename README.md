@@ -33,6 +33,25 @@ that makes it so powerful and stable.
 - "Vanilla" messages configuring (join/quit/death)
 - MiniMessage both legacy (&) styling format
 
+## Using the API
+
+Add the API as a **compileOnly** dependency and declare Chatty as a plugin
+dependency — the classes come from the running plugin at runtime:
+
+```groovy
+repositories { maven { url = 'https://jitpack.io' } }
+dependencies { compileOnly 'ru.brikster:chatty-api:3.0.0' }
+```
+
+```yaml
+depend: [ Chatty ]
+```
+
+The published artifact carries Chatty's relocated Adventure, because the plugin
+bundles its own copy to keep working on servers that have none. That is why it
+must be `compileOnly`: a second copy on your own classpath would be a different
+class to the JVM. Sources and javadoc jars are published alongside it.
+
 ## Platforms
 
 Paper, Spigot and Purpur from 1.8.8 up to 26.x, and Folia. Folia support is

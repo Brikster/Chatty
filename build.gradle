@@ -3,6 +3,9 @@ plugins {
 }
 
 allprojects {
+    ext.adventureVersion = '4.26.1'
+    ext.adventureBukkitPlatformVersion = '4.4.1'
+
     group = 'ru.brikster'
     // Overridable from the release workflow: -PchattyVersion=3.0.0
     version = providers.gradleProperty('chattyVersion').getOrElse('3.0.0-SNAPSHOT')
@@ -41,9 +44,6 @@ subprojects {
             url = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
         }
     }
-
-    def adventureVersion = "4.26.1"
-    def adventureBukkitPlatformVersion = "4.4.1"
 
     dependencies {
         compileOnlyApi 'org.jetbrains:annotations:17.0.0'

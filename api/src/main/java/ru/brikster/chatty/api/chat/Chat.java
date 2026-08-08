@@ -33,7 +33,7 @@ public interface Chat {
      * 1) {player} - player username
      * 2) {prefix}, {suffix} - prefix and suffix of player
      * 2) {message} - chat message
-     * 3) %<placeholder>% - various placeholders from PlaceholderAPI
+     * 3) %&lt;placeholder&gt;% - various placeholders from PlaceholderAPI
      *
      * @return chat format specified in configuration
      */
@@ -90,7 +90,7 @@ public interface Chat {
 
     /**
      * Permission requiring can be disable in configuration
-     * If permission is enable, player must has "chatty.chat.<chat>" permission to use it
+     * If permission is enable, player must has "chatty.chat.&lt;chat&gt;" permission to use it
      *
      * @return whether permission required or not
      */
