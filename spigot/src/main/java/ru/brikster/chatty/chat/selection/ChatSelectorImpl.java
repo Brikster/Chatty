@@ -16,25 +16,32 @@ public final class ChatSelectorImpl implements ChatSelector {
 
     @Override
     public @Nullable Chat selectChat(String message, Predicate<Chat> allowedPredicate) {
-        // TODO maybe add chats priorities ?
         Chat selected = null;
+
         for (Chat chat : registry.getChats().values()) {
             if (!allowedPredicate.test(chat)) {
                 continue;
             }
 
-            if (chat.getSymbol().isEmpty()
-                    && (selected == null || selected.getSymbol().isEmpty())) {
-                selected = chat;
+            String symbol = chat.getSymbol();
+            if (!symbol.isEmpty() && !message.startsWith(symbol)) {
                 continue;
             }
 
-            if (!chat.getSymbol().isEmpty() && message.startsWith(chat.getSymbol())) {
+            if (selected == null || isCloserMatch(chat, selected)) {
                 selected = chat;
             }
         }
 
         return selected;
+    }
+
+    private static boolean isCloserMatch(Chat candidate, Chat current) {
+        int lengthDifference = candidate.getSymbol().length() - current.getSymbol().length();
+        if (lengthDifference != 0) {
+            return lengthDifference > 0;
+        }
+        return candidate.getId().compareTo(current.getId()) < 0;
     }
 
 }
