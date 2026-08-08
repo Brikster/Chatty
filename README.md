@@ -33,6 +33,24 @@ that makes it so powerful and stable.
 - "Vanilla" messages configuring (join/quit/death)
 - MiniMessage both legacy (&) styling format
 
+## Placeholders
+
+With PlaceholderAPI installed, Chatty exposes its own data so TAB, scoreboards,
+Discord bridges and anything else can read it:
+
+| Placeholder | Value |
+| --- | --- |
+| `%chatty_chat%` | id of the chat the player currently writes to |
+| `%chatty_chat_displayname%` | its display name |
+| `%chatty_chat_range%` | its range in blocks (`-3` cross-server, `-2` server, `-1` world) |
+| `%chatty_chats%` | every chat the player may write to |
+| `%chatty_prefix%` / `%chatty_suffix%` | the prefix and suffix Chatty resolves for the player |
+| `%chatty_spy%` | whether spy mode is on |
+| `%rel_chatty_ignore%` | whether the first player ignores the second |
+
+`%chatty_prefix%` is empty unless Vault or LuckPerms is installed, because that
+is where the prefix comes from.
+
 ## Using the API
 
 Add the API as a **compileOnly** dependency and declare Chatty as a plugin
