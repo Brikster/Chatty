@@ -49,7 +49,7 @@ public final class PrivateMessageCommandHandler {
 
         audiences.sender(sender).sendMessage(fromComponentFormat);
         pmMessageService.addConversation(sender.getName(),
-                target instanceof ConsoleCommandSender ? "Console" : target.getName());
+                target.isConsole() ? "Console" : target.getName());
 
         boolean ignored = sender instanceof Player && !target.isConsole() && target.getUuid() != null
                 && playerDataRepository.isIgnoredPlayer(target.getUuid(), ((Player) sender).getUniqueId());
@@ -83,11 +83,11 @@ public final class PrivateMessageCommandHandler {
                         logMessage,
                         pmConfig.isPlaySound() ? pmConfig.getSound() : null);
             }
-            pmMessageService.addConversation(target instanceof ConsoleCommandSender ? "Console" : target.getName(),
+            pmMessageService.addConversation(target.isConsole() ? "Console" : target.getName(),
                     sender.getName());
         }
 
-        boolean consoleIsInConversation = sender instanceof ConsoleCommandSender || target instanceof ConsoleCommandSender;
+        boolean consoleIsInConversation = sender instanceof ConsoleCommandSender || target.isConsole();
 
         if (!consoleIsInConversation) {
             plugin.getLogger().info(logMessage);
