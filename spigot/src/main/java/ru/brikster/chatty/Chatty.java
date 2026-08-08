@@ -514,6 +514,10 @@ public final class Chatty extends JavaPlugin {
     public void onDisable() {
         unregisterAllCommands(syncCommandManager);
         unregisterAllCommands(asyncCommandManager);
+        syncCommandManager = null;
+        asyncCommandManager = null;
+        proxyingCommandHandlerMap.clear();
+        commandSuggestionsProvider = null;
         try {
             closeResources();
         } catch (Throwable t) {
