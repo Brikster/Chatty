@@ -24,7 +24,9 @@ public final class SpyCommandHandler implements CommandExecutionHandler<CommandS
     @Override
     public void execute(@NonNull CommandContext<CommandSender> commandContext) {
         boolean state = commandContext.get("state");
-        playerDataRepository.setEnableSpy(((Player) commandContext.getSender()).getUniqueId(), state);
+        Player sender = (Player) commandContext.getSender();
+        playerDataRepository.createOrUpdateUser(sender.getUniqueId(), sender.getName());
+        playerDataRepository.setEnableSpy(sender.getUniqueId(), state);
         if (state) {
             audiences.sender(commandContext.getSender())
                     .sendMessage(messagesConfig.getSpyCommandSpyIsNowEnabled());
