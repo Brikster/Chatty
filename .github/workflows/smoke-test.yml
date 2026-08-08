@@ -8,10 +8,38 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Versions picked by install-base share, not by recency.
+          - mc: '1.21.11'
+            server-java: '21'
+            chat-test: '1'
+            legacy-scenario: '1'
+          - mc: '1.16.5'
+            server-java: '11'
+            chat-test: '1'
+            legacy-scenario: '0'
+          # mineflayer's minecraft-data stops at protocol 1.21.9, so this lane
+          # verifies startup, migration and coexistence but cannot chat.
+          - mc: '26.2'
+            server-java: '25'
+            chat-test: '0'
+            legacy-scenario: '0'
+
+    name: ${{ matrix.mc }}
+
     steps:
       - uses: actions/checkout@main
 
-      - name: Set up Java 21
+      - name: Set up server JDK ${{ matrix['server-java'] }}
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{ matrix['server-java'] }}
+
+      - name: Set up build JDK 21
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
@@ -25,13 +53,18 @@ jobs:
       - name: Build plugin
         run: gradle build
 
-      - name: Boot a Paper server and verify startup + v2 migration
+      - name: Boot Paper ${{ matrix.mc }} and verify startup + v2 migration
         run: bash scripts/smoke-test.sh
+        env:
+          MC_VERSION: ${{ matrix.mc }}
+          CHAT_TEST: ${{ matrix['chat-test'] }}
+          LEGACY_SCENARIO: ${{ matrix['legacy-scenario'] }}
+          JAVA_HOME: ${{ env[format('JAVA_HOME_{0}_X64', matrix['server-java'])] }}
 
       - name: Upload server logs on failure
         if: failure()
         uses: actions/upload-artifact@main
         with:
-          name: smoke-test-logs
+          name: smoke-test-logs-${{ matrix.mc }}
           path: build/smoke-test/
           if-no-files-found: ignore

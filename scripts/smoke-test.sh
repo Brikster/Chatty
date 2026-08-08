@@ -12,7 +12,8 @@
 #   D. DiscordSRV coexist  -> Chatty and DiscordSRV initialise cleanly side by
 #                             side, with no classloader or dependency clash
 #
-# Requirements: bash, curl, python3, and a JDK 21 (point JAVA_HOME at it).
+# Requirements: bash, curl, python3, and a JDK the target server accepts
+# (point JAVA_HOME at it: 21 for 1.21.x, 11 for 1.16.5, 25 for 26.x).
 # The in-game chat test additionally needs node + npm; without them it (and
 # scenario C) is skipped. Scenario C also needs a Java 11 runtime for the old
 # server — it is downloaded automatically when not supplied via LEGACY_JAVA_HOME.
@@ -25,6 +26,11 @@ set -euo pipefail
 
 MC_VERSION="${MC_VERSION:-1.21.4}"
 LEGACY_MC_VERSION="${LEGACY_MC_VERSION:-1.8.8}"
+# Set CHAT_TEST=0 for a server the bot cannot join (mineflayer stops at 1.21.9),
+# and LEGACY_SCENARIO=0 to skip the 1.8.8 lane when a matrix covers it elsewhere.
+CHAT_TEST="${CHAT_TEST:-1}"
+LEGACY_SCENARIO="${LEGACY_SCENARIO:-1}"
+CHAT_TEST_SKIP_REASON="disabled with CHAT_TEST=0"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # Kept under build/ (git-ignored) so logs survive for inspection / CI artifacts.
 WORK="$ROOT/build/smoke-test"
@@ -111,8 +117,7 @@ echo "Plugin jar: $JAR"
 
 # The in-game chat test needs Node.js. Use the system one, or fetch a local
 # copy under build/ so the test runs anywhere without a system install.
-CHAT_TEST=1
-if ! command -v node >/dev/null 2>&1 || ! command -v npm >/dev/null 2>&1; then
+if [ "$CHAT_TEST" -eq 1 ] && (! command -v node >/dev/null 2>&1 || ! command -v npm >/dev/null 2>&1); then
     node_os=""; node_arch=""
     case "$(uname -s)" in Darwin) node_os=darwin;; Linux) node_os=linux;; esac
     case "$(uname -m)" in arm64 | aarch64) node_arch=arm64;; x86_64 | amd64) node_arch=x64;; esac
@@ -128,9 +133,13 @@ if ! command -v node >/dev/null 2>&1 || ! command -v npm >/dev/null 2>&1; then
         export PATH="$NODE_DIR/bin:$PATH"
     fi
 fi
-if ! command -v node >/dev/null 2>&1; then
+if [ "$CHAT_TEST" -eq 1 ] && ! command -v node >/dev/null 2>&1; then
     CHAT_TEST=0
+    CHAT_TEST_SKIP_REASON="node/npm not available"
     echo "Node.js unavailable — the in-game chat test will be skipped"
+fi
+if [ "$CHAT_TEST" -eq 0 ]; then
+    echo "In-game chat test disabled (CHAT_TEST=0)"
 fi
 
 # --- download Paper --------------------------------------------------------
@@ -270,7 +279,7 @@ echo "✓ plugin enables and generates config (incl. lang files) on a fresh inst
 if [ "$CHAT_TEST" -eq 1 ]; then
     run_chat_test "$FRESH_LOG"
 else
-    echo "• in-game chat test skipped (node/npm not available)"
+    echo "• in-game chat test skipped ($CHAT_TEST_SKIP_REASON)"
 fi
 stop_server
 
@@ -345,7 +354,7 @@ EOF
     if [ "$CHAT_TEST" -eq 1 ]; then
         run_chat_test "$COEXIST_LOG"
     else
-        echo "• in-game chat test skipped (node/npm not available)"
+        echo "• in-game chat test skipped ($CHAT_TEST_SKIP_REASON)"
     fi
     stop_server
     rm -f "$SERVER/plugins/DiscordSRV.jar"
@@ -356,7 +365,7 @@ fi
 # --- scenario C: legacy server ---------------------------------------------
 
 step "Scenario C — legacy server ($LEGACY_MC_VERSION)"
-if [ "$CHAT_TEST" -eq 1 ] && ensure_legacy_java; then
+if [ "$LEGACY_SCENARIO" -eq 1 ] && [ "$CHAT_TEST" -eq 1 ] && ensure_legacy_java; then
     "$LEGACY_JAVA_BIN" -version 2>&1 | head -1
     download_paper "$LEGACY_MC_VERSION" "$WORK/paper-legacy.jar"
 
@@ -393,7 +402,7 @@ EOF
     run_chat_test "$LEGACY_LOG"
     stop_server
 else
-    echo "• legacy-server scenario skipped (node or a Java 11 runtime unavailable)"
+    echo "• legacy-server scenario skipped (disabled, or node/Java 11 unavailable)"
 fi
 
 printf '\n\033[32m✓ SMOKE TEST PASSED\033[0m\n'
