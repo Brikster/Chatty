@@ -111,6 +111,8 @@ public final class GeneralGuiceModule extends AbstractModule {
     private final ChatRegistry chatRegistry;
     private final SerdesChatty serdesChatty;
 
+    private boolean rewriteConfigFiles = true;
+
     public GeneralGuiceModule(final Plugin plugin,
                               final BukkitAudiences audienceProvider,
                               final Path dataFolderPath) {
@@ -138,7 +140,8 @@ public final class GeneralGuiceModule extends AbstractModule {
 
         bind(BukkitAudiences.class).toInstance(audienceProvider);
 
-        SettingsConfig settingsConfig = createConfig(SettingsConfig.class, "settings.yml");
+        SettingsConfig settingsConfig = createConfig(SettingsConfig.class, "settings.yml", false);
+        this.rewriteConfigFiles = settingsConfig.isRewriteConfigFiles();
 
         String configuredLanguage = settingsConfig.getLanguage();
         String language = SettingsConfig.matchSupportedLanguage(configuredLanguage);
@@ -373,6 +376,11 @@ public final class GeneralGuiceModule extends AbstractModule {
     }
 
     private <ConfigT extends OkaeriConfig> ConfigT createConfig(Class<ConfigT> configClass, String fileName) {
+        return createConfig(configClass, fileName, rewriteConfigFiles);
+    }
+
+    private <ConfigT extends OkaeriConfig> ConfigT createConfig(Class<ConfigT> configClass, String fileName,
+                                                               boolean rewrite) {
         try {
             configClass.getDeclaredField("converter").set(null, internalMiniMessageStringConverter);
         } catch (IllegalAccessException e) {
@@ -433,7 +441,7 @@ public final class GeneralGuiceModule extends AbstractModule {
             config.withBindFile(dataFolderPath.resolve(fileName));
             config.withRemoveOrphans(true);
             config.saveDefaults();
-            config.load(true);
+            config.load(rewrite);
         });
     }
 

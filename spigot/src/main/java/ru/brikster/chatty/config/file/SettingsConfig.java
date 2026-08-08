@@ -120,6 +120,22 @@ public class SettingsConfig extends OkaeriConfig {
             "Helpful for enabling in-game ignore feature, but may cause newer client CRASHES"})
     private boolean sendIdentifiedMessages = false;
 
+    @Comment(value = {"",
+            "Rewrite configuration files after loading them?",
+            "When true (default), Chatty re-saves every file on each load, which",
+            "restores its own comments and drops anything it does not recognise.",
+            "Set to false to keep your files exactly as you wrote them; new options",
+            "from plugin updates then use their defaults without being added to the file."},
+            language = "en-US")
+    @Comment(value = {"",
+            "Перезаписывать файлы конфигурации после загрузки?",
+            "При true (по умолчанию) Chatty пересохраняет каждый файл при загрузке:",
+            "возвращает свои комментарии и удаляет всё, что не распознал.",
+            "Поставьте false, чтобы файлы оставались точно такими, как вы их написали;",
+            "новые опции из обновлений тогда берут значения по умолчанию, не попадая в файл."},
+            language = "ru-RU")
+    private boolean rewriteConfigFiles = true;
+
     @Comment({"", "Enable debug messages"})
     private boolean debug = false;
 
