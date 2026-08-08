@@ -2,8 +2,10 @@
 
 Chatty v3 is a ground-up rewrite. Its configuration is split into several
 files (`settings.yml`, `chats.yml`, `pm.yml`, `moderation.yml`, `vanilla.yml`,
-`notifications.yml`, `replacements.yml`, `messages.yml`, `proxy.yml`) instead of
-the single v2 `config.yml`.
+`notifications.yml`, `replacements.yml`, `proxy.yml`) and a `lang/` folder,
+instead of the single v2 `config.yml`.
+
+> Russian version: [MIGRATION.ru.md](MIGRATION.ru.md)
 
 ## Automatic migration
 
@@ -20,6 +22,7 @@ When v3 starts and finds a legacy v2 `config.yml` in `plugins/Chatty/`, it:
 | v2 | v3 |
 |----|----|
 | `chats.<id>` — format, display-name, symbol, range, cooldown, permission | `chats.yml` → `chats.<id>` |
+| `general.locale` | `settings.yml` → `language` |
 | `general.priority` | `settings.yml` → `listener-priority` |
 | `general.keep-old-recipients` | `settings.yml` → `respect-foreign-recipients` |
 | `general.hide-vanished-recipients` | `settings.yml` → `hide-vanished-recipients` |
@@ -29,13 +32,15 @@ When v3 starts and finds a legacy v2 `config.yml` in `plugins/Chatty/`, it:
 | `miscellaneous.vanilla.{join,quit,death}` | `vanilla.yml` |
 
 Notes:
-- Chat `range` values below `-2` are clamped to `-2`. v2 BungeeCord chats
-  (`-3`) need Redis-based cross-server setup — see `proxy.yml`.
+- Chat `range: -3` (cross-server) is preserved. v2 sent those chats over
+  BungeeCord and v3 uses Redis, so configure `proxy.yml` — see below.
 - Chat `cooldown: -1` (disabled) becomes `0`.
 - Chats disabled in v2 (`enable: false`) are not migrated.
 - PM format placeholders are translated: `{sender-*}` → `{from-*}`,
   `{recipient-*}` → `{to-*}`.
 - Mention format placeholder `{player}` is translated to `{username}`.
+- `caps.length` and `caps.percent` are brought into the range v3 accepts:
+  v2 allowed `length: 0` and a percent above 100, which v3 rejects.
 
 ## Needs manual attention
 
@@ -107,9 +112,18 @@ and `chatty.notification.advancements.<name>` have no v3 equivalent.
 `/clearchat` clears only your own screen, as in v2. Clearing chat for everyone
 is `/clearchat all` and needs `chatty.command.clearchat.all`.
 
+## Requirements
+
+- **Java 11 or newer.** The plugin will not load on Java 8.
+- **Minecraft 1.8.8 or newer.**
+
+Stay on 2.19.14 if your server does not meet these.
+
 ## Tips
 
 - v3 still understands legacy `&` color codes, plus MiniMessage and hex
   formats — your v2 formats keep working after migration.
 - Review the migrated files and the startup log before going live.
 - Keep the `Chatty_old_<timestamp>/` backup until you are happy with v3.
+- To send a message into one specific chat from the console or a scheduler, use
+  `/chatty broadcast <chat> <message>`.

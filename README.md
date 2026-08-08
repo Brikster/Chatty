@@ -35,7 +35,8 @@ that makes it so powerful and stable.
 
 ## Building
 
-Chatty uses Gradle to handle dependencies & building. You need JDK 11 or higher to compile Chatty.
+Chatty uses Gradle to handle dependencies & building. Building needs JDK 21;
+the jar it produces targets Java 11, so it runs on Java 11 and newer.
 
 ### Compiling from source
 
@@ -65,7 +66,18 @@ legacy server (1.8.8), and coexists with DiscordSRV:
 JAVA_HOME=/path/to/jdk-21 bash scripts/smoke-test.sh
 ```
 
-The legacy-server scenario needs a Java 11 runtime; it is downloaded
-automatically, or point `LEGACY_JAVA_HOME` at an existing one.
+`JAVA_HOME` must point at a JDK the target server accepts: 21 for 1.21.x, 11 for
+1.16.5, 25 for 26.x. Pick the server version with `MC_VERSION`, and switch off
+the parts a lane cannot run:
 
-Both run automatically on every push via GitHub Actions.
+```shell script
+MC_VERSION=26.2 CHAT_TEST=0 JAVA_HOME=/path/to/jdk-25 bash scripts/smoke-test.sh
+```
+
+`CHAT_TEST=0` skips the in-game bot, which cannot join a server newer than
+protocol 1.21.9, and `LEGACY_SCENARIO=0` skips the 1.8.8 lane. The legacy
+scenario needs a Java 11 runtime; it is downloaded automatically, or point
+`LEGACY_JAVA_HOME` at an existing one.
+
+Both run automatically on every push via GitHub Actions, with the smoke test
+as a matrix over 1.21.11, 1.16.5 and 26.2.
