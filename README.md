@@ -33,6 +33,36 @@ that makes it so powerful and stable.
 - "Vanilla" messages configuring (join/quit/death)
 - MiniMessage both legacy (&) styling format
 
+## Two kinds of per-player appearance
+
+`chats.yml` has two features that both change how a message looks, and they
+answer different questions:
+
+| | Chosen by | Changes |
+| --- | --- | --- |
+| `styles` | the **reader's** permission `chatty.style.<id>` | how the chat looks **to that reader** |
+| `sender-formats` | the **sender's** permission `chatty.sender-format.<id>` or `chatty.chat.<chat>.sender-format.<id>` | how that player's messages look **to everybody** |
+
+So `sender-formats` is what gives a rank its own prefix in chat, and `styles` is
+what lets one reader see the chat in a different colour. They compose: the
+sender's rank is resolved first, and the reader's style is then taken from that
+rank's own `styles`.
+
+```yaml
+chats:
+  global:
+    format: '{prefix}{player}: {message}'
+    sender-formats:
+      vip:
+        priority: 10
+        format: '&6[VIP] &r{player}&8: &f{message}'
+        styles:
+          red: { format: '&6[VIP] &r&c{player}&8: &c{message}' }
+```
+
+Highest `priority` wins when a sender qualifies for several. A rank that defines
+no `styles` is shown the same way to every reader.
+
 ## Moderation
 
 Caps, advertisement and swear filters, plus mute:

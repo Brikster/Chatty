@@ -49,6 +49,7 @@ public class ChatsConfig extends OkaeriConfig {
                 new ArrayList<>(),
                 true,
                 false,
+                new HashMap<>(),
                 ""));
         put("global", new ChatConfig(
                 "Global",
@@ -79,6 +80,7 @@ public class ChatsConfig extends OkaeriConfig {
                 new ArrayList<>(),
                 true,
                 false,
+                new HashMap<>(),
                 ""));
     }};
 
@@ -213,6 +215,26 @@ public class ChatsConfig extends OkaeriConfig {
         private boolean readOnlySwitched = false;
 
         @Comment(value = {"",
+                "Per-rank appearance of THIS player's messages for everyone else.",
+                "Chosen by the sender's permission, highest priority wins:",
+                "  chatty.chat.<chat-id>.sender-format.<id>  (this chat only)",
+                "  chatty.sender-format.<id>                 (every chat)",
+                "Do not confuse with \"styles\" above: styles change how a chat",
+                "looks to the player reading it, these change how a player looks",
+                "to everybody. Each entry may carry its own styles."},
+                language = "en-US")
+        @Comment(value = {"",
+                "Вид сообщений ЭТОГО игрока для всех остальных, по рангам.",
+                "Выбирается по правам отправителя, побеждает высший приоритет:",
+                "  chatty.chat.<chat-id>.sender-format.<id>  (только этот чат)",
+                "  chatty.sender-format.<id>                 (все чаты)",
+                "Не путайте со \"styles\" выше: styles меняют то, как чат видит",
+                "читающий, а это — как выглядит сам игрок для остальных.",
+                "У каждой записи могут быть свои styles."},
+                language = "ru-RU")
+        private Map<String, SenderFormatConfig> senderFormats = new HashMap<>();
+
+        @Comment(value = {"",
                 "Deliver only to players whose placeholder value equals the sender's.",
                 "Example: '%clan_name%' makes this a clan chat - a message reaches",
                 "only players in the sender's clan. Empty disables the check.",
@@ -247,6 +269,25 @@ public class ChatsConfig extends OkaeriConfig {
         @Comment({"",
                 "If player has several permissions, chat with higher priority will be selected"})
         private int priority = 0;
+
+    }
+
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @SuppressWarnings("FieldMayBeFinal")
+    @Names(strategy = NameStrategy.HYPHEN_CASE, modifier = NameModifier.TO_LOWER_CASE)
+    public static class SenderFormatConfig extends OkaeriConfig {
+
+        @Comment("Higher priority wins when the sender qualifies for several")
+        private int priority = 0;
+
+        private String format = "&7[&6VIP&7] &r{prefix}{player}{suffix}&8: &f{message}";
+
+        private String messageFormat = "{original-message}";
+
+        @Comment({"", "How this format looks to a player holding chatty.style.<id>"})
+        private Map<String, ChatStyleConfig> styles = new HashMap<>();
 
     }
 

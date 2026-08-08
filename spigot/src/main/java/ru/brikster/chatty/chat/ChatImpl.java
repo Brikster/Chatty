@@ -76,6 +76,8 @@ public final class ChatImpl implements Chat {
 
     private final @Nullable ChatSelectionState selectionState;
 
+    private final @NotNull List<SenderFormat> senderFormats;
+
     private final @Nullable String matchPlaceholder;
     private final @Nullable ReplacementsStringTransformer placeholderTransformer;
 
@@ -142,6 +144,37 @@ public final class ChatImpl implements Chat {
         return sender.hasPermission("chatty.chat." + getId())
                 || sender.hasPermission("chatty.chat." + getId() + ".read")
                 || sender.hasPermission("chatty.chat." + getId() + ".see");
+    }
+
+    @Override
+    public @NotNull Component getFormat(@Nullable Player sender) {
+        SenderFormat resolved = resolveSenderFormat(sender);
+        return resolved == null ? format : resolved.getFormat();
+    }
+
+    @Override
+    public @NotNull String getMessageFormat(@Nullable Player sender) {
+        SenderFormat resolved = resolveSenderFormat(sender);
+        return resolved == null ? messageFormat : resolved.getMessageFormat();
+    }
+
+    @Override
+    public @NotNull Set<ChatStyle> getStyles(@Nullable Player sender) {
+        SenderFormat resolved = resolveSenderFormat(sender);
+        return resolved == null ? styles : resolved.getStyles();
+    }
+
+    private @Nullable SenderFormat resolveSenderFormat(@Nullable Player sender) {
+        if (sender == null) {
+            return null;
+        }
+        for (SenderFormat candidate : senderFormats) {
+            if (sender.hasPermission("chatty.sender-format." + candidate.getId())
+                    || sender.hasPermission("chatty.chat." + id + ".sender-format." + candidate.getId())) {
+                return candidate;
+            }
+        }
+        return null;
     }
 
     @Override

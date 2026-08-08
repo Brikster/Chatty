@@ -40,6 +40,25 @@ public interface Chat {
     @NotNull
     Component getFormat();
 
+    /**
+     * Format for messages sent by this player, which may differ from
+     * {@link Chat#getFormat()} when a sender-format applies to them.
+     *
+     * @param sender the player sending the message, or null
+     * @return format to use for that sender
+     */
+    default @NotNull Component getFormat(@Nullable Player sender) {
+        return getFormat();
+    }
+
+    default @NotNull String getMessageFormat(@Nullable Player sender) {
+        return getMessageFormat();
+    }
+
+    default @NotNull Set<ChatStyle> getStyles(@Nullable Player sender) {
+        return getStyles();
+    }
+
     @NotNull
     String getMessageFormat();
 

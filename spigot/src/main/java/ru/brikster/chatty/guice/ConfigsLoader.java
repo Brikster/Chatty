@@ -6,6 +6,7 @@ import ru.brikster.chatty.api.chat.Chat;
 import ru.brikster.chatty.api.chat.ChatStyle;
 import ru.brikster.chatty.chat.ChatImpl;
 import ru.brikster.chatty.chat.component.impl.PlaceholdersComponentTransformer;
+import ru.brikster.chatty.chat.SenderFormat;
 import ru.brikster.chatty.chat.command.ChatCommandImpl;
 import ru.brikster.chatty.chat.component.impl.ReplacementsStringTransformer;
 import ru.brikster.chatty.chat.registry.ChatRegistry;
@@ -19,6 +20,7 @@ import ru.brikster.chatty.notification.NotificationTicker;
 import ru.brikster.chatty.notification.TitleNotification;
 import ru.brikster.chatty.notification.TitleNotification.TitleNotificationMessage;
 
+import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -64,6 +66,21 @@ public final class ConfigsLoader {
                     componentConverter.stringToComponent(spyFormat == null ? "" : spyFormat),
                     chatConfig.getCooldown(),
                     selectionState,
+                    chatConfig.getSenderFormats().entrySet().stream()
+                            .map(entry -> new SenderFormat(
+                                    entry.getKey(),
+                                    entry.getValue().getPriority(),
+                                    componentConverter.stringToComponent(entry.getValue().getFormat()),
+                                    entry.getValue().getMessageFormat(),
+                                    entry.getValue().getStyles().entrySet().stream()
+                                            .map(styleEntry -> new ChatStyle(styleEntry.getKey(),
+                                                    componentConverter.stringToComponent(
+                                                            styleEntry.getValue().getFormat()),
+                                                    styleEntry.getValue().getMessageFormat(),
+                                                    styleEntry.getValue().getPriority()))
+                                            .collect(Collectors.toSet())))
+                            .sorted(Comparator.comparingInt(SenderFormat::getPriority).reversed())
+                            .collect(Collectors.toList()),
                     chatConfig.getMatchPlaceholder(),
                     placeholderTransformer);
             registry.register(chatId, chat);

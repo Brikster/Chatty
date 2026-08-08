@@ -5,6 +5,7 @@ import org.bukkit.entity.Player;
 import org.junit.jupiter.api.Test;
 import ru.brikster.chatty.chat.component.impl.ReplacementsStringTransformer;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -50,7 +51,7 @@ class PlaceholderMatchedChatTest {
         return new ChatImpl("clan", "Clan", mock(net.kyori.adventure.platform.bukkit.BukkitAudiences.class),
                 Component.empty(), "{original-message}", "", null,
                 -2, false, Set.of(), false, false, false, null, Component.empty(), 0,
-                null, matchPlaceholder, clanPlaceholder);
+                null, List.of(), matchPlaceholder, clanPlaceholder);
     }
 
     private static Player player(String name) {
