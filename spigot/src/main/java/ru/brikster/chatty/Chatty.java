@@ -32,6 +32,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -147,6 +148,16 @@ public final class Chatty extends JavaPlugin {
 
         registerChattyCommand();
         registerChatCommands();
+
+        releasePlayerLoginEvent();
+    }
+
+    private void releasePlayerLoginEvent() {
+        try {
+            EventUtil.unregisterListeners(PlayerLoginEvent.class, this);
+        } catch (Throwable t) {
+            getLogger().log(Level.FINE, "Cannot release the command framework's login listener", t);
+        }
     }
 
     private boolean startWithDefaultConfiguration(Path dataFolderPath) {
