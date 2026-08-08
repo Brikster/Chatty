@@ -4,6 +4,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import ru.brikster.chatty.api.chat.message.context.MessageContext;
+import ru.brikster.chatty.chat.component.impl.ReplacementsStringTransformer;
 import ru.brikster.chatty.convert.component.ComponentStringConverter;
 import ru.brikster.chatty.convert.message.LegacyToMiniMessageConverter;
 import ru.brikster.chatty.util.AdventureUtil;
@@ -21,6 +22,9 @@ public final class ComponentFromContextConstructorImpl implements ComponentFromC
     @Inject
     private LegacyToMiniMessageConverter legacyToMiniMessageConverter;
 
+    @Inject
+    private ReplacementsStringTransformer replacementsStringTransformer;
+
     private static final Pattern PLAYER_OR_MESSAGE_PLACEHOLDER = Pattern.compile("\\{player}|\\{message}");
 
     private static final String PLAYER_FORMAT_PLACEHOLDER = "{player}";
@@ -29,7 +33,8 @@ public final class ComponentFromContextConstructorImpl implements ComponentFromC
     @Override
     public Component construct(MessageContext<Component> context) {
         String messageWithMmFormat = componentStringConverter.componentToString(context.getMessage());
-        String convertedMessageFormat = legacyToMiniMessageConverter.convert(context.getMessageFormat());
+        String convertedMessageFormat = replacementsStringTransformer.transform(context.getSender(),
+                legacyToMiniMessageConverter.convert(context.getMessageFormat()));
         // Convert any § legacy codes injected by other plugins (e.g. InteractiveChat
         // hover commands) to MiniMessage tags, otherwise the strict MiniMessage
         // deserializer below would throw on detecting legacy formatting codes.
