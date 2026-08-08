@@ -27,16 +27,19 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import ru.brikster.chatty.adventure.NativeBukkitAudienceProvider;
 import ru.brikster.chatty.api.ChattyApiImpl;
 import ru.brikster.chatty.api.event.ChattyInitEvent;
 import ru.brikster.chatty.chat.executor.LegacyEventExecutor;
+import ru.brikster.chatty.chat.executor.ModernEventExecutor;
 import ru.brikster.chatty.api.chat.Chat;
 import ru.brikster.chatty.api.chat.command.ChatCommand;
 import ru.brikster.chatty.chat.registry.ChatRegistry;
@@ -250,10 +253,7 @@ public final class Chatty extends JavaPlugin {
             getLogger().log(Level.WARNING, "Cannot use monitor priority for listener. HIGHEST priority usage will be forced");
         }
 
-        LegacyEventExecutor chatListener = injector.getInstance(LegacyEventExecutor.class);
-
-        this.getServer().getPluginManager().registerEvents(chatListener, this);
-        this.getServer().getPluginManager().registerEvent(AsyncPlayerChatEvent.class, chatListener, priority, chatListener, this, true);
+        registerChatListener(priority);
 
         VanillaListener miscListener = injector.getInstance(VanillaListener.class);
         this.getServer().getPluginManager().registerEvents(miscListener, this);
@@ -311,6 +311,41 @@ public final class Chatty extends JavaPlugin {
         metricsSender.run();
     }
 
+    private void registerChatListener(EventPriority priority) {
+        PluginManager pluginManager = this.getServer().getPluginManager();
+
+        if (ModernEventExecutor.isSupported()) {
+            try {
+                Class<? extends Event> eventClass = ModernEventExecutor.getEventClass();
+                ModernEventExecutor chatListener = injector.getInstance(ModernEventExecutor.class);
+
+                pluginManager.registerEvent(eventClass, chatListener, priority,
+                        chatListener.earlyExecutor(), this, true);
+                pluginManager.registerEvent(eventClass, chatListener, EventPriority.MONITOR,
+                        chatListener.lateExecutor(), this, false);
+                return;
+            } catch (Throwable t) {
+                getLogger().log(Level.WARNING,
+                        "Cannot listen to the modern chat event, falling back to AsyncPlayerChatEvent", t);
+            }
+        }
+
+        LegacyEventExecutor chatListener = injector.getInstance(LegacyEventExecutor.class);
+        pluginManager.registerEvents(chatListener, this);
+        pluginManager.registerEvent(AsyncPlayerChatEvent.class, chatListener, priority, chatListener, this, true);
+    }
+
+    private void unregisterChatListener() {
+        if (ModernEventExecutor.isSupported()) {
+            try {
+                EventUtil.unregisterListeners(ModernEventExecutor.getEventClass(), this);
+            } catch (Throwable t) {
+                getLogger().log(Level.WARNING, "Cannot unregister the modern chat listener", t);
+            }
+        }
+        EventUtil.unregisterListeners(AsyncPlayerChatEvent.class, this);
+    }
+
     private void closeResources() throws IOException {
         MetricsSender.shutdownActive();
         if (injector != null) {
@@ -326,7 +361,7 @@ public final class Chatty extends JavaPlugin {
         EventUtil.unregisterListeners(PlayerJoinEvent.class, this);
         EventUtil.unregisterListeners(PlayerQuitEvent.class, this);
         EventUtil.unregisterListeners(PlayerDeathEvent.class, this);
-        EventUtil.unregisterListeners(AsyncPlayerChatEvent.class, this);
+        unregisterChatListener();
         if (notificationTicker != null) {
             notificationTicker.cancelTicking();
         }

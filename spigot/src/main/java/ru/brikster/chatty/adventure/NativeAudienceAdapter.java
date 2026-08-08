@@ -60,6 +60,7 @@ public final class NativeAudienceAdapter implements Audience {
             .build();
 
     private static final Class<?> SOUND_SOURCE_CLASS;
+    private static final Class<?> COMPONENT_CLASS;
 
     private static final Lookup LOOKUP;
 
@@ -71,6 +72,7 @@ public final class NativeAudienceAdapter implements Audience {
 
     private static final Object GSON_COMPONENT_SERIALIZER;
     private static final MethodHandle DESERIALIZE_METHOD;
+    private static final MethodHandle SERIALIZE_METHOD;
     private static final MethodHandle IDENTITY_FACTORY_METHOD;
     private static final MethodHandle KEY_FACTORY_METHOD;
     private static final MethodHandle SOUND_FACTORY_METHOD;
@@ -82,6 +84,7 @@ public final class NativeAudienceAdapter implements Audience {
             LOOKUP = MethodHandles.lookup();
             Class<?> audienceClass = Class.forName(AUDIENCE_CLASS_NAME);
             Class<?> componentClass = Class.forName(COMPONENT_CLASS_NAME);
+            COMPONENT_CLASS = componentClass;
             Class<?> identityClass = Class.forName(IDENTITY_CLASS_NAME);
             Class<?> keyClass = Class.forName(KEY_CLASS_NAME);
             Class<?> soundClass = Class.forName(SOUND_CLASS_NAME);
@@ -111,6 +114,8 @@ public final class NativeAudienceAdapter implements Audience {
             Class<?> componentSerializerClass = Class.forName(COMPONENT_SERIALIZER_CLASS_NAME);
             DESERIALIZE_METHOD = LOOKUP.findVirtual(componentSerializerClass, "deserialize",
                     MethodType.methodType(componentClass, Object.class));
+            SERIALIZE_METHOD = LOOKUP.findVirtual(componentSerializerClass, "serialize",
+                    MethodType.methodType(Object.class, componentClass));
             IDENTITY_FACTORY_METHOD = LOOKUP.findStatic(identityClass, "identity",
                     MethodType.methodType(identityClass, UUID.class));
 
@@ -192,6 +197,21 @@ public final class NativeAudienceAdapter implements Audience {
 
     private static Object convertComponent(@NotNull Component message) throws Throwable {
         return DESERIALIZE_METHOD.invoke(GSON_COMPONENT_SERIALIZER, serializeForNative(message));
+    }
+
+    public static Class<?> nativeComponentClass() {
+        return COMPONENT_CLASS;
+    }
+
+    @SneakyThrows
+    public static Object toNativeComponent(@NotNull Component component) {
+        return convertComponent(component);
+    }
+
+    @SneakyThrows
+    public static @NotNull Component fromNativeComponent(@NotNull Object nativeComponent) {
+        Object json = SERIALIZE_METHOD.invoke(GSON_COMPONENT_SERIALIZER, nativeComponent);
+        return COMPATIBLE_GSON.deserialize((String) json);
     }
 
     /**
