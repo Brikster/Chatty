@@ -128,10 +128,10 @@ public final class V2ConfigMigrator {
             chat.put("symbol", legacyChat.get("symbol") != null ? str(legacyChat.get("symbol")) : "");
 
             int range = intValue(legacyChat.get("range"), -2);
-            if (range < -2) {
-                notes.add("chat \"" + entry.getKey() + "\": range " + range
-                        + " was clamped to -2 (set up proxy.yml for cross-server chat).");
-                range = -2;
+            if (range <= -3) {
+                range = -3;
+                notes.add("chat \"" + entry.getKey() + "\" is cross-server (range -3):"
+                        + " configure proxy.yml, v3 uses Redis instead of BungeeCord.");
             }
             chat.put("range", range);
 

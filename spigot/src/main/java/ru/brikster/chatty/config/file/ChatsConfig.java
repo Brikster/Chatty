@@ -122,10 +122,12 @@ public class ChatsConfig extends OkaeriConfig {
         @Comment({"",
                 "Range in blocks for chat message recipients.",
                 "Possible values: ",
+                " -3 -> message will be sent to every server sharing this chat",
+                "       (cross-server chat, requires proxy.yml to be configured)",
                 " -2 -> message will be sent to all online players",
                 " -1 -> message will be sent to all players of the sender's world",
                 " >= 0 -> message will be sent to all players in this blocks range"})
-        @Min(-2)
+        @Min(-3)
         private int range = -2;
 
         @Comment({"",

@@ -159,7 +159,7 @@ class V2ConfigMigratorTest {
     }
 
     @Test
-    void migratesChatsWithClampedRangeAndCooldown() throws Exception {
+    void migratesChatsPreservingRangeAndClampingCooldown() throws Exception {
         runMigration();
         Map<String, Object> chats = childMap(read("chats.yml"), "chats");
 
@@ -170,7 +170,7 @@ class V2ConfigMigratorTest {
         assertTrue(String.valueOf(local.get("format")).contains("[Local]"));
 
         Map<String, Object> global = childMap(chats, "global");
-        assertEquals(-2, global.get("range"), "v2 range -3 must clamp to -2");
+        assertEquals(-3, global.get("range"), "v2 range -3 is cross-server chat and must survive");
         assertEquals("!", global.get("symbol"));
         assertEquals(true, global.get("permission-required"), "v2 permission defaults to true");
     }
