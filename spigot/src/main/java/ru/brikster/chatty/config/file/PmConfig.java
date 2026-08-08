@@ -1,6 +1,9 @@
 package ru.brikster.chatty.config.file;
 
 import eu.okaeri.configs.OkaeriConfig;
+
+import java.util.ArrayList;
+import java.util.List;
 import eu.okaeri.configs.annotation.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,6 +26,25 @@ public class PmConfig extends OkaeriConfig {
 
     @Comment({"", "Enable private messages?"})
     private boolean enable = true;
+
+    @Comment(value = {"",
+            "Command and aliases used to send a private message.",
+            "Remove an alias here if it clashes with another plugin",
+            "(for example \"dm\", which DeluxeMenus also uses)."},
+            language = "en-US")
+    @Comment(value = {"",
+            "Команда и её алиасы для отправки личного сообщения.",
+            "Уберите алиас, если он конфликтует с другим плагином",
+            "(например \"dm\", который использует и DeluxeMenus)."},
+            language = "ru-RU")
+    private String command = "msg";
+
+    private List<String> aliases = new ArrayList<>(List.of("message", "m", "w", "pm", "tell", "whisper", "t"));
+
+    @Comment({"", "Command and aliases used to answer the last private message"})
+    private String replyCommand = "reply";
+
+    private List<String> replyAliases = new ArrayList<>(List.of("r"));
 
     @Comment({"",
             "Allow private messages from/to console?",

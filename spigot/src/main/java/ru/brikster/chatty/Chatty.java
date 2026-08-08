@@ -468,7 +468,10 @@ public final class Chatty extends JavaPlugin {
     }
 
     private void registerPmCommands(CommandSuggestionsProvider<CommandSender> pmSuggestionsProvider) {
-        Command<CommandSender> msgCommand = asyncCommandManager.commandBuilder("msg", "message", "m", "w", "pm", "dm")
+        PmConfig pmConfig = injector.getInstance(PmConfig.class);
+
+        Command<CommandSender> msgCommand = asyncCommandManager
+                .commandBuilder(pmConfig.getCommand(), pmConfig.getAliases().toArray(new String[0]))
                 .permission(OrPermission.of(List.of(
                         Permission.of("chatty.pm"), Permission.of("chatty.command.msg"))))
                 .argument(StringArgument.<CommandSender>builder("target")
@@ -479,7 +482,8 @@ public final class Chatty extends JavaPlugin {
                 .handler(proxyingCommandHandlerMap.get("msg"))
                 .build();
 
-        Command<CommandSender> replyCommand = asyncCommandManager.commandBuilder("reply", "r")
+        Command<CommandSender> replyCommand = asyncCommandManager
+                .commandBuilder(pmConfig.getReplyCommand(), pmConfig.getReplyAliases().toArray(new String[0]))
                 .permission(OrPermission.of(List.of(
                         Permission.of("chatty.pm"), Permission.of("chatty.command.reply"))))
                 .argument(StringArgument.greedy("message"))
