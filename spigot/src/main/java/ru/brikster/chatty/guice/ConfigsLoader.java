@@ -7,6 +7,7 @@ import ru.brikster.chatty.api.chat.ChatStyle;
 import ru.brikster.chatty.chat.ChatImpl;
 import ru.brikster.chatty.chat.component.impl.PlaceholdersComponentTransformer;
 import ru.brikster.chatty.chat.command.ChatCommandImpl;
+import ru.brikster.chatty.chat.component.impl.ReplacementsStringTransformer;
 import ru.brikster.chatty.chat.registry.ChatRegistry;
 import ru.brikster.chatty.chat.selection.ChatSelectionState;
 import ru.brikster.chatty.config.file.ChatsConfig;
@@ -29,7 +30,8 @@ public final class ConfigsLoader {
                              ChatRegistry registry,
                              ComponentStringConverter componentConverter,
                              BukkitAudiences audiences,
-                             ChatSelectionState selectionState) {
+                             ChatSelectionState selectionState,
+                             ReplacementsStringTransformer placeholderTransformer) {
         config.getChats().forEach((chatId, chatConfig) -> {
             String spyFormat = chatConfig.getSpy().getFormat();
             Chat chat = new ChatImpl(chatId,
@@ -61,7 +63,9 @@ public final class ConfigsLoader {
                     chatConfig.isPlaySound() ? chatConfig.getSound() : null,
                     componentConverter.stringToComponent(spyFormat == null ? "" : spyFormat),
                     chatConfig.getCooldown(),
-                    selectionState);
+                    selectionState,
+                    chatConfig.getMatchPlaceholder(),
+                    placeholderTransformer);
             registry.register(chatId, chat);
         });
     }

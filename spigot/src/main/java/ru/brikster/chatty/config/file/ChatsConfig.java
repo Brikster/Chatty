@@ -48,7 +48,8 @@ public class ChatsConfig extends OkaeriConfig {
                 "",
                 new ArrayList<>(),
                 true,
-                false));
+                false,
+                ""));
         put("global", new ChatConfig(
                 "Global",
                 "&7[<hover:show_text:'&aUse &2&l! &afor global chat'><click:suggest_command:!>&6Global</click></hover>&7] &r{prefix}{player}{suffix}&8: &f{message}",
@@ -77,7 +78,8 @@ public class ChatsConfig extends OkaeriConfig {
                 "",
                 new ArrayList<>(),
                 true,
-                false));
+                false,
+                ""));
     }};
 
     @Getter
@@ -209,6 +211,23 @@ public class ChatsConfig extends OkaeriConfig {
                 "Deliver this chat only to players who switched into it?",
                 "Useful for an opt-in chat nobody sees until they join it."})
         private boolean readOnlySwitched = false;
+
+        @Comment(value = {"",
+                "Deliver only to players whose placeholder value equals the sender's.",
+                "Example: '%clan_name%' makes this a clan chat - a message reaches",
+                "only players in the sender's clan. Empty disables the check.",
+                "Needs PlaceholderAPI."},
+                language = "en-US")
+        @Comment(value = {"",
+                "Отправлять только игрокам, у которых значение плейсхолдера",
+                "совпадает со значением отправителя. Например, '%clan_name%'",
+                "делает чат клановым: сообщение дойдёт только до соклановцев.",
+                "Пусто — проверка выключена. Требует PlaceholderAPI, причём",
+                "плейсхолдер должен им реально раскрываться: для %player_name%",
+                "нужно расширение Player, иначе он останется текстом и",
+                "совпадёт у всех."},
+                language = "ru-RU")
+        private String matchPlaceholder = "";
 
     }
 

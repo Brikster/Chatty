@@ -15,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import ru.brikster.chatty.api.chat.Chat;
 import ru.brikster.chatty.api.chat.ChatStyle;
 import ru.brikster.chatty.api.chat.command.ChatCommand;
+import ru.brikster.chatty.chat.component.impl.ReplacementsStringTransformer;
 import ru.brikster.chatty.chat.selection.ChatSelectionState;
 import ru.brikster.chatty.api.chat.message.strategy.MessageTransformStrategy;
 import ru.brikster.chatty.api.chat.range.Ranges;
@@ -75,6 +76,9 @@ public final class ChatImpl implements Chat {
 
     private final @Nullable ChatSelectionState selectionState;
 
+    private final @Nullable String matchPlaceholder;
+    private final @Nullable ReplacementsStringTransformer placeholderTransformer;
+
     private final List<MessageTransformStrategy<?>> strategies
             = new ArrayList<>();
 
@@ -99,6 +103,20 @@ public final class ChatImpl implements Chat {
     @Override
     public boolean removeStrategy(@NotNull MessageTransformStrategy<?> strategy) {
         return strategies.remove(strategy);
+    }
+
+    private @Nullable String senderMatchValue(@Nullable Player sender) {
+        if (sender == null || matchPlaceholder == null || matchPlaceholder.isBlank()) {
+            return null;
+        }
+        return resolveMatchValue(sender);
+    }
+
+    private @Nullable String resolveMatchValue(Player player) {
+        if (placeholderTransformer == null || matchPlaceholder == null) {
+            return null;
+        }
+        return placeholderTransformer.transform(player, matchPlaceholder);
     }
 
     @Override
@@ -128,6 +146,7 @@ public final class ChatImpl implements Chat {
 
     @Override
     public @NotNull Predicate<Player> getRecipientPredicate(@Nullable Player sender) {
+        String senderValue = senderMatchValue(sender);
         return player -> {
             if (player == sender || player.equals(sender)) {
                 return true;
@@ -139,6 +158,10 @@ public final class ChatImpl implements Chat {
 
             if (command != null && command.isReadOnlySwitched() && selectionState != null
                     && !selectionState.isSwitchedTo(player.getUniqueId(), id)) {
+                return false;
+            }
+
+            if (senderValue != null && !senderValue.equals(resolveMatchValue(player))) {
                 return false;
             }
 
