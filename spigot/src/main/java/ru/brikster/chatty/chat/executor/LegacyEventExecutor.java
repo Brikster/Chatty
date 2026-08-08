@@ -28,6 +28,7 @@ import ru.brikster.chatty.chat.selection.ChatSelector;
 import ru.brikster.chatty.chat.style.ChatStylePlayerGrouper;
 import ru.brikster.chatty.config.file.MessagesConfig;
 import ru.brikster.chatty.config.file.SettingsConfig;
+import ru.brikster.chatty.misc.ChatLogWriter;
 import ru.brikster.chatty.proxy.ProxyService;
 import ru.brikster.chatty.util.EventUtil;
 
@@ -55,6 +56,7 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
     @Inject private ComponentFromContextConstructor componentFromContextConstructor;
     @Inject private BukkitAudiences audiences;
     @Inject private SettingsConfig settings;
+    @Inject private ChatLogWriter chatLogWriter;
     @Inject private MessagesConfig messages;
     @Inject private MessageTransformStrategiesProcessor processor;
     @Inject private IntermediateMessageTransformer intermediateMessageTransformer;
@@ -256,6 +258,8 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
                     stringFormat = stringFormat.replaceFirst(Pattern.quote("{message}"), Matcher.quoteReplacement(stringMessage));
                     stringFormat = stringFormat.replace("%", "%%");
                     event.setFormat(stringFormat);
+                    chatLogWriter.log(middleContext.getChat().getId(),
+                            lateContext.getSender().getName(), stringMessage);
                     event.setMessage(stringMessage);
                 }
             }

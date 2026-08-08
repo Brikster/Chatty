@@ -55,6 +55,7 @@ import ru.brikster.chatty.config.migration.V2ConfigMigrator;
 import ru.brikster.chatty.guice.ConfigsLoader;
 import ru.brikster.chatty.guice.GeneralGuiceModule;
 import ru.brikster.chatty.metrics.MetricsSender;
+import ru.brikster.chatty.misc.ChatLogWriter;
 import ru.brikster.chatty.misc.VanillaListener;
 import ru.brikster.chatty.notification.NotificationTicker;
 import ru.brikster.chatty.papi.PapiExpansionInstaller;
@@ -312,6 +313,9 @@ public final class Chatty extends JavaPlugin {
 
     private void closeResources() throws IOException {
         MetricsSender.shutdownActive();
+        if (injector != null) {
+            injector.getInstance(ChatLogWriter.class).close();
+        }
         if (!isUseNativeAdventurePlatform()) {
             BukkitAudiences.create(this).close();
         }

@@ -136,6 +136,17 @@ public class SettingsConfig extends OkaeriConfig {
             language = "ru-RU")
     private boolean rewriteConfigFiles = true;
 
+    @Comment({"", "Write every delivered chat message to plugins/Chatty/logs/"})
+    private ChatLogConfig chatLog = new ChatLogConfig();
+
+    @Getter
+    @Names(strategy = NameStrategy.HYPHEN_CASE, modifier = NameModifier.TO_LOWER_CASE)
+    public static class ChatLogConfig extends OkaeriConfig {
+
+        private boolean enable = false;
+
+    }
+
     @Comment({"", "Enable debug messages"})
     private boolean debug = false;
 
