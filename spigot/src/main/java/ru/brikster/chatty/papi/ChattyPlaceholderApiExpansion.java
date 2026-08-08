@@ -14,7 +14,6 @@ import ru.brikster.chatty.repository.player.PlayerDataRepository;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Comparator;
-import java.util.stream.Collectors;
 
 @Singleton
 public class ChattyPlaceholderApiExpansion extends PlaceholderExpansion implements Relational {
@@ -72,13 +71,23 @@ public class ChattyPlaceholderApiExpansion extends PlaceholderExpansion implemen
                 return currentChat(online) == null ? "" : currentChat(online).getDisplayName();
             case "chat_range":
                 return currentChat(online) == null ? "" : String.valueOf(currentChat(online).getRange());
-            case "chats":
-                return writableChats(online);
             case "spy":
                 return Boolean.toString(playerDataRepository.isEnableSpy(online.getUniqueId()));
             default:
-                return null;
+                break;
         }
+
+        String lower = params.toLowerCase();
+        if (lower.startsWith("chat_range_")) {
+            Chat chat = chatRegistry.getChats().get(params.substring("chat_range_".length()));
+            return chat == null ? "" : String.valueOf(chat.getRange());
+        }
+        if (lower.startsWith("chat_displayname_")) {
+            Chat chat = chatRegistry.getChats().get(params.substring("chat_displayname_".length()));
+            return chat == null ? "" : chat.getDisplayName();
+        }
+
+        return null;
     }
 
     @Override
@@ -106,14 +115,6 @@ public class ChattyPlaceholderApiExpansion extends PlaceholderExpansion implemen
                 .filter(chat -> mayWrite(chat, player))
                 .min(Comparator.comparing(Chat::getId))
                 .orElse(null);
-    }
-
-    private String writableChats(Player player) {
-        return chatRegistry.getChats().values().stream()
-                .filter(chat -> mayWrite(chat, player))
-                .map(Chat::getId)
-                .sorted()
-                .collect(Collectors.joining(", "));
     }
 
     private static boolean mayWrite(Chat chat, Player player) {

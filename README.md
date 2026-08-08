@@ -57,7 +57,8 @@ Discord bridges and anything else can read it:
 | `%chatty_chat%` | id of the chat the player currently writes to |
 | `%chatty_chat_displayname%` | its display name |
 | `%chatty_chat_range%` | its range in blocks (`-3` cross-server, `-2` server, `-1` world) |
-| `%chatty_chats%` | every chat the player may write to |
+| `%chatty_chat_range_<id>%` | the range of a named chat, e.g. `%chatty_chat_range_local%` |
+| `%chatty_chat_displayname_<id>%` | the display name of a named chat |
 | `%chatty_prefix%` / `%chatty_suffix%` | the prefix and suffix Chatty resolves for the player |
 | `%chatty_spy%` | whether spy mode is on |
 | `%rel_chatty_ignore%` | whether the first player ignores the second |
