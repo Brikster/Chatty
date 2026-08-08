@@ -2,8 +2,9 @@
 
 // In-game chat test for scripts/smoke-test.sh.
 // Connects two bots to a running server, makes one of them send a few chat
-// messages (plain text, a mention, a link) and verifies the other bot — and
-// the sender itself — receive them processed by Chatty.
+// messages (plain text, a mention, a link, a private message and a reply) and
+// verifies the other bot — and the sender itself — receive them processed by
+// Chatty.
 
 const mineflayer = require('mineflayer');
 
@@ -74,6 +75,10 @@ async function main() {
     sender.chat('@SmokeTarget you have been mentioned');
     await sleep(900);
     sender.chat('check out https://example.com today');
+    await sleep(1200);
+    sender.chat('/msg SmokeTarget a private word');
+    await sleep(1200);
+    target.chat('/r and a private answer');
     await sleep(2500);
 
     const text = lines.join('\n');
@@ -86,6 +91,8 @@ async function main() {
     if (!text.includes('hello from the smoke test')
             || !text.includes('you have been mentioned')
             || !text.includes('check out https://example.com today')
+            || !text.includes('a private word')
+            || !text.includes('and a private answer')
             || !mentionInteractive) {
         // Dump everything observed so a failure is diagnosable from CI logs.
         console.error('--- observed chat lines (' + lines.length + ') ---');
@@ -99,6 +106,8 @@ async function main() {
     assert(text.includes('you have been mentioned'), 'mention message was not delivered');
     assert(text.includes('check out https://example.com today'), 'link message was not delivered');
     assert(mentionInteractive, 'mention was not turned into an interactive component');
+    assert(text.includes('a private word'), 'private message from /msg was not delivered');
+    assert(text.includes('and a private answer'), 'reply from /r was not delivered');
 
     console.log('CHAT TEST OK (' + lines.length + ' chat lines observed)');
     process.exit(0);
