@@ -181,9 +181,12 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
         earlyContext.setRecipients(new ArrayList<>(event.getRecipients()));
         earlyContext.setMessage(event.getMessage());
 
+        List<Player> untouchedRecipients = new ArrayList<>(event.getRecipients());
         event.getRecipients().clear();
 
         boolean processed = false;
+        boolean delivered = false;
+        boolean dropped = false;
 
         try {
             long millisStart = System.currentTimeMillis();
@@ -191,7 +194,7 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
             MessageContext<Component> earlyComponentContext = intermediateMessageTransformer.handle(earlyContext).getNewContext();
 
             if (PlainTextComponentSerializer.plainText().serialize(earlyComponentContext.getMessage()).isBlank()) {
-                // will be cancelled in finally block
+                dropped = true;
                 return;
             }
 
@@ -242,6 +245,7 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
                 groupContext.getMetadata().put("all_recipients", middleContext.getRecipients());
 
                 MessageContext<Component> lateContext = processor.handle(groupContext, Stage.LATE).getNewContext();
+                delivered = true;
                 sendProcessedMessage(lateContext, middleContext.getRecipients());
 
                 // Format console message without style
@@ -272,7 +276,11 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
             handleProcessingFailure(t, event.getPlayer());
         } finally {
             if (!processed) {
-                event.setCancelled(true);
+                if (dropped || delivered) {
+                    event.setCancelled(true);
+                } else {
+                    event.getRecipients().addAll(untouchedRecipients);
+                }
             }
         }
     }
