@@ -2,6 +2,7 @@ package ru.brikster.chatty.chat.message.transform.stage.early;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import ru.brikster.chatty.api.chat.message.context.MessageContext;
 import ru.brikster.chatty.api.chat.message.strategy.MessageTransformStrategy;
@@ -15,11 +16,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.logging.Level;
 
 @Singleton
 public final class SpyModeStrategy implements MessageTransformStrategy<String> {
 
+    private static final long WARN_INTERVAL_MILLIS = 60_000L;
+
     @Inject private PlayerDataRepository repository;
+    @Inject private Plugin plugin;
+
+    private long lastWarnAt;
 
     @Override
     public @NotNull MessageTransformResult<String> handle(MessageContext<String> context) {
@@ -29,26 +36,49 @@ public final class SpyModeStrategy implements MessageTransformStrategy<String> {
 
         List<Player> spies = new ArrayList<>();
         if (context.getChat().isEnableSpy()) {
-            for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                if (onlinePlayer.hasPermission("chatty.spy." + context.getChat().getId())
-                        && repository.isEnableSpy(onlinePlayer.getUniqueId())
-                        && !recipients.contains(onlinePlayer)) {
-                    recipients.add(onlinePlayer);
-                    spies.add(onlinePlayer);
+            try {
+                for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                    if (onlinePlayer.hasPermission("chatty.spy." + context.getChat().getId())
+                            && repository.isEnableSpy(onlinePlayer.getUniqueId())
+                            && !recipients.contains(onlinePlayer)) {
+                        recipients.add(onlinePlayer);
+                        spies.add(onlinePlayer);
+                    }
                 }
+            } catch (RuntimeException e) {
+                recipients.removeAll(spies);
+                spies.clear();
+                warn("Cannot resolve chat spies, delivering without them", e);
             }
 
             builder.withMetadata("spy-recipients", spies);
         }
 
-        Set<UUID> whoIgnoreUuids = repository.getWhoIgnoreUuids(context.getSender());
-        recipients.removeIf(recipient -> whoIgnoreUuids.contains(recipient.getUniqueId()));
+        try {
+            Set<UUID> whoIgnoreUuids = repository.getWhoIgnoreUuids(context.getSender());
+            recipients.removeIf(recipient -> whoIgnoreUuids.contains(recipient.getUniqueId()));
+        } catch (RuntimeException e) {
+            warn("Cannot read ignore lists, delivering to everyone", e);
+        }
 
-        repository.createOrUpdateUser(context.getSender().getUniqueId(), context.getSender().getName());
+        try {
+            repository.createOrUpdateUser(context.getSender().getUniqueId(), context.getSender().getName());
+        } catch (RuntimeException e) {
+            warn("Cannot store the player record", e);
+        }
 
         return builder
                 .withRecipients(recipients)
                 .build();
+    }
+
+    private void warn(String message, Throwable cause) {
+        long now = System.currentTimeMillis();
+        if (now - lastWarnAt < WARN_INTERVAL_MILLIS) {
+            return;
+        }
+        lastWarnAt = now;
+        plugin.getLogger().log(Level.WARNING, message, cause);
     }
 
     @Override
