@@ -21,7 +21,7 @@ Chatty v3 переписан с нуля. Конфигурация раздел�
 
 | v2 | v3 |
 |----|----|
-| `chats.<id>` — format, display-name, symbol, range, cooldown, permission | `chats.yml` → `chats.<id>` |
+| `chats.<id>` — format, display-name, symbol, range, cooldown, permission, command, aliases | `chats.yml` → `chats.<id>` |
 | `general.locale` | `settings.yml` → `language` |
 | `general.priority` | `settings.yml` → `listener-priority` |
 | `general.keep-old-recipients` | `settings.yml` → `respect-foreign-recipients` |
@@ -55,8 +55,7 @@ Chatty v3 переписан с нуля. Конфигурация раздел�
   языка из `general.locale` переносится в `settings.yml` → `language`
   (`ru` → `ru-RU`, `zh_CN` → `zh-CN` и так далее); нераспознанное значение
   указывается в примечаниях при запуске, а язык остаётся по умолчанию.
-- **Команды и алиасы для отдельных чатов**, а также **пер-чатовые переключатели
-  модерации** — прямого эквивалента в v3 нет.
+- **Пер-чатовые переключатели модерации** — прямого эквивалента в v3 нет.
 - **Кросс-серверный чат** — в v3 через Redis, настраивается в `proxy.yml`.
 
 ## Права
@@ -97,11 +96,17 @@ Chatty v3 переписан с нуля. Конфигурация раздел�
 | `chatty.style.reset` | `chatty.decoration.reset` |
 | `chatty.spy` | `chatty.spy.pm` |
 
-`chatty.decoration.*` действует на весь сервер. Пер-чатовой формы
-`chatty.style.<style>.<chat>` из v2 в v3 нет, поэтому выдача, покрывавшая один
-чат, теперь либо на все чаты, либо ни на один. Узел `chatty.decoration` сам по
-себе даёт ещё и hex-цвета, которых v2 в сообщениях игроков не допускал —
-выдавайте отдельные листья, если это не то, что вам нужно.
+Пер-чатовая форма из v2 `chatty.style.<style>.<chat>` имеет эквивалент — он
+пишется в пространстве самого чата: `chatty.chat.<чат>.decoration.<стиль>`.
+То есть `chatty.style.colors.global` становится
+`chatty.chat.global.decoration.color`, а `chatty.decoration.color` без чата
+по-прежнему действует на все чаты. Чат нельзя поставить в конец, как было в v2:
+эта позиция уже занята названием цвета — `chatty.decoration.color.red` означает
+«можно красный».
+
+Узел `chatty.decoration` сам по себе даёт ещё и hex-цвета, которых v2 в
+сообщениях игроков не допускал — выдавайте отдельные листья, если это не то,
+что вам нужно.
 
 ### Исчезло вместе с функцией
 

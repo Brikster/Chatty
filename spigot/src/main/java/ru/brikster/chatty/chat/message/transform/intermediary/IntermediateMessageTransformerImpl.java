@@ -17,7 +17,8 @@ public final class IntermediateMessageTransformerImpl implements IntermediateMes
 
     @Override
     public @NotNull MessageTransformResult<Component> handle(MessageContext<String> context) {
-        Component messageComponent = decorationsFormatter.formatMessageWithDecorations(context.getSender(), context.getMessage());
+        Component messageComponent = decorationsFormatter.formatMessageWithDecorations(
+                context.getSender(), context.getMessage(), context.getChat().getId());
         return MessageTransformResultBuilder
                 .<Component>fromContext(context)
                 .withMessage(messageComponent)

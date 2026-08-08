@@ -5,6 +5,7 @@ import net.kyori.adventure.text.serializer.legacy.CharacterAndFormat;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import ru.brikster.chatty.util.CollectionUtil;
 
 import javax.inject.Singleton;
@@ -52,12 +53,24 @@ public final class PlayerDecorationsFormatter {
             .build();
 
     public @NotNull Component formatMessageWithDecorations(@NotNull CommandSender sender, @NotNull String message) {
+        return formatMessageWithDecorations(sender, message, null);
+    }
+
+    private static boolean has(CommandSender sender, @Nullable String chatId, String node) {
+        if (sender.hasPermission("chatty.decoration" + node)) {
+            return true;
+        }
+        return chatId != null && sender.hasPermission("chatty.chat." + chatId + ".decoration" + node);
+    }
+
+    public @NotNull Component formatMessageWithDecorations(@NotNull CommandSender sender, @NotNull String message,
+                                                          @Nullable String chatId) {
         // Chatty's decoration system is &-based; the § (section) sign is never
         // legitimate player input (the server rejects it in chat). Strip it so
         // it can never be interpreted as a color code further down the pipeline.
         message = message.replace("\u00A7", "");
 
-        if (sender.hasPermission("chatty.decoration")) {
+        if (has(sender, chatId, "")) {
             return FULL_SERIALIZER.deserialize(message);
         }
 
@@ -67,25 +80,25 @@ public final class PlayerDecorationsFormatter {
 
         List<CharacterAndFormat> formatList = new LinkedList<>();
 
-        if (sender.hasPermission("chatty.decoration.color")) {
+        if (has(sender, chatId, ".color")) {
             formatList.addAll(COLORS.values());
         } else {
             for (var format : COLORS.entrySet()) {
-                if (sender.hasPermission("chatty.decoration.color." + format.getKey())) {
+                if (has(sender, chatId, ".color." + format.getKey())) {
                     formatList.add(format.getValue());
                 }
             }
         }
 
         for (var format : DECORATIONS.entrySet()) {
-            if (sender.hasPermission("chatty.decoration." + format.getKey())) {
+            if (has(sender, chatId, "." + format.getKey())) {
                 formatList.add(format.getValue());
             }
         }
 
         String messageToDeserialize = message;
 
-        if (!sender.hasPermission("chatty.decoration.hex")) {
+        if (!has(sender, chatId, ".hex")) {
             componentSerializerBuilder.hexCharacter((char) 0);
             messageToDeserialize = message.replaceAll("&[xX](&[a-fA-F0-9]){6}", "");
         } else {

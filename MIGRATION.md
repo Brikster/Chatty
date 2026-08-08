@@ -21,7 +21,7 @@ When v3 starts and finds a legacy v2 `config.yml` in `plugins/Chatty/`, it:
 
 | v2 | v3 |
 |----|----|
-| `chats.<id>` — format, display-name, symbol, range, cooldown, permission | `chats.yml` → `chats.<id>` |
+| `chats.<id>` — format, display-name, symbol, range, cooldown, permission, command, aliases | `chats.yml` → `chats.<id>` |
 | `general.locale` | `settings.yml` → `language` |
 | `general.priority` | `settings.yml` → `listener-priority` |
 | `general.keep-old-recipients` | `settings.yml` → `respect-foreign-recipients` |
@@ -55,8 +55,7 @@ These are **not** migrated automatically and stay at v3 defaults:
   `general.locale` is migrated to `settings.yml` → `language` (`ru` → `ru-RU`,
   `zh_CN` → `zh-CN`, and so on); an unsupported value is reported in the
   startup notes and leaves the default in place.
-- **Per-chat commands / aliases** and **per-chat moderation toggles** — no
-  direct v3 equivalent.
+- **Per-chat moderation toggles** — no direct v3 equivalent.
 - **Cross-server chat** — v3 uses Redis; configure `proxy.yml`.
 
 ## Permissions
@@ -95,11 +94,15 @@ replacements explicitly:
 | `chatty.style.reset` | `chatty.decoration.reset` |
 | `chatty.spy` | `chatty.spy.pm` |
 
-`chatty.decoration.*` is server-wide. v2's per-chat form
-`chatty.style.<style>.<chat>` has no v3 equivalent, so a grant that covered one
-chat now has to be all chats or none. `chatty.decoration` on its own also
-grants hex colours, which v2 never allowed in player messages — grant the
-individual leaves unless you want that.
+v2's per-chat form `chatty.style.<style>.<chat>` has an equivalent, spelled
+inside the chat's own namespace: `chatty.chat.<chat>.decoration.<style>`. So
+`chatty.style.colors.global` becomes `chatty.chat.global.decoration.color`, and
+`chatty.decoration.color` without a chat still grants every chat as before.
+The chat cannot go last, the way v2 wrote it, because that position already
+names a colour — `chatty.decoration.color.red` means "may use red".
+
+`chatty.decoration` on its own also grants hex colours, which v2 never allowed
+in player messages — grant the individual leaves unless you want that.
 
 ### Gone with the feature
 
