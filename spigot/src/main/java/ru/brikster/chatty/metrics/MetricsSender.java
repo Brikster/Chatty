@@ -20,7 +20,17 @@ public class MetricsSender {
     @Inject private ModerationConfig moderationConfig;
     @Inject private VanillaConfig vanillaConfig;
 
+    private static Metrics activeMetrics;
+
+    public static void shutdownActive() {
+        if (activeMetrics != null) {
+            activeMetrics.shutdown();
+            activeMetrics = null;
+        }
+    }
+
     public void run() {
+        shutdownActive();
         if (settingsConfig.isSendMetrics()) {
             if (PaperUtil.isFolia()) {
                 plugin.getLogger().info("Skipping bStats metrics: the bundled version"
@@ -28,6 +38,7 @@ public class MetricsSender {
                 return;
             }
             Metrics metrics = new Metrics((JavaPlugin) plugin, 3466);
+            activeMetrics = metrics;
             metrics.addCustomChart(new SimplePie("language",
                     () -> settingsConfig.getLanguage()));
 

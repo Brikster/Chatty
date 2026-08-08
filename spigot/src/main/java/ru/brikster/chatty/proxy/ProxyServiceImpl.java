@@ -44,6 +44,7 @@ public final class ProxyServiceImpl implements ProxyService {
 
     private final UUID clientId = UUID.randomUUID();
 
+    private final RedissonClient redissonClient;
     private final RMapCache<String, ProxyPlayer> playersCache;
     private final RMapCache<String, String> pmReplyCache;
     private final RTopic chatTopic;
@@ -58,7 +59,7 @@ public final class ProxyServiceImpl implements ProxyService {
                             ChatStylePlayerGrouper stylePlayerGrouper,
                             PlayerDataRepository playerDataRepository,
                             Plugin plugin) {
-        RedissonClient redissonClient = Redisson.create(redissonConfig);
+        this.redissonClient = Redisson.create(redissonConfig);
         this.playersCache = redissonClient.getMapCache("chatty_players");
         this.pmReplyCache = redissonClient.getMapCache("chatty_pm_reply");
         this.chatTopic = redissonClient.getTopic("chatty_chat");
@@ -213,6 +214,7 @@ public final class ProxyServiceImpl implements ProxyService {
         this.scheduledExecutor.shutdown();
         this.chatTopic.removeAllListeners();
         this.pmTopic.removeAllListeners();
+        this.redissonClient.shutdown();
     }
 
 }

@@ -42,7 +42,11 @@ public final class ScheduledExecutorNotificationTicker implements NotificationTi
 
     @Override
     public void cancelTicking() {
-        future.cancel(false);
+        if (future != null) {
+            future.cancel(false);
+            future = null;
+        }
+        executor.shutdownNow();
     }
 
 }

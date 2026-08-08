@@ -308,6 +308,7 @@ public final class Chatty extends JavaPlugin {
     }
 
     private void closeResources() throws IOException {
+        MetricsSender.shutdownActive();
         if (!isUseNativeAdventurePlatform()) {
             BukkitAudiences.create(this).close();
         }
