@@ -33,6 +33,29 @@ that makes it so powerful and stable.
 - "Vanilla" messages configuring (join/quit/death)
 - MiniMessage both legacy (&) styling format
 
+## Text formatting
+
+Every spelling below is covered by `ColourSpellingMatrixTest`, so this table is
+what the code does rather than what it intends to do. All of them work in chat
+formats, in `message-format`, in `lang/` files and in a prefix or suffix coming
+from LuckPerms or Vault.
+
+| Spelling | Example | Supported |
+| --- | --- | --- |
+| Legacy colour | `&c` | yes |
+| Legacy decoration | `&l` `&n` `&o` `&m` `&k` `&r` | yes |
+| Section sign | `§c` | yes |
+| MiniMessage colour | `<red>` | yes |
+| MiniMessage hex | `<#757575>` | yes |
+| Ampersand hex | `&#757575` | yes |
+| Spigot spread hex | `&x&7&5&7&5&7&5` | yes |
+| Gradient | `<gradient:#ff0000:#00ff00>` | yes |
+| Rainbow | `<rainbow>` | yes |
+| Bare hash | `#757575` | no, prints as text |
+
+Writing colour codes in your own messages is a separate question — that needs
+`chatty.decoration.*`, see the permissions section of the migration guide.
+
 ## Building
 
 Chatty uses Gradle to handle dependencies & building. Building needs JDK 21;
