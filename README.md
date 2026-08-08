@@ -33,6 +33,13 @@ that makes it so powerful and stable.
 - "Vanilla" messages configuring (join/quit/death)
 - MiniMessage both legacy (&) styling format
 
+## Platforms
+
+Paper, Spigot and Purpur from 1.8.8 up to 26.x, and Folia. Folia support is
+verified by booting a real Folia server: the plugin schedules its own work and
+never touches the Bukkit scheduler, and the bundled bStats, which does, is
+skipped there.
+
 ## Text formatting
 
 Every spelling below is covered by `ColourSpellingMatrixTest`, so this table is

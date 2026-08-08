@@ -19,6 +19,19 @@ public class PaperUtil {
         return IS_PAPER;
     }
 
+    private static Boolean IS_FOLIA;
+
+    public boolean isFolia() {
+        if (IS_FOLIA != null) return IS_FOLIA;
+        try {
+            Class.forName("io.papermc.paper.threadedregions.RegionizedServer");
+            IS_FOLIA = true;
+        } catch (Throwable t) {
+            IS_FOLIA = false;
+        }
+        return IS_FOLIA;
+    }
+
     public boolean isSupportAdventure() {
         try {
             // Concatenation to prevent shadow's relocation

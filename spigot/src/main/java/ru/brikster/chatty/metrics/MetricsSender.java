@@ -5,6 +5,7 @@ import org.bstats.charts.SimplePie;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import ru.brikster.chatty.config.file.*;
+import ru.brikster.chatty.util.PaperUtil;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -21,6 +22,11 @@ public class MetricsSender {
 
     public void run() {
         if (settingsConfig.isSendMetrics()) {
+            if (PaperUtil.isFolia()) {
+                plugin.getLogger().info("Skipping bStats metrics: the bundled version"
+                        + " uses the Bukkit scheduler, which Folia does not provide.");
+                return;
+            }
             Metrics metrics = new Metrics((JavaPlugin) plugin, 3466);
             metrics.addCustomChart(new SimplePie("language",
                     () -> settingsConfig.getLanguage()));
