@@ -126,7 +126,7 @@ public final class LegacyEventExecutor implements Listener, EventExecutor {
     }
 
     private MessageContext<String> createEarlyContext(AsyncPlayerChatEvent event) {
-        Chat chat = selector.selectChat(event.getMessage(), chatCandidate ->
+        Chat chat = selector.selectChat(event.getPlayer(), event.getMessage(), chatCandidate ->
                 !chatCandidate.isPermissionRequired() ||
                         chatCandidate.hasSymbolWritePermission(event.getPlayer()));
 

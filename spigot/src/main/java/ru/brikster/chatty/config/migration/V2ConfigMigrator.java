@@ -148,9 +148,19 @@ public final class V2ConfigMigrator {
             spy.put("format", spyTemplate.replace("{format}", format != null ? format : DEFAULT_SPIED_FORMAT));
             chat.put("spy", spy);
 
-            if (legacyChat.get("command") != null || legacyChat.get("aliases") != null) {
-                notes.add("chat \"" + entry.getKey()
-                        + "\": command/aliases are not migrated (no v3 equivalent).");
+            if (legacyChat.get("command") != null) {
+                chat.put("command", str(legacyChat.get("command")));
+            }
+            if (legacyChat.get("aliases") instanceof List) {
+                List<String> aliases = new ArrayList<>();
+                for (Object alias : (List<?>) legacyChat.get("aliases")) {
+                    if (alias != null) {
+                        aliases.add(str(alias));
+                    }
+                }
+                if (!aliases.isEmpty()) {
+                    chat.put("aliases", aliases);
+                }
             }
             if (legacyChat.get("moderation") != null) {
                 notes.add("chat \"" + entry.getKey()

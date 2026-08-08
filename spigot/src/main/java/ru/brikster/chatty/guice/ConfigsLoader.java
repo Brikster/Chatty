@@ -6,7 +6,9 @@ import ru.brikster.chatty.api.chat.Chat;
 import ru.brikster.chatty.api.chat.ChatStyle;
 import ru.brikster.chatty.chat.ChatImpl;
 import ru.brikster.chatty.chat.component.impl.PlaceholdersComponentTransformer;
+import ru.brikster.chatty.chat.command.ChatCommandImpl;
 import ru.brikster.chatty.chat.registry.ChatRegistry;
+import ru.brikster.chatty.chat.selection.ChatSelectionState;
 import ru.brikster.chatty.config.file.ChatsConfig;
 import ru.brikster.chatty.config.file.NotificationsConfig;
 import ru.brikster.chatty.convert.component.ComponentStringConverter;
@@ -16,6 +18,8 @@ import ru.brikster.chatty.notification.NotificationTicker;
 import ru.brikster.chatty.notification.TitleNotification;
 import ru.brikster.chatty.notification.TitleNotification.TitleNotificationMessage;
 
+import java.util.LinkedHashSet;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 public final class ConfigsLoader {
@@ -24,7 +28,8 @@ public final class ConfigsLoader {
     public void loadChannels(ChatsConfig config,
                              ChatRegistry registry,
                              ComponentStringConverter componentConverter,
-                             BukkitAudiences audiences) {
+                             BukkitAudiences audiences,
+                             ChatSelectionState selectionState) {
         config.getChats().forEach((chatId, chatConfig) -> {
             String spyFormat = chatConfig.getSpy().getFormat();
             Chat chat = new ChatImpl(chatId,
@@ -32,7 +37,15 @@ public final class ConfigsLoader {
                     audiences,
                     componentConverter.stringToComponent(chatConfig.getFormat()),
                     chatConfig.getMessageFormat(),
-                    chatConfig.getSymbol(), null, chatConfig.getRange(), chatConfig.isPermissionRequired(),
+                    chatConfig.getSymbol(),
+                    chatConfig.getCommand().isBlank() ? null : new ChatCommandImpl(
+                            chatConfig.getCommand().toLowerCase(Locale.ROOT),
+                            chatConfig.getAliases().stream()
+                                    .map(alias -> alias.toLowerCase(Locale.ROOT))
+                                    .collect(Collectors.toCollection(LinkedHashSet::new)),
+                            chatConfig.isCanSwitchWithCommand(),
+                            chatConfig.isReadOnlySwitched()),
+                    chatConfig.getRange(), chatConfig.isPermissionRequired(),
                     chatConfig
                             .getStyles()
                             .entrySet()
@@ -47,7 +60,8 @@ public final class ConfigsLoader {
                     chatConfig.getSpy().isEnable(),
                     chatConfig.isPlaySound() ? chatConfig.getSound() : null,
                     componentConverter.stringToComponent(spyFormat == null ? "" : spyFormat),
-                    chatConfig.getCooldown());
+                    chatConfig.getCooldown(),
+                    selectionState);
             registry.register(chatId, chat);
         });
     }

@@ -11,7 +11,9 @@ import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.sound.Sound.Source;
 import ru.brikster.chatty.BuildConstants;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -42,7 +44,11 @@ public class ChatsConfig extends OkaeriConfig {
                 0,
                 false,
                 Sound.sound(Key.key("entity.experience_orb.pickup"), Source.MASTER, 1f, 1f),
-                new ChatSpyConfig(true, "&6[Spy (local)] &r{prefix}{player}{suffix}&8: &f{message}")));
+                new ChatSpyConfig(true, "&6[Spy (local)] &r{prefix}{player}{suffix}&8: &f{message}"),
+                "",
+                new ArrayList<>(),
+                true,
+                false));
         put("global", new ChatConfig(
                 "Global",
                 "&7[<hover:show_text:'&aUse &2&l! &afor global chat'><click:suggest_command:!>&6Global</click></hover>&7] &r{prefix}{player}{suffix}&8: &f{message}",
@@ -67,7 +73,11 @@ public class ChatsConfig extends OkaeriConfig {
                 3,
                 false,
                 Sound.sound(Key.key("entity.experience_orb.pickup"), Source.MASTER, 1f, 1f),
-                new ChatSpyConfig(false, "")));
+                new ChatSpyConfig(false, ""),
+                "",
+                new ArrayList<>(),
+                true,
+                false));
     }};
 
     @Getter
@@ -173,6 +183,32 @@ public class ChatsConfig extends OkaeriConfig {
                 "Permission for spy: chatty.spy.<chat>"
         })
         private ChatSpyConfig spy = new ChatSpyConfig(false, "");
+
+        @Comment(value = {"",
+                "Command that writes into this chat: /<command> <message>.",
+                "Leave empty to add no command. Running it without a message",
+                "switches your chat to this one, so later messages need no symbol.",
+                "Permission: chatty.chat.<chat-id>.write"},
+                language = "en-US")
+        @Comment(value = {"",
+                "Команда для отправки в этот чат: /<команда> <сообщение>.",
+                "Оставьте пустым, чтобы команды не было. Запуск без сообщения",
+                "переключает ваш чат на этот, и дальше символ не нужен.",
+                "Право: chatty.chat.<chat-id>.write"},
+                language = "ru-RU")
+        private String command = "";
+
+        @Comment({"", "Aliases for the chat command"})
+        private List<String> aliases = new ArrayList<>();
+
+        @Comment({"",
+                "Can the command be used without a message to switch chat?"})
+        private boolean canSwitchWithCommand = true;
+
+        @Comment({"",
+                "Deliver this chat only to players who switched into it?",
+                "Useful for an opt-in chat nobody sees until they join it."})
+        private boolean readOnlySwitched = false;
 
     }
 

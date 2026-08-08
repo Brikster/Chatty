@@ -24,5 +24,6 @@ cmd-execution-error: '<red>Fehler bei der Befehlsausführung, melde es dem Serve
 reload-command-success: '<green>Plugin erfolgreich neu geladen!'
 clearchat-command-success: '<green>Chat geleert.'
 clearchat-command-cleared-for-all: '<green>Chat von {player} geleert.'
+chat-command-switched: '<green>Du schreibst jetzt in {chat}.'
 spy-command-spy-is-now-enabled: '<green>Spy-Modus ist jetzt aktiviert.'
 spy-command-spy-is-now-disabled: '<red>Spy-Modus ist jetzt deaktiviert.'

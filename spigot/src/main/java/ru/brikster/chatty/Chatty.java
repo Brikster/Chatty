@@ -37,11 +37,14 @@ import ru.brikster.chatty.adventure.NativeBukkitAudienceProvider;
 import ru.brikster.chatty.api.ChattyApiImpl;
 import ru.brikster.chatty.api.event.ChattyInitEvent;
 import ru.brikster.chatty.chat.executor.LegacyEventExecutor;
+import ru.brikster.chatty.api.chat.Chat;
+import ru.brikster.chatty.api.chat.command.ChatCommand;
 import ru.brikster.chatty.chat.registry.ChatRegistry;
 import ru.brikster.chatty.command.CommandSuggestionsProvider;
 import ru.brikster.chatty.command.ProxyingCommandHandler;
 import ru.brikster.chatty.command.ProxyingCommandSuggestionsProvider;
 import ru.brikster.chatty.command.handler.BroadcastCommandHandler;
+import ru.brikster.chatty.command.handler.ChatCommandHandler;
 import ru.brikster.chatty.command.handler.ClearChatCommandHandler;
 import ru.brikster.chatty.command.handler.SpyCommandHandler;
 import ru.brikster.chatty.config.file.MessagesConfig;
@@ -137,6 +140,7 @@ public final class Chatty extends JavaPlugin {
         }
 
         registerChattyCommand();
+        registerChatCommands();
     }
 
     private boolean startWithDefaultConfiguration(Path dataFolderPath) {
@@ -351,6 +355,28 @@ public final class Chatty extends JavaPlugin {
                 .apply(asyncCommandManager, injector.getInstance(BukkitAudiences.class)::sender);
 
         asyncCommandManager.setSetting(ManagerSettings.ALLOW_UNSAFE_REGISTRATION, true);
+    }
+
+    private void registerChatCommands() {
+        ChatCommandHandler handler = injector.getInstance(ChatCommandHandler.class);
+        for (Chat chat : injector.getInstance(ChatRegistry.class).getChats().values()) {
+            ChatCommand chatCommand = chat.getCommand();
+            if (chatCommand == null) {
+                continue;
+            }
+            String[] aliases = chatCommand.getAliases().toArray(new String[0]);
+            syncCommandManager.command(syncCommandManager
+                    .commandBuilder(chatCommand.getName(), aliases)
+                    .senderType(Player.class)
+                    .argument(StringArgument.<CommandSender>builder("message").greedy().asOptional().build())
+                    .handler(context -> {
+                        context.set("chat-id", chat.getId());
+                        handler.execute(context);
+                    })
+                    .build());
+            getLogger().log(Level.INFO, "Registered chat command /{0} for chat \"{1}\"",
+                    new Object[]{chatCommand.getName(), chat.getId()});
+        }
     }
 
     private void registerMiscCommands() {

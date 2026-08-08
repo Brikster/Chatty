@@ -24,5 +24,6 @@ cmd-execution-error: '<red>Ошибка при выполнении команд
 reload-command-success: '<green>Плагин успешно перезагружен!'
 clearchat-command-success: '<green>Чат очищен.'
 clearchat-command-cleared-for-all: '<green>{player} очистил чат.'
+chat-command-switched: '<green>Теперь вы пишете в {chat}.'
 spy-command-spy-is-now-enabled: '<green>Режим слежки включён.'
 spy-command-spy-is-now-disabled: '<red>Режим слежки выключен.'

@@ -24,5 +24,6 @@ cmd-execution-error: '<red>执行命令时出错，请向服务器管理员报�
 reload-command-success: '<green>插件重载成功！'
 clearchat-command-success: '<green>聊天已清空。'
 clearchat-command-cleared-for-all: '<green>聊天被 {player} 清空。'
+chat-command-switched: '<green>你现在在 {chat} 中发言。'
 spy-command-spy-is-now-enabled: '<green>间谍模式已开启。'
 spy-command-spy-is-now-disabled: '<red>间谍模式已关闭。'

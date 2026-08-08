@@ -15,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import ru.brikster.chatty.api.chat.Chat;
 import ru.brikster.chatty.api.chat.ChatStyle;
 import ru.brikster.chatty.api.chat.command.ChatCommand;
+import ru.brikster.chatty.chat.selection.ChatSelectionState;
 import ru.brikster.chatty.api.chat.message.strategy.MessageTransformStrategy;
 import ru.brikster.chatty.api.chat.range.Ranges;
 
@@ -71,6 +72,8 @@ public final class ChatImpl implements Chat {
 
     @Getter
     private final int cooldown;
+
+    private final @Nullable ChatSelectionState selectionState;
 
     private final List<MessageTransformStrategy<?>> strategies
             = new ArrayList<>();
@@ -131,6 +134,11 @@ public final class ChatImpl implements Chat {
             }
 
             if (isPermissionRequired() && !hasReadPermission(player)) {
+                return false;
+            }
+
+            if (command != null && command.isReadOnlySwitched() && selectionState != null
+                    && !selectionState.isSwitchedTo(player.getUniqueId(), id)) {
                 return false;
             }
 

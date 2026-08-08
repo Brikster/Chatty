@@ -43,6 +43,8 @@ class V2ConfigMigratorTest {
             "    format: '&e[Global] {player}: {message}'",
             "    range: -3",
             "    symbol: '!'",
+            "    command: 'globalchat'",
+            "    aliases: [ 'gchat', 'g' ]",
             "  staff:",
             "    enable: false",
             "    format: '&cStaff'",
@@ -173,6 +175,14 @@ class V2ConfigMigratorTest {
         assertEquals(-3, global.get("range"), "v2 range -3 is cross-server chat and must survive");
         assertEquals("!", global.get("symbol"));
         assertEquals(true, global.get("permission-required"), "v2 permission defaults to true");
+    }
+
+    @Test
+    void migratesTheChatCommandAndItsAliases() throws Exception {
+        runMigration();
+        Map<String, Object> global = childMap(childMap(read("chats.yml"), "chats"), "global");
+        assertEquals("globalchat", global.get("command"));
+        assertEquals(List.of("gchat", "g"), global.get("aliases"));
     }
 
     @Test
