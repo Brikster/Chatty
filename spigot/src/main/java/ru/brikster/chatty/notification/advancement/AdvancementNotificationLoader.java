@@ -41,7 +41,7 @@ public class AdvancementNotificationLoader {
         for (int index = 0; index < channelConfig.getMessages().size(); index++) {
             AdvancementNotificationMessageConfig messageConfig = channelConfig.getMessages().get(index);
             Advancement toast = toaster.register(channelId + "_" + index,
-                    messageConfig.getTitle(), messageConfig.getDescription(),
+                    messageConfig.getTitle(), messageConfig.getSubtitle(),
                     messageConfig.getIcon(), messageConfig.getFrame());
             if (toast != null) {
                 toasts.add(toast);

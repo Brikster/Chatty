@@ -46,7 +46,7 @@ public class NotificationsConfig extends OkaeriConfig {
     @Comment(value = {
             "Toast notifications: the pop-up the game shows for an advancement.",
             "Needs Minecraft 1.12 or newer; on older servers the section is ignored.",
-            "Toast text is baked into the advancement when the plugin starts,",
+            "The text is baked into the advancement when the plugin starts,",
             "so it is the same for everybody and cannot use placeholders."}, language = "en-US")
     @Comment(value = {
             "Всплывающие уведомления — та самая плашка, что показывается за достижение.",
@@ -296,11 +296,21 @@ public class NotificationsConfig extends OkaeriConfig {
 
             @Comment
             @Comment(value = {
-                    "A toast fits about two short lines, so keep the text brief.",
-                    "\"icon\" is any item id, \"frame\" is TASK, GOAL or CHALLENGE"}, language = "en-US")
+                    "A toast has two lines. Leave \"subtitle\" empty and the game writes",
+                    "the first one itself, in the player's client language, from \"frame\":",
+                    "TASK says \"Advancement Made!\", GOAL \"Goal Reached!\",",
+                    "CHALLENGE \"Challenge Complete!\" - and your \"title\" is the second line.",
+                    "Fill \"subtitle\" in and that wording disappears: the two lines become",
+                    "yours, \"title\" on top and \"subtitle\" below. Keep both short.",
+                    "\"icon\" is any item id."}, language = "en-US")
             @Comment(value = {
-                    "В плашку помещается примерно две короткие строки, пишите кратко.",
-                    "\"icon\" — любой предмет, \"frame\" — TASK, GOAL или CHALLENGE"}, language = "ru-RU")
+                    "В плашке две строки. Если \"subtitle\" пуст, первую пишет сама игра",
+                    "на языке клиента игрока, по значению \"frame\": TASK — «Достижение",
+                    "получено!», GOAL — «Цель достигнута!», CHALLENGE — «Испытание",
+                    "пройдено!», а ваш \"title\" идёт второй строкой.",
+                    "Если заполнить \"subtitle\", эта надпись исчезает и обе строки ваши:",
+                    "\"title\" сверху, \"subtitle\" снизу. Пишите кратко.",
+                    "\"icon\" — любой предмет."}, language = "ru-RU")
             private List<AdvancementNotificationMessageConfig> messages =
                     Lists.newArrayList(new AdvancementNotificationMessageConfig());
 
@@ -330,7 +340,7 @@ public class NotificationsConfig extends OkaeriConfig {
 
                 private Component title = converter.stringToComponent("&6Example toast");
 
-                private Component description = converter.stringToComponent("&7Example description");
+                private Component subtitle = converter.stringToComponent("");
 
                 private String icon = "minecraft:diamond";
 
