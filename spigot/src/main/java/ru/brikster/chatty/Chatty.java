@@ -332,6 +332,7 @@ public final class Chatty extends JavaPlugin {
             try {
                 Class<? extends Event> eventClass = ModernEventExecutor.getEventClass();
                 ModernEventExecutor chatListener = injector.getInstance(ModernEventExecutor.class);
+                chatListener.prepare();
 
                 pluginManager.registerEvent(eventClass, chatListener, priority,
                         chatListener.earlyExecutor(), this, true);

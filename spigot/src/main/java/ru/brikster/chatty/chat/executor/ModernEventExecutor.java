@@ -5,12 +5,23 @@ import org.bukkit.plugin.EventExecutor;
 
 public final class ModernEventExecutor extends AbstractChatEventExecutor {
 
+    private static final String EVENT_CLASS_NAME = "io.papermc.paper.event.player.AsyncChatEvent";
+
     public static boolean isSupported() {
-        return ModernChatEventFacade.isSupported();
+        try {
+            Class.forName(EVENT_CLASS_NAME);
+            return true;
+        } catch (Throwable t) {
+            return false;
+        }
     }
 
     public static Class<? extends Event> getEventClass() throws ClassNotFoundException {
-        return Class.forName(ModernChatEventFacade.EVENT_CLASS_NAME).asSubclass(Event.class);
+        return Class.forName(EVENT_CLASS_NAME).asSubclass(Event.class);
+    }
+
+    public void prepare() {
+        ModernChatEventFacade.verifyAdaptable();
     }
 
     public EventExecutor earlyExecutor() {

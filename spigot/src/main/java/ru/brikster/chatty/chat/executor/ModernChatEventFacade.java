@@ -17,11 +17,10 @@ import java.lang.invoke.MethodType;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 final class ModernChatEventFacade implements ChatEventFacade {
-
-    static final String EVENT_CLASS_NAME = "io.papermc.paper.event.player.AsyncChatEvent";
 
     private static final String ABSTRACT_EVENT_CLASS_NAME = "io.papermc.paper.event.player.AbstractChatEvent";
 
@@ -42,17 +41,12 @@ final class ModernChatEventFacade implements ChatEventFacade {
             SET_MESSAGE_METHOD = lookup.findVirtual(abstractChatEvent, "message",
                     MethodType.methodType(void.class, componentClass));
         } catch (Throwable t) {
-            throw new IllegalStateException("Cannot adapt " + EVENT_CLASS_NAME, t);
+            throw new IllegalStateException("Cannot adapt " + ABSTRACT_EVENT_CLASS_NAME, t);
         }
     }
 
-    static boolean isSupported() {
-        try {
-            Class.forName(EVENT_CLASS_NAME);
-            return true;
-        } catch (Throwable t) {
-            return false;
-        }
+    static void verifyAdaptable() {
+        Objects.requireNonNull(VIEWERS_METHOD);
     }
 
     private final Event event;
