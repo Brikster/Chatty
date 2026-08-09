@@ -24,7 +24,12 @@ import ru.brikster.chatty.BuildConstants;
 @Names(strategy = NameStrategy.HYPHEN_CASE, modifier = NameModifier.TO_LOWER_CASE)
 public class PmConfig extends OkaeriConfig {
 
-    @Comment({"", "Enable private messages?"})
+    @Comment(value = {
+            "",
+            "Enable private messages?"}, language = "en-US")
+    @Comment(value = {
+            "",
+            "Включить личные сообщения?"}, language = "ru-RU")
     private boolean enable = true;
 
     @Comment(value = {"",
@@ -41,39 +46,69 @@ public class PmConfig extends OkaeriConfig {
 
     private List<String> aliases = new ArrayList<>(List.of("message", "m", "w", "pm", "tell", "whisper", "t"));
 
-    @Comment({"", "Command and aliases used to answer the last private message"})
+    @Comment(value = {
+            "",
+            "Command and aliases used to answer the last private message"}, language = "en-US")
+    @Comment(value = {
+            "",
+            "Команда и псевдонимы для ответа на последнее личное сообщение"}, language = "ru-RU")
     private String replyCommand = "reply";
 
     private List<String> replyAliases = new ArrayList<>(List.of("r"));
 
-    @Comment({"",
+    @Comment(value = {
+            "",
             "Allow private messages from/to console?",
-            "Not recommended (placeholders won't parse for console)"})
+            "Not recommended (placeholders won't parse for console)"}, language = "en-US")
+    @Comment(value = {
+            "",
+            "Разрешить личные сообщения от консоли и к ней?",
+            "Не рекомендуется (для консоли плейсхолдеры не обрабатываются)"}, language = "ru-RU")
     private boolean allowConsole = false;
 
-    @Comment({"",
+    @Comment(value = {
+            "",
             "Private messages format.",
             "Supports PlaceholderAPI with special placeholders format: ",
             "%from:<placeholder>% and %to:<placeholder>%.",
-            "For example, %player_health% should be %from:player_health% to display health of sender player."})
+            "For example, %player_health% should be %from:player_health% to display health of sender player."}, language = "en-US")
+    @Comment(value = {
+            "",
+            "Формат личных сообщений.",
+            "Поддерживает PlaceholderAPI с особым форматом плейсхолдеров: ",
+            "%from:<плейсхолдер>% и %to:<плейсхолдер>%.",
+            "Например, %player_health% нужно писать как %from:player_health%, чтобы показать здоровье отправителя."}, language = "ru-RU")
     private String fromFormat = "{from-prefix}{from-name}{from-suffix} &8-> &r{to-prefix}{to-name}{to-suffix}&8: &f{message}";
 
-    @Comment({"",
-        "Same format, but displayed for receiver"})
+    @Comment(value = {
+            "",
+            "Same format, but displayed for receiver"}, language = "en-US")
+    @Comment(value = {
+            "",
+            "Тот же формат, но для получателя"}, language = "ru-RU")
     private String toFormat = "{from-prefix}{from-name}{from-suffix} &8-> &r{to-prefix}{to-name}{to-suffix}&8: &f{message}";
 
     @Comment
-    @Comment("Disable this, if you don't want to specify sound for private messages")
+    @Comment(value = "Disable this, if you don't want to specify sound for private messages", language = "en-US")
+    @Comment(value = "Выключите, если не хотите задавать звук для личных сообщений", language = "ru-RU")
     private boolean playSound = false;
 
     private Sound sound = Sound.sound(Key.key("entity.experience_orb.pickup"), Source.MASTER, 1f, 1f);
 
-    @Comment({"", "Parse links in private messages?"})
+    @Comment(value = {
+            "",
+            "Parse links in private messages?"}, language = "en-US")
+    @Comment(value = {
+            "",
+            "Обрабатывать ссылки в личных сообщениях?"}, language = "ru-RU")
     private boolean parseLinks = true;
 
-    @Comment({"",
-            "Permission for spy: chatty.spy.pm"
-    })
+    @Comment(value = {
+            "",
+            "Permission for spy: chatty.spy.pm"}, language = "en-US")
+    @Comment(value = {
+            "",
+            "Право на слежку: chatty.spy.pm"}, language = "ru-RU")
     private PmSpyConfig spy = new PmSpyConfig(false,
             "&8[&eSPY&8] &r{from-prefix}{from-name}{from-suffix} &8-> &r{to-prefix}{to-name}{to-suffix}&8: &f{message}");
 
@@ -83,10 +118,12 @@ public class PmConfig extends OkaeriConfig {
     @Names(strategy = NameStrategy.HYPHEN_CASE, modifier = NameModifier.TO_LOWER_CASE)
     public static final class PmSpyConfig extends OkaeriConfig {
 
-        @Comment({"Enable spy for private messages?"})
+        @Comment(value = "Enable spy for private messages?", language = "en-US")
+        @Comment(value = "Включить слежку за личными сообщениями?", language = "ru-RU")
         private boolean enable;
 
-        @Comment({"Custom format for spy message"})
+        @Comment(value = "Custom format for spy message", language = "en-US")
+        @Comment(value = "Свой формат сообщения для слежки", language = "ru-RU")
         private String format;
 
     }

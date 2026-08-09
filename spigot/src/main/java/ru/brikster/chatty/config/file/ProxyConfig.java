@@ -18,22 +18,45 @@ import ru.brikster.chatty.BuildConstants;
 @Names(strategy = NameStrategy.HYPHEN_CASE, modifier = NameModifier.TO_LOWER_CASE)
 public class ProxyConfig extends OkaeriConfig {
 
-    @Comment({"", "Enable support for cross-server messaging?"})
-    @Comment("This feature supports any proxy (BungeeCord, Velocity), ")
-    @Comment("including multi-proxy networks.")
-    @Comment("You need to setup Redis and shared database to use it.")
+    @Comment(value = {
+            "",
+            "Enable support for cross-server messaging?"}, language = "en-US")
+    @Comment(value = {
+            "",
+            "Включить поддержку межсерверных сообщений?"}, language = "ru-RU")
+    @Comment(value = "This feature supports any proxy (BungeeCord, Velocity), ", language = "en-US")
+    @Comment(value = "Работает с любым прокси (BungeeCord, Velocity), ", language = "ru-RU")
+    @Comment(value = "including multi-proxy networks.", language = "en-US")
+    @Comment(value = "в том числе с сетями из нескольких прокси.", language = "ru-RU")
+    @Comment(value = "You need to setup Redis and shared database to use it.", language = "en-US")
+    @Comment(value = "Для работы нужны Redis и общая база данных.", language = "ru-RU")
     @Comment
-    @Comment("Note: relational placeholders will not be parsed for cross-server messages.")
-    @Comment("Some placeholders of message target (in PM) also may not work (if plugin doesn't support")
-    @Comment("placeholders for offline players)")
+    @Comment(value = "Note: relational placeholders will not be parsed for cross-server messages.", language = "en-US")
+    @Comment(value = "Учтите: относительные плейсхолдеры для межсерверных сообщений не обрабатываются.", language = "ru-RU")
+    @Comment(value = "Some placeholders of message target (in PM) also may not work (if plugin doesn't support", language = "en-US")
+    @Comment(value = "Некоторые плейсхолдеры получателя (в ЛС) тоже могут не работать (если плагин не умеет", language = "ru-RU")
+    @Comment(value = "placeholders for offline players)", language = "en-US")
+    @Comment(value = "плейсхолдеры для офлайн-игроков)", language = "ru-RU")
     private boolean enable = false;
 
-    @Comment({"", "Basic Redis configuration."})
+    @Comment(value = {
+            "",
+            "Basic Redis configuration."}, language = "en-US")
+    @Comment(value = {
+            "",
+            "Базовая настройка Redis."}, language = "ru-RU")
     private RedisConfig redisConfig = new RedisConfig();
 
-    @Comment({"", "Enable external Redis configuration for advanced setup."})
-    @Comment("File with name \"redis_config.json\" will be created.")
-    @Comment("See \"Redisson\" library documentation for details")
+    @Comment(value = {
+            "",
+            "Enable external Redis configuration for advanced setup."}, language = "en-US")
+    @Comment(value = {
+            "",
+            "Включите внешнюю настройку Redis для тонкой конфигурации."}, language = "ru-RU")
+    @Comment(value = "File with name \"redis_config.json\" will be created.", language = "en-US")
+    @Comment(value = "Будет создан файл \"redis_config.json\".", language = "ru-RU")
+    @Comment(value = "See \"Redisson\" library documentation for details", language = "en-US")
+    @Comment(value = "Подробности — в документации библиотеки \"Redisson\"", language = "ru-RU")
     private boolean useExternalRedisConfig = false;
 
     @Getter
@@ -48,10 +71,18 @@ public class ProxyConfig extends OkaeriConfig {
 
     }
 
-    @Comment({"", "Shared database configuration"})
-    @Comment("(database should be the same for every server).")
-    @Comment("Possible types: POSTGRESQL, MYSQL.")
-    @Comment("Default port for PostgreSQL: 5432, for MySQL: 3306")
+    @Comment(value = {
+            "",
+            "Shared database configuration"}, language = "en-US")
+    @Comment(value = {
+            "",
+            "Настройка общей базы данных"}, language = "ru-RU")
+    @Comment(value = "(database should be the same for every server).", language = "en-US")
+    @Comment(value = "(база должна быть одна для всех серверов).", language = "ru-RU")
+    @Comment(value = "Possible types: POSTGRESQL, MYSQL.", language = "en-US")
+    @Comment(value = "Возможные типы: POSTGRESQL, MYSQL.", language = "ru-RU")
+    @Comment(value = "Default port for PostgreSQL: 5432, for MySQL: 3306", language = "en-US")
+    @Comment(value = "Порт по умолчанию: PostgreSQL — 5432, MySQL — 3306", language = "ru-RU")
     private DatabaseConfig databaseConfig = new DatabaseConfig();
 
     @Getter

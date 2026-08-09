@@ -18,8 +18,14 @@ import java.util.Map;
 @Names(strategy = NameStrategy.HYPHEN_CASE, modifier = NameModifier.TO_LOWER_CASE)
 public class ReplacementsConfig extends OkaeriConfig {
 
-    @Comment({"", "List of useful components for replacements."})
-    @Comment("You can use it as placeholder in any config with {r_key}, e.g. {r_player_info}.")
+    @Comment(value = {
+            "",
+            "List of useful components for replacements."}, language = "en-US")
+    @Comment(value = {
+            "",
+            "Список полезных компонентов для замен."}, language = "ru-RU")
+    @Comment(value = "You can use it as placeholder in any config with {r_key}, e.g. {r_player_info}.", language = "en-US")
+    @Comment(value = "Их можно вставлять в любой конфиг как {r_ключ}, например {r_player_info}.", language = "ru-RU")
     private Map<String, String> replacements = Map.of(
             "player_info",
             "<hover:'&2Click here to PM {player}'><click:'suggest_command':'/msg {player} '>{player}</click></hover>"

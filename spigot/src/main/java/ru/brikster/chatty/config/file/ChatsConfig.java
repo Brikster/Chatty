@@ -27,9 +27,14 @@ import java.util.Map;
 @Names(strategy = NameStrategy.HYPHEN_CASE, modifier = NameModifier.TO_LOWER_CASE)
 public class ChatsConfig extends OkaeriConfig {
 
-    @Comment({"",
+    @Comment(value = {
+            "",
             "List of chats.",
-            "You can use declared or add you own chats"})
+            "You can use declared or add you own chats"}, language = "en-US")
+    @Comment(value = {
+            "",
+            "Список чатов.",
+            "Можно использовать готовые или добавить свои"}, language = "ru-RU")
     private Map<String, ChatConfig> chats = new HashMap<>() {{
         put("local", new ChatConfig(
                 "Local",
@@ -106,12 +111,16 @@ public class ChatsConfig extends OkaeriConfig {
     @Names(strategy = NameStrategy.HYPHEN_CASE, modifier = NameModifier.TO_LOWER_CASE)
     public static final class ChatConfig extends OkaeriConfig {
 
-        @Comment({
+        @Comment(value = {
                 "Display name of chat.",
-                "Used in commands, messages etc."})
+                "Used in commands, messages etc."}, language = "en-US")
+        @Comment(value = {
+                "Отображаемое название чата.",
+                "Используется в командах, сообщениях и т. п."}, language = "ru-RU")
         private String displayName = "Unspecified";
 
-        @Comment({"",
+        @Comment(value = {
+                "",
                 "Chat messages format.",
                 "Supports: ",
                 "* PlaceholderAPI (including relational placeholders)",
@@ -122,22 +131,45 @@ public class ChatsConfig extends OkaeriConfig {
                 "",
                 "Use https://webui.advntr.dev/ for convenient format creation.",
                 "",
-                "You can use replacements from \"replacements.yml\" here."
-        })
+                "You can use replacements from \"replacements.yml\" here."}, language = "en-US")
+        @Comment(value = {
+                "",
+                "Формат сообщений чата.",
+                "Поддерживается: ",
+                "* PlaceholderAPI (в том числе относительные плейсхолдеры)",
+                "* интерактивные компоненты MiniMessage (клики и прочее)",
+                "* префиксы и суффиксы из Vault или LuckPerms ({prefix} и {suffix})",
+                "* старый формат цветовых кодов (\"&c&lЖИРНЫЙ ТЕКСТ\")",
+                "* разные форматы hex (&#ffffff, {#ffffff}, &x&f&f&f&f&f&f и т. д.)",
+                "",
+                "Для удобного создания формата: https://webui.advntr.dev/",
+                "",
+                "Здесь можно использовать замены из \"replacements.yml\"."}, language = "ru-RU")
         private String format = "<{player}>: {message}";
 
-        @Comment({"",
-            "Player message format (\"{message}\" part in \"format\" property).",
-            "You can use gradient here to make player messages colorful.",
-            "This part renders as if player message were explicitly written in MiniMessage component"})
+        @Comment(value = {
+                "",
+                "Player message format (\"{message}\" part in \"format\" property).",
+                "You can use gradient here to make player messages colorful.",
+                "This part renders as if player message were explicitly written in MiniMessage component"}, language = "en-US")
+        @Comment(value = {
+                "",
+                "Формат сообщения игрока (часть \"{message}\" в свойстве \"format\").",
+                "Здесь можно задать градиент, чтобы сообщения были цветными.",
+                "Эта часть обрабатывается так, будто игрок написал её компонентом MiniMessage"}, language = "ru-RU")
         private String messageFormat = "{original-message}";
 
-        @Comment({"",
+        @Comment(value = {
+                "",
                 "Custom format styles. Players that have permission",
                 "for a style will see all the messages from the chat",
                 "with corresponding format.",
-                "Permission: chatty.style.<style-name>, for example: chatty.style.red"
-        })
+                "Permission: chatty.style.<style-name>, for example: chatty.style.red"}, language = "en-US")
+        @Comment(value = {
+                "",
+                "Пользовательские стили формата. Игроки с правом на стиль",
+                "будут видеть все сообщения чата в соответствующем формате.",
+                "Право: chatty.style.<название-стиля>, например: chatty.style.red"}, language = "ru-RU")
         private Map<String, ChatStyleConfig> styles = new HashMap<>();
 
         @Comment(value = {"",
@@ -160,68 +192,111 @@ public class ChatsConfig extends OkaeriConfig {
                 language = "ru-RU")
         private Map<String, SenderFormatConfig> senderFormats = new HashMap<>();
 
-        @Comment({"",
+        @Comment(value = {
+                "",
                 "Symbol (or prefix) that should be placed before message",
                 "to send message into this that.",
                 "Example for symbol: \"!\":",
                 "!Hello world -> send message \"Hello world\" to this chat",
                 "",
-                "Empty symbol ('') is allowed also"})
+                "Empty symbol ('') is allowed also"}, language = "en-US")
+        @Comment(value = {
+                "",
+                "Символ (или префикс), который ставится перед сообщением,",
+                "чтобы отправить его в этот чат.",
+                "Пример для символа \"!\":",
+                "!Привет мир -> сообщение \"Привет мир\" уйдёт в этот чат",
+                "",
+                "Пустой символ ('') тоже допустим"}, language = "ru-RU")
         private String symbol = "";
 
-        @Comment({"",
+        @Comment(value = {
+                "",
                 "Range in blocks for chat message recipients.",
                 "Possible values: ",
                 " -3 -> message will be sent to every server sharing this chat",
                 "       (cross-server chat, requires proxy.yml to be configured)",
                 " -2 -> message will be sent to all online players",
                 " -1 -> message will be sent to all players of the sender's world",
-                " >= 0 -> message will be sent to all players in this blocks range"})
+                " >= 0 -> message will be sent to all players in this blocks range"}, language = "en-US")
+        @Comment(value = {
+                "",
+                "Радиус в блоках, в котором получают сообщения чата.",
+                "Возможные значения: ",
+                " -3 -> сообщение уйдёт на все серверы, где есть этот чат",
+                "       (межсерверный чат, требует настройки proxy.yml)",
+                " -2 -> сообщение получат все игроки онлайн",
+                " -1 -> сообщение получат все игроки в мире отправителя",
+                " >= 0 -> сообщение получат все игроки в этом радиусе"}, language = "ru-RU")
         @Min(-3)
         private int range = -2;
 
-        @Comment({"",
+        @Comment(value = {
+                "",
                 "If true, you must add permissions for using chat: ",
                 " - chatty.chat.<chat-name> -> full chat access",
                 " - chatty.chat.<chat-name>.read -> read access only",
                 " - chatty.chat.<chat-name>.write -> write access only",
                 "",
-                "Example: chatty.chat.global -> full access for \"global\" chat"})
+                "Example: chatty.chat.global -> full access for \"global\" chat"}, language = "en-US")
+        @Comment(value = {
+                "",
+                "Если true, для доступа к чату нужно выдать права: ",
+                " - chatty.chat.<название-чата> -> полный доступ к чату",
+                " - chatty.chat.<название-чата>.read -> только чтение",
+                " - chatty.chat.<название-чата>.write -> только запись",
+                "",
+                "Пример: chatty.chat.global -> полный доступ к чату \"global\""}, language = "ru-RU")
         private boolean permissionRequired = false;
 
-        @Comment({
+        @Comment(value = {
                 "",
                 "If true, player will receive a special message, ",
                 "when his message has no recipients.",
-                "Message can be configured in locale files"
-        })
+                "Message can be configured in locale files"}, language = "en-US")
+        @Comment(value = {
+                "",
+                "Если true, игрок получит отдельное сообщение,",
+                "когда его никто не услышал.",
+                "Текст настраивается в языковых файлах"}, language = "ru-RU")
         private boolean notifyNobodyHeard = true;
 
-        @Comment({
+        @Comment(value = {
                 "",
                 "If true, URLs from player messages will be processed",
                 "and made clickable.",
-                "Check settings.yml for more parameters"
-        })
+                "Check settings.yml for more parameters"}, language = "en-US")
+        @Comment(value = {
+                "",
+                "Если true, ссылки из сообщений игроков будут обработаны",
+                "и станут кликабельными.",
+                "Дополнительные параметры — в settings.yml"}, language = "ru-RU")
         private boolean parseLinks = true;
 
-        @Comment({
-              "",
-              "Cooldown in seconds for sending messages in chat.",
-              "Bypass permission: chatty.bypass.cooldown.<chat>"
-        })
+        @Comment(value = {
+                "",
+                "Cooldown in seconds for sending messages in chat.",
+                "Bypass permission: chatty.bypass.cooldown.<chat>"}, language = "en-US")
+        @Comment(value = {
+                "",
+                "Задержка в секундах между сообщениями в чат.",
+                "Право на обход: chatty.bypass.cooldown.<чат>"}, language = "ru-RU")
         @Min(0)
         private int cooldown = 0;
 
         @Comment
-        @Comment("Disable this, if you don't want to specify sound for this chat")
+        @Comment(value = "Disable this, if you don't want to specify sound for this chat", language = "en-US")
+        @Comment(value = "Выключите, если не хотите задавать звук для этого чата", language = "ru-RU")
         private boolean playSound = false;
 
         private Sound sound = Sound.sound(Key.key("entity.experience_orb.pickup"), Source.MASTER, 1f, 1f);
 
-        @Comment({"",
-                "Permission for spy: chatty.spy.<chat>"
-        })
+        @Comment(value = {
+                "",
+                "Permission for spy: chatty.spy.<chat>"}, language = "en-US")
+        @Comment(value = {
+                "",
+                "Право на слежку: chatty.spy.<чат>"}, language = "ru-RU")
         private ChatSpyConfig spy = new ChatSpyConfig(false, "");
 
         @Comment(value = {"",
@@ -238,16 +313,30 @@ public class ChatsConfig extends OkaeriConfig {
                 language = "ru-RU")
         private String command = "";
 
-        @Comment({"", "Aliases for the chat command"})
+        @Comment(value = {
+                "",
+                "Aliases for the chat command"}, language = "en-US")
+        @Comment(value = {
+                "",
+                "Псевдонимы команды чата"}, language = "ru-RU")
         private List<String> aliases = new ArrayList<>();
 
-        @Comment({"",
-                "Can the command be used without a message to switch chat?"})
+        @Comment(value = {
+                "",
+                "Can the command be used without a message to switch chat?"}, language = "en-US")
+        @Comment(value = {
+                "",
+                "Можно ли вызывать команду без сообщения, чтобы переключить чат?"}, language = "ru-RU")
         private boolean canSwitchWithCommand = true;
 
-        @Comment({"",
+        @Comment(value = {
+                "",
                 "Deliver this chat only to players who switched into it?",
-                "Useful for an opt-in chat nobody sees until they join it."})
+                "Useful for an opt-in chat nobody sees until they join it."}, language = "en-US")
+        @Comment(value = {
+                "",
+                "Доставлять этот чат только тем, кто в него переключился?",
+                "Удобно для чата, который не видно, пока в него не зайдёшь."}, language = "ru-RU")
         private boolean readOnlySwitched = false;
 
         @Comment(value = {"",
@@ -275,15 +364,24 @@ public class ChatsConfig extends OkaeriConfig {
     @Names(strategy = NameStrategy.HYPHEN_CASE, modifier = NameModifier.TO_LOWER_CASE)
     public static final class ChatStyleConfig extends OkaeriConfig {
 
-        @Comment({"Custom format for the style"})
+        @Comment(value = "Custom format for the style", language = "en-US")
+        @Comment(value = "Свой формат для стиля", language = "ru-RU")
         private String format = "<{player}>: {message}";
 
-        @Comment({"",
-                "Custom message format for the style"})
+        @Comment(value = {
+                "",
+                "Custom message format for the style"}, language = "en-US")
+        @Comment(value = {
+                "",
+                "Свой формат сообщения для стиля"}, language = "ru-RU")
         private String messageFormat = "{original-message}";
 
-        @Comment({"",
-                "If player has several permissions, chat with higher priority will be selected"})
+        @Comment(value = {
+                "",
+                "If player has several permissions, chat with higher priority will be selected"}, language = "en-US")
+        @Comment(value = {
+                "",
+                "Если у игрока несколько прав, выберется стиль с большим приоритетом"}, language = "ru-RU")
         private int priority = 0;
 
     }
@@ -295,14 +393,20 @@ public class ChatsConfig extends OkaeriConfig {
     @Names(strategy = NameStrategy.HYPHEN_CASE, modifier = NameModifier.TO_LOWER_CASE)
     public static class SenderFormatConfig extends OkaeriConfig {
 
-        @Comment("Higher priority wins when the sender qualifies for several")
+        @Comment(value = "Higher priority wins when the sender qualifies for several", language = "en-US")
+        @Comment(value = "Побеждает больший приоритет, если отправителю подходит несколько", language = "ru-RU")
         private int priority = 0;
 
         private String format = "&7[&6VIP&7] &r{prefix}{player}{suffix}&8: &f{message}";
 
         private String messageFormat = "{original-message}";
 
-        @Comment({"", "How this format looks to a player holding chatty.style.<id>"})
+        @Comment(value = {
+                "",
+                "How this format looks to a player holding chatty.style.<id>"}, language = "en-US")
+        @Comment(value = {
+                "",
+                "Как этот формат выглядит для игрока с правом chatty.style.<id>"}, language = "ru-RU")
         private Map<String, ChatStyleConfig> styles = new HashMap<>();
 
     }
@@ -313,10 +417,12 @@ public class ChatsConfig extends OkaeriConfig {
     @Names(strategy = NameStrategy.HYPHEN_CASE, modifier = NameModifier.TO_LOWER_CASE)
     public static final class ChatSpyConfig extends OkaeriConfig {
 
-        @Comment({"Enable spy for the chat?"})
+        @Comment(value = "Enable spy for the chat?", language = "en-US")
+        @Comment(value = "Включить слежку за чатом?", language = "ru-RU")
         private boolean enable;
 
-        @Comment({"Custom format for spy message"})
+        @Comment(value = "Custom format for spy message", language = "en-US")
+        @Comment(value = "Свой формат сообщения для слежки", language = "ru-RU")
         private String format = "";
 
     }

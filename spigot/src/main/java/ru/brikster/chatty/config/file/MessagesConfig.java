@@ -24,20 +24,35 @@ public class MessagesConfig extends OkaeriConfig {
     @Exclude
     private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
 
-    @Comment({"", "Common messages"})
+    @Comment(value = {
+            "",
+            "Common messages"}, language = "en-US")
+    @Comment(value = {
+            "",
+            "Общие сообщения"}, language = "ru-RU")
     private Component chatNotFound = MINI_MESSAGE.deserialize("<red>No matching chat found. Maybe you don't have enough permissions?");
     private Component nobodyHeard = MINI_MESSAGE.deserialize("<red>Nobody heard you.");
     private Component waitCooldown = MINI_MESSAGE.deserialize("<red>Wait {secondsLeft} sec. before next message.");
     private Component chatErrorOccurred = MINI_MESSAGE.deserialize("<red>An error occurred while processing your message. Please contact the server administrator.");
 
     // Moderation methods
-    @Comment({"", "Messages for moderation"})
+    @Comment(value = {
+            "",
+            "Messages for moderation"}, language = "en-US")
+    @Comment(value = {
+            "",
+            "Сообщения модерации"}, language = "ru-RU")
     private Component advertisementFound = MINI_MESSAGE.deserialize("<red>Advertisement found in your message.");
     private Component capsFound = MINI_MESSAGE.deserialize("<red>Caps violations found in your message.");
     private Component swearFound = MINI_MESSAGE.deserialize("<red>Swear found in your message.");
 
     // Private messages
-    @Comment({"", "Messages for PM"})
+    @Comment(value = {
+            "",
+            "Messages for PM"}, language = "en-US")
+    @Comment(value = {
+            "",
+            "Сообщения личных сообщений"}, language = "ru-RU")
     private Component pmPlayerNotFound = MINI_MESSAGE.deserialize("<red>Player not found.");
     private Component pmNobodyToReply = MINI_MESSAGE.deserialize("<red>Nobody to reply.");
     private Component pmCannotPmYourself = MINI_MESSAGE.deserialize("<red>You cannot PM yourself.");
@@ -49,9 +64,16 @@ public class MessagesConfig extends OkaeriConfig {
     private Component pmIgnoreList = MINI_MESSAGE.deserialize("<green>Ignore list: {players}.");
 
     // Death causes
-    @Comment({"", "Texts substituted into {cause} of the death message in vanilla.yml.",
+    @Comment(value = {
+            "",
+            "Texts substituted into {cause} of the death message in vanilla.yml.",
             "Keys are Bukkit damage causes, see:",
-            "https://hub.spigotmc.org/javadocs/spigot/org/bukkit/event/entity/EntityDamageEvent.DamageCause.html"})
+            "https://hub.spigotmc.org/javadocs/spigot/org/bukkit/event/entity/EntityDamageEvent.DamageCause.html"}, language = "en-US")
+    @Comment(value = {
+            "",
+            "Тексты, подставляемые в {cause} сообщения о смерти из vanilla.yml.",
+            "Ключи — причины урона Bukkit, см.:",
+            "https://hub.spigotmc.org/javadocs/spigot/org/bukkit/event/entity/EntityDamageEvent.DamageCause.html"}, language = "ru-RU")
     private String deathFallbackCause = "killed by something strange";
     private Map<String, String> deathCauses = new LinkedHashMap<>() {{
         put("BLOCK_EXPLOSION", "caught in block explosion");
@@ -87,7 +109,12 @@ public class MessagesConfig extends OkaeriConfig {
     }};
 
     // Commands
-    @Comment({"", "Messages for commands"})
+    @Comment(value = {
+            "",
+            "Messages for commands"}, language = "en-US")
+    @Comment(value = {
+            "",
+            "Сообщения команд"}, language = "ru-RU")
     private Component cmdArgumentParsingError = MINI_MESSAGE.deserialize("<red>Invalid command argument: {argument}.");
     private Component cmdUsageError = MINI_MESSAGE.deserialize("<red>Usage: {usage}.");
     private Component cmdSenderTypeError = MINI_MESSAGE.deserialize("<red>You cannot use this command.");

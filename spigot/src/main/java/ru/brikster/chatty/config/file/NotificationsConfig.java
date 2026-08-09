@@ -72,15 +72,19 @@ public class NotificationsConfig extends OkaeriConfig {
         public static class ChatNotificationChannelConfig extends OkaeriConfig {
 
             @Positive
-            @Comment("Time in seconds for periodically broadcasting")
+            @Comment(value = "Time in seconds for periodically broadcasting", language = "en-US")
+            @Comment(value = "Период рассылки в секундах", language = "ru-RU")
             private int period = 60;
 
             @Comment
-            @Comment({
+            @Comment(value = {
                     "Messages of chat notifications support MiniMessage format BOTH",
                     "legacy color codes with &, various hex-codes formats.",
-                    "You can use convenient WebUI: https://webui.advntr.dev/"
-            })
+                    "You can use convenient WebUI: https://webui.advntr.dev/"}, language = "en-US")
+            @Comment(value = {
+                    "Сообщения уведомлений в чат поддерживают формат MiniMessage,",
+                    "а также старые цветовые коды с & и разные форматы hex.",
+                    "Удобный редактор: https://webui.advntr.dev/"}, language = "ru-RU")
             private List<Component> messages = Lists.newArrayList(converter.stringToComponent(
                             "&8===================================\n" +
                                     "<gradient:#f3801f:#eb9115>Chatty</gradient> &7- &fawesome chat management system.\n" +
@@ -96,7 +100,8 @@ public class NotificationsConfig extends OkaeriConfig {
             );
 
             @Comment
-            @Comment("Enable this, if you want to play a sound along with the message")
+            @Comment(value = "Enable this, if you want to play a sound along with the message", language = "en-US")
+            @Comment(value = "Включите, если хотите проигрывать звук вместе с сообщением", language = "ru-RU")
             private boolean playSound = false;
 
             // Must not be the last field: okaeri fails to write a config whose
@@ -104,11 +109,13 @@ public class NotificationsConfig extends OkaeriConfig {
             private Sound sound = Sound.sound(Key.key("entity.experience_orb.pickup"), Source.MASTER, 1f, 1f);
 
             @Comment
-            @Comment("Enable this, if you want to restrict channel by permission")
+            @Comment(value = "Enable this, if you want to restrict channel by permission", language = "en-US")
+            @Comment(value = "Включите, если хотите ограничить канал правом", language = "ru-RU")
             private boolean permissionRequired = false;
 
             @Comment
-            @Comment("Enable this, if you want messages to be sent randomly")
+            @Comment(value = "Enable this, if you want messages to be sent randomly", language = "en-US")
+            @Comment(value = "Включите, если хотите отправлять сообщения в случайном порядке", language = "ru-RU")
             private boolean randomOrder = false;
 
         }
@@ -134,38 +141,47 @@ public class NotificationsConfig extends OkaeriConfig {
         public static class ActionbarNotificationChannelConfig extends OkaeriConfig {
 
             @Positive
-            @Comment("Time in seconds for periodically broadcasting")
+            @Comment(value = "Time in seconds for periodically broadcasting", language = "en-US")
+            @Comment(value = "Период рассылки в секундах", language = "ru-RU")
             private int period = 60;
 
             @Positive
             @Comment
-            @Comment("Time in seconds for message stay")
-            @Comment("Should be equal or lower than period")
+            @Comment(value = "Time in seconds for message stay", language = "en-US")
+            @Comment(value = "Сколько секунд сообщение висит на экране", language = "ru-RU")
+            @Comment(value = "Should be equal or lower than period", language = "en-US")
+            @Comment(value = "Должно быть не больше периода", language = "ru-RU")
             private int stay = 60;
 
             @Comment
-            @Comment({
+            @Comment(value = {
                     "Messages of chat notifications support MiniMessage format BOTH",
                     "legacy color codes with &, various hex-codes formats.",
-                    "You can use convenient WebUI: https://webui.advntr.dev/"
-            })
+                    "You can use convenient WebUI: https://webui.advntr.dev/"}, language = "en-US")
+            @Comment(value = {
+                    "Сообщения уведомлений в чат поддерживают формат MiniMessage,",
+                    "а также старые цветовые коды с & и разные форматы hex.",
+                    "Удобный редактор: https://webui.advntr.dev/"}, language = "ru-RU")
             private List<Component> messages = Lists.newArrayList(
                     converter.stringToComponent("&aFirst message from actionbar"),
                     converter.stringToComponent("&2Second message from actionbar")
             );
 
             @Comment
-            @Comment("Enable this, if you want to play a sound when the message appears")
+            @Comment(value = "Enable this, if you want to play a sound when the message appears", language = "en-US")
+            @Comment(value = "Включите, если хотите проигрывать звук при появлении сообщения", language = "ru-RU")
             private boolean playSound = false;
 
             private Sound sound = Sound.sound(Key.key("entity.experience_orb.pickup"), Source.MASTER, 1f, 1f);
 
             @Comment
-            @Comment("Enable this, if you want to restrict channel by permission")
+            @Comment(value = "Enable this, if you want to restrict channel by permission", language = "en-US")
+            @Comment(value = "Включите, если хотите ограничить канал правом", language = "ru-RU")
             private boolean permissionRequired = false;
 
             @Comment
-            @Comment("Enable this, if you want messages to be sent randomly")
+            @Comment(value = "Enable this, if you want messages to be sent randomly", language = "en-US")
+            @Comment(value = "Включите, если хотите отправлять сообщения в случайном порядке", language = "ru-RU")
             private boolean randomOrder = false;
 
         }
@@ -191,29 +207,36 @@ public class NotificationsConfig extends OkaeriConfig {
         public static class TitleNotificationChannelConfig extends OkaeriConfig {
 
             @Positive
-            @Comment("Time in seconds for periodically broadcasting")
+            @Comment(value = "Time in seconds for periodically broadcasting", language = "en-US")
+            @Comment(value = "Период рассылки в секундах", language = "ru-RU")
             private int period = 60;
 
             @Comment
-            @Comment({
+            @Comment(value = {
                     "Messages of title notifications support MiniMessage format BOTH",
                     "legacy color codes with &, various hex-codes formats.",
-                    "You can use convenient WebUI: https://webui.advntr.dev/"
-            })
+                    "You can use convenient WebUI: https://webui.advntr.dev/"}, language = "en-US")
+            @Comment(value = {
+                    "Сообщения уведомлений-заголовков поддерживают формат MiniMessage,",
+                    "а также старые цветовые коды с & и разные форматы hex.",
+                    "Удобный редактор: https://webui.advntr.dev/"}, language = "ru-RU")
             private List<TitleNotificationMessageConfig> messages = Lists.newArrayList(new TitleNotificationMessageConfig());
 
             @Comment
-            @Comment("Enable this, if you want to play a sound along with the title")
+            @Comment(value = "Enable this, if you want to play a sound along with the title", language = "en-US")
+            @Comment(value = "Включите, если хотите проигрывать звук вместе с заголовком", language = "ru-RU")
             private boolean playSound = false;
 
             private Sound sound = Sound.sound(Key.key("entity.experience_orb.pickup"), Source.MASTER, 1f, 1f);
 
             @Comment
-            @Comment("Enable this, if you want to restrict channel by permission")
+            @Comment(value = "Enable this, if you want to restrict channel by permission", language = "en-US")
+            @Comment(value = "Включите, если хотите ограничить канал правом", language = "ru-RU")
             private boolean permissionRequired = false;
 
             @Comment
-            @Comment("Enable this, if you want messages to be sent randomly")
+            @Comment(value = "Enable this, if you want messages to be sent randomly", language = "en-US")
+            @Comment(value = "Включите, если хотите отправлять сообщения в случайном порядке", language = "ru-RU")
             private boolean randomOrder = false;
 
 

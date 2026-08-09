@@ -102,6 +102,8 @@ import java.util.regex.Pattern;
 
 public final class GeneralGuiceModule extends AbstractModule {
 
+    private static final Set<String> COMMENTED_LANGUAGES = Set.of("en-US", "ru-RU");
+
     private final Plugin plugin;
     private final BukkitAudiences audienceProvider;
 
@@ -152,7 +154,7 @@ public final class GeneralGuiceModule extends AbstractModule {
                     "Unsupported language \"{0}\" in settings.yml — falling back to en-US. Supported: {1}",
                     new Object[]{configuredLanguage, String.join(", ", SettingsConfig.SUPPORTED_LANGUAGES)});
         }
-        OkaeriConfig.LANGUAGE = language;
+        OkaeriConfig.LANGUAGE = COMMENTED_LANGUAGES.contains(language) ? language : "en-US";
 
         settingsConfig = createConfig(SettingsConfig.class, "settings.yml");
 

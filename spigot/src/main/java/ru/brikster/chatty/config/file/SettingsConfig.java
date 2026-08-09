@@ -105,19 +105,36 @@ public class SettingsConfig extends OkaeriConfig {
     }, language = "ru-RU")
     private boolean hideVanishedRecipients = true;
 
-    @Comment({"",
+    @Comment(value = {
+            "",
             "Order for handling relational placeholders",
             "from PlaceholderAPI (%rel_<placeholder>%).",
-            "Values: SENDER_AND_TARGET, TARGET_AND_SENDER"
-    })
+            "Values: SENDER_AND_TARGET, TARGET_AND_SENDER"}, language = "en-US")
+    @Comment(value = {
+            "",
+            "Порядок обработки относительных плейсхолдеров",
+            "из PlaceholderAPI (%rel_<плейсхолдер>%).",
+            "Значения: SENDER_AND_TARGET, TARGET_AND_SENDER"}, language = "ru-RU")
     private RelationalPlaceholdersOrder relationalPlaceholdersOrder = RelationalPlaceholdersOrder.SENDER_AND_TARGET;
 
-    @Comment({"", "Settings for parsing links from player messages.", "See chats.yml for per-chat enabling"})
+    @Comment(value = {
+            "",
+            "Settings for parsing links from player messages.",
+            "See chats.yml for per-chat enabling"}, language = "en-US")
+    @Comment(value = {
+            "",
+            "Настройки обработки ссылок из сообщений игроков.",
+            "Включение для отдельных чатов — в chats.yml"}, language = "ru-RU")
     private LinksParsingConfig linksParsing = new LinksParsingConfig();
 
-    @Comment({"",
+    @Comment(value = {
+            "",
             "Send unsigned chat messages with sender's UUID.",
-            "Helpful for enabling in-game ignore feature, but may cause newer client CRASHES"})
+            "Helpful for enabling in-game ignore feature, but may cause newer client CRASHES"}, language = "en-US")
+    @Comment(value = {
+            "",
+            "Отправлять неподписанные сообщения чата с UUID отправителя.",
+            "Нужно для внутриигрового игнора, но может ВЫЗЫВАТЬ КРАШИ у новых клиентов"}, language = "ru-RU")
     private boolean sendIdentifiedMessages = false;
 
     @Comment(value = {"",
@@ -136,7 +153,12 @@ public class SettingsConfig extends OkaeriConfig {
             language = "ru-RU")
     private boolean rewriteConfigFiles = true;
 
-    @Comment({"", "Write every delivered chat message to plugins/Chatty/logs/"})
+    @Comment(value = {
+            "",
+            "Write every delivered chat message to plugins/Chatty/logs/"}, language = "en-US")
+    @Comment(value = {
+            "",
+            "Записывать каждое доставленное сообщение в plugins/Chatty/logs/"}, language = "ru-RU")
     private ChatLogConfig chatLog = new ChatLogConfig();
 
     @Getter
@@ -147,10 +169,20 @@ public class SettingsConfig extends OkaeriConfig {
 
     }
 
-    @Comment({"", "Enable debug messages"})
+    @Comment(value = {
+            "",
+            "Enable debug messages"}, language = "en-US")
+    @Comment(value = {
+            "",
+            "Включить отладочные сообщения"}, language = "ru-RU")
     private boolean debug = false;
 
-    @Comment({"", "Enable bStats metrics (anonymous)"})
+    @Comment(value = {
+            "",
+            "Enable bStats metrics (anonymous)"}, language = "en-US")
+    @Comment(value = {
+            "",
+            "Включить сбор статистики bStats (анонимно)"}, language = "ru-RU")
     private boolean sendMetrics = true;
 
     public enum RelationalPlaceholdersOrder {
@@ -162,20 +194,34 @@ public class SettingsConfig extends OkaeriConfig {
     @Names(strategy = NameStrategy.HYPHEN_CASE, modifier = NameModifier.TO_LOWER_CASE)
     public static class LinksParsingConfig extends OkaeriConfig {
 
-        @Comment(
-                {"Pattern (regexp) for URLs parsing"}
-        )
+        @Comment(value = "Pattern (regexp) for URLs parsing", language = "en-US")
+        @Comment(value = "Шаблон (регулярное выражение) для поиска ссылок", language = "ru-RU")
         private Pattern pattern = Pattern.compile("(?i)\\bhttps?://\\S+\\b");
 
-        @Comment({"", "Hover message for parsed links"})
+        @Comment(value = {
+                "",
+                "Hover message for parsed links"}, language = "en-US")
+        @Comment(value = {
+                "",
+                "Всплывающая подсказка для найденных ссылок"}, language = "ru-RU")
         private String hoverMessage = "&bClick to follow the link";
 
-        @Comment({"", "Permission check (chatty.parselinks)"})
+        @Comment(value = {
+                "",
+                "Permission check (chatty.parselinks)"}, language = "en-US")
+        @Comment(value = {
+                "",
+                "Проверка права (chatty.parselinks)"}, language = "ru-RU")
         private boolean permissionRequired = false;
 
     }
 
-    @Comment({"", "Settings for mentions"})
+    @Comment(value = {
+            "",
+            "Settings for mentions"}, language = "en-US")
+    @Comment(value = {
+            "",
+            "Настройки упоминаний"}, language = "ru-RU")
     private MentionsConfig mentions = new MentionsConfig();
 
     @Getter
@@ -184,20 +230,33 @@ public class SettingsConfig extends OkaeriConfig {
 
         private boolean enable = true;
 
-        @Comment({"",
-                "Pattern (regexp) for searching mentioned username"})
+        @Comment(value = {
+                "",
+                "Pattern (regexp) for searching mentioned username"}, language = "en-US")
+        @Comment(value = {
+                "",
+                "Шаблон (регулярное выражение) для поиска упомянутого ника"}, language = "ru-RU")
         private String pattern = "(?i)@{username}";
 
-        @Comment({"",
-                "Format of mentioned username for others"})
+        @Comment(value = {
+                "",
+                "Format of mentioned username for others"}, language = "en-US")
+        @Comment(value = {
+                "",
+                "Формат упомянутого ника для остальных"}, language = "ru-RU")
         private String othersFormat = "<hover:show_text:'&aClick to PM {username}'><click:suggest_command:'/msg {username} '>&a@{username}</click></hover>";
 
-        @Comment({"",
-                "Format of mentioned username for it's owner"})
+        @Comment(value = {
+                "",
+                "Format of mentioned username for it's owner"}, language = "en-US")
+        @Comment(value = {
+                "",
+                "Формат упомянутого ника для его владельца"}, language = "ru-RU")
         private String targetFormat = "&e&l@{username}";
 
         @Comment
-        @Comment("Play sound on mention?")
+        @Comment(value = "Play sound on mention?", language = "en-US")
+        @Comment(value = "Проигрывать звук при упоминании?", language = "ru-RU")
         private boolean playSound = true;
 
         private Sound sound = Sound.sound(Key.key("entity.experience_orb.pickup"), Source.MASTER, 1f, 1f);
