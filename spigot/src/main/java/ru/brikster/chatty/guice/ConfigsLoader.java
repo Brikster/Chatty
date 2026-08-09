@@ -139,9 +139,6 @@ public final class ConfigsLoader {
                                              NotificationsConfig config,
                                              BukkitAudiences audiences,
                                              Injector injector) {
-        if (!config.getAdvancements().isEnable()) {
-            return;
-        }
         if (!AdvancementSupport.isAvailable()) {
             return;
         }

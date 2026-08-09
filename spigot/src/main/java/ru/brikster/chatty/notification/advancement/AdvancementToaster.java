@@ -33,6 +33,7 @@ public final class AdvancementToaster {
 
     private static final String CRITERION = "chatty";
     private static final String KEY_PREFIX = "notification/";
+    private static final String ROOT_KEY = KEY_PREFIX + "root";
     private static final long REVOKE_DELAY_TICKS = 2L;
 
     @Inject private Plugin plugin;
@@ -45,6 +46,8 @@ public final class AdvancementToaster {
                                           @NotNull Component subtitle,
                                           @NotNull String icon,
                                           @NotNull AdvancementFrame frame) {
+        NamespacedKey root = registerRoot();
+
         Component heading = heading(title, subtitle);
         NamespacedKey key = new NamespacedKey(plugin,
                 KEY_PREFIX + sanitize(id) + "_" + fingerprint(heading, icon, frame));
@@ -58,7 +61,7 @@ public final class AdvancementToaster {
         Throwable modernFailure;
         try {
             Advancement advancement = Bukkit.getUnsafe()
-                    .loadAdvancement(key, json(heading, icon, frame, true));
+                    .loadAdvancement(key, json(root, heading, icon, frame, true));
             registered.add(key);
             return advancement;
         } catch (Throwable t) {
@@ -67,7 +70,7 @@ public final class AdvancementToaster {
 
         try {
             Advancement advancement = Bukkit.getUnsafe()
-                    .loadAdvancement(key, json(heading, icon, frame, false));
+                    .loadAdvancement(key, json(root, heading, icon, frame, false));
             registered.add(key);
             return advancement;
         } catch (Throwable legacyFailure) {
@@ -186,12 +189,33 @@ public final class AdvancementToaster {
         return Integer.toHexString(source.hashCode());
     }
 
-    private static String json(Component heading, String icon,
+    /**
+     * Registers the parent every toast hangs from. It carries no display, and a
+     * root without one gets no tab in the advancement screen - which is the
+     * point: a toast registered as its own root makes a tab appear for as long
+     * as the criterion is awarded, and blink away when it is revoked.
+     */
+    private NamespacedKey registerRoot() {
+        NamespacedKey key = new NamespacedKey(plugin, ROOT_KEY);
+        registered.add(key);
+
+        if (Bukkit.getAdvancement(key) == null) {
+            try {
+                Bukkit.getUnsafe().loadAdvancement(key, CRITERIA_ONLY);
+            } catch (Throwable t) {
+                logger.log(Level.FINE, "Cannot register the toast root " + key, t);
+            }
+        }
+        return key;
+    }
+
+    private static String json(NamespacedKey parent, Component heading, String icon,
                                AdvancementFrame frame, boolean modernIcon) {
         GsonComponentSerializer gson = GsonComponentSerializer.gson();
         String iconField = modernIcon ? "id" : "item";
 
-        return "{\"display\":{"
+        return "{\"parent\":\"" + parent + "\","
+                + "\"display\":{"
                 + "\"icon\":{\"" + iconField + "\":\"" + icon + "\"},"
                 + "\"title\":" + gson.serialize(heading) + ","
                 + "\"description\":{\"text\":\"\"},"
@@ -202,6 +226,10 @@ public final class AdvancementToaster {
                 + "\"criteria\":{\"" + CRITERION + "\":{\"trigger\":\"minecraft:impossible\"}},"
                 + "\"requirements\":[[\"" + CRITERION + "\"]]}";
     }
+
+    private static final String CRITERIA_ONLY =
+            "{\"criteria\":{\"" + CRITERION + "\":{\"trigger\":\"minecraft:impossible\"}},"
+                    + "\"requirements\":[[\"" + CRITERION + "\"]]}";
 
     private static String sanitize(String id) {
         StringBuilder builder = new StringBuilder();

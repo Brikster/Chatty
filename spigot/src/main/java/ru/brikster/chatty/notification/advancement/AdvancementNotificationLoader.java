@@ -20,6 +20,11 @@ public class AdvancementNotificationLoader {
                      BukkitAudiences audiences, Injector injector) {
         AdvancementToaster toaster = injector.getInstance(AdvancementToaster.class);
 
+        if (!config.getAdvancements().isEnable()) {
+            toaster.removeStale();
+            return;
+        }
+
         config.getAdvancements().getLists().forEach((channelId, channelConfig) -> {
             List<Advancement> toasts = register(toaster, channelId, channelConfig);
             if (toasts.isEmpty()) {
