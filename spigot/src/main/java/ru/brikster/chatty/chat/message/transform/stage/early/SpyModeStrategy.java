@@ -5,6 +5,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import ru.brikster.chatty.api.chat.message.context.MessageContext;
+import ru.brikster.chatty.api.chat.message.context.MessageContextKeys;
 import ru.brikster.chatty.api.chat.message.strategy.MessageTransformStrategy;
 import ru.brikster.chatty.api.chat.message.strategy.result.MessageTransformResult;
 import ru.brikster.chatty.chat.message.transform.result.MessageTransformResultBuilder;
@@ -57,7 +58,7 @@ public final class SpyModeStrategy implements MessageTransformStrategy<String> {
                 warn("Cannot resolve chat spies, delivering without them", e);
             }
 
-            builder.withMetadata("spy-recipients", spies);
+            builder.withMetadata(MessageContextKeys.SPY_RECIPIENTS, spies);
         }
 
         try {

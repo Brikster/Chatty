@@ -11,6 +11,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import ru.brikster.chatty.api.chat.message.context.MessageContext;
+import ru.brikster.chatty.api.chat.message.context.MessageContextKeys;
 import ru.brikster.chatty.api.chat.message.strategy.MessageTransformStrategy;
 import ru.brikster.chatty.api.chat.message.strategy.result.MessageTransformResult;
 import ru.brikster.chatty.chat.component.context.SinglePlayerTransformContext;
@@ -26,7 +27,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
@@ -68,8 +68,7 @@ public class MentionsTransformStrategy implements MessageTransformStrategy<Compo
             return MessageTransformResultBuilder.<Component>fromContext(context).build();
         }
 
-        //noinspection unchecked
-        for (Player onlinePlayer : ((Collection<? extends Player>) context.getMetadata().get("all_recipients"))) {
+        for (Player onlinePlayer : MessageContextKeys.getPlayers(context, MessageContextKeys.ALL_RECIPIENTS)) {
             // Cannot mention yourself
             if (onlinePlayer == context.getSender()) {
                 continue;

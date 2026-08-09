@@ -12,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import ru.brikster.chatty.api.chat.Chat;
 import ru.brikster.chatty.api.chat.ChatStyle;
 import ru.brikster.chatty.api.chat.message.context.MessageContext;
+import ru.brikster.chatty.api.chat.message.context.MessageContextKeys;
 import ru.brikster.chatty.api.chat.message.strategy.MessageTransformStrategy.Stage;
 import ru.brikster.chatty.api.event.ChattyMessageEvent;
 import ru.brikster.chatty.api.event.ChattyPreMessageEvent;
@@ -229,7 +230,8 @@ public abstract class AbstractChatEventExecutor implements Listener {
             List<MessageContext<Component>> groupedByStyle = groupedByStyle(middleContext, styles);
             for (int groupIndex = 0; groupIndex < groupedByStyle.size(); groupIndex++) {
                 MessageContext<Component> groupContext = groupedByStyle.get(groupIndex);
-                groupContext.getMetadata().put("all_recipients", middleContext.getRecipients());
+                MessageContextKeys.putPlayers(groupContext, MessageContextKeys.ALL_RECIPIENTS,
+                        middleContext.getRecipients());
 
                 MessageContext<Component> lateContext = processor.handle(groupContext, Stage.LATE).getNewContext();
                 delivered = true;
@@ -311,9 +313,9 @@ public abstract class AbstractChatEventExecutor implements Listener {
             Set<Player> allowedRecipients = new HashSet<>();
             allowedRecipients.add(event.getPlayer());
 
-            if (middleContext.getChat().isEnableSpy() && middleContext.getMetadata().containsKey("spy-recipients")) {
-                //noinspection unchecked
-                allowedRecipients.addAll((List<Player>) middleContext.getMetadata().get("spy-recipients"));
+            if (middleContext.getChat().isEnableSpy()) {
+                allowedRecipients.addAll(MessageContextKeys
+                        .getPlayers(middleContext, MessageContextKeys.SPY_RECIPIENTS));
             }
 
             if (settings.isHideVanishedRecipients()) {
@@ -329,11 +331,11 @@ public abstract class AbstractChatEventExecutor implements Listener {
 
     private List<MessageContext<Component>> groupedByStyle(MessageContext<Component> context, Set<ChatStyle> styles) {
         Chat chat = context.getChat();
-        boolean useSpy = chat.isEnableSpy() && context.getMetadata().containsKey("spy-recipients");
+        boolean useSpy = chat.isEnableSpy()
+                && MessageContextKeys.has(context, MessageContextKeys.SPY_RECIPIENTS);
 
-        //noinspection unchecked
         var grouping = chatStylePlayerGrouper.makeGrouping(context.getRecipients(), styles,
-                useSpy ? (List<Player>) context.getMetadata().get("spy-recipients") : null,
+                useSpy ? MessageContextKeys.getPlayers(context, MessageContextKeys.SPY_RECIPIENTS) : null,
                 useSpy ? new ChatStyle(
                         "internal-spy-style",
                         chat.getSpyFormat(),
@@ -368,7 +370,8 @@ public abstract class AbstractChatEventExecutor implements Listener {
         Identity senderIdentity = Identity.identity(lateContext.getSender().getUniqueId());
         for (Player recipient : lateContext.getRecipients()) {
             MessageContext<Component> personalLateContext = new MessageContextImpl<>(lateContext);
-            personalLateContext.getMetadata().put("all_recipients", middleContextRecipients);
+            MessageContextKeys.putPlayers(personalLateContext, MessageContextKeys.ALL_RECIPIENTS,
+                    middleContextRecipients);
             personalLateContext.setMessage(lateContext.getMessage());
             personalLateContext.setRecipients(Collections.singletonList(recipient));
             personalLateContext.setTarget(recipient);
