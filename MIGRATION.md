@@ -107,8 +107,13 @@ in player messages — grant the individual leaves unless you want that.
 ### Gone with the feature
 
 `chatty.command.chat`, `chatty.command.prefix[.others]`,
-`chatty.command.suffix[.others]`, `chatty.command.swears`, `chatty.swears.see`
-and `chatty.notification.advancements.<name>` have no v3 equivalent.
+`chatty.command.suffix[.others]`, `chatty.command.swears` and
+`chatty.swears.see` have no v3 equivalent.
+
+Toast notifications are back, under a new node: v2's
+`chatty.notification.advancements.<name>` becomes
+`chatty.notification.advancement.<name>`, and the channels are configured in
+`notifications.yml` under `advancements`.
 
 ### Note on /clearchat
 

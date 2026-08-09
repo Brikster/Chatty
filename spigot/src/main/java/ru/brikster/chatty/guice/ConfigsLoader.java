@@ -1,6 +1,7 @@
 package ru.brikster.chatty.guice;
 
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import ru.brikster.chatty.api.chat.Chat;
 import ru.brikster.chatty.api.chat.ChatStyle;
@@ -19,6 +20,8 @@ import ru.brikster.chatty.notification.ChatNotification;
 import ru.brikster.chatty.notification.NotificationTicker;
 import ru.brikster.chatty.notification.TitleNotification;
 import ru.brikster.chatty.notification.TitleNotification.TitleNotificationMessage;
+import ru.brikster.chatty.notification.advancement.AdvancementNotificationLoader;
+import ru.brikster.chatty.notification.advancement.AdvancementSupport;
 
 import java.util.Comparator;
 import java.util.LinkedHashSet;
@@ -129,6 +132,20 @@ public final class ConfigsLoader {
                 ticker.addNotification(chatNotification);
             });
         }
+    }
+
+    @Inject
+    public void loadAdvancementNotifications(NotificationTicker ticker,
+                                             NotificationsConfig config,
+                                             BukkitAudiences audiences,
+                                             Injector injector) {
+        if (!config.getAdvancements().isEnable()) {
+            return;
+        }
+        if (!AdvancementSupport.isAvailable()) {
+            return;
+        }
+        AdvancementNotificationLoader.load(ticker, config, audiences, injector);
     }
 
     @Inject

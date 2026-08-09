@@ -13,6 +13,7 @@ import net.kyori.adventure.sound.Sound.Source;
 import net.kyori.adventure.text.Component;
 import ru.brikster.chatty.BuildConstants;
 import ru.brikster.chatty.convert.component.ComponentStringConverter;
+import ru.brikster.chatty.notification.advancement.AdvancementFrame;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -40,6 +41,19 @@ public class NotificationsConfig extends OkaeriConfig {
 
     @Comment
     private TitleNotificationsConfig title = new TitleNotificationsConfig();
+
+    @Comment
+    @Comment(value = {
+            "Toast notifications: the pop-up the game shows for an advancement.",
+            "Needs Minecraft 1.12 or newer; on older servers the section is ignored.",
+            "Toast text is baked into the advancement when the plugin starts,",
+            "so it is the same for everybody and cannot use placeholders."}, language = "en-US")
+    @Comment(value = {
+            "Всплывающие уведомления — та самая плашка, что показывается за достижение.",
+            "Нужен Minecraft 1.12 или новее; на старых серверах секция игнорируется.",
+            "Текст запекается в достижение при запуске плагина,",
+            "поэтому он одинаков для всех и не поддерживает плейсхолдеры."}, language = "ru-RU")
+    private AdvancementNotificationsConfig advancements = new AdvancementNotificationsConfig();
 
     @Getter
     @SuppressWarnings("FieldMayBeFinal")
@@ -250,6 +264,77 @@ public class NotificationsConfig extends OkaeriConfig {
                 private Component title = converter.stringToComponent("&aExample title");
 
                 private Component subtitle = converter.stringToComponent("&2Example subtitle");
+
+            }
+
+        }
+
+    }
+
+    @Getter
+    @SuppressWarnings("FieldMayBeFinal")
+    @Names(strategy = NameStrategy.HYPHEN_CASE, modifier = NameModifier.TO_LOWER_CASE)
+    public static class AdvancementNotificationsConfig extends OkaeriConfig {
+
+        private boolean enable = false;
+
+        private Map<String, AdvancementNotificationChannelConfig> lists = new LinkedHashMap<>() {{
+            put("default", new AdvancementNotificationChannelConfig());
+        }};
+
+        @Getter
+        @AllArgsConstructor
+        @NoArgsConstructor
+        @SuppressWarnings("FieldMayBeFinal")
+        @Names(strategy = NameStrategy.HYPHEN_CASE, modifier = NameModifier.TO_LOWER_CASE)
+        public static class AdvancementNotificationChannelConfig extends OkaeriConfig {
+
+            @Positive
+            @Comment(value = "Time in seconds for periodically broadcasting", language = "en-US")
+            @Comment(value = "Период рассылки в секундах", language = "ru-RU")
+            private int period = 600;
+
+            @Comment
+            @Comment(value = {
+                    "A toast fits about two short lines, so keep the text brief.",
+                    "\"icon\" is any item id, \"frame\" is TASK, GOAL or CHALLENGE"}, language = "en-US")
+            @Comment(value = {
+                    "В плашку помещается примерно две короткие строки, пишите кратко.",
+                    "\"icon\" — любой предмет, \"frame\" — TASK, GOAL или CHALLENGE"}, language = "ru-RU")
+            private List<AdvancementNotificationMessageConfig> messages =
+                    Lists.newArrayList(new AdvancementNotificationMessageConfig());
+
+            @Comment
+            @Comment(value = "Enable this, if you want to play a sound along with the toast", language = "en-US")
+            @Comment(value = "Включите, если хотите проигрывать звук вместе с плашкой", language = "ru-RU")
+            private boolean playSound = false;
+
+            private Sound sound = Sound.sound(Key.key("entity.experience_orb.pickup"), Source.MASTER, 1f, 1f);
+
+            @Comment
+            @Comment(value = "Enable this, if you want to restrict channel by permission", language = "en-US")
+            @Comment(value = "Включите, если хотите ограничить канал правом", language = "ru-RU")
+            private boolean permissionRequired = false;
+
+            @Comment
+            @Comment(value = "Enable this, if you want messages to be sent randomly", language = "en-US")
+            @Comment(value = "Включите, если хотите отправлять сообщения в случайном порядке", language = "ru-RU")
+            private boolean randomOrder = false;
+
+            @Getter
+            @AllArgsConstructor
+            @NoArgsConstructor
+            @SuppressWarnings("FieldMayBeFinal")
+            @Names(strategy = NameStrategy.HYPHEN_CASE, modifier = NameModifier.TO_LOWER_CASE)
+            public static class AdvancementNotificationMessageConfig extends OkaeriConfig {
+
+                private Component title = converter.stringToComponent("&6Example toast");
+
+                private Component description = converter.stringToComponent("&7Example description");
+
+                private String icon = "minecraft:diamond";
+
+                private AdvancementFrame frame = AdvancementFrame.TASK;
 
             }
 

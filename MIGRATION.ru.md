@@ -111,8 +111,13 @@ Chatty v3 переписан с нуля. Конфигурация раздел�
 ### Исчезло вместе с функцией
 
 У `chatty.command.chat`, `chatty.command.prefix[.others]`,
-`chatty.command.suffix[.others]`, `chatty.command.swears`, `chatty.swears.see`
-и `chatty.notification.advancements.<name>` эквивалента в v3 нет.
+`chatty.command.suffix[.others]`, `chatty.command.swears` и
+`chatty.swears.see` эквивалента в v3 нет.
+
+Всплывающие уведомления вернулись, но узел переименован: вместо
+`chatty.notification.advancements.<name>` из v2 —
+`chatty.notification.advancement.<name>`, а сами каналы настраиваются в
+`notifications.yml` в секции `advancements`.
 
 ### Про /clearchat
 

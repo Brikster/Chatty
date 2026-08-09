@@ -29,7 +29,7 @@ that makes it so powerful and stable.
 - Chat channels ("local" and "global" by default)
 - Private messaging
 - Moderation (CAPS, advertisements, swears)
-- Notifications (chat, action bar and title)
+- Notifications (chat, action bar, title and advancement toasts)
 - "Vanilla" messages configuring (join/quit/death)
 - MiniMessage both legacy (&) styling format
 
