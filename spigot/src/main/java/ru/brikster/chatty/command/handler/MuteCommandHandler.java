@@ -1,5 +1,6 @@
 package ru.brikster.chatty.command.handler;
 
+import ru.brikster.chatty.util.ChattyMessages;
 import cloud.commandframework.context.CommandContext;
 import cloud.commandframework.execution.CommandExecutionHandler;
 import lombok.RequiredArgsConstructor;
@@ -36,17 +37,20 @@ public final class MuteCommandHandler implements CommandExecutionHandler<Command
 
         UUID targetUuid = resolve(targetName);
         if (targetUuid == null) {
-            audiences.sender(sender).sendMessage(messages.getPmPlayerNotFound());
+            ChattyMessages.send(audiences.sender(sender),
+                    messages.getPmPlayerNotFound());
             return;
         }
 
         if (unmute) {
             if (repository.getMute(targetUuid) == null) {
-                audiences.sender(sender).sendMessage(withPlayer(messages.getMuteCommandNotMuted(), targetName));
+                ChattyMessages.send(audiences.sender(sender),
+                        withPlayer(messages.getMuteCommandNotMuted(), targetName));
                 return;
             }
             repository.clearMute(targetUuid);
-            audiences.sender(sender).sendMessage(withPlayer(messages.getMuteCommandUnmuted(), targetName));
+            ChattyMessages.send(audiences.sender(sender),
+                    withPlayer(messages.getMuteCommandUnmuted(), targetName));
             return;
         }
 
@@ -69,7 +73,8 @@ public final class MuteCommandHandler implements CommandExecutionHandler<Command
         repository.createOrUpdateUser(targetUuid, targetName);
         repository.setMute(targetUuid, mute);
 
-        audiences.sender(sender).sendMessage(withPlayer(messages.getMuteCommandSuccess(), targetName)
+        ChattyMessages.send(audiences.sender(sender),
+                withPlayer(messages.getMuteCommandSuccess(), targetName)
                 .replaceText(AdventureUtil.createReplacement("{duration}", MuteFormatter.describe(mute, messages))));
     }
 

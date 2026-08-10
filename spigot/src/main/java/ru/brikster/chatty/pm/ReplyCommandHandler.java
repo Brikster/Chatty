@@ -1,5 +1,6 @@
 package ru.brikster.chatty.pm;
 
+import ru.brikster.chatty.util.ChattyMessages;
 import cloud.commandframework.context.CommandContext;
 import cloud.commandframework.execution.CommandExecutionHandler;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
@@ -25,7 +26,8 @@ public final class ReplyCommandHandler implements CommandExecutionHandler<Comman
         PmMessageTarget target = pmMessageService.getLastConversation(sender);
 
         if (target == null) {
-            audiences.sender(sender).sendMessage(messagesConfig.getPmNobodyToReply());
+            ChattyMessages.send(audiences.sender(sender),
+                    messagesConfig.getPmNobodyToReply());
             return;
         }
 

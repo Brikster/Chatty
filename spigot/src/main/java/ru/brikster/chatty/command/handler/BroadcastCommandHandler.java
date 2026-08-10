@@ -1,5 +1,6 @@
 package ru.brikster.chatty.command.handler;
 
+import ru.brikster.chatty.util.ChattyMessages;
 import cloud.commandframework.context.CommandContext;
 import cloud.commandframework.execution.CommandExecutionHandler;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +35,8 @@ public final class BroadcastCommandHandler implements CommandExecutionHandler<Co
 
         Chat chat = chatRegistry.getChats().get(chatId);
         if (chat == null) {
-            audiences.sender(commandContext.getSender()).sendMessage(messagesConfig.getChatNotFound());
+            ChattyMessages.send(audiences.sender(commandContext.getSender()),
+                    messagesConfig.getChatNotFound());
             return;
         }
 

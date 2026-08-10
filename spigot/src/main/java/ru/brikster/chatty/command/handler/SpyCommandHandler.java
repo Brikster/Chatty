@@ -1,5 +1,6 @@
 package ru.brikster.chatty.command.handler;
 
+import ru.brikster.chatty.util.ChattyMessages;
 import cloud.commandframework.context.CommandContext;
 import cloud.commandframework.execution.CommandExecutionHandler;
 import lombok.RequiredArgsConstructor;
@@ -28,11 +29,11 @@ public final class SpyCommandHandler implements CommandExecutionHandler<CommandS
         playerDataRepository.createOrUpdateUser(sender.getUniqueId(), sender.getName());
         playerDataRepository.setEnableSpy(sender.getUniqueId(), state);
         if (state) {
-            audiences.sender(commandContext.getSender())
-                    .sendMessage(messagesConfig.getSpyCommandSpyIsNowEnabled());
+            ChattyMessages.send(audiences.sender(commandContext.getSender()),
+                    messagesConfig.getSpyCommandSpyIsNowEnabled());
         } else {
-            audiences.sender(commandContext.getSender())
-                    .sendMessage(messagesConfig.getSpyCommandSpyIsNowDisabled());
+            ChattyMessages.send(audiences.sender(commandContext.getSender()),
+                    messagesConfig.getSpyCommandSpyIsNowDisabled());
         }
     }
 

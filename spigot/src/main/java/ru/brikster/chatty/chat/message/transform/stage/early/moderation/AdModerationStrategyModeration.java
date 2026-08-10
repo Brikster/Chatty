@@ -1,5 +1,6 @@
 package ru.brikster.chatty.chat.message.transform.stage.early.moderation;
 
+import ru.brikster.chatty.util.ChattyMessages;
 import com.google.inject.Singleton;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.jetbrains.annotations.NotNull;
@@ -61,7 +62,8 @@ public final class AdModerationStrategyModeration implements ModerationMatcherSt
         MessageTransformResult<String> messageTransformResult = getMatcherResult(context, matchedMessage, hasViolations, useBlock);
 
         if (hasViolations) {
-            audiences.player(context.getSender()).sendMessage(messages.getAdvertisementFound());
+            ChattyMessages.send(audiences.player(context.getSender()),
+                    messages.getAdvertisementFound());
         }
 
         return messageTransformResult;

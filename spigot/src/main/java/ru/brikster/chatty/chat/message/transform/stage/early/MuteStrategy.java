@@ -1,5 +1,6 @@
 package ru.brikster.chatty.chat.message.transform.stage.early;
 
+import ru.brikster.chatty.util.ChattyMessages;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.jetbrains.annotations.NotNull;
 import ru.brikster.chatty.api.chat.message.context.MessageContext;
@@ -44,11 +45,12 @@ public final class MuteStrategy implements MessageTransformStrategy<String> {
             return MessageTransformResultBuilder.<String>fromContext(context).build();
         }
 
-        audiences.player(context.getSender()).sendMessage(messages.getMuted()
+        ChattyMessages.send(audiences.player(context.getSender()),
+                messages.getMuted()
                 .replaceText(AdventureUtil.createReplacement("{duration}",
-                        MuteFormatter.describe(mute, messages)))
+                MuteFormatter.describe(mute, messages)))
                 .replaceText(AdventureUtil.createReplacement("{reason}",
-                        mute.getReason() == null ? "" : mute.getReason())));
+                mute.getReason() == null ? "" : mute.getReason())));
 
         return MessageTransformResultBuilder.<String>fromContext(context)
                 .withCancelled()

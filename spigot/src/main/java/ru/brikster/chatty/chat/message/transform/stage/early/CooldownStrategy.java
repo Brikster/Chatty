@@ -1,5 +1,6 @@
 package ru.brikster.chatty.chat.message.transform.stage.early;
 
+import ru.brikster.chatty.util.ChattyMessages;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import lombok.SneakyThrows;
@@ -44,9 +45,9 @@ public final class CooldownStrategy implements MessageTransformStrategy<String> 
                 long endCooldownMillis = previousMillis + context.getChat().getCooldown() * 1000L;
                 if (System.currentTimeMillis() < endCooldownMillis) {
                     long secondsLeft = (long) Math.ceil((double) (endCooldownMillis - System.currentTimeMillis()) / 1000d);
-                    audiences.sender(context.getSender())
-                            .sendMessage(messagesConfig.getWaitCooldown()
-                                    .replaceText(AdventureUtil.createReplacement("{secondsLeft}", secondsLeft)));
+                    ChattyMessages.send(audiences.sender(context.getSender()),
+                            messagesConfig.getWaitCooldown()
+                            .replaceText(AdventureUtil.createReplacement("{secondsLeft}", secondsLeft)));
                     return MessageTransformResultBuilder.<String>fromContext(context)
                             .withCancelled()
                             .build();

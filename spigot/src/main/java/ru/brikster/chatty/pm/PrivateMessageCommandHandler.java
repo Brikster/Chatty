@@ -1,5 +1,6 @@
 package ru.brikster.chatty.pm;
 
+import ru.brikster.chatty.util.ChattyMessages;
 import cloud.commandframework.context.CommandContext;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
@@ -35,19 +36,20 @@ public final class PrivateMessageCommandHandler {
                               @NotNull CommandSender sender,
                               @NotNull PmMessageTarget target) {
         if (target.isOnline() && sender == target.asCommandSender()) {
-            audiences.sender(sender)
-                    .sendMessage(messagesConfig.getPmCannotPmYourself());
+            ChattyMessages.send(audiences.sender(sender),
+                    messagesConfig.getPmCannotPmYourself());
             return;
         }
 
         if (sender instanceof Player && !sender.hasPermission("chatty.bypass.mute")) {
             Mute mute = playerDataRepository.getMute(((Player) sender).getUniqueId());
             if (mute != null && !mute.isExpired(System.currentTimeMillis())) {
-                audiences.sender(sender).sendMessage(messagesConfig.getMuted()
+                ChattyMessages.send(audiences.sender(sender),
+                        messagesConfig.getMuted()
                         .replaceText(AdventureUtil.createReplacement("{duration}",
-                                MuteFormatter.describe(mute, messagesConfig)))
+                        MuteFormatter.describe(mute, messagesConfig)))
                         .replaceText(AdventureUtil.createReplacement("{reason}",
-                                mute.getReason() == null ? "" : mute.getReason())));
+                        mute.getReason() == null ? "" : mute.getReason())));
                 return;
             }
         }

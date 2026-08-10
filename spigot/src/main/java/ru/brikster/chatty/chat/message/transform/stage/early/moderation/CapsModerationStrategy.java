@@ -1,5 +1,6 @@
 package ru.brikster.chatty.chat.message.transform.stage.early.moderation;
 
+import ru.brikster.chatty.util.ChattyMessages;
 import com.google.inject.Singleton;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.jetbrains.annotations.NotNull;
@@ -50,7 +51,8 @@ public final class CapsModerationStrategy implements MessageTransformStrategy<St
                 && calculateUppercasePercent(message) >= percent) {
             message = message.toLowerCase();
 
-            audiences.player(context.getSender()).sendMessage(messages.getCapsFound());
+            ChattyMessages.send(audiences.player(context.getSender()),
+                    messages.getCapsFound());
 
             if (useBlock) {
                 return MessageTransformResultBuilder.<String>fromContext(context)

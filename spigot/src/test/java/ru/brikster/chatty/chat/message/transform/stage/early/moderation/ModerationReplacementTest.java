@@ -74,7 +74,7 @@ class ModerationReplacementTest {
         BukkitAudiences audiences = mock(BukkitAudiences.class);
         when(audiences.player(any(Player.class))).thenReturn(mock(Audience.class));
 
-        return new AdModerationStrategyModeration(audiences, mock(MessagesConfig.class), moderationConfig);
+        return new AdModerationStrategyModeration(audiences, new MessagesConfig(), moderationConfig);
     }
 
     @SuppressWarnings("unchecked")

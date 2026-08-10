@@ -1,5 +1,6 @@
 package ru.brikster.chatty.pm.ignore;
 
+import ru.brikster.chatty.util.ChattyMessages;
 import cloud.commandframework.context.CommandContext;
 import cloud.commandframework.execution.CommandExecutionHandler;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
@@ -31,7 +32,8 @@ public final class IgnoreListCommandHandler implements CommandExecutionHandler<C
             ignoredPlayersList = "(0)";
         }
 
-        audiences.sender(sender).sendMessage(messagesConfig.getPmIgnoreList()
+        ChattyMessages.send(audiences.sender(sender),
+                messagesConfig.getPmIgnoreList()
                 .replaceText(AdventureUtil.createReplacement("{players}", ignoredPlayersList)));
     }
 

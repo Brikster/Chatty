@@ -1,5 +1,6 @@
 package ru.brikster.chatty.chat.executor;
 
+import ru.brikster.chatty.util.ChattyMessages;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
@@ -112,7 +113,8 @@ public abstract class AbstractChatEventExecutor implements Listener {
         } else {
             suppressedErrors.incrementAndGet();
         }
-        audiences.player(player).sendMessage(messages.getChatErrorOccurred());
+        ChattyMessages.send(audiences.player(player),
+                messages.getChatErrorOccurred());
     }
 
     private MessageContext<String> createEarlyContext(ChatEventFacade event) {
@@ -122,8 +124,8 @@ public abstract class AbstractChatEventExecutor implements Listener {
 
         List<Player> recipients;
         if (chat == null) {
-            audiences.player(event.getPlayer().getUniqueId())
-                    .sendMessage(messages.getChatNotFound());
+            ChattyMessages.send(audiences.player(event.getPlayer().getUniqueId()),
+                    messages.getChatNotFound());
             recipients = Collections.emptyList();
             event.setCancelled(true);
         } else {
@@ -324,7 +326,8 @@ public abstract class AbstractChatEventExecutor implements Listener {
             }
 
             if (allowedRecipients.containsAll(middleContext.getRecipients())) {
-                audiences.player(event.getPlayer()).sendMessage(messages.getNobodyHeard());
+                ChattyMessages.send(audiences.player(event.getPlayer()),
+                        messages.getNobodyHeard());
             }
         }
     }

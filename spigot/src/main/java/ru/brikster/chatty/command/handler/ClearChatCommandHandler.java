@@ -1,5 +1,6 @@
 package ru.brikster.chatty.command.handler;
 
+import ru.brikster.chatty.util.ChattyMessages;
 import cloud.commandframework.context.CommandContext;
 import cloud.commandframework.execution.CommandExecutionHandler;
 import lombok.RequiredArgsConstructor;
@@ -38,13 +39,15 @@ public final class ClearChatCommandHandler implements CommandExecutionHandler<Co
         }
 
         if (!scope.get().equalsIgnoreCase(ALL_SCOPE)) {
-            audiences.sender(sender).sendMessage(messagesConfig.getCmdUsageError()
+            ChattyMessages.send(audiences.sender(sender),
+                    messagesConfig.getCmdUsageError()
                     .replaceText(AdventureUtil.createReplacement("{usage}", "/clearchat [all]")));
             return;
         }
 
         if (!sender.hasPermission(ALL_PERMISSION)) {
-            audiences.sender(sender).sendMessage(messagesConfig.getCmdNoPermissionError());
+            ChattyMessages.send(audiences.sender(sender),
+                    messagesConfig.getCmdNoPermissionError());
             return;
         }
 
@@ -53,14 +56,16 @@ public final class ClearChatCommandHandler implements CommandExecutionHandler<Co
 
     private void clearForSender(CommandSender sender) {
         if (!(sender instanceof Player)) {
-            audiences.sender(sender).sendMessage(messagesConfig.getCmdSenderTypeError());
+            ChattyMessages.send(audiences.sender(sender),
+                    messagesConfig.getCmdSenderTypeError());
             return;
         }
         var audience = audiences.sender(sender);
         for (int i = 0; i < BLANK_LINES; i++) {
             audience.sendMessage(Component.empty());
         }
-        audience.sendMessage(messagesConfig.getClearchatCommandSuccess());
+        ChattyMessages.send(audience,
+                messagesConfig.getClearchatCommandSuccess());
     }
 
     private void clearForEveryone(CommandSender sender) {
@@ -68,7 +73,8 @@ public final class ClearChatCommandHandler implements CommandExecutionHandler<Co
         for (int i = 0; i < BLANK_LINES; i++) {
             players.sendMessage(Component.empty());
         }
-        players.sendMessage(messagesConfig.getClearchatCommandClearedForAll()
+        ChattyMessages.send(players,
+                messagesConfig.getClearchatCommandClearedForAll()
                 .replaceText(AdventureUtil.createReplacement("{player}", sender.getName())));
     }
 

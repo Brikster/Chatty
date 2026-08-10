@@ -1,5 +1,6 @@
 package ru.brikster.chatty.pm.ignore;
 
+import ru.brikster.chatty.util.ChattyMessages;
 import cloud.commandframework.context.CommandContext;
 import cloud.commandframework.execution.CommandExecutionHandler;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
@@ -39,7 +40,8 @@ public final class RemoveIgnoreCommandHandler implements CommandExecutionHandler
         }
 
         if (targetUuid == null) {
-            audiences.sender(sender).sendMessage(messagesConfig.getPmPlayerNotFound());
+            ChattyMessages.send(audiences.sender(sender),
+                    messagesConfig.getPmPlayerNotFound());
             return;
         }
 
@@ -50,9 +52,11 @@ public final class RemoveIgnoreCommandHandler implements CommandExecutionHandler
             }
 
             repository.removeIgnoredPlayer(sender.getUniqueId(), targetUuid);
-            audiences.sender(sender).sendMessage(messagesConfig.getPmYouDontNowIgnore());
+            ChattyMessages.send(audiences.sender(sender),
+                    messagesConfig.getPmYouDontNowIgnore());
         } else {
-            audiences.sender(sender).sendMessage(messagesConfig.getPmYouDontIgnore());
+            ChattyMessages.send(audiences.sender(sender),
+                    messagesConfig.getPmYouDontIgnore());
         }
     }
 

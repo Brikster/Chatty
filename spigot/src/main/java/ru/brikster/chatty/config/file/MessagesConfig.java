@@ -26,6 +26,16 @@ public class MessagesConfig extends OkaeriConfig {
 
     @Comment(value = {
             "",
+            "Any message here may start with \"actionbar!\" to be shown on the",
+            "action bar instead of chat, for example:",
+            "  nobody-heard: 'actionbar! <red>Nobody heard you.'"}, language = "en-US")
+    @Comment(value = {
+            "",
+            "Любое сообщение здесь может начинаться с \"actionbar!\", тогда оно",
+            "покажется на экшенбаре, а не в чате. Например:",
+            "  nobody-heard: 'actionbar! <red>Вас никто не услышал.'"}, language = "ru-RU")
+    @Comment(value = {
+            "",
             "Common messages"}, language = "en-US")
     @Comment(value = {
             "",

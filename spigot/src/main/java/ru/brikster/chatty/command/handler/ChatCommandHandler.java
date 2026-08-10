@@ -1,5 +1,6 @@
 package ru.brikster.chatty.command.handler;
 
+import ru.brikster.chatty.util.ChattyMessages;
 import cloud.commandframework.context.CommandContext;
 import cloud.commandframework.execution.CommandExecutionHandler;
 import lombok.RequiredArgsConstructor;
@@ -33,12 +34,14 @@ public final class ChatCommandHandler implements CommandExecutionHandler<Command
 
         Chat chat = chatRegistry.getChats().get(chatId);
         if (chat == null) {
-            audiences.sender(sender).sendMessage(messagesConfig.getChatNotFound());
+            ChattyMessages.send(audiences.sender(sender),
+                    messagesConfig.getChatNotFound());
             return;
         }
 
         if (chat.isPermissionRequired() && !chat.hasCommandWritePermission(sender)) {
-            audiences.sender(sender).sendMessage(messagesConfig.getCmdNoPermissionError());
+            ChattyMessages.send(audiences.sender(sender),
+                    messagesConfig.getCmdNoPermissionError());
             return;
         }
 
@@ -54,14 +57,16 @@ public final class ChatCommandHandler implements CommandExecutionHandler<Command
         }
 
         if (chat.getCommand() == null || !chat.getCommand().isCanSwitchWithCommand()) {
-            audiences.sender(sender).sendMessage(messagesConfig.getCmdUsageError()
+            ChattyMessages.send(audiences.sender(sender),
+                    messagesConfig.getCmdUsageError()
                     .replaceText(AdventureUtil.createReplacement("{usage}",
-                            "/" + chat.getCommand().getName() + " <message>")));
+                    "/" + chat.getCommand().getName() + " <message>")));
             return;
         }
 
         selectionState.switchTo(sender.getUniqueId(), chatId);
-        audiences.sender(sender).sendMessage(messagesConfig.getChatCommandSwitched()
+        ChattyMessages.send(audiences.sender(sender),
+                messagesConfig.getChatCommandSwitched()
                 .replaceText(AdventureUtil.createReplacement("{chat}", chat.getDisplayName())));
     }
 
