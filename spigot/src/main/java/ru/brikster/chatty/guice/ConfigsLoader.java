@@ -17,6 +17,7 @@ import ru.brikster.chatty.config.file.NotificationsConfig;
 import ru.brikster.chatty.convert.component.ComponentStringConverter;
 import ru.brikster.chatty.notification.ActionbarNotification;
 import ru.brikster.chatty.notification.ChatNotification;
+import ru.brikster.chatty.notification.Notification;
 import ru.brikster.chatty.notification.NotificationTicker;
 import ru.brikster.chatty.notification.TitleNotification;
 import ru.brikster.chatty.notification.TitleNotification.TitleNotificationMessage;
@@ -26,9 +27,34 @@ import ru.brikster.chatty.notification.advancement.AdvancementSupport;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.Locale;
+import java.util.function.Supplier;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public final class ConfigsLoader {
+
+    /**
+     * Builds one notification channel, reporting it and carrying on when its
+     * configuration is rejected. A channel used to throw out of the injector,
+     * which stopped the whole plugin from enabling over a single bad number -
+     * and the reason reached the owner only as a Guice ProvisionException.
+     */
+    private void addChannel(NotificationTicker ticker, Logger logger, String type,
+                            String channelId, Supplier<Notification> channel) {
+        try {
+            ticker.addNotification(channel.get());
+        } catch (Throwable t) {
+            logger.log(Level.WARNING, "Skipping the \"{0}\" {1} notification from"
+                            + " notifications.yml: {2}",
+                    new Object[]{channelId, type, describe(t)});
+        }
+    }
+
+    private static String describe(Throwable t) {
+        return t.getMessage() == null ? t.getClass().getSimpleName() : t.getMessage();
+    }
+
 
     @Inject
     public void loadChannels(ChatsConfig config,
@@ -94,24 +120,23 @@ public final class ConfigsLoader {
     public void loadTitleNotifications(NotificationTicker ticker,
                                        NotificationsConfig config,
                                        BukkitAudiences audiences,
-                                       PlaceholdersComponentTransformer placeholdersComponentTransformer) {
+                                       PlaceholdersComponentTransformer placeholdersComponentTransformer,
+                                      Logger logger) {
         if (config.getTitle().isEnable()) {
-            config.getTitle().getLists().forEach((channelId, channelConfig) -> {
-                TitleNotification titleNotification = new TitleNotification(
-                        channelId, channelConfig.getPeriod(),
-                        channelConfig.getMessages()
-                                .stream()
-                                .map(titleConfig -> new TitleNotificationMessage(
-                                        titleConfig.getTitle(),
-                                        titleConfig.getSubtitle()))
-                                .collect(Collectors.toList()),
-                        channelConfig.isPermissionRequired(),
-                        channelConfig.isRandomOrder(),
-                        channelConfig.isPlaySound() ? channelConfig.getSound() : null,
-                        audiences,
-                        placeholdersComponentTransformer);
-                ticker.addNotification(titleNotification);
-            });
+            config.getTitle().getLists().forEach((channelId, channelConfig) ->
+                    addChannel(ticker, logger, "title", channelId, () -> new TitleNotification(
+                            channelId, channelConfig.getPeriod(),
+                            channelConfig.getMessages()
+                                    .stream()
+                                    .map(titleConfig -> new TitleNotificationMessage(
+                                            titleConfig.getTitle(),
+                                            titleConfig.getSubtitle()))
+                                    .collect(Collectors.toList()),
+                            channelConfig.isPermissionRequired(),
+                            channelConfig.isRandomOrder(),
+                            channelConfig.isPlaySound() ? channelConfig.getSound() : null,
+                            audiences,
+                            placeholdersComponentTransformer)));
         }
     }
 
@@ -119,18 +144,17 @@ public final class ConfigsLoader {
     public void loadChatNotifications(NotificationTicker ticker,
                                       NotificationsConfig config,
                                       BukkitAudiences audiences,
-                                      PlaceholdersComponentTransformer placeholdersComponentTransformer) {
+                                      PlaceholdersComponentTransformer placeholdersComponentTransformer,
+                                      Logger logger) {
         if (config.getChat().isEnable()) {
-            config.getChat().getLists().forEach((channelId, channelConfig) -> {
-                ChatNotification chatNotification = new ChatNotification(
-                        channelId, channelConfig.getPeriod(),
-                        channelConfig.getMessages(),
-                        channelConfig.isPermissionRequired(), channelConfig.isRandomOrder(),
-                        channelConfig.isPlaySound() ? channelConfig.getSound() : null,
-                        audiences,
-                        placeholdersComponentTransformer);
-                ticker.addNotification(chatNotification);
-            });
+            config.getChat().getLists().forEach((channelId, channelConfig) ->
+                    addChannel(ticker, logger, "chat", channelId, () -> new ChatNotification(
+                            channelId, channelConfig.getPeriod(),
+                            channelConfig.getMessages(),
+                            channelConfig.isPermissionRequired(), channelConfig.isRandomOrder(),
+                            channelConfig.isPlaySound() ? channelConfig.getSound() : null,
+                            audiences,
+                            placeholdersComponentTransformer)));
         }
     }
 
@@ -149,19 +173,20 @@ public final class ConfigsLoader {
     public void loadActionbarNotifications(NotificationTicker ticker,
                                            NotificationsConfig config,
                                            BukkitAudiences audiences,
-                                           PlaceholdersComponentTransformer placeholdersComponentTransformer) {
+                                           PlaceholdersComponentTransformer placeholdersComponentTransformer,
+                                      Logger logger) {
         if (config.getActionbar().isEnable()) {
             config.getActionbar()
-                    .getLists().forEach((channelId, channelConfig) -> {
-                        ActionbarNotification actionbarNotification = new ActionbarNotification(
-                                channelId, channelConfig.getPeriod(), channelConfig.getStay(),
-                                channelConfig.getMessages(),
-                                channelConfig.isPermissionRequired(), channelConfig.isRandomOrder(),
-                                channelConfig.isPlaySound() ? channelConfig.getSound() : null,
-                                audiences,
-                                placeholdersComponentTransformer);
-                        ticker.addNotification(actionbarNotification);
-                    });
+                    .getLists().forEach((channelId, channelConfig) ->
+                            addChannel(ticker, logger, "action bar", channelId,
+                                    () -> new ActionbarNotification(
+                                            channelId, channelConfig.getPeriod(), channelConfig.getStay(),
+                                            channelConfig.getMessages(),
+                                            channelConfig.isPermissionRequired(),
+                                            channelConfig.isRandomOrder(),
+                                            channelConfig.isPlaySound() ? channelConfig.getSound() : null,
+                                            audiences,
+                                            placeholdersComponentTransformer)));
         }
     }
 
