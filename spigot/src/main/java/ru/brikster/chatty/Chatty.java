@@ -79,8 +79,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -89,6 +91,10 @@ import java.util.logging.Level;
 public final class Chatty extends JavaPlugin {
 
     private final Map<String, ProxyingCommandHandler<CommandSender>> proxyingCommandHandlerMap = new ConcurrentHashMap<>();
+
+    // Chat commands currently registered, mapped to the aliases they were
+    // registered with, so a reload can tell which ones actually changed.
+    private final Map<String, List<String>> chatCommandRoots = new LinkedHashMap<>();
 
     private Injector injector;
 
@@ -308,6 +314,9 @@ public final class Chatty extends JavaPlugin {
         MuteCommandHandler muteCommandHandler = injector.getInstance(MuteCommandHandler.class);
         registerProxyingHandler("mute", muteCommandHandler);
 
+        ChatCommandHandler chatCommandHandler = injector.getInstance(ChatCommandHandler.class);
+        registerProxyingHandler("chat", chatCommandHandler);
+
         if (this.asyncCommandManager == null) {
             initAsyncCommandManager();
             if (pmConfig.isEnable()) {
@@ -316,6 +325,12 @@ public final class Chatty extends JavaPlugin {
             registerIgnoreCommand(commandSuggestionsProvider);
             registerMiscCommands();
             registerMuteCommands();
+        }
+
+        // Skipped on the first pass, where the command manager does not exist
+        // yet; onEnable calls it once the manager is up.
+        if (syncCommandManager != null) {
+            registerChatCommands();
         }
 
         ChattyApiImpl.updateInstance(new ChattyApiImpl(injector.getInstance(ChatRegistry.class).getChats()));
@@ -443,26 +458,59 @@ public final class Chatty extends JavaPlugin {
                 .build());
     }
 
+    /**
+     * Registers the per-chat commands from chats.yml, and on a reload changes
+     * only what the configuration changed.
+     *
+     * <p>Registrations that still match are left alone on purpose. The command
+     * framework refuses an alias that already sits in Bukkit's command map and
+     * deleting a command does not take its aliases back out, so re-registering
+     * an unchanged command would silently lose them.
+     */
     private void registerChatCommands() {
-        ChatCommandHandler handler = injector.getInstance(ChatCommandHandler.class);
+        Map<String, List<String>> wanted = new LinkedHashMap<>();
+        Map<String, String> chatOfCommand = new LinkedHashMap<>();
         for (Chat chat : injector.getInstance(ChatRegistry.class).getChats().values()) {
             ChatCommand chatCommand = chat.getCommand();
-            if (chatCommand == null) {
+            if (chatCommand != null) {
+                wanted.put(chatCommand.getName(), new ArrayList<>(chatCommand.getAliases()));
+                chatOfCommand.put(chatCommand.getName(), chat.getId());
+            }
+        }
+
+        for (Map.Entry<String, List<String>> registered : new ArrayList<>(chatCommandRoots.entrySet())) {
+            String name = registered.getKey();
+            if (registered.getValue().equals(wanted.get(name))) {
                 continue;
             }
-            String[] aliases = chatCommand.getAliases().toArray(new String[0]);
+            try {
+                syncCommandManager.deleteRootCommand(name);
+            } catch (Throwable t) {
+                getLogger().log(Level.FINE, "Could not unregister chat command /" + name, t);
+            }
+            chatCommandRoots.remove(name);
+            getLogger().log(Level.INFO, "Unregistered chat command /{0}", name);
+        }
+
+        ProxyingCommandHandler<CommandSender> handler = proxyingCommandHandlerMap.get("chat");
+        wanted.forEach((name, aliases) -> {
+            if (chatCommandRoots.containsKey(name)) {
+                return;
+            }
+            String chatId = chatOfCommand.get(name);
             syncCommandManager.command(syncCommandManager
-                    .commandBuilder(chatCommand.getName(), aliases)
+                    .commandBuilder(name, aliases.toArray(new String[0]))
                     .senderType(Player.class)
                     .argument(StringArgument.<CommandSender>builder("message").greedy().asOptional().build())
                     .handler(context -> {
-                        context.set("chat-id", chat.getId());
+                        context.set("chat-id", chatId);
                         handler.execute(context);
                     })
                     .build());
+            chatCommandRoots.put(name, aliases);
             getLogger().log(Level.INFO, "Registered chat command /{0} for chat \"{1}\"",
-                    new Object[]{chatCommand.getName(), chat.getId()});
-        }
+                    new Object[]{name, chatId});
+        });
     }
 
     private void registerMiscCommands() {
