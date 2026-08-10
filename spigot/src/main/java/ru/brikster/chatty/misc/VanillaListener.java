@@ -14,6 +14,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import ru.brikster.chatty.chat.component.context.SinglePlayerTransformContext;
 import ru.brikster.chatty.chat.component.impl.PlaceholdersComponentTransformer;
 import ru.brikster.chatty.chat.component.impl.prefix.PrefixComponentTransformer;
+import ru.brikster.chatty.chat.LastMessageState;
 import ru.brikster.chatty.chat.selection.ChatSelectionState;
 import ru.brikster.chatty.config.file.MessagesConfig;
 import ru.brikster.chatty.config.file.VanillaConfig;
@@ -32,6 +33,7 @@ public final class VanillaListener implements Listener {
     @Inject private MessagesConfig messages;
     @Inject private BukkitAudiences audiences;
     @Inject private ChatSelectionState chatSelectionState;
+    @Inject private LastMessageState lastMessageState;
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onJoin(PlayerJoinEvent event) {
@@ -80,6 +82,7 @@ public final class VanillaListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onQuit(PlayerQuitEvent event) {
         chatSelectionState.forget(event.getPlayer().getUniqueId());
+        lastMessageState.forget(event.getPlayer().getUniqueId());
 
         QuitVanillaConfig quitConfig = vanillaConfig.getQuit();
 

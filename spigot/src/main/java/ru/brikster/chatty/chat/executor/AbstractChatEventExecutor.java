@@ -7,6 +7,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.jetbrains.annotations.NotNull;
@@ -17,6 +18,7 @@ import ru.brikster.chatty.api.chat.message.context.MessageContextKeys;
 import ru.brikster.chatty.api.chat.message.strategy.MessageTransformStrategy.Stage;
 import ru.brikster.chatty.api.event.ChattyMessageEvent;
 import ru.brikster.chatty.api.event.ChattyPreMessageEvent;
+import ru.brikster.chatty.chat.LastMessageState;
 import ru.brikster.chatty.chat.construct.ComponentFromContextConstructor;
 import ru.brikster.chatty.chat.message.context.MessageContextImpl;
 import ru.brikster.chatty.chat.message.transform.intermediary.IntermediateMessageTransformer;
@@ -60,6 +62,7 @@ public abstract class AbstractChatEventExecutor implements Listener {
     @Inject protected Logger logger;
     @Inject protected ProxyService proxyService;
     @Inject protected ChatStylePlayerGrouper chatStylePlayerGrouper;
+    @Inject protected LastMessageState lastMessageState;
 
     protected final void handleEarly(ChatEventFacade event, int eventHashcode) {
         boolean processed = false;
@@ -206,6 +209,8 @@ public abstract class AbstractChatEventExecutor implements Listener {
             middleContext.setMessageFormat(preMessageEvent.getMessageFormat());
             middleContext.setMessage(preMessageEvent.getMessage());
 
+            rememberForPlaceholders(middleContext);
+
             Set<ChatStyle> styles = preMessageEvent.getStyles();
 
             ChattyMessageEvent messageEvent = new ChattyMessageEvent(
@@ -274,6 +279,36 @@ public abstract class AbstractChatEventExecutor implements Listener {
                     event.setRecipients(untouchedRecipients);
                 }
             }
+        }
+    }
+
+    /**
+     * Records what the sender said and who they aimed it at, for
+     * %chatty_player_message% and %chatty_targetname%.
+     */
+    private void rememberForPlaceholders(MessageContext<Component> context) {
+        String message = PlainTextComponentSerializer.plainText().serialize(context.getMessage());
+        Player sender = context.getSender();
+
+        String targetName = sender.getName();
+        for (Player candidate : context.getRecipients()) {
+            if (candidate != sender && mentionsPlayer(message, candidate)) {
+                targetName = candidate.getName();
+                break;
+            }
+        }
+
+        lastMessageState.remember(sender.getUniqueId(), message, targetName);
+    }
+
+    private boolean mentionsPlayer(String message, Player player) {
+        String plainName = ChatColor.stripColor(player.getDisplayName());
+        String pattern = settings.getMentions().getPattern()
+                .replace("{username}", Pattern.quote(plainName));
+        try {
+            return Pattern.compile(pattern).matcher(message).find();
+        } catch (Throwable t) {
+            return false;
         }
     }
 

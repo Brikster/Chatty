@@ -6,6 +6,8 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import ru.brikster.chatty.api.chat.Chat;
+import ru.brikster.chatty.chat.LastMessageState;
+import ru.brikster.chatty.chat.LastMessageState.LastMessage;
 import ru.brikster.chatty.chat.registry.ChatRegistry;
 import ru.brikster.chatty.chat.selection.ChatSelectionState;
 import ru.brikster.chatty.prefix.PrefixProvider;
@@ -23,6 +25,7 @@ public class ChattyPlaceholderApiExpansion extends PlaceholderExpansion implemen
     @Inject private PrefixProvider prefixProvider;
     @Inject private ChatRegistry chatRegistry;
     @Inject private ChatSelectionState selectionState;
+    @Inject private LastMessageState lastMessageState;
 
     @Override
     public String getIdentifier() {
@@ -73,6 +76,10 @@ public class ChattyPlaceholderApiExpansion extends PlaceholderExpansion implemen
                 return currentChat(online) == null ? "" : String.valueOf(currentChat(online).getRange());
             case "spy":
                 return Boolean.toString(playerDataRepository.isEnableSpy(online.getUniqueId()));
+            case "player_message":
+                return lastMessage(online) == null ? "" : lastMessage(online).getMessage();
+            case "targetname":
+                return lastMessage(online) == null ? online.getName() : lastMessage(online).getTargetName();
             default:
                 break;
         }
@@ -100,6 +107,10 @@ public class ChattyPlaceholderApiExpansion extends PlaceholderExpansion implemen
                     .isIgnoredPlayer(one.getUniqueId(), two.getUniqueId()));
         }
         return null;
+    }
+
+    private LastMessage lastMessage(Player player) {
+        return lastMessageState.get(player.getUniqueId());
     }
 
     private Chat currentChat(Player player) {

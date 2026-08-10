@@ -91,10 +91,24 @@ Discord bridges and anything else can read it:
 | `%chatty_chat_displayname_<id>%` | the display name of a named chat |
 | `%chatty_prefix%` / `%chatty_suffix%` | the prefix and suffix Chatty resolves for the player |
 | `%chatty_spy%` | whether spy mode is on |
+| `%chatty_player_message%` | the last message the player sent through Chatty |
+| `%chatty_targetname%` | who that message named, or the player themselves |
 | `%rel_chatty_ignore%` | whether the first player ignores the second |
 
 `%chatty_prefix%` is empty unless Vault or LuckPerms is installed, because that
 is where the prefix comes from.
+
+The last two describe the message a player just sent, so a command run
+afterwards can quote it — a Discord bridge, or a punishment naming what was
+said:
+
+```
+/discordsrv broadcast <channel> %chatty_targetname% » %chatty_player_message%
+/cmi jail %player_name% said: %chatty_player_message% 2h
+```
+
+`%chatty_targetname%` is the first player mentioned in that message; with no
+mention it is the sender, so it is never empty for an online player.
 
 ## Using the API
 
