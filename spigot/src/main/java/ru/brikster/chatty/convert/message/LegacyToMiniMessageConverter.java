@@ -20,8 +20,16 @@ public final class LegacyToMiniMessageConverter implements MessageConverter {
     private static final Pattern SECTION_SPIGOT_HEX_COLOR_PATTERN = Pattern.compile("(?i)§X(§[A-F\\d]){6}");
     private static final Pattern SECTION_PAPER_HEX_COLOR_PATTERN = Pattern.compile("(?i)§#([A-F\\d]){6}");
 
-    private static final Pattern CHATTY_HEX_COLOR_PATTERN = Pattern.compile("(?i)\\{#([A-F\\d]{6})}");
-    private static final Pattern CHATTY_HEX_GRADIENT_PATTERN = Pattern.compile("(?i)\\{#([A-F\\d]{6})(:#([A-F\\d]{6}))+( )([^{}])*(})");
+    // The "&" is optional: CMI and LuckPerms write {&#RRGGBB} where Chatty
+    // writes {#RRGGBB}, and both reach the same colour.
+    private static final Pattern CHATTY_HEX_COLOR_PATTERN = Pattern.compile("(?i)\\{&?#([A-F\\d]{6})}");
+    private static final Pattern CHATTY_HEX_GRADIENT_PATTERN = Pattern.compile("(?i)\\{&?#([A-F\\d]{6})(:&?#([A-F\\d]{6}))+( )([^{}])*(})");
+
+    // CMI spells a gradient by wrapping the text: {#RRGGBB>}text{#RRGGBB<}.
+    // Extra {#RRGGBB>} markers inside become additional stops.
+    private static final Pattern CMI_GRADIENT_PATTERN = Pattern.compile(
+            "(?i)\\{&?#([A-F\\d]{6})>}(.*?)\\{&?#([A-F\\d]{6})<}", Pattern.DOTALL);
+    private static final Pattern CMI_GRADIENT_STOP_PATTERN = Pattern.compile("(?i)\\{&?#([A-F\\d]{6})>}");
 
     private static final Pattern COLOR_SYMBOLS_PATTERN = Pattern.compile("[§&]");
 
@@ -57,7 +65,8 @@ public final class LegacyToMiniMessageConverter implements MessageConverter {
     @Override
     public @NotNull String convert(@NotNull String message) {
         String convertedMessage;
-        convertedMessage = convertChattyCodes(message);
+        convertedMessage = convertCmiGradients(message);
+        convertedMessage = convertChattyCodes(convertedMessage);
         convertedMessage = convertChattyHexCodes(convertedMessage);
         convertedMessage = convertPaperHexCodes(convertedMessage, PAPER_HEX_COLOR_PATTERN);
         convertedMessage = convertSpigotHexCodes(convertedMessage, SPIGOT_HEX_COLOR_PATTERN);
@@ -95,6 +104,31 @@ public final class LegacyToMiniMessageConverter implements MessageConverter {
         return builder.toString();
     }
 
+    private @NotNull String convertCmiGradients(@NotNull String message) {
+        Matcher matcher = CMI_GRADIENT_PATTERN.matcher(message);
+
+        StringBuilder builder = new StringBuilder();
+        while (matcher.find()) {
+            StringBuilder stops = new StringBuilder("#").append(matcher.group(1));
+
+            Matcher inner = CMI_GRADIENT_STOP_PATTERN.matcher(matcher.group(2));
+            StringBuilder text = new StringBuilder();
+            while (inner.find()) {
+                stops.append(":#").append(inner.group(1));
+                inner.appendReplacement(text, "");
+            }
+            inner.appendTail(text);
+
+            stops.append(":#").append(matcher.group(3));
+
+            matcher.appendReplacement(builder, Matcher.quoteReplacement(
+                    RESET_TAGS + "<gradient:" + stops + ">" + text + "</gradient>"));
+        }
+        matcher.appendTail(builder);
+
+        return builder.toString();
+    }
+
     private @NotNull String convertChattyCodes(@NotNull String message) {
         Matcher matcher = CHATTY_HEX_GRADIENT_PATTERN.matcher(message);
 
@@ -104,7 +138,8 @@ public final class LegacyToMiniMessageConverter implements MessageConverter {
             String codes = group.substring(1, group.indexOf(' '));
             String text = group.substring(group.indexOf(' ') + 1, group.length() - 1);
 
-            matcher.appendReplacement(builder, RESET_TAGS + "<gradient:" + codes + ">" + text + "</gradient>");
+            matcher.appendReplacement(builder, Matcher.quoteReplacement(
+                    RESET_TAGS + "<gradient:" + codes.replace("&", "") + ">" + text + "</gradient>"));
         }
         matcher.appendTail(builder);
 
@@ -116,7 +151,7 @@ public final class LegacyToMiniMessageConverter implements MessageConverter {
 
         StringBuilder builder = new StringBuilder();
         while (matcher.find()) {
-            matcher.appendReplacement(builder, RESET_TAGS + "<color:#" + matcher.group().substring(2, 8) + ">");
+            matcher.appendReplacement(builder, RESET_TAGS + "<color:#" + matcher.group(1) + ">");
         }
         matcher.appendTail(builder);
 

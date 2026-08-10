@@ -27,6 +27,7 @@ class SupportedFormatsTest {
             "&#FF0000red",              // Paper hex
             "&x&f&f&0&0&0&0red",        // Spigot hex
             "{#FF0000}red",             // Chatty hex
+            "{&#FF0000}red",            // CMI / LuckPerms hex
             "<#FF0000>red",             // MiniMessage hex
             "<color:#FF0000>red</color>",
     })
@@ -47,6 +48,9 @@ class SupportedFormatsTest {
             "<gradient:#FF0000:#0000FF>two stops</gradient>",
             "<gradient:#FF0000:#00FF00:#0000FF>three stops</gradient>",
             "{#FF0000:#0000FF chatty gradient}",
+            "{#FF0000>}cmi gradient{#0000FF<}",
+            "{&#FF0000>}cmi gradient with ampersand{&#0000FF<}",
+            "{#FF0000>}three{#00FF00>}stop{#0000FF<}",
             "<rainbow>rainbow</rainbow>",
     })
     void gradientsSpreadColourAcrossTheText(String input) {
@@ -89,11 +93,34 @@ class SupportedFormatsTest {
     }
 
     @Test
-    void theCmiGradientSpellingIsNotSupported() {
-        String input = "{#FF0000>}text{#0000FF<}";
-        assertEquals(input, plain(convert(input)),
-                "CMI writes gradients as {#hex>}text{#hex<}; Chatty passes it through"
-                        + " untouched, so change this test deliberately if that changes");
+    void theCmiGradientKeepsOnlyTheTextItWrapped() {
+        assertEquals("text", plain(convert("{#FF0000>}text{#0000FF<}")),
+                "the markers themselves must not reach the player");
+        assertEquals("threestop", plain(convert("{#FF0000>}three{#00FF00>}stop{#0000FF<}")),
+                "an inner marker adds a stop and disappears");
+    }
+
+    @Test
+    void theCmiGradientRunsBetweenTheColoursItNames() {
+        String json = json(convert("{#FF0000>}ab{#0000FF<}"));
+        assertTrue(json.contains("#FF0000"), "the opening colour is the first stop");
+        assertTrue(json.contains("#0000FF"), "the closing colour is the last stop");
+    }
+
+    @Test
+    void aBraceCodeDoesNotLeaveItsBraceInTheMessage() {
+        assertEquals("red", plain(convert("{&#FF0000}red")),
+                "the closing brace used to leak into the message");
+        assertEquals("red", plain(convert("{#FF0000}red")));
+    }
+
+    @Test
+    void textInsideAGradientIsNotTreatedAsARegexReplacement() {
+        // appendReplacement reads $1 as a group reference, so an unquoted
+        // replacement silently swapped the player's text for a capture.
+        assertEquals("cost $1 today", plain(convert("{#FF0000:#0000FF cost $1 today}")));
+        assertEquals("a$1b", plain(convert("{#FF0000>}a$1b{#0000FF<}")));
+        assertEquals("back\\slash", plain(convert("{#FF0000>}back\\slash{#0000FF<}")));
     }
 
     private Component convert(String input) {
