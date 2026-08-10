@@ -1,8 +1,6 @@
 package ru.brikster.chatty.notification.advancement;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.advancement.Advancement;
@@ -23,7 +21,6 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -31,7 +28,6 @@ import java.util.logging.Logger;
 @Singleton
 public final class AdvancementToaster {
 
-    private static final String CRITERION = "chatty";
     private static final String KEY_PREFIX = "notification/";
     private static final String ROOT_KEY = KEY_PREFIX + "root";
     private static final long REVOKE_DELAY_TICKS = 2L;
@@ -48,9 +44,10 @@ public final class AdvancementToaster {
                                           @NotNull AdvancementFrame frame) {
         NamespacedKey root = registerRoot();
 
-        Component heading = heading(title, subtitle);
+        Component heading = AdvancementJson.heading(title, subtitle);
         NamespacedKey key = new NamespacedKey(plugin,
-                KEY_PREFIX + sanitize(id) + "_" + fingerprint(heading, icon, frame));
+                KEY_PREFIX + AdvancementJson.sanitize(id)
+                        + "_" + AdvancementJson.fingerprint(heading, icon, frame));
 
         Advancement existing = Bukkit.getAdvancement(key);
         if (existing != null) {
@@ -61,7 +58,8 @@ public final class AdvancementToaster {
         Throwable modernFailure;
         try {
             Advancement advancement = Bukkit.getUnsafe()
-                    .loadAdvancement(key, json(root, heading, icon, frame, true));
+                    .loadAdvancement(key,
+                            AdvancementJson.toast(root.toString(), heading, icon, frame, true));
             registered.add(key);
             return advancement;
         } catch (Throwable t) {
@@ -70,7 +68,8 @@ public final class AdvancementToaster {
 
         try {
             Advancement advancement = Bukkit.getUnsafe()
-                    .loadAdvancement(key, json(root, heading, icon, frame, false));
+                    .loadAdvancement(key,
+                            AdvancementJson.toast(root.toString(), heading, icon, frame, false));
             registered.add(key);
             return advancement;
         } catch (Throwable legacyFailure) {
@@ -84,12 +83,12 @@ public final class AdvancementToaster {
     public void show(@NotNull Player player, @NotNull Advancement advancement) {
         SchedulerUtil.runForPlayer(plugin, player, () -> {
             AdvancementProgress progress = player.getAdvancementProgress(advancement);
-            if (progress.getAwardedCriteria().contains(CRITERION)) {
+            if (progress.getAwardedCriteria().contains(AdvancementJson.CRITERION)) {
                 return;
             }
-            progress.awardCriteria(CRITERION);
+            progress.awardCriteria(AdvancementJson.CRITERION);
             SchedulerUtil.runForPlayerLater(plugin, player,
-                    () -> player.getAdvancementProgress(advancement).revokeCriteria(CRITERION),
+                    () -> player.getAdvancementProgress(advancement).revokeCriteria(AdvancementJson.CRITERION),
                     REVOKE_DELAY_TICKS);
         });
     }
@@ -176,32 +175,13 @@ public final class AdvancementToaster {
         return new NamespacedKey(plugin, "x").getNamespace();
     }
 
-    private static Component heading(Component title, Component subtitle) {
-        if (PlainTextComponentSerializer.plainText().serialize(subtitle).isEmpty()) {
-            return title;
-        }
-        return Component.text().append(title).append(Component.newline()).append(subtitle).build();
-    }
-
-    private static String fingerprint(Component heading, String icon, AdvancementFrame frame) {
-        String source = GsonComponentSerializer.gson().serialize(heading)
-                + ' ' + icon + ' ' + frame.name();
-        return Integer.toHexString(source.hashCode());
-    }
-
-    /**
-     * Registers the parent every toast hangs from. It carries no display, and a
-     * root without one gets no tab in the advancement screen - which is the
-     * point: a toast registered as its own root makes a tab appear for as long
-     * as the criterion is awarded, and blink away when it is revoked.
-     */
     private NamespacedKey registerRoot() {
         NamespacedKey key = new NamespacedKey(plugin, ROOT_KEY);
         registered.add(key);
 
         if (Bukkit.getAdvancement(key) == null) {
             try {
-                Bukkit.getUnsafe().loadAdvancement(key, CRITERIA_ONLY);
+                Bukkit.getUnsafe().loadAdvancement(key, AdvancementJson.root());
             } catch (Throwable t) {
                 logger.log(Level.FINE, "Cannot register the toast root " + key, t);
             }
@@ -209,35 +189,5 @@ public final class AdvancementToaster {
         return key;
     }
 
-    private static String json(NamespacedKey parent, Component heading, String icon,
-                               AdvancementFrame frame, boolean modernIcon) {
-        GsonComponentSerializer gson = GsonComponentSerializer.gson();
-        String iconField = modernIcon ? "id" : "item";
-
-        return "{\"parent\":\"" + parent + "\","
-                + "\"display\":{"
-                + "\"icon\":{\"" + iconField + "\":\"" + icon + "\"},"
-                + "\"title\":" + gson.serialize(heading) + ","
-                + "\"description\":{\"text\":\"\"},"
-                + "\"frame\":\"" + frame.name().toLowerCase(Locale.ROOT) + "\","
-                + "\"show_toast\":true,"
-                + "\"announce_to_chat\":false,"
-                + "\"hidden\":true},"
-                + "\"criteria\":{\"" + CRITERION + "\":{\"trigger\":\"minecraft:impossible\"}},"
-                + "\"requirements\":[[\"" + CRITERION + "\"]]}";
-    }
-
-    private static final String CRITERIA_ONLY =
-            "{\"criteria\":{\"" + CRITERION + "\":{\"trigger\":\"minecraft:impossible\"}},"
-                    + "\"requirements\":[[\"" + CRITERION + "\"]]}";
-
-    private static String sanitize(String id) {
-        StringBuilder builder = new StringBuilder();
-        for (char c : id.toLowerCase(Locale.ROOT).toCharArray()) {
-            builder.append((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9')
-                    || c == '_' || c == '-' || c == '.' ? c : '_');
-        }
-        return builder.toString();
-    }
 
 }

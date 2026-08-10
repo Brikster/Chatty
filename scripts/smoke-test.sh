@@ -11,6 +11,9 @@
 #                             path and the isolated SQLite driver
 #   D. DiscordSRV coexist  -> Chatty and DiscordSRV initialise cleanly side by
 #                             side, with no classloader or dependency clash
+#   E. Folia               -> the plugin enables and processes chat on Folia,
+#                             and its toast notifications take the regionised
+#                             scheduler instead of the Bukkit one
 #
 # Requirements: bash, curl, python3, and a JDK the target server accepts
 # (point JAVA_HOME at it: 21 for 1.21.x, 11 for 1.16.5, 25 for 26.x).
@@ -30,6 +33,12 @@ LEGACY_MC_VERSION="${LEGACY_MC_VERSION:-1.8.8}"
 # and LEGACY_SCENARIO=0 to skip the 1.8.8 lane when a matrix covers it elsewhere.
 CHAT_TEST="${CHAT_TEST:-1}"
 LEGACY_SCENARIO="${LEGACY_SCENARIO:-1}"
+# Folia is a separate server: set FOLIA_SCENARIO=0 to skip that lane.
+FOLIA_SCENARIO="${FOLIA_SCENARIO:-1}"
+FOLIA_MC_VERSION="${FOLIA_MC_VERSION:-$MC_VERSION}"
+# Folia spins up a thread pool per region and wants more headroom than Paper.
+SERVER_MEMORY="${SERVER_MEMORY:-1G}"
+FOLIA_MEMORY="${FOLIA_MEMORY:-2G}"
 CHAT_TEST_SKIP_REASON="disabled with CHAT_TEST=0"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # Kept under build/ (git-ignored) so logs survive for inspection / CI artifacts.
@@ -38,12 +47,16 @@ BOT_TOOLS="$ROOT/build/bot-tools"   # cached node_modules for the chat test
 JDK_TOOLS="$ROOT/build/jdk-tools"   # cached Java 11 runtime for the legacy server
 SERVER="$WORK/server"
 LEGACY_SERVER="$WORK/legacy-server"
+FOLIA_SERVER="$WORK/folia-server"
 LEGACY_JAVA_BIN=""
 SERVER_PID=""
 HOLDER_PID=""
 
 JAVA_BIN="java"
 [ -n "${JAVA_HOME:-}" ] && JAVA_BIN="$JAVA_HOME/bin/java"
+# Kept because the legacy scenario points JAVA_BIN at an older runtime and
+# later scenarios need the modern one back.
+MODERN_JAVA_BIN="$JAVA_BIN"
 
 cleanup() {
     [ -n "$SERVER_PID" ] && kill -9 "$SERVER_PID" 2>/dev/null || true
@@ -60,18 +73,19 @@ fail() { printf '\n\033[31m✗ SMOKE TEST FAILED: %s\033[0m\n' "$*" >&2; exit 1;
 # PaperMC asks API clients to identify themselves with a descriptive agent.
 PAPER_USER_AGENT="User-Agent: Chatty-smoke-test (+https://github.com/Brikster/Chatty)"
 
-# Downloads the latest Paper build for a version.  $1 = version, $2 = output jar.
+# Downloads the latest build of a PaperMC project for a version.
+# $1 = version, $2 = output jar, $3 = project (paper by default, also folia).
 # Uses the v3 ("fill") API — the v2 API was sunset and now answers 410 Gone.
 # Builds come back newest first; prefer a stable one, falling back to the
 # newest of any channel for versions that have no stable build yet.
 download_paper() {
-    local version="$1" out="$2" build url
-    build="$(curl -fsSL -H "$PAPER_USER_AGENT" "https://fill.papermc.io/v3/projects/paper/versions/$version/builds" \
+    local version="$1" out="$2" project="${3:-paper}" build url
+    build="$(curl -fsSL -H "$PAPER_USER_AGENT" "https://fill.papermc.io/v3/projects/$project/versions/$version/builds" \
         | python3 -c 'import sys, json; builds = json.load(sys.stdin); build = next((b for b in builds if b["channel"] == "STABLE"), builds[0]); print(build["id"], build["downloads"]["server:default"]["url"])')"
     url="${build#* }"
     build="${build%% *}"
     curl -fsSL -H "$PAPER_USER_AGENT" -o "$out" "$url"
-    echo "Paper $version build $build"
+    echo "$project $version build $build"
 }
 
 # Downloads the latest DiscordSRV release jar.  $1 = output jar.
@@ -189,7 +203,7 @@ start_server() {
     sleep 1800 > "$pipe" &          # holds the stdin pipe open
     HOLDER_PID=$!
     disown "$HOLDER_PID" 2>/dev/null || true
-    ( cd "$SERVER" && exec "$JAVA_BIN" -Xmx1G -jar "$PAPER_JAR" nogui ) \
+    ( cd "$SERVER" && exec "$JAVA_BIN" -Xmx"$SERVER_MEMORY" -jar "$PAPER_JAR" nogui ) \
         < "$pipe" > "$logfile" 2>&1 &
     SERVER_PID=$!
 
@@ -246,6 +260,51 @@ run_with_timeout() {
     return 124
 }
 
+# Writes an "advancements" section that fires quickly, so the toast test does
+# not have to wait out the 600-second default.  $1 = plugin config directory.
+enable_toasts() {
+    local dir="$1"
+    python3 - "$dir/notifications.yml" <<'PYEOF'
+import io, sys
+
+path = sys.argv[1]
+text = io.open(path, encoding='utf-8').read()
+section = """advancements:
+  enable: true
+  lists:
+    default:
+      period: 5
+      messages:
+      - title: '&6Smoke toast'
+        subtitle: '&7second line'
+        icon: minecraft:diamond
+        frame: TASK
+      play-sound: false
+      permission-required: false
+      random-order: false
+"""
+marker = 'advancements:'
+text = (text[:text.index(marker)] if marker in text else text.rstrip() + '\n') + section
+io.open(path, 'w', encoding='utf-8').write(text)
+PYEOF
+}
+
+# Connects a bot and verifies the server awards a Chatty toast. $1 = server log.
+run_toast_test() {
+    local logfile="$1"
+    step "Waiting for a toast notification"
+    if ! run_with_timeout 120 env \
+            NODE_PATH="$BOT_TOOLS/node_modules" BOT_HOST=127.0.0.1 BOT_PORT=25565 \
+            node "$ROOT/scripts/toast-test.js"; then
+        grep -nE "toast|advancement|Exception" "$logfile" | tail -20 >&2
+        fail "toast notification test failed"
+    fi
+    echo "✓ toast notifications register and reach the client"
+}
+
+# Sends a command to the running server's console. $1 = command.
+console() { echo "$1" > "$WORK/stdin.pipe" 2>/dev/null || true; }
+
 # Connects two bots and sends real chat through the plugin. $1 = server log.
 run_chat_test() {
     local logfile="$1"
@@ -278,6 +337,26 @@ grep -q "Игрок" "$SERVER/plugins/Chatty/lang/ru-RU.yml" || fail "lang/ru-RU
 echo "✓ plugin enables and generates config (incl. lang files) on a fresh install"
 if [ "$CHAT_TEST" -eq 1 ]; then
     run_chat_test "$FRESH_LOG"
+
+    # Toasts are off by default, so switch them on and pick the new config up
+    # with a reload — which also exercises registering advancements a second
+    # time in one process, where the keys of the first round still exist.
+    enable_toasts "$SERVER/plugins/Chatty"
+    console "chatty reload"
+    sleep 6
+    grep -q "Cannot register the toast" "$FRESH_LOG" && {
+        grep -nE "Cannot register the toast" "$FRESH_LOG" | tail -5 >&2
+        fail "a toast could not be registered after a reload"
+    }
+    run_toast_test "$FRESH_LOG"
+
+    console "chatty reload"
+    sleep 6
+    grep -q "Cannot register the toast" "$FRESH_LOG" && {
+        grep -nE "Cannot register the toast" "$FRESH_LOG" | tail -5 >&2
+        fail "a toast could not be re-registered on a second reload"
+    }
+    echo "✓ toasts survive repeated reloads"
 else
     echo "• in-game chat test skipped ($CHAT_TEST_SKIP_REASON)"
 fi
@@ -403,6 +482,58 @@ EOF
     stop_server
 else
     echo "• legacy-server scenario skipped (disabled, or node/Java 11 unavailable)"
+fi
+
+# --- scenario E: Folia ------------------------------------------------------
+
+step "Scenario E — Folia ($FOLIA_MC_VERSION)"
+if [ "$FOLIA_SCENARIO" -eq 1 ] && [ "$CHAT_TEST" -eq 1 ] \
+        && download_paper "$FOLIA_MC_VERSION" "$WORK/folia.jar" folia; then
+    rm -rf "$FOLIA_SERVER"
+    mkdir -p "$FOLIA_SERVER/plugins"
+    echo "eula=true" > "$FOLIA_SERVER/eula.txt"
+    cat > "$FOLIA_SERVER/server.properties" <<'EOF'
+online-mode=false
+level-type=flat
+spawn-protection=0
+max-players=10
+EOF
+    cp "$JAR" "$FOLIA_SERVER/plugins/Chatty.jar"
+    cat > "$FOLIA_SERVER/ops.json" <<EOF
+[
+  {"uuid":"$(offline_uuid SmokeSender)","name":"SmokeSender","level":4,"bypassesPlayerLimit":false},
+  {"uuid":"$(offline_uuid SmokeTarget)","name":"SmokeTarget","level":4,"bypassesPlayerLimit":false}
+]
+EOF
+
+    SERVER="$FOLIA_SERVER"
+    PAPER_JAR="$WORK/folia.jar"
+    JAVA_BIN="$MODERN_JAVA_BIN"
+    SERVER_MEMORY="$FOLIA_MEMORY"
+    FOLIA_LOG="$WORK/folia.log"
+    start_server "$FOLIA_LOG"
+    assert_enabled "$FOLIA_LOG"
+    echo "✓ plugin enables on Folia"
+    run_chat_test "$FOLIA_LOG"
+
+    # Toasts are the one place Chatty needs a scheduler, and Folia answers the
+    # ordinary Bukkit scheduler with UnsupportedOperationException, so this is
+    # what proves the regionised path is taken.
+    enable_toasts "$SERVER/plugins/Chatty"
+    console "chatty reload"
+    sleep 6
+    run_toast_test "$FOLIA_LOG"
+
+    # Folia rejects main-thread assumptions loudly. Any of these means Chatty
+    # touched an API from the wrong thread or region.
+    if grep -qE "UnsupportedOperationException|Cannot schedule a task|Cannot schedule a delayed task|Thread failed main thread check|IllegalStateException: Asynchronous" "$FOLIA_LOG"; then
+        grep -nE "UnsupportedOperationException|Cannot schedule|main thread check|Asynchronous" "$FOLIA_LOG" | tail -20 >&2
+        fail "Chatty used a thread-unsafe API on Folia"
+    fi
+    echo "✓ no thread or scheduler violations on Folia"
+    stop_server
+else
+    echo "• Folia scenario skipped (disabled, node unavailable, or no Folia build for $FOLIA_MC_VERSION)"
 fi
 
 printf '\n\033[32m✓ SMOKE TEST PASSED\033[0m\n'

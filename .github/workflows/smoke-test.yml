@@ -17,16 +17,20 @@ jobs:
             server-java: '21'
             chat-test: '1'
             legacy-scenario: '1'
+            folia-scenario: '1'
           - mc: '1.16.5'
             server-java: '11'
             chat-test: '1'
             legacy-scenario: '0'
+            # Folia starts at 1.19 and needs Java 21, so not on this lane.
+            folia-scenario: '0'
           # mineflayer's minecraft-data stops at protocol 1.21.9, so this lane
           # verifies startup, migration and coexistence but cannot chat.
           - mc: '26.2'
             server-java: '25'
             chat-test: '0'
             legacy-scenario: '0'
+            folia-scenario: '0'
 
     name: ${{ matrix.mc }}
 
@@ -59,6 +63,7 @@ jobs:
           MC_VERSION: ${{ matrix.mc }}
           CHAT_TEST: ${{ matrix['chat-test'] }}
           LEGACY_SCENARIO: ${{ matrix['legacy-scenario'] }}
+          FOLIA_SCENARIO: ${{ matrix['folia-scenario'] }}
           JAVA_HOME: ${{ env[format('JAVA_HOME_{0}_X64', matrix['server-java'])] }}
 
       - name: Upload server logs on failure
