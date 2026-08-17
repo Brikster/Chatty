@@ -10,10 +10,13 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.checkerframework.checker.nullness.qual.NonNull;
+import ru.brikster.chatty.api.event.ChattyMuteEvent;
+import ru.brikster.chatty.api.event.ChattyUnmuteEvent;
 import ru.brikster.chatty.config.file.MessagesConfig;
 import ru.brikster.chatty.repository.player.Mute;
 import ru.brikster.chatty.repository.player.PlayerDataRepository;
 import ru.brikster.chatty.util.AdventureUtil;
+import ru.brikster.chatty.util.EventUtil;
 import ru.brikster.chatty.util.MuteFormatter;
 
 import javax.inject.Inject;
@@ -48,6 +51,12 @@ public final class MuteCommandHandler implements CommandExecutionHandler<Command
                         withPlayer(messages.getMuteCommandNotMuted(), targetName));
                 return;
             }
+            ChattyUnmuteEvent unmuteEvent = new ChattyUnmuteEvent(sender, targetUuid, targetName);
+            EventUtil.callAsynchronously(unmuteEvent);
+            if (unmuteEvent.isCancelled()) {
+                return;
+            }
+
             repository.clearMute(targetUuid);
             ChattyMessages.send(audiences.sender(sender),
                     withPlayer(messages.getMuteCommandUnmuted(), targetName));
@@ -66,9 +75,15 @@ public final class MuteCommandHandler implements CommandExecutionHandler<Command
             reason = split.length > 1 ? split[1] : null;
         }
 
-        Mute mute = millis == null
-                ? Mute.permanent(reason)
-                : new Mute(System.currentTimeMillis() + millis, reason);
+        long until = millis == null ? Mute.PERMANENT : System.currentTimeMillis() + millis;
+
+        ChattyMuteEvent muteEvent = new ChattyMuteEvent(sender, targetUuid, targetName, until, reason);
+        EventUtil.callAsynchronously(muteEvent);
+        if (muteEvent.isCancelled()) {
+            return;
+        }
+
+        Mute mute = new Mute(muteEvent.getUntil(), muteEvent.getReason());
 
         repository.createOrUpdateUser(targetUuid, targetName);
         repository.setMute(targetUuid, mute);

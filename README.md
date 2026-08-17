@@ -129,6 +129,36 @@ bundles its own copy to keep working on servers that have none. That is why it
 must be `compileOnly`: a second copy on your own classpath would be a different
 class to the JVM. Sources and javadoc jars are published alongside it.
 
+### Events
+
+| Event | When | Cancellable |
+| --- | --- | --- |
+| `ChattyInitEvent` | Chatty is starting, before it reads its configuration | no |
+| `ChattyPreMessageEvent` | a chat message is formatted, before it is sent | no |
+| `ChattyMessageEvent` | a chat message has been sent | no |
+| `ChattyMuteEvent` | a player is about to be muted | yes |
+| `ChattyUnmuteEvent` | a player's mute is about to be lifted | yes |
+
+All of them are fired off the main thread, so a listener must be marked
+accordingly and must not touch the Bukkit API directly.
+
+`ChattyMuteEvent` also lets a listener change the mute before it is stored —
+`setUntil` and `setReason` — so a punishment system can escalate a repeat
+offender:
+
+```java
+@EventHandler
+public void onMute(ChattyMuteEvent event) {
+    if (offences(event.getTargetUniqueId()) > 3) {
+        event.setUntil(ChattyMuteEvent.PERMANENT);
+        event.setReason("repeated offences");
+    }
+}
+```
+
+Cancelling either event leaves the player as they were and tells the sender
+nothing, so a plugin that vetoes a mute should say why itself.
+
 ## Platforms
 
 Paper, Spigot and Purpur from 1.8.8 up to 26.x, and Folia. Folia support is
