@@ -33,8 +33,12 @@ public class DependencyManager {
         }
 
         if (chatty.getServer().getPluginManager().isPluginEnabled("NametagEdit")) {
-            this.nametagEdit = new NametagEditHook(configuration, jsonStorage);
-            chatty.getLogger().log(Level.INFO, "NametagEdit has successful hooked.");
+            try {
+                this.nametagEdit = new NametagEditHook(configuration, jsonStorage);
+                chatty.getLogger().log(Level.INFO, "NametagEdit has successful hooked.");
+            } catch (ReflectiveOperationException | RuntimeException e) {
+                chatty.getLogger().log(Level.WARNING, "Cannot hook into this NametagEdit version", e);
+            }
         }
     }
 

@@ -1,6 +1,6 @@
 plugins {
-    id 'com.github.johnrengelman.shadow' version '6.1.0'
-    id 'xyz.jpenilla.run-paper' version '1.0.6'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id 'xyz.jpenilla.run-paper' version '2.3.0'
 }
 
 tasks {
@@ -37,7 +37,6 @@ dependencies {
     api 'org.bstats:bstats-bukkit:2.2.1'
 
     compileOnly 'net.milkbowl.vault:VaultAPI:1.7'
-    compileOnly 'me.clip:placeholderapi:2.10.6'
+    compileOnly 'me.clip:placeholderapi:2.11.6'
     compileOnly 'commons-io:commons-io:2.7'
-    compileOnly 'com.nametagedit:nametagedit:4.4.16'
 }
