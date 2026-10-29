@@ -539,6 +539,7 @@ public final class Chatty extends JavaPlugin {
     private void registerIgnoreCommand(CommandSuggestionsProvider<CommandSender> pmSuggestionsProvider) {
         Builder<CommandSender> ignoreCommandBuilder = asyncCommandManager
                  .commandBuilder("ignore")
+                 .senderType(Player.class)
                  .permission("chatty.command.ignore");
 
         Command<CommandSender> ignoreAddCommand = ignoreCommandBuilder
