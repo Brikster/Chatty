@@ -24,14 +24,13 @@ subprojects {
         maven { url = "https://hub.spigotmc.org/nexus/content/groups/public/" }
         maven { url = "https://repo.extendedclip.com/content/repositories/placeholderapi/" }
         maven { url = "https://repo.codemc.org/repository/maven-public" }
-        maven { url = "https://ci.nametagedit.com/plugin/repository/everything/"; allowInsecureProtocol = true }
     }
 
     dependencies {
         compileOnlyApi 'org.jetbrains:annotations:17.0.0'
 
-        compileOnly 'org.projectlombok:lombok:1.18.22'
-        annotationProcessor 'org.projectlombok:lombok:1.18.22'
+        compileOnly 'org.projectlombok:lombok:1.18.30'
+        annotationProcessor 'org.projectlombok:lombok:1.18.30'
 
         compileOnly 'org.spigotmc:spigot-api:1.19-R0.1-SNAPSHOT'
     }
