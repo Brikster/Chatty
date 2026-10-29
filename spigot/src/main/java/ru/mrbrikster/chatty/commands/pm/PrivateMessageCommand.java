@@ -138,7 +138,7 @@ public abstract class PrivateMessageCommand extends BukkitCommand {
                 senderName, senderPrefix, senderSuffix);
 
         if (!(sender instanceof Player)) {
-            TextUtil.stripHex(senderFormat);
+            senderFormat = TextUtil.stripHex(senderFormat);
         }
 
         sender.sendMessage(senderFormat);

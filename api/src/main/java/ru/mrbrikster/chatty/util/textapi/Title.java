@@ -81,6 +81,14 @@ public class Title {
      * @param player The player to send the title to.
      */
     public void send(Player player) {
+        if (SpigotChat.isTitleSupported()) {
+            SpigotChat.sendTitle(player,
+                    title == null ? null : title.toString(),
+                    subtitle == null ? null : subtitle.toString(),
+                    fadeIn, stay, fadeOut);
+            return;
+        }
+
         try {
             Object entityPlayer = player.getClass().getMethod("getHandle").invoke(player);
             Object playerConnection = NMSUtil.resolveField(entityPlayer.getClass(), "b", "playerConnection", "connection", "c", "field_71135_a").get(entityPlayer);

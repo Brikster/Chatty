@@ -79,6 +79,11 @@ public class NMSUtil {
     }
 
     public void sendChatPacket(Player player, String type, String text, @Nullable Player sender) {
+        if (SpigotChat.isChatSupported()) {
+            SpigotChat.sendChat(player, type, text, sender);
+            return;
+        }
+
         try {
             Class<?> clsIChatBaseComponent = NMS_CLASSES.get("IChatBaseComponent");
 
@@ -221,8 +226,14 @@ public class NMSUtil {
             this.path = path;
         }
 
+        /**
+         * @return the "v1_X_RY" part of the CraftBukkit package, or an empty
+         * string where the package is not versioned (Paper 1.20.5+)
+         */
         public static String getServerVersion() {
-            return Bukkit.getServer().getClass().getPackage().getName().substring(23);
+            String craftBukkitPackage = Bukkit.getServer().getClass().getPackage().getName();
+            int versionStart = "org.bukkit.craftbukkit.".length();
+            return craftBukkitPackage.length() > versionStart ? craftBukkitPackage.substring(versionStart) : "";
         }
 
         @Override
