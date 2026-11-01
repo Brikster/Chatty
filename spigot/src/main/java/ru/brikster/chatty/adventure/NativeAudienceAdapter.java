@@ -94,14 +94,9 @@ public final class NativeAudienceAdapter implements Audience {
 
             SEND_MESSAGE_METHOD = LOOKUP.findVirtual(audienceClass, "sendMessage",
                     MethodType.methodType(void.class, componentClass));
-            MethodHandle sendMessageWithIdentity;
-            try {
-                sendMessageWithIdentity = LOOKUP.findVirtual(audienceClass, "sendMessage",
-                        MethodType.methodType(void.class, identityClass, componentClass));
-            } catch (NoSuchMethodException e) {
-                sendMessageWithIdentity = null;
-            }
-            SEND_MESSAGE_WITH_IDENTITY_METHOD = sendMessageWithIdentity;
+            // The sendMessage(Identity, Component) method was removed in Adventure API 4.17.0+
+            // Paper/Purpur 1.21+ use newer Adventure versions that don't have this method
+            SEND_MESSAGE_WITH_IDENTITY_METHOD = null;
             SEND_ACTION_BAR_METHOD = LOOKUP.findVirtual(audienceClass, "sendActionBar",
                     MethodType.methodType(void.class, componentClass));
             PLAY_SOUND_METHOD = LOOKUP.findVirtual(audienceClass, "playSound",
