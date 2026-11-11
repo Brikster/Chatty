@@ -347,20 +347,20 @@ public abstract class AbstractChatEventExecutor implements Listener {
 
     private void sendNobodyHeardYou(ChatEventFacade event, MessageContext<Component> middleContext) {
         if (middleContext.getChat().isSendNobodyHeardYou()) {
-            Set<Player> allowedRecipients = new HashSet<>();
-            allowedRecipients.add(event.getPlayer());
+            Set<Player> allowedRecipients = new HashSet<>(middleContext.getRecipients());
+
+            allowedRecipients.remove(event.getPlayer());
+
+            if (settings.isHideVanishedRecipients()) {
+                allowedRecipients.removeIf(player -> !event.getPlayer().canSee(player));
+            }
 
             if (middleContext.getChat().isEnableSpy()) {
-                allowedRecipients.addAll(MessageContextKeys
+                allowedRecipients.removeAll(MessageContextKeys
                         .getPlayers(middleContext, MessageContextKeys.SPY_RECIPIENTS));
             }
 
-            if (settings.isHideVanishedRecipients()) {
-                allowedRecipients.removeIf(player -> player != event.getPlayer()
-                        && !event.getPlayer().canSee(player));
-            }
-
-            if (allowedRecipients.containsAll(middleContext.getRecipients())) {
+            if (allowedRecipients.isEmpty()) {
                 ChattyMessages.send(audiences.player(event.getPlayer()),
                         messages.getNobodyHeard());
             }
