@@ -11,6 +11,7 @@ import ru.brikster.chatty.api.chat.message.strategy.result.MessageTransformResul
 import ru.brikster.chatty.chat.message.transform.result.MessageTransformResultBuilder;
 import ru.brikster.chatty.config.file.MessagesConfig;
 import ru.brikster.chatty.util.AdventureUtil;
+import ru.brikster.chatty.util.ChattyMessages;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -36,11 +37,12 @@ public final class CooldownStrategy implements MessageTransformStrategy<String> 
 
         ChatCooldowns cooldowns = cooldownsByChat.computeIfAbsent(chat.getId(), id -> new ChatCooldowns(id, chat.getCooldown()));
         Player sender = context.getSender();
-        if (sender.hasPermission("chatty.bypass.cooldown") || sender.hasPermission(cooldowns.bypassPermission)) {
+        if (sender.hasPermission("chatty.bypass.cooldown")
+                || sender.hasPermission(cooldowns.bypassPermission)
+                || sender.hasPermission(cooldowns.legacyBypassPermission)) {
             return MessageTransformResultBuilder.<String>fromContext(context).build();
         }
 
-        // Keyed by UUID so the cooldown survives a rejoin, entries expire on their own once it ends
         long now = System.currentTimeMillis();
         Long previousMillis = cooldowns.lastMessageMillis.putIfAbsent(sender.getUniqueId(), now);
         if (previousMillis == null) {
@@ -49,9 +51,8 @@ public final class CooldownStrategy implements MessageTransformStrategy<String> 
 
         long millisLeft = previousMillis + cooldowns.cooldownMillis - now;
         long secondsLeft = Math.max(1, (millisLeft + 999) / 1000);
-        audiences.player(sender)
-                .sendMessage(messagesConfig.getWaitCooldown()
-                        .replaceText(AdventureUtil.createReplacement("{secondsLeft}", secondsLeft)));
+        ChattyMessages.send(audiences.player(sender), messagesConfig.getWaitCooldown()
+                .replaceText(AdventureUtil.createReplacement("{secondsLeft}", secondsLeft)));
         return MessageTransformResultBuilder.<String>fromContext(context)
                 .withCancelled()
                 .build();
@@ -65,11 +66,13 @@ public final class CooldownStrategy implements MessageTransformStrategy<String> 
     private static final class ChatCooldowns {
 
         private final String bypassPermission;
+        private final String legacyBypassPermission;
         private final long cooldownMillis;
         private final ConcurrentMap<UUID, Long> lastMessageMillis;
 
         private ChatCooldowns(String chatId, int cooldownSeconds) {
             this.bypassPermission = "chatty.bypass.cooldown." + chatId;
+            this.legacyBypassPermission = "chatty.cooldown." + chatId;
             this.cooldownMillis = cooldownSeconds * 1000L;
             this.lastMessageMillis = CacheBuilder.newBuilder()
                     .expireAfterWrite(cooldownMillis, TimeUnit.MILLISECONDS)
