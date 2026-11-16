@@ -16,7 +16,9 @@ import java.util.regex.Pattern;
 @UtilityClass
 public class TextUtil {
 
-    private final Pattern HEX_COLORS_PATTERN = Pattern.compile("\\{#([a-fA-F0-9]{6})}");
+    private final Pattern HEX_COLORS_PATTERN_1 = Pattern.compile("\\{#([a-fA-F0-9]{6})}");
+    private final Pattern HEX_COLORS_PATTERN_2 = Pattern.compile("&#([a-fA-F0-9]{6})");
+    private final Pattern HEX_COLORS_PATTERN_3 = Pattern.compile("#([a-fA-F0-9]{6})");
     private final Pattern HEX_GRADIENT_PATTERN = Pattern.compile("\\{#([a-fA-F0-9]{6})(:#([a-fA-F0-9]{6}))+( )([^{}])*(})");
     private final Pattern HEX_SPIGOT_PATTERN = Pattern.compile("§[xX](§[a-fA-F0-9]){6}");
 
@@ -143,9 +145,11 @@ public class TextUtil {
         }
 
         matcher.appendTail(stringBuffer);
+        // 1 hex color pattern
+        // {#12ABCD} text
         text = stringBuffer.toString();
 
-        matcher = HEX_COLORS_PATTERN.matcher(text);
+        matcher = HEX_COLORS_PATTERN_1.matcher(text);
         stringBuffer = new StringBuffer();
 
         while (matcher.find()) {
@@ -154,6 +158,33 @@ public class TextUtil {
         }
 
         matcher.appendTail(stringBuffer);
+        // 2 hex color pattern
+        // &#12ABCD text
+        text = stringBuffer.toString();
+
+        matcher = HEX_COLORS_PATTERN_2.matcher(text);
+        stringBuffer = new StringBuffer();
+
+        while (matcher.find()) {
+            String hexColorString = matcher.group();
+            matcher.appendReplacement(stringBuffer, ChatColor.of(hexColorString.substring(1)).toString());
+        }
+
+        matcher.appendTail(stringBuffer);
+        // 3 hex color pattern
+        // #12ABCD text
+        text = stringBuffer.toString();
+
+        matcher = HEX_COLORS_PATTERN_3.matcher(text);
+        stringBuffer = new StringBuffer();
+
+        while (matcher.find()) {
+            String hexColorString = matcher.group();
+            matcher.appendReplacement(stringBuffer, ChatColor.of(hexColorString).toString());
+        }
+
+        matcher.appendTail(stringBuffer);
+
 
         return ChatColor.translateAlternateColorCodes('&', stringBuffer.toString());
     }
