@@ -57,6 +57,9 @@ public class TextUtil {
         }
 
         Matcher matcher = HEX_SPIGOT_PATTERN.matcher(str);
+        if (matcher.find()) {
+            return str;
+        }
         return matcher.replaceAll("");
     }
 
